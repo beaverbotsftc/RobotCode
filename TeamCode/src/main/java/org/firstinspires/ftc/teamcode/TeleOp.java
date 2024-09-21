@@ -18,10 +18,10 @@ public class TeleOp extends LinearOpMode {
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
-        leftFrontDrive  = hardwareMap.get(DcMotor.class, "left_front_drive");
-        leftBackDrive  = hardwareMap.get(DcMotor.class, "left_back_drive");
-        rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
-        rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
+        leftFrontDrive  = hardwareMap.get(DcMotor.class, "left_front");
+        leftBackDrive  = hardwareMap.get(DcMotor.class, "left_back");
+        rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front");
+        rightBackDrive = hardwareMap.get(DcMotor.class, "right_back");
 
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -82,10 +82,10 @@ public class TeleOp extends LinearOpMode {
             */
 
             // Send calculated power to wheels
-            leftFrontDrive.setPower(0.05 * leftFrontPower);
-            rightFrontDrive.setPower(0.05 * rightFrontPower);
-            leftBackDrive.setPower(0.05 * leftBackPower);
-            rightBackDrive.setPower(0.05 * rightBackPower);
+            leftFrontDrive.setPower(0.3 * leftFrontPower);
+            rightFrontDrive.setPower(0.3 * rightFrontPower);
+            leftBackDrive.setPower(0.3 * leftBackPower);
+            rightBackDrive.setPower(0.3 * rightBackPower);
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
