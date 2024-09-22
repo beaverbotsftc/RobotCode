@@ -5,8 +5,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Basic: Omni Linear OpMode", group="Linear OpMode")
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="TeleOp")
 public class TeleOp extends LinearOpMode {
+    private final double slowSpeed = 0.3;
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor leftFrontDrive = null;
     private DcMotor leftBackDrive = null;
@@ -80,12 +81,14 @@ public class TeleOp extends LinearOpMode {
             rightFrontPower = gamepad1.y ? 1.0 : 0.0;  // Y gamepad
             rightBackPower  = gamepad1.b ? 1.0 : 0.0;  // B gamepad
             */
+            doublev
+                    speed = gamepad1.right_bumper ? slowSpeed : 1;
 
             // Send calculated power to wheels
-            leftFrontDrive.setPower(0.3 * leftFrontPower);
-            rightFrontDrive.setPower(0.3 * rightFrontPower);
-            leftBackDrive.setPower(0.3 * leftBackPower);
-            rightBackDrive.setPower(0.3 * rightBackPower);
+            leftFrontDrive.setPower(speed * leftFrontPower);
+            rightFrontDrive.setPower(speed * rightFrontPower);
+            leftBackDrive.setPower(speed * leftBackPower);
+            rightBackDrive.setPower(speed * rightBackPower);
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
