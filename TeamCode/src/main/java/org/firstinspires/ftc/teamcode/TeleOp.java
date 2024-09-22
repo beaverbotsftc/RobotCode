@@ -81,8 +81,7 @@ public class TeleOp extends LinearOpMode {
             rightFrontPower = gamepad1.y ? 1.0 : 0.0;  // Y gamepad
             rightBackPower  = gamepad1.b ? 1.0 : 0.0;  // B gamepad
             */
-            doublev
-                    speed = gamepad1.right_bumper ? slowSpeed : 1;
+            double speed = gamepad1.right_bumper ? 1 : slowSpeed;
 
             // Send calculated power to wheels
             leftFrontDrive.setPower(speed * leftFrontPower);
