@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="TeleOp")
 public class TeleOp extends LinearOpMode {
-    private final double slowSpeed = 0.3;
+    private final double slowSpeed = 0.5;
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor leftFrontDrive = null;
     private DcMotor leftBackDrive = null;
