@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.TankDrive;
 
 public class LocalizationTest extends LinearOpMode {
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         if (TuningOpModes.DRIVE_CLASS.equals(MecanumDrive.class)) {

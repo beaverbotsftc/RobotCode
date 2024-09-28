@@ -1,15 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
-
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
-
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.pinpoint.GoBildaPinpointDriver;
 
 public class Sensors {
-    GoBildaPinpointDriver odometry;
+    public GoBildaPinpointDriver odometry;
 
-    public void init() {
+    public void init(Telemetry telemetry, HardwareMap hardwareMap) {
         // Pinpoint
         {
             odometry = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
