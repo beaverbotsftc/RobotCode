@@ -15,6 +15,7 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 
+
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @TeleOp(name="BeaverBots BasicTeleOp", group="Linear OpMode")
@@ -42,40 +43,9 @@ public class BeaverBotsTeleOp extends LinearOpMode {
     @Override
     public void runOpMode() {
 
-        // Initialize the hardware variables. Note that the strings used here must correspond
-        // to the names assigned during the robot configuration step on the DS or RC devices.
-        leftFrontDrive  = hardwareMap.get(DcMotor.class, "left_front_drive");
-        leftBackDrive  = hardwareMap.get(DcMotor.class, "left_back_drive");
-        rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
-        rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
-        linearSlide = hardwareMap.get(DcMotor.class, "linear_slide");
-        servo = hardwareMap.get(Servo.class, "servo");
-        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        startUp();
 
-        // ########################################################################################
-        // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
-        // ########################################################################################
-        // Most robots need the motors on one side to be reversed to drive forward.
-        // The motor reversals shown here are for a "direct drive" robot (the wheels turn the same direction as the motor shaft)
-        // If your robot has additional gear reductions or uses a right-angled drive, it's important to ensure
-        // that your motors are turning in the correct direction.  So, start out with the reversals here, BUT
-        // when you first test your robot, push the left joystick forward and observe the direction the wheels turn.
-        // Reverse the direction (flip FORWARD <-> REVERSE ) of any wheel that runs backward
-        // Keep testing until ALL the wheels move the robot forward when you push the left joystick forward.
-        leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
-        leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
-        rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
-        rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
-        linearSlide.setDirection(DcMotorSimple.Direction.FORWARD);
-        servo.setDirection(Servo.Direction.REVERSE);
 
-        linearSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        linearSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        linearSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        //linearSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        //linearSlide.getZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
@@ -107,6 +77,13 @@ public class BeaverBotsTeleOp extends LinearOpMode {
                 servo.setPosition(0.69);
                 // Not tested just set to a good open position
             }
+
+            if (gamepad1.right_trigger > 50){
+                gamepad1.setLedColor(1,0,0,250);
+            }else {
+                gamepad1.setLedColor(0,1,0,250);
+            }
+
 
             if(gamepad2.square){
                 slideSpeed = 0.25;
@@ -188,7 +165,7 @@ public class BeaverBotsTeleOp extends LinearOpMode {
 
         if (gamepad1.right_stick_button){
             if (distance <= 8.5) {
-                telemetry.addLine("It very close brudda ");
+                telemetry.addLine("It very close brudda");
                 if (!gamepad1.isRumbling()) {
                     gamepad1.rumbleBlips((int) distance);
                 }
@@ -225,5 +202,41 @@ public class BeaverBotsTeleOp extends LinearOpMode {
         }else{
             telemetry.addLine("I don't see anything");
         }
+    }
+
+    private void startUp(){
+        // Initialize the hardware variables. Note that the strings used here must correspond
+        // to the names assigned during the robot configuration step on the DS or RC devices.
+        leftFrontDrive  = hardwareMap.get(DcMotor.class, "left_front_drive");
+        leftBackDrive  = hardwareMap.get(DcMotor.class, "left_back_drive");
+        rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
+        rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
+        linearSlide = hardwareMap.get(DcMotor.class, "linear_slide");
+        servo = hardwareMap.get(Servo.class, "servo");
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+
+        // ########################################################################################
+        // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
+        // ########################################################################################
+        // Most robots need the motors on one side to be reversed to drive forward.
+        // The motor reversals shown here are for a "direct drive" robot (the wheels turn the same direction as the motor shaft)
+        // If your robot has additional gear reductions or uses a right-angled drive, it's important to ensure
+        // that your motors are turning in the correct direction.  So, start out with the reversals here, BUT
+        // when you first test your robot, push the left joystick forward and observe the direction the wheels turn.
+        // Reverse the direction (flip FORWARD <-> REVERSE ) of any wheel that runs backward
+        // Keep testing until ALL the wheels move the robot forward when you push the left joystick forward.
+        leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
+        leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
+        rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
+        rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
+        linearSlide.setDirection(DcMotorSimple.Direction.FORWARD);
+        servo.setDirection(Servo.Direction.REVERSE);
+        linearSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        linearSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        linearSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        //linearSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //linearSlide.getZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        // Wait for the game to start (driver presses PLAY)
     }
 }
