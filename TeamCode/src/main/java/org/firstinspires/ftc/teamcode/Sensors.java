@@ -12,7 +12,7 @@ public class Sensors {
     public void init() {
         // Pinpoint
         {
-            odometry = hardwareMap.get(GoBildaPinpointDriver.class, "odo");
+            odometry = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
 
             /*
                 Set the odometry pod positions relative to the point that the odometry computer tracks around.
