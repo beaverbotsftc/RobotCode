@@ -9,7 +9,7 @@ public class Sensors {
     public GoBildaPinpointDriver odometry;
     public ColorSensor color;
 
-    public void init(Telemetry telemetry, HardwareMap hardwareMap) {
+    public void init(HardwareMap hardwareMap) {
         // Pinpoint
 
         odometry = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
@@ -31,23 +31,9 @@ public class Sensors {
         odometry.recalibrateIMU();
 
         odometry.resetPosAndIMU();
-        if (telemetry != null) {
-            telemetry.addLine("Pinpoint initalized");
-            telemetry.update();
-        }
 
 
         // Color sensor
-            color = hardwareMap.get(ColorSensor.class, "Color");
-
-            if (telemetry != null) {
-                telemetry.addLine("Color sensor initialized");
-                telemetry.update();
-            }
-
-        if (telemetry != null) {
-            telemetry.addLine("All sensors initalized");
-            telemetry.update();
-        }
+        color = hardwareMap.get(ColorSensor.class, "Color");
     }
 }

@@ -19,7 +19,7 @@ public class SensorTest extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        sensors.init(telemetry, hardwareMap);
+        sensors.init(hardwareMap);
 
         waitForStart();
         runtime.reset();
