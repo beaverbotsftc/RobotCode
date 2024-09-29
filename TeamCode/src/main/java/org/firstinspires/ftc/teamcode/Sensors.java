@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.pinpoint.GoBildaPinpointDriver;
 
 public class Sensors {
     public GoBildaPinpointDriver odometry;
+    public ColorSensor color;
 
     public void init(Telemetry telemetry, HardwareMap hardwareMap) {
         // Pinpoint
@@ -31,6 +33,14 @@ public class Sensors {
             odometry.resetPosAndIMU();
 
             telemetry.addLine("Pinpoint initalized");
+            telemetry.update();
+        }
+
+        // Color sensor
+        {
+            color = hardwareMap.get(ColorSensor.class, "Color");
+
+            telemetry.addLine("Color sensor initialized");
             telemetry.update();
         }
 
