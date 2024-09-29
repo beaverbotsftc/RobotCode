@@ -218,6 +218,7 @@ public final class RoadRunnerTuning {
     }
 
     public RoadRunnerTuning(HardwareMap hardwareMap, Pose2d pose) {
+        sensors.init(hardwareMap);
         this.pose = pose;
 
         LynxFirmware.throwIfModulesAreOutdated(hardwareMap);
