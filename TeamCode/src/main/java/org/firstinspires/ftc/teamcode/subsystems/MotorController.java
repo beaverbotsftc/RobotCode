@@ -15,13 +15,15 @@ public class MotorController {
 
     }
 
-    public float lsGetPosition(aramType param) {
-
+    public float lsGetPosition() {
+        
+        // gets the position from full retract to zero retract.
         return lsPosition; // Of type RetType
     }
 
-    public class LSSetPosition {
-    public float Distance;
-    // Build system where motor moves to a position between 0 and 1 or inches
+    public float LSSetPosition() {
+        //sets the position from getting the position.
+        float lsStatus = 0;
+        return lsStatus;
     }
 }
