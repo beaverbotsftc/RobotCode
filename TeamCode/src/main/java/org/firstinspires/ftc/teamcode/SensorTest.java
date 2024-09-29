@@ -40,7 +40,9 @@ public class SensorTest extends LinearOpMode {
             telemetry.addData("Red", (float) sensors.color.red() / 255);
             telemetry.addData("Green", (float) sensors.color.green() / 255);
             telemetry.addData("Blue", (float) sensors.color.blue() / 255);
-            telemetry.addLine(Math.sqrt(Math.pow(sensors.color.red(), 2) + Math.pow(sensors.color.green(), 2) + Math.pow(sensors.color.blue(), 2)) >= 180 ? "Bright" : "Dark");
+            telemetry.addLine(Math.sqrt(
+                    Math.pow(sensors.color.red(), 2) + Math.pow(sensors.color.green(), 2) + Math.pow(sensors.color.blue(), 2))
+                    >= 220 ? "Bright" : "Dark");
 
             telemetry.update();
         }
