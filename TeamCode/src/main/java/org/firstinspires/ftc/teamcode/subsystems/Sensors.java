@@ -10,7 +10,6 @@ public class Sensors {
 
     public void init(HardwareMap hardwareMap) {
         // Pinpoint
-
         odometry = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
 
         /*
