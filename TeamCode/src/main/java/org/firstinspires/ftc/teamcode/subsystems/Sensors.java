@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.pinpoint.GoBildaPinpointDriver;
 
 public class Sensors {
@@ -20,7 +19,7 @@ public class Sensors {
             The Y pod offset refers to how far forwards from the tracking point the Y (strafe) odometry pod is. forward of center is a positive number, backwards is a negative number.
         */
 
-        // TODO: Make more accurate, these measurements were carelessly eyeballed
+        // TODO: Make more accurate, these measurements were eyeballed
         odometry.setOffsets(-5 * 2.54 /* inch to cm constant */, 1.75 * 2.54);
 
         odometry.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
@@ -31,7 +30,6 @@ public class Sensors {
         odometry.recalibrateIMU();
 
         odometry.resetPosAndIMU();
-
 
         // Color sensor
         color = hardwareMap.get(ColorSensor.class, "Color");
