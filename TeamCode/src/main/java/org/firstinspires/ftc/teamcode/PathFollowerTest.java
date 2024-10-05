@@ -10,9 +10,10 @@ import org.firstinspires.ftc.teamcode.subsystems.Motors;
 import org.firstinspires.ftc.teamcode.subsystems.Sensors;
 
 import java.util.concurrent.TimeUnit;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="TeleOp")
+@TeleOp(name="Path follower test")
 public class PathFollowerTest extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
 
