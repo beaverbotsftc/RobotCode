@@ -32,10 +32,10 @@ public class PathFollower {
         double y = 0;
         double theta = 0;
 
-        double leftFrontPower  = x + y + theta;
-        double rightFrontPower = x - y - theta;
-        double leftBackPower   = x - y + theta;
-        double rightBackPower  = x + y - theta;
+        double leftFrontPower  = y + x + theta;
+        double rightFrontPower = y - x - theta;
+        double leftBackPower   = y - x + theta;
+        double rightBackPower  = y + x - theta;
 
         double max;
 
