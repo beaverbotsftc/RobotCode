@@ -1,20 +1,26 @@
 package org.firstinspires.ftc.teamcode.pathfollower;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.pinpoint.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.collections.Motors;
 
 public class PathFollower {
-    double startingTime;
-    double currentTime;
-    Path path;
-    Motors motors;
-    GoBildaPinpointDriver odometry;
+    private double startingTime;
+    private double currentTime;
+    private Path path;
+    private Motors motors;
+    private GoBildaPinpointDriver odometry;
 
-    public PathFollower(long startingTimeNS, Path path, Motors motors, GoBildaPinpointDriver odometry) {
+    private PID xPID;
+
+    public PathFollower(long startingTimeNS, Path path, Motors motors, GoBildaPinpointDriver odometry, double kP, double kI, double kD) {
         this.startingTime = startingTimeNS * 1e-9;
+        this.currentTime = this.startingTime;
         this.path = path;
         this.motors = motors;
         this.odometry = odometry;
+        this.xPID = new PID(path.x(0) - odometry.getPosition().getX(DistanceUnit.INCH), kP, kI, kD);
     }
 
     private double t() {
@@ -25,10 +31,12 @@ public class PathFollower {
         return path.dx(t());
     }
 
-    public void apply(long currentTime) {
+    public void apply(long currentTime, Telemetry telemetry) {
+        double dt = currentTime * 1e-9 - this.currentTime;
         this.currentTime = currentTime * 1e-9;
-
-        double x = dx();
+        double xCorrection = xPID.updateAndGetCorrection(path.x(t()) - odometry.getPosition().getX(DistanceUnit.INCH), dt, telemetry);
+        telemetry.addData("xCorrection", xCorrection);
+        double x = dx() + xCorrection;
         double y = 0;
         double theta = 0;
 
@@ -50,9 +58,9 @@ public class PathFollower {
             rightBackPower  /= max;
         }
 
-        motors.leftFrontDrive.setPower(0.15 * leftFrontPower);
-        motors.rightFrontDrive.setPower(0.15 * rightFrontPower);
-        motors.leftBackDrive.setPower(0.15 * leftBackPower);
-        motors.rightBackDrive.setPower(0.15 * rightBackPower);
+        motors.leftFrontDrive.setPower(0.25 * leftFrontPower);
+        motors.rightFrontDrive.setPower(0.25 * rightFrontPower);
+        motors.leftBackDrive.setPower(0.25 * leftBackPower);
+        motors.rightBackDrive.setPower(0.25 * rightBackPower);
     }
 }

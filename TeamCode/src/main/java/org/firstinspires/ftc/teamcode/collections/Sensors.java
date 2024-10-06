@@ -27,7 +27,6 @@ public class Sensors {
         odometry.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
         odometry.recalibrateIMU();
-
         odometry.resetPosAndIMU();
 
         // Color sensor
