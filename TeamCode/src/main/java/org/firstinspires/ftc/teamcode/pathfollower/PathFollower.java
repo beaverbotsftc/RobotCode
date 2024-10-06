@@ -12,14 +12,16 @@ public class PathFollower {
     private GoBildaPinpointDriver odometry;
 
     private PID xPID;
+    private PID yPID;
 
-    public PathFollower(long startingTimeNS, Path path, Motors motors, GoBildaPinpointDriver odometry, double kP, double kI, double kD) {
+    public PathFollower(long startingTimeNS, Path path, Motors motors, GoBildaPinpointDriver odometry, double xkP, double xkI, double xkD, double ykP, double ykI, double ykD) {
         this.startingTime = startingTimeNS * 1e-9;
         this.currentTime = this.startingTime;
         this.path = path;
         this.motors = motors;
         this.odometry = odometry;
-        this.xPID = new PID(path.x(0) - odometry.getPosition().getX(DistanceUnit.INCH), kP, kI, kD);
+        this.xPID = new PID(path.x(0) - odometry.getPosition().getX(DistanceUnit.INCH), xkP, xkI, xkD);
+        this.yPID = new PID(path.y(0) - odometry.getPosition().getX(DistanceUnit.INCH), ykP, ykI, ykD);
     }
 
     private double t() {
@@ -29,16 +31,16 @@ public class PathFollower {
     private double dx() {
         return path.dx(t());
     }
+
     private double dy() {
         return path.dy(t());
     }
 
-    public void apply(long currentTime) {
+    public void run(long currentTime) {
         double dt = currentTime * 1e-9 - this.currentTime;
         this.currentTime = currentTime * 1e-9;
-        double xCorrection = xPID.updateAndGetCorrection(path.x(t()) - odometry.getPosition().getX(DistanceUnit.INCH), dt);
-        double x = dx() + xCorrection;
-        double y = 0;
+        double x = dx() + xPID.updateAndGetCorrection(path.x(t()) - odometry.getPosition().getX(DistanceUnit.INCH), dt);
+        double y = dy() + yPID.updateAndGetCorrection(path.y(t()) - odometry.getPosition().getY(DistanceUnit.INCH), dt);
         double theta = 0;
         double leftFrontPower  = y + x + theta;
         double rightFrontPower = y - x - theta;
