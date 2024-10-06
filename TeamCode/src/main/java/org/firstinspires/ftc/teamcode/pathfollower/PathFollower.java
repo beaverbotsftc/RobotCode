@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.pathfollower;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.pinpoint.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.collections.Motors;
@@ -30,16 +29,17 @@ public class PathFollower {
     private double dx() {
         return path.dx(t());
     }
+    private double dy() {
+        return path.dy(t());
+    }
 
-    public void apply(long currentTime, Telemetry telemetry) {
+    public void apply(long currentTime) {
         double dt = currentTime * 1e-9 - this.currentTime;
         this.currentTime = currentTime * 1e-9;
-        double xCorrection = xPID.updateAndGetCorrection(path.x(t()) - odometry.getPosition().getX(DistanceUnit.INCH), dt, telemetry);
-        telemetry.addData("xCorrection", xCorrection);
+        double xCorrection = xPID.updateAndGetCorrection(path.x(t()) - odometry.getPosition().getX(DistanceUnit.INCH), dt);
         double x = dx() + xCorrection;
         double y = 0;
         double theta = 0;
-
         double leftFrontPower  = y + x + theta;
         double rightFrontPower = y - x - theta;
         double leftBackPower   = y - x + theta;
