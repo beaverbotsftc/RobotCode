@@ -53,9 +53,9 @@ public class PathFollower {
             rightBackPower  /= max;
         }
 
-        motors.leftFrontDrive.setPower(0.15 * leftFrontPower);
-        motors.rightFrontDrive.setPower(0.15 * rightFrontPower);
-        motors.leftBackDrive.setPower(0.15 * leftBackPower);
-        motors.rightBackDrive.setPower(0.15 * rightBackPower);
+        motors.leftFrontDrive.setPower(0.25 * leftFrontPower);
+        motors.rightFrontDrive.setPower(0.25 * rightFrontPower);
+        motors.leftBackDrive.setPower(0.25 * leftBackPower);
+        motors.rightBackDrive.setPower(0.25 * rightBackPower);
     }
 }
