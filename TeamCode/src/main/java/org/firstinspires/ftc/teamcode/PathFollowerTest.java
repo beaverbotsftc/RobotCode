@@ -23,7 +23,7 @@ public class PathFollowerTest extends LinearOpMode {
         motors.init(hardwareMap);
         sensors.init(hardwareMap);
 
-        Path path = new Path((Double t) -> 0.0);
+        Path path = new Path((Double t) -> Math.sin(t), (Double t) -> t);
 
         // Wait for the game to start (driver presses START)
         telemetry.addData("Status", "Initialized");

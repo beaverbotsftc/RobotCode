@@ -24,12 +24,15 @@ public class PathFollower {
     private double dx() {
         return path.dx(t());
     }
+    private double dy() {
+        return path.dy(t());
+    }
 
     public void apply(long currentTime) {
         this.currentTime = currentTime * 1e-9;
 
         double x = dx();
-        double y = 0;
+        double y = dy();
         double theta = 0;
 
         double leftFrontPower  = y + x + theta;
