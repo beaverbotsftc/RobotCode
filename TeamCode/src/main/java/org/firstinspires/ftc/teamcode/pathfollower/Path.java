@@ -15,7 +15,6 @@ public class Path {
     double dx(double t) {
         return (x(t + epsilon) - x(t)) / epsilon;
     }
-
     double dy(double t) {
         return (y(t + epsilon) - y(t)) / epsilon;
     }

@@ -29,7 +29,7 @@ public class SensorTest extends LinearOpMode {
 
             // Pinpoint
             telemetry.addLine("Pinpoint");
-            sensors.odometry.bulkUpdate();
+            sensors.odometry.bulkUpdate(); // VERY IMPORTANT
             telemetry.addData("X position (inches)", sensors.odometry.getPosition().getX(DistanceUnit.INCH));
             telemetry.addData("Y position (inches)", sensors.odometry.getPosition().getY(DistanceUnit.INCH));
             telemetry.addData("Heading (degrees)", sensors.odometry.getPosition().getHeading(AngleUnit.DEGREES));

@@ -1,21 +1,27 @@
 package org.firstinspires.ftc.teamcode.pathfollower;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.pinpoint.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.collections.Motors;
 
 public class PathFollower {
-    double startingTime;
-    double currentTime;
-    Path path;
-    Motors motors;
-    GoBildaPinpointDriver odometry;
+    private double startingTime;
+    private double currentTime;
+    private Path path;
+    private Motors motors;
+    private GoBildaPinpointDriver odometry;
 
-    public PathFollower(long startingTimeNS, Path path, Motors motors, GoBildaPinpointDriver odometry) {
+    private PID xPID;
+    private PID yPID;
+
+    public PathFollower(long startingTimeNS, Path path, Motors motors, GoBildaPinpointDriver odometry, double xkP, double xkI, double xkD, double ykP, double ykI, double ykD) {
         this.startingTime = startingTimeNS * 1e-9;
+        this.currentTime = this.startingTime;
         this.path = path;
         this.motors = motors;
         this.odometry = odometry;
+        this.xPID = new PID(path.x(0) - odometry.getPosition().getX(DistanceUnit.INCH), xkP, xkI, xkD);
+        this.yPID = new PID(path.y(0) - odometry.getPosition().getX(DistanceUnit.INCH), ykP, ykI, ykD);
     }
 
     private double t() {
@@ -25,18 +31,17 @@ public class PathFollower {
     private double dx() {
         return path.dx(t());
     }
+
     private double dy() {
         return path.dy(t());
     }
 
-    public void apply(long currentTime) {
-
+    public void run(long currentTime) {
+        double dt = currentTime * 1e-9 - this.currentTime;
         this.currentTime = currentTime * 1e-9;
-
-        double x = dx();
-        double y = dy();
+        double x = dx() + xPID.updateAndGetCorrection(path.x(t()) - odometry.getPosition().getX(DistanceUnit.INCH), dt);
+        double y = dy() + yPID.updateAndGetCorrection(path.y(t()) - odometry.getPosition().getY(DistanceUnit.INCH), dt);
         double theta = 0;
-        
         double leftFrontPower  = y + x + theta;
         double rightFrontPower = y - x - theta;
         double leftBackPower   = y - x + theta;
@@ -55,9 +60,9 @@ public class PathFollower {
             rightBackPower  /= max;
         }
 
-        motors.leftFrontDrive.setPower(0.35 * leftFrontPower);
-        motors.rightFrontDrive.setPower(0.35 * rightFrontPower);
-        motors.leftBackDrive.setPower(0.35 * leftBackPower);
-        motors.rightBackDrive.setPower(0.35 * rightBackPower);
+        motors.leftFrontDrive.setPower(0.25 * leftFrontPower);
+        motors.rightFrontDrive.setPower(0.25 * rightFrontPower);
+        motors.leftBackDrive.setPower(0.25 * leftBackPower);
+        motors.rightBackDrive.setPower(0.25 * rightBackPower);
     }
 }
