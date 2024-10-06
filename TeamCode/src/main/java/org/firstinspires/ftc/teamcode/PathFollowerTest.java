@@ -27,7 +27,6 @@ public class PathFollowerTest extends LinearOpMode {
         sensors.init(hardwareMap);
 
         Path path = new Path((Double t)->12.0, (Double t)->-14.0);
-        telemetry.addData("Theta",sensors.odometry.getPosition().getHeading(AngleUnit.DEGREES) );
 
         // Wait for the game to start (driver presses START)
         telemetry.addData("Status", "Initialized");
@@ -44,6 +43,7 @@ public class PathFollowerTest extends LinearOpMode {
             telemetry.addData("time", runtime.now(TimeUnit.MILLISECONDS));
             pathFollower.run(runtime.now(TimeUnit.NANOSECONDS));
             telemetry.addData("X Pos", sensors.odometry.getPosition().getX(DistanceUnit.INCH));
+            telemetry.addData("Y Pos", sensors.odometry.getPosition().getY(DistanceUnit.INCH));
             telemetry.update();
         }
     }
