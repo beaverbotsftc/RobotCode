@@ -35,8 +35,8 @@ public class PathFollower {
 
         double x = dx();
         double y = dy();
-        double theta = odometry.getPosition().getHeading(AngleUnit.DEGREES);
-
+        double theta = 0;
+        
         double leftFrontPower  = y + x + theta;
         double rightFrontPower = y - x - theta;
         double leftBackPower   = y - x + theta;

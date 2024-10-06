@@ -25,7 +25,7 @@ public class PathFollowerTest extends LinearOpMode {
         motors.init(hardwareMap);
         sensors.init(hardwareMap);
 
-        Path path = new Path((Double t) -> Math.sin(2*t), (Double t) -> t);
+        Path path = new Path((Double t) -> Math.sin(t/5), (Double t) -> Math.cos(t/5));
         telemetry.addData("Theta",sensors.odometry.getPosition().getHeading(AngleUnit.DEGREES) );
 
         // Wait for the game to start (driver presses START)
