@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.pathfollower.Path;
 import org.firstinspires.ftc.teamcode.pathfollower.PathFollower;
 import org.firstinspires.ftc.teamcode.collections.Motors;
@@ -18,12 +19,14 @@ public class PathFollowerTest extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+
         Motors motors = new Motors();
         Sensors sensors = new Sensors();
         motors.init(hardwareMap);
         sensors.init(hardwareMap);
 
-        Path path = new Path((Double t) -> Math.sin(t), (Double t) -> t);
+        Path path = new Path((Double t) -> Math.sin(2*t), (Double t) -> t);
+        telemetry.addData("Theta",sensors.odometry.getPosition().getHeading(AngleUnit.DEGREES) );
 
         // Wait for the game to start (driver presses START)
         telemetry.addData("Status", "Initialized");
@@ -36,6 +39,7 @@ public class PathFollowerTest extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
+            sensors.odometry.bulkUpdate();
             pathFollower.apply(runtime.now(TimeUnit.NANOSECONDS));
         }
     }

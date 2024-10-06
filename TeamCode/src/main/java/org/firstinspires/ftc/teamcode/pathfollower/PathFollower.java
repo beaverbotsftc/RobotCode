@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.pathfollower;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.pinpoint.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.collections.Motors;
 
@@ -29,11 +30,12 @@ public class PathFollower {
     }
 
     public void apply(long currentTime) {
+
         this.currentTime = currentTime * 1e-9;
 
         double x = dx();
         double y = dy();
-        double theta = 0;
+        double theta = odometry.getPosition().getHeading(AngleUnit.DEGREES);
 
         double leftFrontPower  = y + x + theta;
         double rightFrontPower = y - x - theta;
@@ -53,9 +55,9 @@ public class PathFollower {
             rightBackPower  /= max;
         }
 
-        motors.leftFrontDrive.setPower(0.25 * leftFrontPower);
-        motors.rightFrontDrive.setPower(0.25 * rightFrontPower);
-        motors.leftBackDrive.setPower(0.25 * leftBackPower);
-        motors.rightBackDrive.setPower(0.25 * rightBackPower);
+        motors.leftFrontDrive.setPower(0.35 * leftFrontPower);
+        motors.rightFrontDrive.setPower(0.35 * rightFrontPower);
+        motors.leftBackDrive.setPower(0.35 * leftBackPower);
+        motors.rightBackDrive.setPower(0.35 * rightBackPower);
     }
 }
