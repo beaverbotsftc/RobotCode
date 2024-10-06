@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.subsystems.Sensors;
+import org.firstinspires.ftc.teamcode.collections.Sensors;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 

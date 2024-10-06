@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.pathfollower;
 
 import org.firstinspires.ftc.teamcode.pinpoint.GoBildaPinpointDriver;
-import org.firstinspires.ftc.teamcode.subsystems.Motors;
+import org.firstinspires.ftc.teamcode.collections.Motors;
 
 public class PathFollower {
     double startingTime;
