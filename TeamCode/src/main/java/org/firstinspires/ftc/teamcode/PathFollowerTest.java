@@ -37,8 +37,6 @@ public class PathFollowerTest extends LinearOpMode {
         runtime.reset();
 
         PathFollower pathFollower = new PathFollower(runtime.now(TimeUnit.NANOSECONDS), path, motors, sensors.odometry, 1, 0.1, 0.1, 1, 0.1, 0.1);
-
-        // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             sensors.odometry.bulkUpdate();
             telemetry.addData("time", runtime.now(TimeUnit.MILLISECONDS));
