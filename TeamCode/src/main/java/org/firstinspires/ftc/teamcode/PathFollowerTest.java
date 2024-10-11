@@ -42,6 +42,7 @@ public class PathFollowerTest extends LinearOpMode {
             pathFollower.run(runtime.now(TimeUnit.NANOSECONDS));
             telemetry.addData("X Pos", sensors.odometry.getPosition().getX(DistanceUnit.INCH));
             telemetry.addData("Y Pos", sensors.odometry.getPosition().getY(DistanceUnit.INCH));
+            telemetry.addData("Theta", sensors.odometry.getPosition().getHeading(AngleUnit.DEGREES) );
             telemetry.update();
         }
     }
