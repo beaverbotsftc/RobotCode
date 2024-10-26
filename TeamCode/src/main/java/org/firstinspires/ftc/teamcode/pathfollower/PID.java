@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.pathfollower;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-
 public class PID {
     private double lastError;
     private double kP;
@@ -9,12 +7,14 @@ public class PID {
     private double kD;
     private double partialIntegration = 0;
 
-    public double updateAndGetCorrection(double error, double dt) {
-        double dError = (error - lastError) / dt;
+    public void update(double error, double dt) {
         this.partialIntegration += error * dt;
-        double correction = kP * error + kI * this.partialIntegration + kD * dError;
         lastError = error;
-        return correction;
+    }
+
+    public double correction(double error, double dt) {
+        double dError = (error - lastError) / dt;
+        return kP * error + kI * this.partialIntegration + kD * dError;
     }
 
     public PID(double error, double kP, double kI, double kD) {
