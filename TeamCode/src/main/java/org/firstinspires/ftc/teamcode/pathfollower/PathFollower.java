@@ -6,85 +6,89 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.pinpoint.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.collections.Motors;
 
-public class PathFollower {
+public final class PathFollower {
+    public static final class RawAndPIDGains {
+        public final double r;
+        public final double pid;
+
+        public RawAndPIDGains(double r, double pid) {
+            this.r = r;
+            this.pid = pid;
+        }
+    }
+
+    public static final class AxisGains {
+        public final double x;
+        public final double y;
+        public final double theta;
+
+        public AxisGains(double x, double y, double theta) {
+            this.x = x;
+            this.y = y;
+            this.theta = theta;
+        }
+    }
+
+    public static class MotorGains {
+        public final double leftFront;
+        public final double rightFront;
+        public final double leftBack;
+        public final double rightBack;
+
+        public MotorGains(double leftFront, double rightFront, double leftBack, double rightBack) {
+            this.leftFront = leftFront;
+            this.rightFront = rightFront;
+            this.leftBack = leftBack;
+            this.rightBack = rightBack;
+        }
+    }
+
     private Telemetry telemetry;
 
-    private double startingTime;
+    private final double startingTime;
     private double currentTime;
     private Path path;
     private Motors motors;
     private GoBildaPinpointDriver odometry;
 
-
-    private final double xkR;
-    private final double xkPID;
-    private final double ykR;
-    private final double ykPID;
-    private final double thetakR;
-    private final double thetakPID;
-
-    private final double xk;
-    private final double yk;
-    private final double thetak;
-
-    private final double leftFrontk;
-    private final double rightFrontk;
-    private final double leftBackk;
-    private final double rightBackk;
-
     private PID xPID;
     private PID yPID;
     private PID thetaPID;
+
+    private RawAndPIDGains xRPIDGains;
+    private RawAndPIDGains yRPIDGains;
+    private RawAndPIDGains thetaRPIDGains;
+    private AxisGains axisGains;
+    private MotorGains motorGains;
 
     public PathFollower(Telemetry telemetry,
                         long startingTimeNS,
                         Path path,
                         Motors motors,
                         GoBildaPinpointDriver odometry,
-                        double xkR,
-                        double xkPID,
-                        double ykR,
-                        double ykPID,
-                        double thetakR,
-                        double thetakPID,
-                        double xkP,
-                        double xkI,
-                        double xkD,
-                        double ykP,
-                        double ykI,
-                        double ykD,
-                        double thetakP,
-                        double thetakI,
-                        double thetakD,
-                        double xk,
-                        double yk,
-                        double thetak,
-                        double leftFrontk,
-                        double rightFrontk,
-                        double leftBackk,
-                        double rightBackk) {
+                        RawAndPIDGains xRPIDGains,
+                        RawAndPIDGains yRPIDGains,
+                        RawAndPIDGains thetaRPIDGains,
+                        PIDCoefficients xPIDCoefficients,
+                        PIDCoefficients yPIDCoefficients,
+                        PIDCoefficients thetaPIDCoefficients,
+                        AxisGains axisGains,
+                        MotorGains motorGains
+                        ) {
         this.telemetry = telemetry;
         this.startingTime = startingTimeNS * 1e-9;
         this.currentTime = this.startingTime;
         this.path = path;
         this.motors = motors;
         this.odometry = odometry;
-        this.xkR = xkR;
-        this.xkPID = xkPID;
-        this.ykR = ykR;
-        this.ykPID = ykPID;
-        this.thetakR = thetakR;
-        this.thetakPID = thetakPID;
-        this.xk = xk;
-        this.yk = yk;
-        this.thetak = thetak;
-        this.leftFrontk = leftFrontk;
-        this.rightFrontk = rightFrontk;
-        this.leftBackk = leftBackk;
-        this.rightBackk = rightBackk;
-        this.xPID = new PID(path.x(0) - odometry.getPosition().getX(DistanceUnit.INCH), xkP, xkI, xkD);
-        this.yPID = new PID(path.y(0) - odometry.getPosition().getY(DistanceUnit.INCH), ykP, ykI, ykD);
-        this.thetaPID = new PID(path.theta(0) - odometry.getPosition().getHeading(AngleUnit.RADIANS), thetakP, thetakI, thetakD);
+        this.xRPIDGains = xRPIDGains;
+        this.yRPIDGains = yRPIDGains;
+        this.thetaRPIDGains = thetaRPIDGains;
+        this.axisGains = axisGains;
+        this.motorGains = motorGains;
+        this.xPID = new PID(path.x(0) - odometry.getPosition().getX(DistanceUnit.INCH), xPIDCoefficients.p, xPIDCoefficients.i, xPIDCoefficients.d);
+        this.yPID = new PID(path.y(0) - odometry.getPosition().getY(DistanceUnit.INCH), yPIDCoefficients.p, yPIDCoefficients.i, yPIDCoefficients.d);
+        this.thetaPID = new PID(path.theta(0) - odometry.getPosition().getHeading(AngleUnit.RADIANS), thetaPIDCoefficients.p, thetaPIDCoefficients.i, thetaPIDCoefficients.d);
     }
 
     private double t() {
@@ -113,17 +117,17 @@ public class PathFollower {
         telemetry.addData("dtheta", path.dtheta(t()));
         telemetry.addData("thetaPID", thetaPID.correction(path.theta(t()) - odometry.getPosition().getHeading(AngleUnit.DEGREES), dt));
 
-        double dx = xk * (xkR   * path.dx(t())
-                        + xkPID * xPID.correction(path.x(t()) - odometry.getPosition().getX(DistanceUnit.INCH), dt));
-        double dy = yk * (ykR   * path.dy(t())
-                        - ykPID * yPID.correction(path.y(t()) - odometry.getPosition().getY(DistanceUnit.INCH), dt));
-        double dtheta = thetak * (thetakR   * path.dtheta(t())
-                                + thetakPID * thetaPID.correction(path.theta(t()) - odometry.getPosition().getHeading(AngleUnit.DEGREES), dt));
+        double dx = axisGains.x * (xRPIDGains.r   * path.dx(t())
+                                 + xRPIDGains.pid * xPID.correction(path.x(t()) - odometry.getPosition().getX(DistanceUnit.INCH), dt));
+        double dy = axisGains.y * (yRPIDGains.r   * path.dy(t())
+                                 - yRPIDGains.pid * yPID.correction(path.y(t()) - odometry.getPosition().getY(DistanceUnit.INCH), dt));
+        double dtheta = axisGains.theta * (thetaRPIDGains.r   * path.dtheta(t())
+                                             + thetaRPIDGains.pid * thetaPID.correction(path.theta(t()) - odometry.getPosition().getHeading(AngleUnit.DEGREES), dt));
 
-        double leftFrontPower  = leftFrontk * (dy + dx + dtheta);
-        double rightFrontPower = rightFrontk * (dy - dx - dtheta);
-        double leftBackPower   = leftBackk * (dy - dx + dtheta);
-        double rightBackPower  = rightBackk * (dy + dx - dtheta);
+        double leftFrontPower  = motorGains.leftFront * (dy + dx + dtheta);
+        double rightFrontPower = motorGains.rightFront * (dy - dx - dtheta);
+        double leftBackPower   = motorGains.leftBack * (dy - dx + dtheta);
+        double rightBackPower  = motorGains.rightBack * (dy + dx - dtheta);
 
         telemetry.addData("leftFrontPower", leftFrontPower);
         telemetry.addData("rightFrontPower", rightFrontPower);

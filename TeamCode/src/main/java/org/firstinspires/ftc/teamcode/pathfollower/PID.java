@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.pathfollower;
 
-public class PID {
+public final class PID {
     private double lastError;
     private double kP;
     private double kI;

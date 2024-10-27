@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.pathfollower;
 
 import java.util.function.Function;
 
-public class Path {
+public final class Path {
     private final double epsilon = 0.001;
     Function<Double, Double> _x;
     Function<Double, Double> _y;

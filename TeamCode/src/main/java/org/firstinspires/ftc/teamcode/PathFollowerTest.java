@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.pathfollower.PIDCoefficients;
 import org.firstinspires.ftc.teamcode.pathfollower.Path;
 import org.firstinspires.ftc.teamcode.pathfollower.PathFollower;
 import org.firstinspires.ftc.teamcode.collections.Motors;
@@ -41,28 +42,15 @@ public class PathFollowerTest extends LinearOpMode {
                 path,
                 motors,
                 sensors.odometry,
-                1,
-                1,
-                1,
-                1,
-                1,
-                1,
-                1,
-                0.01,
-                0.01,
-                1,
-                0.01,
-                0.01,
-                1,
-                0.01,
-                0.01,
-                1,
-                1,
-                1,
-                1,
-                1,
-                1,
-                1);
+                new PathFollower.RawAndPIDGains(1, 1),
+                new PathFollower.RawAndPIDGains(1, 1),
+                new PathFollower.RawAndPIDGains(1, 1),
+                new PIDCoefficients(1, 0.01, 0.01),
+                new PIDCoefficients(1, 0.01, 0.01),
+                new PIDCoefficients(1, 0.01, 0.01),
+                new PathFollower.AxisGains(1, 1, 1),
+                new PathFollower.MotorGains(1, 1, 1, 1)
+                );
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
