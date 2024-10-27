@@ -120,9 +120,9 @@ public final class PathFollower {
         double dx = axisGains.x * (xRPIDGains.r   * path.dx(t())
                                  + xRPIDGains.pid * xPID.correction(path.x(t()) - odometry.getPosition().getX(DistanceUnit.INCH), dt));
         double dy = axisGains.y * (yRPIDGains.r   * path.dy(t())
-                                 - yRPIDGains.pid * yPID.correction(path.y(t()) - odometry.getPosition().getY(DistanceUnit.INCH), dt));
+                                 + yRPIDGains.pid * yPID.correction(path.y(t()) - odometry.getPosition().getY(DistanceUnit.INCH), dt));
         double dtheta = axisGains.theta * (thetaRPIDGains.r   * path.dtheta(t())
-                                             + thetaRPIDGains.pid * thetaPID.correction(path.theta(t()) - odometry.getPosition().getHeading(AngleUnit.DEGREES), dt));
+                                             - thetaRPIDGains.pid * thetaPID.correction(path.theta(t()) - odometry.getPosition().getHeading(AngleUnit.DEGREES), dt));
 
         double leftFrontPower  = motorGains.leftFront * (dy + dx + dtheta);
         double rightFrontPower = motorGains.rightFront * (dy - dx - dtheta);
