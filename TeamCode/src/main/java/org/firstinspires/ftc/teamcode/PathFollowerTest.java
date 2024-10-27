@@ -45,9 +45,9 @@ public class PathFollowerTest extends LinearOpMode {
                 new PathFollower.RawAndPIDGains(1, 1),
                 new PathFollower.RawAndPIDGains(1, 1),
                 new PathFollower.RawAndPIDGains(1, 1),
-                new PIDCoefficients(1, 0.01, 0.01),
-                new PIDCoefficients(1, 0.01, 0.01),
-                new PIDCoefficients(0.1, 0.01, 0.01),
+                new PIDCoefficients(1, 0, 0.5),
+                new PIDCoefficients(1, 0, 0.5),
+                new PIDCoefficients(0.3, 0, 0.1),
                 new PathFollower.AxisGains(1, 1, 1),
                 new PathFollower.MotorGains(1, 1, 1, 1)
                 );
