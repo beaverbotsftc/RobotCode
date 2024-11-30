@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.pathfollower;
 import java.util.function.Function;
 
 public final class Path {
-    private final double epsilon = 0.001;
+    private static final double epsilon = 0.001;
     Function<Double, Double> _x;
     Function<Double, Double> _y;
     Function<Double, Double> _theta;

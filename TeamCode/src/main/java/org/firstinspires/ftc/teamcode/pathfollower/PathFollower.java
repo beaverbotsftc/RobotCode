@@ -47,19 +47,20 @@ public final class PathFollower {
 
     private final double startingTime;
     private double currentTime;
-    private Path path;
-    private Motors motors;
-    private GoBildaPinpointDriver odometry;
+    private final Path path;
+    private final Motors motors;
+    private final GoBildaPinpointDriver odometry;
 
-    private PID xPID;
-    private PID yPID;
-    private PID thetaPID;
+    private final PID xPID;
+    private final PID yPID;
+    private final PID thetaPID;
 
-    private RawAndPIDGains xRPIDGains;
-    private RawAndPIDGains yRPIDGains;
-    private RawAndPIDGains thetaRPIDGains;
-    private AxisGains axisGains;
-    private MotorGains motorGains;
+    private final RawAndPIDGains xRPIDGains;
+    private final RawAndPIDGains yRPIDGains;
+    private final RawAndPIDGains thetaRPIDGains;
+    private final AxisGains axisGains;
+    private final MotorGains motorGains;
+    private final double speed;
 
     public PathFollower(Telemetry telemetry,
                         long startingTimeNS,
@@ -73,7 +74,8 @@ public final class PathFollower {
                         PIDCoefficients yPIDCoefficients,
                         PIDCoefficients thetaPIDCoefficients,
                         AxisGains axisGains,
-                        MotorGains motorGains
+                        MotorGains motorGains,
+                        double speed
                         ) {
         this.telemetry = telemetry;
         this.startingTime = startingTimeNS * 1e-9;
@@ -88,7 +90,8 @@ public final class PathFollower {
         this.motorGains = motorGains;
         this.xPID = new PID(path.x(0) - odometry.getPosition().getX(DistanceUnit.INCH), xPIDCoefficients.p, xPIDCoefficients.i, xPIDCoefficients.d);
         this.yPID = new PID(path.y(0) - odometry.getPosition().getY(DistanceUnit.INCH), yPIDCoefficients.p, yPIDCoefficients.i, yPIDCoefficients.d);
-        this.thetaPID = new PID(path.theta(0) - odometry.getPosition().getHeading(AngleUnit.RADIANS), thetaPIDCoefficients.p, thetaPIDCoefficients.i, thetaPIDCoefficients.d);
+        this.thetaPID = new PID(path.theta(0) - odometry.getPosition().getHeading(AngleUnit.DEGREES), thetaPIDCoefficients.p, thetaPIDCoefficients.i, thetaPIDCoefficients.d);
+        this.speed = speed;
     }
 
     private double t() {
@@ -106,28 +109,51 @@ public final class PathFollower {
         telemetry.addData("y", path.y(t()));
         telemetry.addData("theta", path.theta(t()));
 
-        xPID.update(path.x(t()) - odometry.getPosition().getX(DistanceUnit.INCH), dt);
-        yPID.update(path.y(t()) - odometry.getPosition().getY(DistanceUnit.INCH), dt);
-        thetaPID.update(path.theta(t()) - odometry.getPosition().getHeading(AngleUnit.DEGREES), dt);
+        double x = odometry.getPosition().getX(DistanceUnit.INCH);
+        double y = odometry.getPosition().getY(DistanceUnit.INCH);
+        double theta = odometry.getPosition().getHeading(AngleUnit.DEGREES);
+
+        double xError     = path.x(t())     - x;
+        double yError     = path.y(t())     - y;
+        double thetaError = path.theta(t()) - theta;
+
+        telemetry.addData("xError", xError);
+        telemetry.addData("yError", yError);
+        telemetry.addData("thetaError", thetaError);
 
         telemetry.addData("dx", path.dx(t()));
-        telemetry.addData("xPID", xPID.correction(path.x(t()) - odometry.getPosition().getX(DistanceUnit.INCH), dt));
+        telemetry.addData("xPID", xPID.correction(xError, dt));
         telemetry.addData("dy", path.dy(t()));
-        telemetry.addData("yPID", yPID.correction(path.dy(t()) - odometry.getPosition().getY(DistanceUnit.INCH), dt));
+        telemetry.addData("yPID", yPID.correction(yError, dt));
         telemetry.addData("dtheta", path.dtheta(t()));
-        telemetry.addData("thetaPID", thetaPID.correction(path.theta(t()) - odometry.getPosition().getHeading(AngleUnit.DEGREES), dt));
+        telemetry.addData("thetaPID", thetaPID.correction(thetaError, dt));
+
 
         double dx = axisGains.x * (xRPIDGains.r   * path.dx(t())
-                                 + xRPIDGains.pid * xPID.correction(path.x(t()) - odometry.getPosition().getX(DistanceUnit.INCH), dt));
+                                 + xRPIDGains.pid * xPID.correction(xError, dt));
         double dy = axisGains.y * (yRPIDGains.r   * path.dy(t())
-                                 + yRPIDGains.pid * yPID.correction(path.y(t()) - odometry.getPosition().getY(DistanceUnit.INCH), dt));
+                                 + yRPIDGains.pid * yPID.correction(yError, dt));
         double dtheta = axisGains.theta * (thetaRPIDGains.r   * path.dtheta(t())
-                                             - thetaRPIDGains.pid * thetaPID.correction(path.theta(t()) - odometry.getPosition().getHeading(AngleUnit.DEGREES), dt));
+                                             - thetaRPIDGains.pid * thetaPID.correction(thetaError, dt));
 
-        double leftFrontPower  = motorGains.leftFront * (dy + dx + dtheta);
-        double rightFrontPower = motorGains.rightFront * (dy - dx - dtheta);
-        double leftBackPower   = motorGains.leftBack * (dy - dx + dtheta);
-        double rightBackPower  = motorGains.rightBack * (dy + dx - dtheta);
+        xPID.update(xError, dt);
+        yPID.update(yError, dt);
+        thetaPID.update(thetaError, dt);
+
+        // Rotates (dx, dy) by -theta to account for the turned wheels
+        double theta_rad = theta * Math.PI / 180;
+        double rectified_dx = dx * Math.cos(theta_rad) - dy * Math.sin(theta_rad);
+        double rectified_dy = dx * Math.sin(theta_rad) + dy * Math.cos(theta_rad);
+
+        telemetry.addData("theta_rad", theta_rad);
+        telemetry.addData("rectified_dx", rectified_dx);
+        telemetry.addData("rectified_dy", rectified_dy);
+
+
+        double leftFrontPower  = motorGains.leftFront * (rectified_dx - rectified_dy + dtheta);
+        double rightFrontPower = motorGains.rightFront * (rectified_dx + rectified_dy - dtheta);
+        double leftBackPower   = motorGains.leftBack * (rectified_dx + rectified_dy + dtheta);
+        double rightBackPower  = motorGains.rightBack * (rectified_dx - rectified_dy - dtheta);
 
         telemetry.addData("leftFrontPower", leftFrontPower);
         telemetry.addData("rightFrontPower", rightFrontPower);
@@ -147,9 +173,9 @@ public final class PathFollower {
             rightBackPower  /= max;
         }
 
-        motors.leftFrontDrive.setPower(0.25 * leftFrontPower);
-        motors.rightFrontDrive.setPower(0.25 * rightFrontPower);
-        motors.leftBackDrive.setPower(0.25 * leftBackPower);
-        motors.rightBackDrive.setPower(0.25 * rightBackPower);
+        motors.leftFrontDrive.setPower(speed * leftFrontPower);
+        motors.rightFrontDrive.setPower(speed * rightFrontPower);
+        motors.leftBackDrive.setPower(speed * leftBackPower);
+        motors.rightBackDrive.setPower(speed * rightBackPower);
     }
 }

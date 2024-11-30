@@ -31,7 +31,7 @@ public class GobildaPinpointTest extends LinearOpMode {
         double initalPositionTheta = odometry.getPosition().getHeading(AngleUnit.DEGREES);
 
         while (opModeIsActive()) {
-            odometry.bulkUpdate();
+            odometry.update();
             telemetry.addData("Inital Position X", initalPositionX);
             telemetry.addData("Inital Position Y", initalPositionY);
             telemetry.addData("Inital Position Theta", initalPositionTheta);

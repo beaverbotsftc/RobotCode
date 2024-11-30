@@ -18,13 +18,12 @@ public class Sensors {
             The Y pod offset refers to how far forwards from the tracking point the Y (strafe) odometry pod is. forward of center is a positive number, backwards is a negative number.
         */
 
-        odometry.setOffsets(1.75 * 2.54 /* inch to cm constant */, 2.8 * 2.54);
+        odometry.setOffsets(-3.825, 0.902);
 
         odometry.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
 
         odometry.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.REVERSED);
 
-        odometry.recalibrateIMU();
         odometry.resetPosAndIMU();
 
         // Color sensor

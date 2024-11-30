@@ -27,6 +27,7 @@ public class PathFollowerTest extends LinearOpMode {
         motors.init(hardwareMap);
         sensors.init(hardwareMap);
 
+        //Path path = new Path((Double t)->Math.sin(t/10) * 12, (Double t)->Math.cos(t/10) * 12, (Double t)->t/3);
         Path path = new Path((Double t)->0.0, (Double t)->0.0, (Double t)->0.0);
 
         // Wait for the game to start (driver presses START)
@@ -45,16 +46,16 @@ public class PathFollowerTest extends LinearOpMode {
                 new PathFollower.RawAndPIDGains(1, 1),
                 new PathFollower.RawAndPIDGains(1, 1),
                 new PathFollower.RawAndPIDGains(1, 1),
-                new PIDCoefficients(1, 0, 0.5),
-                new PIDCoefficients(1, 0, 0.5),
-                new PIDCoefficients(0.3, 0, 0.1),
+                new PIDCoefficients(1, 0, 0),
+                new PIDCoefficients(1, 0, 0),
+                new PIDCoefficients(0.4, 0, 0),
                 new PathFollower.AxisGains(1, 1, 1),
-                new PathFollower.MotorGains(1, 1, 1, 1)
+                new PathFollower.MotorGains(1, 1, 1, 1),
+                0.4
                 );
 
-        // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-            sensors.odometry.bulkUpdate();
+            sensors.odometry.update();
             telemetry.addData("time", runtime.now(TimeUnit.MILLISECONDS));
             pathFollower.run(runtime.now(TimeUnit.NANOSECONDS));
             telemetry.addData("X Pos", sensors.odometry.getPosition().getX(DistanceUnit.INCH));
