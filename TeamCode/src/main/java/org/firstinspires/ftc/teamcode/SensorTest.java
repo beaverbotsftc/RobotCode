@@ -37,15 +37,6 @@ public class SensorTest extends LinearOpMode {
             telemetry.addData("Y velocity (inches/second)", sensors.odometry.getVelocity().getY(DistanceUnit.INCH));
             telemetry.addData("Heading velocity (degrees/second)", sensors.odometry.getVelocity().getHeading(AngleUnit.DEGREES));
 
-            // Color sensor
-            telemetry.addLine("Color sensor");
-            telemetry.addData("Red", (float) sensors.color.red() / 255);
-            telemetry.addData("Green", (float) sensors.color.green() / 255);
-            telemetry.addData("Blue", (float) sensors.color.blue() / 255);
-            telemetry.addLine(Math.sqrt(
-                    Math.pow(sensors.color.red(), 2) + Math.pow(sensors.color.green(), 2) + Math.pow(sensors.color.blue(), 2))
-                    >= 220 ? "Bright" : "Dark");
-
             telemetry.update();
         }
     }

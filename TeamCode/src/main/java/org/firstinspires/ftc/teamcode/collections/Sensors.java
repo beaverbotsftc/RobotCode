@@ -6,7 +6,6 @@ import org.firstinspires.ftc.teamcode.pinpoint.GoBildaPinpointDriver;
 
 public class Sensors {
     public GoBildaPinpointDriver odometry;
-    public ColorSensor color;
 
     public void init(HardwareMap hardwareMap) {
         // Pinpoint
@@ -21,12 +20,9 @@ public class Sensors {
         odometry.setOffsets(-3.825, 0.902);
 
         odometry.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-
         odometry.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.REVERSED);
 
         odometry.resetPosAndIMU();
-
-        // Color sensor
-        color = hardwareMap.get(ColorSensor.class, "Color");
+        odometry.update();
     }
 }
