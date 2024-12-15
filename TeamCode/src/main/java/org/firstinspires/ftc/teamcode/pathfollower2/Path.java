@@ -62,19 +62,7 @@ public class Path {
             return this;
         }
 
-        public PathBuilder constify(double time) {
-            for (DOFs.DOF dof : DOFs.DOF.values()) {
-                this.constify(dof, time);
-            }
-            return this;
-        }
-
         public PathBuilder constify(DOFs.DOF dof) {
-            return this.constify(dof, this.clock);
-        }
-
-        public PathBuilder constify(DOFs.DOF dof, double time) {
-            telemetry.addData("B", this.f.get(dof).apply(this.clock));
             return this.append(dof, (Double t) -> this.f.get(dof).apply(this.clock));
         }
 

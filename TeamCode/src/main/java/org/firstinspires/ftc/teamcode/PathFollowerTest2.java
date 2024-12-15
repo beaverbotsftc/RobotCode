@@ -34,7 +34,6 @@ public class PathFollowerTest2 extends LinearOpMode {
                 .addTime(15)
                 .buildSegment()
                 .build();
-        telemetry.addData("a", path.paths.get(0).f.get(DOFs.DOF.X).apply(100.0));
         telemetry.update();
 
         PathFollower pathFollower = new PathFollower(path, new DOFs(sensors.odometry, motors), new HashMap<DOFs.DOF, PID.K>() {{
