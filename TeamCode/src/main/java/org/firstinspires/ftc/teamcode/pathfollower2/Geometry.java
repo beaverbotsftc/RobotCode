@@ -6,9 +6,9 @@ public final class Geometry {
         if (points == null || points.length == 0) {
             throw new IllegalArgumentException("Input array cannot be null or empty.");
         }
-        if (t < 0 || t > 1) {
-            throw new IllegalArgumentException("t must be between 0 and 1 (inclusive).");
-        }
+
+        if (t < 0) t = 0;
+        if (t > 1) t = 1;
 
         if (points.length == 1) {
             return points[0];

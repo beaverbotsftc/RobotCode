@@ -1,11 +1,9 @@
 package org.firstinspires.ftc.teamcode.pathfollower2;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class Path {
@@ -15,8 +13,6 @@ public class Path {
         public Function<Double, Boolean> isFinished;
         public double clock = 0;
         public boolean autoIsFinished = true;
-
-        Telemetry telemetry;
 
         public PathBuilder linearTo(HashMap<DOFs.DOF, Double> points, double time) {
             for (DOFs.DOF dof : DOFs.DOF.values()) {
@@ -45,14 +41,12 @@ public class Path {
         }
 
         public PathBuilder append(DOFs.DOF dof, Function<Double, Double> f) {
-            return this.function(dof,
-                    ((BiFunction<Double, Function<Double, Double>, Function<Double, Double>>) ((Double startTime,
-                                                                                                Function<Double, Double> previousFunction) -> (Double t) -> {
-                        if (t >= startTime) {
-                            return f.apply(t + startTime);
-                        }
-                        return previousFunction.apply(t);
-                    })).apply(this.clock, this.f.get(dof)));
+            double startTimeCaptured = this.clock;
+            Function<Double, Double> previousFunctionCaptured = this.f.get(dof);
+            return this.function(dof, (Double t) -> {
+                if (t >= startTimeCaptured) return f.apply(t - startTimeCaptured);
+                return previousFunctionCaptured.apply(t);
+            });
         }
 
         public PathBuilder constify() {
@@ -63,7 +57,8 @@ public class Path {
         }
 
         public PathBuilder constify(DOFs.DOF dof) {
-            return this.append(dof, (Double t) -> this.f.get(dof).apply(this.clock));
+            double nCaptured = this.f.get(dof).apply(this.clock);
+            return this.append(dof, (Double t) -> nCaptured);
         }
 
         public PathBuilder addTime(double time) {
@@ -113,8 +108,7 @@ public class Path {
             this.autoIsFinished = true;
         }
 
-        public PathBuilder(Telemetry telemetry) {
-            this.telemetry = telemetry;
+        public PathBuilder() {
             this.pathSegments = new ArrayList<>();
             resetPathSegment();
         }

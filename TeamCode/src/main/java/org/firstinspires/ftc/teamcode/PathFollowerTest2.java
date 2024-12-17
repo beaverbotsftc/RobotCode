@@ -25,16 +25,16 @@ public class PathFollowerTest2 extends LinearOpMode {
         motors.init(hardwareMap);
         sensors.init(hardwareMap);
 
-        Path path = new Path.PathBuilder(telemetry)
+        Path path = new Path.PathBuilder()
                 .linearTo(new HashMap<DOFs.DOF, Double>() {{
-                    put(DOFs.DOF.X, 12.0);
+                    put(DOFs.DOF.X, 24.0);
                     put(DOFs.DOF.Y, 0.0);
                     put(DOFs.DOF.THETA, 0.0);
                 }}, 5)
-                .addTime(15)
+                .addTime(15.0)
                 .buildSegment()
                 .build();
-        telemetry.update();
+        telemetry.addData("A", path.paths.get(0).f.get(DOFs.DOF.X).apply(180.0));
 
         PathFollower pathFollower = new PathFollower(path, new DOFs(sensors.odometry, motors), new HashMap<DOFs.DOF, PID.K>() {{
             put(DOFs.DOF.X, new PID.K(1, 0, 0));
