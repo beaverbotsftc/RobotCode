@@ -85,12 +85,47 @@ public class LimeLocator {
 
         return shortestSideRotation;
     }
-    public static double ObjPos(double ty) {
+    public void Position(double tncy, double tncx) {
+        int padding = 3;
+        
+        while ((Math.abs(tncy) >= padding ) && (Math.abs(tncx) >= padding )) {
+            double max;
+            double speed = 0.25;
+            double x = tncx / 26;
+            double y = tncy / 26;
+            double yP = -y;
+            double xP = -x;
+            double axial = yP * -speed;  // Note: pushing stick forward gives negative value
+            double lateral = xP * speed;
 
 
-        motors.leftFrontDrive.setPower(n * leftFrontPower);
-        motors.rightFrontDrive.setPower(n * rightFrontPower);
-        motors.leftBackDrive.setPower(n * leftBackPower);
-        motors.rightBackDrive.setPower(n * rightBackPower);
+            // Combine the joystick requests for each axis-motion to determine each wheel's power.
+            // Set up a variable for each drive wheel to save the power level for telemetry.
+            double leftFrontPower = (axial + lateral);
+            double rightFrontPower = (axial - lateral);
+            double leftBackPower = (axial - lateral);
+            double rightBackPower = (axial + lateral);
+
+            // Normalize the values so no wheel power exceeds 100%
+            // This ensures that the robot maintains the desired motion.
+            max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower));
+            max = Math.max(max, Math.abs(leftBackPower));
+            max = Math.max(max, Math.abs(rightBackPower));
+
+            if (max > 1.0) {
+                leftFrontPower /= max;
+                rightFrontPower /= max;
+                leftBackPower /= max;
+                rightBackPower /= max;
+            }
+
+//
+
+            // Send calculated power to wheels
+            motors.leftFrontDrive.setPower(leftFrontPower);
+            motors.rightFrontDrive.setPower(rightFrontPower);
+            motors.leftBackDrive.setPower(leftBackPower);
+            motors.rightBackDrive.setPower(rightBackPower);
+        }
     }
 }
