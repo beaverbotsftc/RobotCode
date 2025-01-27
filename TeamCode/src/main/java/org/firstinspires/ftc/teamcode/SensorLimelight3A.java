@@ -40,6 +40,8 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Servo;
+
 import org.firstinspires.ftc.teamcode.limeLocator.LimeLocator;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
@@ -70,15 +72,20 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 public class SensorLimelight3A extends LinearOpMode {
 
     private Limelight3A limelight;
+    private Servo servo = null;
 
     @Override
     public void runOpMode() throws InterruptedException
     {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        servo = hardwareMap.get(Servo.class, "servo");
+        servo.scaleRange(0,180);
+
 
         telemetry.setMsTransmissionInterval(11);
 
         limelight.pipelineSwitch(0);
+        limelight.setPollRateHz(120);
 
         /*
          * Starts polling for data.  If you neglect to call start(), getLatestResult() will return null.
@@ -99,7 +106,15 @@ public class SensorLimelight3A extends LinearOpMode {
                     status.getPipelineIndex(), status.getPipelineType());
 
             LLResult result = limelight.getLatestResult();
+           // if (gamepad1.circle) {
+                servo.setPosition(LimeLocator.FindRotation(result) / 180.0);
+           // }
+
+
             if (result != null) {
+
+
+
                 // Access general information
                 Pose3D botpose = result.getBotpose();
                 double captureLatency = result.getCaptureLatency();
@@ -108,13 +123,16 @@ public class SensorLimelight3A extends LinearOpMode {
                 telemetry.addData("LL Latency", captureLatency + targetingLatency);
                 telemetry.addData("Parse Latency", parseLatency);
                 //telemetry.addData("PythonOutput", java.util.Arrays.toString(result.getPythonOutput()));
-
+               // servo.setPosition(LimeLocator.FindRotation(result));
                 if (result.isValid()) {
-                    LimeLocator.FindRotation(result);
 
-                    double Distance = LimeLocator.ObjPos(result.getTy());
+
+
+
                     //double Rotation = Locator.ObjPos(result.);
-                    telemetry.addData("distance", Distance);
+
+                    telemetry.addData("rotationservo", servo.getPosition());
+                    telemetry.addData("rotation", LimeLocator.FindRotation(result));
                     telemetry.addData("tx", result.getTx());
 
                     telemetry.addData("txnc", result.getTxNC());
