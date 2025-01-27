@@ -9,14 +9,11 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp(name="Random Axon Servo", group="Linear OpMode")
 public class AxonServo extends LinearOpMode {
-    private Servo openServo = null;
     private Servo rotationServo = null;
 
     @Override
     public void runOpMode() {
-        openServo = hardwareMap.get(Servo.class, "open");
-        rotationServo = hardwareMap.get(Servo.class, "rotation");
-        openServo.setDirection(Servo.Direction.FORWARD);
+        rotationServo = hardwareMap.get(Servo.class, "servo");
         rotationServo.setDirection(Servo.Direction.FORWARD);
 
         telemetry.addData("Status", "Initialized");
@@ -27,17 +24,19 @@ public class AxonServo extends LinearOpMode {
         while (opModeIsActive()) {
 
             if(gamepad1.dpad_up){
-                openServo.setPosition(0.40);
+                rotationServo.setPosition(0);
             } else if (gamepad1.dpad_right) {
-                openServo.setPosition(0.41);
+                rotationServo.setPosition(0.33);
             } else if (gamepad1.dpad_down) {
-                openServo.setPosition(0.42);
+                rotationServo.setPosition(0.66);
             } else if (gamepad1.dpad_left) {
-                openServo.setPosition(0.55);
+                rotationServo.setPosition(1.0);
             }
 
-            if(gamepad1.left_stick_y >= 0.05 && gamepad1.left_stick_y <= -0.05){
-                rotationServo.setPosition(rotationServo.getPosition() + (gamepad1.left_stick_y / 1000));
+            if (gamepad1.triangle){
+                rotationServo.setPosition(rotationServo.getPosition() + 0.001);
+            }else if(gamepad1.cross){
+                rotationServo.setPosition(rotationServo.getPosition() - 0.001);
             }
 
 
