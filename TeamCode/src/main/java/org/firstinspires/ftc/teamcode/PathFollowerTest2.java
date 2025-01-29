@@ -27,14 +27,39 @@ public class PathFollowerTest2 extends LinearOpMode {
 
         Path path = new Path.PathBuilder()
                 .linearTo(new HashMap<DOFs.DOF, Double>() {{
-                    put(DOFs.DOF.X, 24.0);
-                    put(DOFs.DOF.Y, 0.0);
+                    put(DOFs.DOF.X, 2 * 24.0);
+                    put(DOFs.DOF.Y, 2 * 0.0);
                     put(DOFs.DOF.THETA, 0.0);
                 }}, 5)
-                .addTime(15.0)
+                .linearTo(new HashMap<DOFs.DOF, Double>() {{
+                    put(DOFs.DOF.X, 2 * 24.0);
+                    put(DOFs.DOF.Y, 2 * 24.0);
+                    put(DOFs.DOF.THETA, 0.0);
+                }}, 5)
+                .linearTo(new HashMap<DOFs.DOF, Double>() {{
+                    put(DOFs.DOF.X, 2 * 24.0);
+                    put(DOFs.DOF.Y, 2 * 24.0);
+                    put(DOFs.DOF.THETA, 90.0);
+                }}, 5)
+                .linearTo(new HashMap<DOFs.DOF, Double>() {{
+                    put(DOFs.DOF.X, 2 * 0.0);
+                    put(DOFs.DOF.Y, 2 * 24.0);
+                    put(DOFs.DOF.THETA, 90.0);
+                }}, 5)
+                .linearTo(new HashMap<DOFs.DOF, Double>() {{
+                    put(DOFs.DOF.X, 2 * 0.0);
+                    put(DOFs.DOF.Y, 2 * 24.0);
+                    put(DOFs.DOF.THETA, 720.0);
+                }}, 5)
+                .addTime(2 * 10.0)
+                .linearTo(new HashMap<DOFs.DOF, Double>() {{
+                    put(DOFs.DOF.X, 2 * 0.0);
+                    put(DOFs.DOF.Y, 2 * 0.0);
+                    put(DOFs.DOF.THETA, 2 * 0.0);
+                }}, 5)
+                .addTime(2 * 15.0)
                 .buildSegment()
                 .build();
-        telemetry.addData("A", path.paths.get(0).f.get(DOFs.DOF.X).apply(180.0));
 
         PathFollower pathFollower = new PathFollower(path, new DOFs(sensors.odometry, motors), new HashMap<DOFs.DOF, PID.K>() {{
             put(DOFs.DOF.X, new PID.K(1, 0, 0));
@@ -48,6 +73,7 @@ public class PathFollowerTest2 extends LinearOpMode {
 
 
         telemetry.addData("Status", "Initialized");
+        telemetry.speak("I have been initialized!");
         telemetry.update();
 
         waitForStart();

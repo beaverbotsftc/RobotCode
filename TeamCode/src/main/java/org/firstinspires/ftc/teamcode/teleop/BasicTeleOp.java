@@ -67,6 +67,28 @@ public class BasicTeleOp extends LinearOpMode {
                 subsystems.verticalSlide(0);
             }
 
+            subsystems.horizontalSlide(gamepad2.left_stick_y);
+
+            if (gamepad2.dpad_up){
+                subsystems.intakeClawServo.setPosition(subsystems.intakeClawServo.getPosition() + 0.001);
+            }else if(gamepad2.dpad_down){
+                subsystems.intakeClawServo.setPosition(subsystems.intakeClawServo.getPosition() - 0.001);
+            }
+
+            if (gamepad2.dpad_right){
+                subsystems.intakeRotationServo.setPosition(subsystems.intakeRotationServo.getPosition() + 0.001);
+            }else if(gamepad2.dpad_left){
+                subsystems.intakeRotationServo.setPosition(subsystems.intakeRotationServo.getPosition() - 0.001);
+            }
+
+            if (gamepad2.triangle){
+                subsystems.intakeArmServo.setPosition(subsystems.intakeArmServo.getPosition() + 0.001);
+            }else if(gamepad2.cross){
+                subsystems.intakeArmServo.setPosition(subsystems.intakeArmServo.getPosition() - 0.001);
+            }
+
+
+
             double max;
 
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
@@ -106,6 +128,9 @@ public class BasicTeleOp extends LinearOpMode {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
+            telemetry.addData("Horizontal Slide Power", subsystems.leftHorSlide.getPower());
+            telemetry.addData("Intake Claw Servo Position", subsystems.intakeClawServo.getPosition());
+            telemetry.addData("Intake Rotation Servo Position", subsystems.intakeRotationServo.getPosition());
             telemetry.update();
         }
     }

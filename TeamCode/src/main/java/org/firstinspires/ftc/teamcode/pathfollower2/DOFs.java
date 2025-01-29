@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.pinpoint.GoBildaPinpointDriver;
 import java.util.HashMap;
 
 public class DOFs {
-    public double[] wheights = { 1.0, 1.0, 0.3, 1.0, 1.0, 1.0, 1.0 };
+    public double[] wheights = { 1.0, 1.0, 0.15, 1.0, 1.0, 1.0, 1.0 };
     public GoBildaPinpointDriver odometry;
     public Motors motors;
 
@@ -18,13 +18,29 @@ public class DOFs {
         THETA,
     }
 
-    public double lastTime = 0;
+    public double lastTheta = 0;
+    public int revolutions = 0;
 
     public HashMap<DOF, Double> getPosition() {
         HashMap<DOF, Double> positions = new HashMap<DOF, Double>();
         positions.put(DOF.X, odometry.getPosition().getX(DistanceUnit.INCH));
         positions.put(DOF.Y, odometry.getPosition().getY(DistanceUnit.INCH));
-        positions.put(DOF.THETA, odometry.getPosition().getHeading(AngleUnit.DEGREES));
+        double theta = odometry.getPosition().getHeading(AngleUnit.DEGREES);
+
+        double dtheta = theta - lastTheta;
+
+        if (dtheta > 100) {
+            revolutions--;
+        } else if (dtheta < -100) {
+            revolutions++;
+        }
+
+        lastTheta = theta;
+
+        double effectiveTheta = revolutions * 360 + theta;
+
+        positions.put(DOF.THETA, revolutions * 360 + theta);
+
         return positions;
     }
 
@@ -36,8 +52,8 @@ public class DOFs {
         double leftBackPower = 0;
         double rightBackPower = 0;
 
-        double dx = wheights[0] * gradient.get(DOF.X);
-        double dy = wheights[1] * gradient.get(DOF.Y);
+        double dx = wheights[0] * (Math.cos(-getPosition().get(DOF.THETA) * Math.PI / 180) * gradient.get(DOF.X) - Math.sin(-getPosition().get(DOF.THETA) * Math.PI / 180) * gradient.get(DOF.Y));
+        double dy = wheights[0] * (Math.sin(-getPosition().get(DOF.THETA) * Math.PI / 180) * gradient.get(DOF.X) + Math.cos(-getPosition().get(DOF.THETA) * Math.PI / 180) * gradient.get(DOF.Y));
 
         for (DOF dof : DOFs.DOF.values()) {
             telemetry.addData("dof", dof);
@@ -79,7 +95,7 @@ public class DOFs {
         telemetry.addData("leftBackPower", leftBackPower);
         telemetry.addData("rightBackPower", rightBackPower);
 
-        double n = 0.2;
+        double n = 1;
         motors.leftFrontDrive.setPower(n * leftFrontPower);
         motors.rightFrontDrive.setPower(n * rightFrontPower);
         motors.leftBackDrive.setPower(n * leftBackPower);

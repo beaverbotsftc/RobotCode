@@ -33,6 +33,11 @@ public class PathFollower { // extends Thread
             lastLoopTime = time;
 
             if (path.update(dt)) {
+                dofs.apply(new HashMap<DOFs.DOF, Double>() {{
+                    for (DOFs.DOF dof : DOFs.DOF.values()) {
+                        put(dof, 0.0);
+                    }
+                }}, telemetry);
                 break; // Stop once the path is complete
             }
 

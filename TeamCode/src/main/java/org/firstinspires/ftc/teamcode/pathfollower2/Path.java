@@ -37,7 +37,7 @@ public class Path {
 
         // Doesn't increase clock
         public PathBuilder followSubdivisions(DOFs.DOF dof, double[] points, double time) {
-            return this.append(dof, (Double t) -> Geometry.interpolate(points, t / time));
+            return this.append(dof, (Double t) -> MathUtils.interpolate(points, t, time));
         }
 
         public PathBuilder append(DOFs.DOF dof, Function<Double, Double> f) {
@@ -83,8 +83,8 @@ public class Path {
 
         public PathBuilder buildSegment() {
             if (autoIsFinished) {
-                this.isFinished(((Function<Double, Function<Double, Boolean>>) (Double endTime) -> (Double t) -> t > endTime)
-                        .apply(this.clock));
+                double capturedClock = this.clock;
+                this.isFinished((Double t) -> t > capturedClock);
             }
             pathSegments.add(new PathSegment(f, isFinished));
             resetPathSegment();
