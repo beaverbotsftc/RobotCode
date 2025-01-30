@@ -24,7 +24,7 @@ public class PathFollower { // extends Thread
     public void run(Telemetry telemetry) {
         double lastLoopTime = (double) System.currentTimeMillis() * 1e-3;
 
-        while (true) {
+        while (true) { // Okay because it's the path's responsibility to break say that it's finished when the stop button is pressed
             double time = (double) System.currentTimeMillis() * 1e-3;
             double dt = time - lastLoopTime;
             if (!(dt > 0))

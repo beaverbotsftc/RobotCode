@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 import android.graphics.Color;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -19,6 +20,7 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @TeleOp(name="BeaverBots BasicTeleOp", group="Linear OpMode")
+@Disabled
 public class BeaverBotsTeleOp extends LinearOpMode {
 
     // Declare OpMode members for each of the 4 motors.

@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.pathfollower2;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.collections.Motors;
 import org.firstinspires.ftc.teamcode.pinpoint.GoBildaPinpointDriver;
@@ -18,28 +17,11 @@ public class DOFs {
         THETA,
     }
 
-    public double lastTheta = 0;
-    public int revolutions = 0;
-
     public HashMap<DOF, Double> getPosition() {
-        HashMap<DOF, Double> positions = new HashMap<DOF, Double>();
+        HashMap<DOF, Double> positions = new HashMap<>();
         positions.put(DOF.X, odometry.getPosition().getX(DistanceUnit.INCH));
         positions.put(DOF.Y, odometry.getPosition().getY(DistanceUnit.INCH));
-        double theta = odometry.getPosition().getHeading(AngleUnit.DEGREES);
-
-        double dtheta = theta - lastTheta;
-
-        if (dtheta > 100) {
-            revolutions--;
-        } else if (dtheta < -100) {
-            revolutions++;
-        }
-
-        lastTheta = theta;
-
-        double effectiveTheta = revolutions * 360 + theta;
-
-        positions.put(DOF.THETA, revolutions * 360 + theta);
+        positions.put(DOF.THETA, odometry.getHeading() * 180 / Math.PI);
 
         return positions;
     }

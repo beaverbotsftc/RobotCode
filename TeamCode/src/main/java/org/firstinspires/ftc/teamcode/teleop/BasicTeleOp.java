@@ -75,6 +75,8 @@ public class BasicTeleOp extends LinearOpMode {
                 subsystems.intakeClawServo.setPosition(subsystems.intakeClawServo.getPosition() - 0.001);
             }
 
+
+
             if (gamepad2.dpad_right){
                 subsystems.intakeRotationServo.setPosition(subsystems.intakeRotationServo.getPosition() + 0.001);
             }else if(gamepad2.dpad_left){

@@ -25,7 +25,7 @@ public class PathFollowerTest2 extends LinearOpMode {
         motors.init(hardwareMap);
         sensors.init(hardwareMap);
 
-        Path path = new Path.PathBuilder()
+        Path path = new Path.PathBuilder(this::isStopRequested)
                 .linearTo(new HashMap<DOFs.DOF, Double>() {{
                     put(DOFs.DOF.X, 2 * 24.0);
                     put(DOFs.DOF.Y, 2 * 0.0);
