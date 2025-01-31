@@ -4,6 +4,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public class PathFollower { // extends Thread
     public static class K {
@@ -16,6 +17,8 @@ public class PathFollower { // extends Thread
         }
     }
 
+    private Supplier<Boolean> isStopRequested;
+
     public Path path;
     public DOFs dofs;
     public HashMap<DOFs.DOF, PID> pids;
@@ -24,7 +27,7 @@ public class PathFollower { // extends Thread
     public void run(Telemetry telemetry) {
         double lastLoopTime = (double) System.currentTimeMillis() * 1e-3;
 
-        while (true) { // Okay because it's the path's responsibility to break say that it's finished when the stop button is pressed
+        while (!isStopRequested.get()) {
             double time = (double) System.currentTimeMillis() * 1e-3;
             double dt = time - lastLoopTime;
             if (!(dt > 0))
@@ -65,7 +68,7 @@ public class PathFollower { // extends Thread
         }
     }
 
-    public PathFollower(Path path, DOFs dofs, HashMap<DOFs.DOF, PID.K> pids, HashMap<DOFs.DOF, K> k) {
+    public PathFollower(Path path, DOFs dofs, HashMap<DOFs.DOF, PID.K> pids, HashMap<DOFs.DOF, K> k, Supplier<Boolean> isStopRequested) {
         this.path = path;
         this.dofs = dofs;
         this.pids = pids.entrySet().stream().collect(
@@ -73,5 +76,6 @@ public class PathFollower { // extends Thread
                         new PID(entry.getValue(), path.getDeviation(dofs.getPosition()).get(entry.getKey()))),
                 HashMap::putAll);
         this.k = k;
+        this.isStopRequested = isStopRequested;
     }
 }

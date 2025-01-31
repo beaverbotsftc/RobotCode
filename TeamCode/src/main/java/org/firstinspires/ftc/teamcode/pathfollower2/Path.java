@@ -4,20 +4,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class Path {
     public static class PathBuilder {
         public ArrayList<PathSegment> pathSegments;
-        public Consumer<Supplier<Boolean>> init;
+        public Runnable onInit;
+        public Runnable onIteration;
+        public Runnable onInitBlocking;
+        public Runnable onIterationBlocking;
         public HashMap<DOFs.DOF, Function<Double, Double>> f;
         public Function<Double, Boolean> isFinished;
         public double clock = 0;
         public boolean autoIsFinished = true;
-
-        private Supplier<Boolean> isStopRequested;
 
         public PathBuilder linearTo(HashMap<DOFs.DOF, Double> points, double time) {
             for (DOFs.DOF dof : DOFs.DOF.values()) {
@@ -86,8 +86,24 @@ public class Path {
             return this;
         }
 
-        public PathBuilder init(Consumer<Supplier<Boolean>> init) {
-            this.init = init;
+        public PathBuilder onInit(Runnable onInit) {
+            this.onInit = onInit;
+            return this;
+        }
+
+        public PathBuilder onIteration(Runnable onIteration) {
+            this.onIteration = onIteration;
+            return this;
+        }
+
+
+        public PathBuilder onInitBlocking(Runnable onInitBlocking) {
+            this.onInitBlocking = onInitBlocking;
+            return this;
+        }
+
+        public PathBuilder onIterationBlocking(Runnable onIterationBlocking) {
+            this.onIterationBlocking = onIterationBlocking;
             return this;
         }
 
@@ -96,13 +112,13 @@ public class Path {
                 double capturedClock = this.clock;
                 this.isFinished((Double t) -> t > capturedClock);
             }
-            pathSegments.add(new PathSegment(f, (Double t) -> (isFinished.apply(t) || isStopRequested.get()), init));
+            pathSegments.add(new PathSegment(f, (Double t) -> isFinished.apply(t), onInit, onIteration, onInitBlocking, onIterationBlocking));
             resetPathSegment();
             return this;
         }
 
         public Path build() {
-            return new Path(pathSegments, isStopRequested);
+            return new Path(pathSegments);
         }
 
         private void resetPathSegment() {
@@ -114,30 +130,36 @@ public class Path {
                 }
             };
             this.isFinished = (Double t) -> false;
-            this.init = (Supplier<Boolean> isStopRequested) -> {};
+            this.onInit = () -> {};
+            this.onIteration = () -> {};
+            this.onInitBlocking = () -> {};
+            this.onIterationBlocking = () -> {};
             this.clock = 0;
             this.autoIsFinished = true;
         }
 
-        public PathBuilder(Supplier<Boolean> isStopRequested) {
+        public PathBuilder() {
             this.pathSegments = new ArrayList<>();
-            this.isStopRequested = isStopRequested;
             resetPathSegment();
         }
     }
     public int index = 0;
-    private int lastIndex = -1; // -1 so that the init function for the first path gets run
+    private int lastIndex = -1; // -1 so that the onInit function for the first path gets run
     public ArrayList<PathSegment> paths;
     public double t = 0;
 
     private final double epsilon = 1e-3;
-    private Supplier<Boolean> isStopRequested;
 
     public boolean update(double dt) {
         if (index != lastIndex) {
-            new Thread(() -> paths.get(index).init.accept(this.isStopRequested)).start();
+            new Thread(paths.get(index).onInit).start();
+            paths.get(index).onInitBlocking.run();
             lastIndex = index;
         }
+
+        new Thread(paths.get(index).onIteration).start();
+        paths.get(index).onIterationBlocking.run();
+
 
         t += dt;
 
@@ -165,8 +187,7 @@ public class Path {
                 HashMap::putAll);
     }
 
-    public Path(ArrayList<PathSegment> paths, Supplier<Boolean> isStopRequested) {
+    public Path(ArrayList<PathSegment> paths) {
         this.paths = paths;
-        this.isStopRequested = isStopRequested;
     }
 }

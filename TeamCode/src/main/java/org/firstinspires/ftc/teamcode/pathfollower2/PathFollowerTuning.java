@@ -113,7 +113,7 @@ public class PathFollowerTuning extends LinearOpMode {
 
             DOFs dofs = new DOFs(sensors.odometry, motors);
 
-            Path path = new Path.PathBuilder(this::isStopRequested)
+            Path path = new Path.PathBuilder()
                     .linearTo(
                             new HashMap<DOFs.DOF, Double>() {
                                 {
@@ -139,7 +139,7 @@ public class PathFollowerTuning extends LinearOpMode {
                         {
                             for (DOFs.DOF dof : DOFs.DOF.values()) put(dof, new PathFollower.K(guess.get(dof), 0));
                         }
-                    });
+                    }, this::isStopRequested);
 
             pathFollower.run(telemetry);
 

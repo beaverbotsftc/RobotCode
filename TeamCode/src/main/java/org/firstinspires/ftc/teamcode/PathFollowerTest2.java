@@ -2,8 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 import org.firstinspires.ftc.teamcode.collections.Motors;
 import org.firstinspires.ftc.teamcode.collections.Sensors;
 import org.firstinspires.ftc.teamcode.pathfollower2.DOFs;
@@ -12,7 +11,6 @@ import org.firstinspires.ftc.teamcode.pathfollower2.Path;
 import org.firstinspires.ftc.teamcode.pathfollower2.PathFollower;
 
 import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
 
 
 @TeleOp(name="Path follower test 2")
@@ -25,7 +23,7 @@ public class PathFollowerTest2 extends LinearOpMode {
         motors.init(hardwareMap);
         sensors.init(hardwareMap);
 
-        Path path = new Path.PathBuilder(this::isStopRequested)
+        Path path = new Path.PathBuilder()
                 .linearTo(new HashMap<DOFs.DOF, Double>() {{
                     put(DOFs.DOF.X, 2 * 24.0);
                     put(DOFs.DOF.Y, 2 * 0.0);
@@ -69,7 +67,7 @@ public class PathFollowerTest2 extends LinearOpMode {
                 put(DOFs.DOF.X, new PathFollower.K(1, 1));
                 put(DOFs.DOF.Y, new PathFollower.K(1, 1));
                 put(DOFs.DOF.THETA, new PathFollower.K(1, 1));
-            }});
+            }}, this::isStopRequested);
 
 
         telemetry.addData("Status", "Initialized");
