@@ -6,13 +6,15 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Subsystems {
-    public DcMotor leftVerSlide = null;
-    public DcMotor rightVerSlide = null;
-    public DcMotor rightHorSlide = null;
-    public DcMotor leftHorSlide = null;
-    public Servo intakeRotationServo = null;
-    public Servo intakeClawServo = null;
-    public Servo intakeArmServo = null;
+    public DcMotor leftVerSlide;
+    public DcMotor rightVerSlide;
+    public DcMotor rightHorSlide;
+    public DcMotor leftHorSlide;
+    public Servo intakeRotationServo;
+    public Servo intakeClawServo;
+    public Servo intakeArmServo;
+    public Servo outtakeArmServoRight;
+    public Servo outtakeArmServoLeft;
 
     public void init(HardwareMap hardwareMap) {
         leftVerSlide = hardwareMap.get(DcMotor.class, "left ver slide");
@@ -46,6 +48,11 @@ public class Subsystems {
         intakeArmServo = hardwareMap.get(Servo.class, "intake arm servo");
         intakeArmServo.setDirection(Servo.Direction.FORWARD);
 
+        outtakeArmServoRight = hardwareMap.get(Servo.class, "outtake arm servo right");
+        outtakeArmServoRight.setDirection(Servo.Direction.FORWARD);
+
+        outtakeArmServoLeft = hardwareMap.get(Servo.class, "outtake arm servo left");
+        outtakeArmServoLeft.setDirection(Servo.Direction.REVERSE); // Because otherwise they would conflict
     }
     public void verticalSlide(double power){
         leftVerSlide.setPower(power);
@@ -55,5 +62,11 @@ public class Subsystems {
     public void horizontalSlide(double power){
         leftHorSlide.setPower(power);
         rightHorSlide.setPower(power);
+    }
+
+    /// @param position between 0 and 1
+    public void outtakeArm(double position) {
+        outtakeArmServoRight.setPosition(position);
+        outtakeArmServoLeft.setPosition(position);
     }
 }

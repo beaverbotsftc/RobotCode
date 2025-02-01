@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
-@Autonomous(name = "Park (Specimen side)")
+@Autonomous(name = "Specimen Park")
 public class ParkSpecimen extends LinearOpMode {
     @Override
     public void runOpMode() {
@@ -28,25 +28,24 @@ public class ParkSpecimen extends LinearOpMode {
         motors.init(hardwareMap);
         sensors.init(hardwareMap);
 
-        sensors.odometry.setPosition(new Pose2D(DistanceUnit.INCH, 0, 72, AngleUnit.DEGREES, 0));
-
         telemetry.addData("Status", "Initialized");
         telemetry.speak("I have been initialized!");
         telemetry.update();
         waitForStart();
 
         Path path = new Path.PathBuilder()
-                .linearTo(new HashMap<DOFs.DOF, Double>() {{
+                .easeCompoundPolynomialTo(new HashMap<DOFs.DOF, Double>() {{
                     put(DOFs.DOF.X, 0.0);
-                    put(DOFs.DOF.Y, 120.0);
+                    put(DOFs.DOF.Y, -48.0);
                     put(DOFs.DOF.THETA, 0.0);
-                }}, 8)
+                }}, 2, 1.2, 1, 2)
+                .buildSegment()
                 .build();
 
         PathFollower pathFollower = new PathFollower(path, new DOFs(sensors.odometry, motors), new HashMap<DOFs.DOF, PID.K>() {{
-            put(DOFs.DOF.X, new PID.K(1, 0.1, 0.05));
-            put(DOFs.DOF.Y, new PID.K(1, 0.1, 0.05));
-            put(DOFs.DOF.THETA, new PID.K(1, 0.1, 0.05));
+            put(DOFs.DOF.X, new PID.K(0.1, 0, 0));
+            put(DOFs.DOF.Y, new PID.K(0.1, 0, 0));
+            put(DOFs.DOF.THETA, new PID.K(0.1, 0, 0));
         }}, new HashMap<DOFs.DOF, PathFollower.K>() {{
             put(DOFs.DOF.X, new PathFollower.K(TuningConstants.x, 1));
             put(DOFs.DOF.Y, new PathFollower.K(TuningConstants.y, 1));

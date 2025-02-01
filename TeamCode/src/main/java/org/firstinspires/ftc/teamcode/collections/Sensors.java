@@ -17,7 +17,9 @@ public class Sensors {
             The Y pod offset refers to how far forwards from the tracking point the Y (strafe) odometry pod is. forward of center is a positive number, backwards is a negative number.
         */
 
-        odometry.setOffsets(76.0 / 10, -79.81 / 10);
+        // TODO: Test positive and negative, and forward and backward
+        //odometry.setOffsets(76.0, 79.81);
+        odometry.setOffsets(0.0, 0.0);
 
         odometry.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         odometry.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);

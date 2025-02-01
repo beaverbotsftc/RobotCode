@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class Path {
     public static class PathBuilder {
@@ -28,7 +27,37 @@ public class Path {
 
         // Doesn't increase clock
         public PathBuilder linearTo(DOFs.DOF dof, double point, double time) {
-            return this.followSubdivisions(dof, new double[]{f.get(dof).apply(this.clock), point}, time);
+            double startTimeCaptured = this.clock;
+            Function<Double, Double> function = f.get(dof);
+            return this.append(dof, (Double t) -> (point - function.apply(startTimeCaptured)) * (t - startTimeCaptured) / time + function.apply(startTimeCaptured));
+        }
+
+        public PathBuilder easePolynomialTo(HashMap<DOFs.DOF, Double> points, double degree, double time) {
+            for (DOFs.DOF dof : DOFs.DOF.values()) {
+                this.easePolynomialTo(dof, points.get(dof), degree, time);
+            }
+            return this.addTime(time).constify();
+        }
+
+        // Doesn't increase clock
+        public PathBuilder easePolynomialTo(DOFs.DOF dof, double point, double degree, double time) {
+            double startTimeCaptured = this.clock;
+            Function<Double, Double> function = f.get(dof);
+            return this.append(dof, (Double t) -> MathUtils.easePolynomial(function.apply(startTimeCaptured), point, degree, t / time));
+        }
+
+        public PathBuilder easeCompoundPolynomialTo(HashMap<DOFs.DOF, Double> points, double initialDegree, double finalDegree, double interpolationDegree, double time) {
+            for (DOFs.DOF dof : DOFs.DOF.values()) {
+                this.easeCompoundPolynomialTo(dof, points.get(dof), initialDegree, finalDegree, interpolationDegree, time);
+            }
+            return this.addTime(time).constify();
+        }
+
+        // Doesn't increase clock
+        public PathBuilder easeCompoundPolynomialTo(DOFs.DOF dof, double point, double initialDegree, double finalDegree, double interpolationDegree, double time) {
+            double startTimeCaptured = this.clock;
+            Function<Double, Double> function = f.get(dof);
+            return this.append(dof, (Double t) -> MathUtils.easeCompoundPolynomial(function.apply(startTimeCaptured), point, initialDegree, finalDegree, interpolationDegree, t / time));
         }
 
         public PathBuilder followSubdivisions(HashMap<DOFs.DOF, Double[]> points, double time) {
@@ -143,6 +172,7 @@ public class Path {
             resetPathSegment();
         }
     }
+
     public int index = 0;
     private int lastIndex = -1; // -1 so that the onInit function for the first path gets run
     public ArrayList<PathSegment> paths;
@@ -159,7 +189,6 @@ public class Path {
 
         new Thread(paths.get(index).onIteration).start();
         paths.get(index).onIterationBlocking.run();
-
 
         t += dt;
 

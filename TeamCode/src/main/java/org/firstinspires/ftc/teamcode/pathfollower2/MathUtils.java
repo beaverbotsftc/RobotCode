@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.function.Function;
 
-public final class MathUtils {
+public class MathUtils {
+
     public static <T> HashSet<HashSet<T>> powerSet(HashSet<T> set) {
         HashSet<HashSet<T>> output = new HashSet<>();
 
@@ -41,11 +42,24 @@ public final class MathUtils {
         return output;
     }
 
-    public static double interpolate(double[] points, double t, double tMax) {
-        if (points == null || points.length == 0) {
-            throw new IllegalArgumentException("Input array cannot be null or empty.");
+    public static double easePolynomial(double start, double end, double degree, double t) {
+        if (t <= 0.5) {
+            double scaledT = t * 2;
+            double factor = Math.pow(scaledT, degree);
+            return start + (end - start) * factor / 2;
         }
+        else {
+            double scaledT = (t - 0.5) * 2;
+            double factor = 1 - Math.pow(1 - scaledT, degree);
+            return start + (end - start) * (0.5 + factor / 2);
+        }
+    }
 
+    public static double easeCompoundPolynomial(double start, double end, double initialDegree, double finalDegree, double interpolationDegree, double t) {
+        return easePolynomial(easePolynomial(start, end, initialDegree, t), easePolynomial(start, end, finalDegree, t), interpolationDegree, t);
+    }
+
+    public static double interpolate(double[] points, double t, double tMax) {
         t = t / tMax;
 
         if (t < 0) t = 0;
@@ -80,33 +94,28 @@ public final class MathUtils {
         return output;
     }
 
-    public static double[] evenlySpace(double[] points, int newPoints) { return space(points, newPoints, (Double t) -> t); }
+    public static double[] evenlySpace(double[] points, int newPoints) {
+        return space(points, newPoints, (Double t) -> t);
+    }
 
     public static double[] space(double[] points, int newPoints, Function<Double, Double> fSpacing) {
-        double[] partialCurveLengths = new double[points.length];
-        for (int i = 1; i < points.length; i++) {
-            partialCurveLengths[i] = Math.abs(points[i] - points[i - 1]) + partialCurveLengths[i - 1];
-        }
+        double[] spacedPoints = new double[newPoints];
 
-        double curveLength = partialCurveLengths[partialCurveLengths.length - 1];
+        // Calculate the spacing factor
+        double spacingFactor = (double) (points.length - 1) / (newPoints - 1);
 
-        double[] output = new double[newPoints];
         for (int i = 0; i < newPoints; i++) {
-            double t = fSpacing.apply((double) i / (newPoints - 1));
-            double tMapped = t * curveLength;
+            double t = i * spacingFactor;
 
-            for (int j = 1; j < partialCurveLengths.length; j++) {
-                if (partialCurveLengths[j] >= tMapped) {
-                    double segmentLength = partialCurveLengths[j] - partialCurveLengths[j - 1];
-                    double tMappedSubLine = (tMapped - partialCurveLengths[j - 1])
-                            / segmentLength;
-                    output[i] = (1 - tMappedSubLine) * points[j - 1] + tMappedSubLine * points[j];
-                    break;
+            int lowerIndex = (int) t;
+            int upperIndex = Math.min(lowerIndex + 1, points.length - 1);
 
-                }
-            }
+            double segmentT = t - lowerIndex;
+            double interpolatedValue = points[lowerIndex] + (points[upperIndex] - points[lowerIndex]) * segmentT;
+
+            spacedPoints[i] = fSpacing.apply(interpolatedValue);
         }
 
-        return output;
+        return spacedPoints;
     }
 }
