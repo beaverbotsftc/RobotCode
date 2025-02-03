@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.collections.Motors;
@@ -87,6 +85,12 @@ public class BasicTeleOp extends LinearOpMode {
                 subsystems.intakeArmServo.setPosition(subsystems.intakeArmServo.getPosition() + 0.001);
             }else if(gamepad2.cross){
                 subsystems.intakeArmServo.setPosition(subsystems.intakeArmServo.getPosition() - 0.001);
+            }
+
+            if (gamepad2.left_bumper) {
+                subsystems.outtakeArm(subsystems.outtakeArmServo.getPosition() + 0.001);
+            } else if (gamepad2.right_bumper) {
+                subsystems.outtakeArm(subsystems.outtakeArmServo.getPosition() - 0.001);
             }
 
 

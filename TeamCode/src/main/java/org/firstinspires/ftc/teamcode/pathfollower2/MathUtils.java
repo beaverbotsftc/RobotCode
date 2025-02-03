@@ -1,11 +1,11 @@
 package org.firstinspires.ftc.teamcode.pathfollower2;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.function.Function;
 
 public class MathUtils {
-
     public static <T> HashSet<HashSet<T>> powerSet(HashSet<T> set) {
         HashSet<HashSet<T>> output = new HashSet<>();
 
@@ -57,6 +57,13 @@ public class MathUtils {
 
     public static double easeCompoundPolynomial(double start, double end, double initialDegree, double finalDegree, double interpolationDegree, double t) {
         return easePolynomial(easePolynomial(start, end, initialDegree, t), easePolynomial(start, end, finalDegree, t), interpolationDegree, t);
+    }
+
+    public static double bezier(double[] points, double t) {
+        if (points.length == 1) return points[0];
+
+        return t * bezier(Arrays.copyOfRange(points, 0, points.length - 1), t) + (1 - t) *
+                bezier(Arrays.copyOfRange(points, 1, points.length), t);
     }
 
     public static double interpolate(double[] points, double t, double tMax) {

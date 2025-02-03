@@ -19,7 +19,7 @@ public class Sensors {
 
         // TODO: Test positive and negative, and forward and backward
         //odometry.setOffsets(76.0, 79.81);
-        odometry.setOffsets(0.0, 0.0);
+        odometry.setOffsets(-84.3375, 76.0000);
 
         odometry.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         odometry.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);

@@ -8,12 +8,13 @@ import org.firstinspires.ftc.teamcode.collections.Sensors;
 import org.firstinspires.ftc.teamcode.pathfollower2.DOFs;
 import org.firstinspires.ftc.teamcode.pathfollower2.PID;
 import org.firstinspires.ftc.teamcode.pathfollower2.Path;
+import org.firstinspires.ftc.teamcode.pathfollower2.PathBuilder;
 import org.firstinspires.ftc.teamcode.pathfollower2.PathFollower;
 
 import java.util.HashMap;
 
-@Autonomous(name = "Strafe Test")
-public class StrafeTest extends LinearOpMode {
+@Autonomous(name = "Movement Flex")
+public class MovementFlex extends LinearOpMode {
     @Override
     public void runOpMode() {
         Motors motors = new Motors();
@@ -26,19 +27,39 @@ public class StrafeTest extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        Path path = new Path.PathBuilder()
+        Path path = new PathBuilder()
                 .easePolynomialTo(new HashMap<DOFs.DOF, Double>() {{
                     put(DOFs.DOF.X, 0.0);
                     put(DOFs.DOF.Y, 48.0);
                     put(DOFs.DOF.THETA, 360.0);
                 }}, 2, 4)
+                .easePolynomialTo(new HashMap<DOFs.DOF, Double>() {{
+                    put(DOFs.DOF.X, 48.0);
+                    put(DOFs.DOF.Y, 48.0);
+                    put(DOFs.DOF.THETA, -360.0);
+                }}, 2.5, 6)
+                .easeCompoundPolynomialTo(new HashMap<DOFs.DOF, Double>() {{
+                    put(DOFs.DOF.X, 0.0);
+                    put(DOFs.DOF.Y, 0.0);
+                    put(DOFs.DOF.THETA, 0.0);
+                }}, 3, 2, 1, 4)
+                .easePolynomialTo(new HashMap<DOFs.DOF, Double>() {{
+                    put(DOFs.DOF.X, 24.6);
+                    put(DOFs.DOF.Y, 32.36);
+                    put(DOFs.DOF.THETA, 0.0);
+                }}, 2, 6)
+                .easePolynomialBezierTo(new HashMap<DOFs.DOF, double[]>() {{
+                    put(DOFs.DOF.X, new double[] {47.35, 8.85, 24.7});
+                    put(DOFs.DOF.Y, new double[] {15.6, 8.25, 32.2});
+                    put(DOFs.DOF.THETA, new double[] {30.0, -90.0, 0.0});
+                }}, 3, 8)
                 .buildSegment()
                 .build();
 
         PathFollower pathFollower = new PathFollower(path, new DOFs(sensors.odometry, motors), new HashMap<DOFs.DOF, PID.K>() {{
-            put(DOFs.DOF.X, new PID.K(0.1, 0, 0));
-            put(DOFs.DOF.Y, new PID.K(0.1, 0, 0));
-            put(DOFs.DOF.THETA, new PID.K(0.1, 0, 0));
+            put(DOFs.DOF.X, new PID.K(0.2, 0.1, 0.02));
+            put(DOFs.DOF.Y, new PID.K(0.2, 0.1, 0.02));
+            put(DOFs.DOF.THETA, new PID.K(0.25, 0.05, 0.0025));
         }}, new HashMap<DOFs.DOF, PathFollower.K>() {{
             put(DOFs.DOF.X, new PathFollower.K(TuningConstants.x, 1));
             put(DOFs.DOF.Y, new PathFollower.K(TuningConstants.y, 1));

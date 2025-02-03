@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.collections.Sensors;
 import org.firstinspires.ftc.teamcode.pathfollower2.DOFs;
 import org.firstinspires.ftc.teamcode.pathfollower2.PID;
 import org.firstinspires.ftc.teamcode.pathfollower2.Path;
+import org.firstinspires.ftc.teamcode.pathfollower2.PathBuilder;
 import org.firstinspires.ftc.teamcode.pathfollower2.PathFollower;
 
 import java.util.HashMap;
@@ -23,7 +24,7 @@ public class PathFollowerTest2 extends LinearOpMode {
         motors.init(hardwareMap);
         sensors.init(hardwareMap);
 
-        Path path = new Path.PathBuilder()
+        Path path = new PathBuilder()
                 .linearTo(new HashMap<DOFs.DOF, Double>() {{
                     put(DOFs.DOF.X, 2 * 24.0);
                     put(DOFs.DOF.Y, 2 * 0.0);

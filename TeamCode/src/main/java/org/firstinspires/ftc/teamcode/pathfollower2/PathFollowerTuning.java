@@ -113,7 +113,7 @@ public class PathFollowerTuning extends LinearOpMode {
 
             DOFs dofs = new DOFs(sensors.odometry, motors);
 
-            Path path = new Path.PathBuilder()
+            Path path = new PathBuilder()
                     .linearTo(
                             new HashMap<DOFs.DOF, Double>() {
                                 {
