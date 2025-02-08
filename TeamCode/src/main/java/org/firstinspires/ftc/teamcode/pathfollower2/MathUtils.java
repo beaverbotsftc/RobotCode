@@ -62,8 +62,8 @@ public class MathUtils {
     public static double bezier(double[] points, double t) {
         if (points.length == 1) return points[0];
 
-        return t * bezier(Arrays.copyOfRange(points, 0, points.length - 1), t) + (1 - t) *
-                bezier(Arrays.copyOfRange(points, 1, points.length), t);
+        return (1 - t) * bezier(Arrays.copyOfRange(points, 0, points.length - 1), t) +
+                t * bezier(Arrays.copyOfRange(points, 1, points.length), t);
     }
 
     public static double interpolate(double[] points, double t, double tMax) {

@@ -13,8 +13,8 @@ import org.firstinspires.ftc.teamcode.pathfollower2.PathFollower;
 
 import java.util.HashMap;
 
-@Autonomous(name = "Movement Flex")
-public class MovementFlex extends LinearOpMode {
+@Autonomous(name = "StayStill") // Max X : 24 Max Y : 48
+public class StayStill extends LinearOpMode {
     @Override
     public void runOpMode() {
         Motors motors = new Motors();
@@ -28,31 +28,7 @@ public class MovementFlex extends LinearOpMode {
         waitForStart();
 
         Path path = new PathBuilder()
-                .easePolynomialTo(new HashMap<DOFs.DOF, Double>() {{
-                    put(DOFs.DOF.X, 0.0);
-                    put(DOFs.DOF.Y, 48.0);
-                    put(DOFs.DOF.THETA, 360.0);
-                }}, 2, 4)
-                .easePolynomialTo(new HashMap<DOFs.DOF, Double>() {{
-                    put(DOFs.DOF.X, 48.0);
-                    put(DOFs.DOF.Y, 48.0);
-                    put(DOFs.DOF.THETA, -360.0);
-                }}, 2.5, 6)
-                .easeCompoundPolynomialTo(new HashMap<DOFs.DOF, Double>() {{
-                    put(DOFs.DOF.X, 0.0);
-                    put(DOFs.DOF.Y, 0.0);
-                    put(DOFs.DOF.THETA, 0.0);
-                }}, 3, 2, 1, 4)
-                .easePolynomialTo(new HashMap<DOFs.DOF, Double>() {{
-                    put(DOFs.DOF.X, 24.6);
-                    put(DOFs.DOF.Y, 32.36);
-                    put(DOFs.DOF.THETA, 0.0);
-                }}, 2, 6)
-                .easePolynomialBezierTo(new HashMap<DOFs.DOF, double[]>() {{
-                    put(DOFs.DOF.X, new double[] {47.35, 8.85, 24.7});
-                    put(DOFs.DOF.Y, new double[] {15.6, 8.25, 32.2});
-                    put(DOFs.DOF.THETA, new double[] {30.0, -90.0, 0.0});
-                }}, 3, 8)
+                .isFinished((Double _) -> false)
                 .buildSegment()
                 .build();
 
