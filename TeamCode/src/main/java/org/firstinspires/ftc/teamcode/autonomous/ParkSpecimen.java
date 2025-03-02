@@ -2,23 +2,17 @@ package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.collections.Motors;
 import org.firstinspires.ftc.teamcode.collections.Sensors;
 import org.firstinspires.ftc.teamcode.pathfollower2.DOFs;
-import org.firstinspires.ftc.teamcode.pathfollower2.MathUtils;
 import org.firstinspires.ftc.teamcode.pathfollower2.PID;
 import org.firstinspires.ftc.teamcode.pathfollower2.Path;
 import org.firstinspires.ftc.teamcode.pathfollower2.PathBuilder;
 import org.firstinspires.ftc.teamcode.pathfollower2.PathFollower;
+import org.firstinspires.ftc.teamcode.pathfollower2.TuningConstants;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 
 @Autonomous(name = "Specimen Park")
 public class ParkSpecimen extends LinearOpMode {
@@ -48,9 +42,7 @@ public class ParkSpecimen extends LinearOpMode {
             put(DOFs.DOF.Y, new PID.K(0.1, 0, 0));
             put(DOFs.DOF.THETA, new PID.K(0.1, 0, 0));
         }}, new HashMap<DOFs.DOF, PathFollower.K>() {{
-            put(DOFs.DOF.X, new PathFollower.K(TuningConstants.x, 1));
-            put(DOFs.DOF.Y, new PathFollower.K(TuningConstants.y, 1));
-            put(DOFs.DOF.THETA, new PathFollower.K(TuningConstants.theta, 1));
+            for (DOFs.DOF dof : DOFs.DOF.values()) put(dof, new PathFollower.K(TuningConstants.v.get(dof), 0, 1));
         }}, this::isStopRequested);
 
         pathFollower.run(telemetry);

@@ -65,9 +65,9 @@ public class PathFollowerTest2 extends LinearOpMode {
             put(DOFs.DOF.Y, new PID.K(1, 0, 0));
             put(DOFs.DOF.THETA, new PID.K(1, 0, 0));
         }}, new HashMap<DOFs.DOF, PathFollower.K>() {{
-                put(DOFs.DOF.X, new PathFollower.K(1, 1));
-                put(DOFs.DOF.Y, new PathFollower.K(1, 1));
-                put(DOFs.DOF.THETA, new PathFollower.K(1, 1));
+                put(DOFs.DOF.X, new PathFollower.K(1, 0, 1));
+                put(DOFs.DOF.Y, new PathFollower.K(1, 0, 1));
+                put(DOFs.DOF.THETA, new PathFollower.K(1, 0, 1));
             }}, this::isStopRequested);
 
 

@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.collections.Sensors;
 import org.firstinspires.ftc.teamcode.pinpoint.GoBildaPinpointDriver;
 
@@ -30,6 +31,7 @@ public class GobildaPinpointTest extends LinearOpMode {
         double initalPositionY = odometry.getPosition().getY(DistanceUnit.INCH);
         double initalPositionTheta = odometry.getPosition().getHeading(AngleUnit.DEGREES);
 
+        sensors.odometry.setPosition(new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, -180));
         while (opModeIsActive()) {
             odometry.update();
             telemetry.addData("Inital Position X", initalPositionX);
@@ -38,7 +40,7 @@ public class GobildaPinpointTest extends LinearOpMode {
             telemetry.addLine();
             telemetry.addData("Position X", odometry.getPosition().getX(DistanceUnit.INCH));
             telemetry.addData("Position Y", odometry.getPosition().getY(DistanceUnit.INCH));
-            telemetry.addData("Position Theta", odometry.getPosition().getHeading(AngleUnit.DEGREES));
+            telemetry.addData("Position Theta", odometry.getHeading() / Math.PI * 180);
             telemetry.update();
         }
     }

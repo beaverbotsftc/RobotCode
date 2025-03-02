@@ -31,6 +31,24 @@ public class PathBuilder {
         return this.append(dof, (Double t) -> (point - function.apply(startTimeCaptured)) * (t - startTimeCaptured) / time + function.apply(startTimeCaptured));
     }
 
+    public PathBuilder easeCompoundPolynomialBezierTo(HashMap<DOFs.DOF, double[]> points, double initialDegree, double finalDegree, double interpolationDegree, double time) {
+        for (DOFs.DOF dof : DOFs.DOF.values()) {
+            this.easeCompoundPolynomialBezierTo(dof, points.get(dof), initialDegree, finalDegree, interpolationDegree, time);
+        }
+        return this.addTime(time).constify();
+    }
+
+    // Doesn't increase clock
+    public PathBuilder easeCompoundPolynomialBezierTo(DOFs.DOF dof, double[] points, double initialDegree, double finalDegree, double interpolationDegree, double time) {
+        double startTimeCaptured = this.clock;
+        Function<Double, Double> function = f.get(dof);
+        return this.append(dof, (Double t) -> MathUtils.bezier(
+                DoubleStream.concat(
+                        Arrays.stream(new double[] {function.apply(startTimeCaptured)}),
+                        Arrays.stream(points)).toArray(),
+                MathUtils.easeCompoundPolynomial(0, 1, initialDegree, finalDegree, interpolationDegree, t/time)));
+    }
+
     public PathBuilder easePolynomialBezierTo(HashMap<DOFs.DOF, double[]> points, double degree, double time) {
         for (DOFs.DOF dof : DOFs.DOF.values()) {
             this.easePolynomialBezierTo(dof, points.get(dof), degree, time);
@@ -131,6 +149,18 @@ public class PathBuilder {
         return this.append(dof, (Double t) -> nCaptured);
     }
 
+    public PathBuilder startingPoint(HashMap<DOFs.DOF, Double> positions) {
+        for (DOFs.DOF dof : DOFs.DOF.values()) {
+            this.startingPoint(dof, positions.get(dof));
+        }
+        return this;
+    }
+
+    public PathBuilder startingPoint(DOFs.DOF dof, double position) {
+        f.put(dof, (Double t) -> position);
+        return this;
+    }
+
     public PathBuilder addTime(double time) {
         return this.time(this.clock + time);
     }
@@ -177,7 +207,9 @@ public class PathBuilder {
             double capturedClock = this.clock;
             this.isFinished((Double t) -> t > capturedClock);
         }
-        pathSegments.add(new PathSegment(f, (Double t) -> isFinished.apply(t), onInit, onIteration, onInitBlocking, onIterationBlocking));
+
+        Function<Double, Boolean> isFinishedCaptured = isFinished;
+        pathSegments.add(new PathSegment(f, isFinishedCaptured, onInit, onIteration, onInitBlocking, onIterationBlocking));
         resetPathSegment();
         return this;
     }

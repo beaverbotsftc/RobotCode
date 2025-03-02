@@ -1,18 +1,19 @@
 package org.firstinspires.ftc.teamcode.pathfollower2;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class PathFollower { // extends Thread
     public static class K {
-        public double gradient;
+        public double gradientV;
+        public double gradientA;
         public double pid;
 
-        public K(double gradient, double pid) {
-            this.gradient = gradient;
+        public K(double gradientV, double gradientA, double pid) {
+            this.gradientV = gradientV;
+            this.gradientA = gradientA;
             this.pid = pid;
         }
     }
@@ -36,11 +37,13 @@ public class PathFollower { // extends Thread
             lastLoopTime = time;
 
             if (path.update(dt)) {
-                dofs.apply(new HashMap<DOFs.DOF, Double>() {{
-                    for (DOFs.DOF dof : DOFs.DOF.values()) {
-                        put(dof, 0.0);
+                dofs.apply(new HashMap<DOFs.DOF, Double>() {
+                    {
+                        for (DOFs.DOF dof : DOFs.DOF.values()) {
+                            put(dof, 0.0);
+                        }
                     }
-                }}, telemetry);
+                }, telemetry);
                 break; // Stop once the path is complete
             }
 
@@ -48,7 +51,8 @@ public class PathFollower { // extends Thread
             telemetry.addData("Y", dofs.getPosition().get(DOFs.DOF.Y));
             telemetry.addData("THETA", dofs.getPosition().get(DOFs.DOF.THETA));
 
-            HashMap<DOFs.DOF, Double> gradient = path.getGradient();
+            HashMap<DOFs.DOF, Double> gradientV = path.getGradientV();
+            HashMap<DOFs.DOF, Double> gradientA = path.getGradientA();
             HashMap<DOFs.DOF, Double> deviation = path.getDeviation(dofs.getPosition());
 
             for (DOFs.DOF dof : DOFs.DOF.values()) {
@@ -57,22 +61,25 @@ public class PathFollower { // extends Thread
 
             telemetry.addData("pids", pids);
 
-            dofs.apply(
-                    pids.entrySet().stream().collect(
-                            HashMap::new,
-                            (HashMap<DOFs.DOF, Double> map, Map.Entry<DOFs.DOF, PID> entry) -> map.put(entry.getKey(),
-                                    k.get(entry.getKey()).gradient * gradient.get(entry.getKey())
+            dofs.apply(pids.entrySet().stream().collect(HashMap::new,
+                            (HashMap<DOFs.DOF, Double> map, Map.Entry<DOFs.DOF, PID> entry)
+                                    -> map.put(entry.getKey(),
+                                    k.get(entry.getKey()).gradientV * gradientV.get(entry.getKey())
+                                            + k.get(entry.getKey()).gradientA * gradientA.get(entry.getKey())
                                             + k.get(entry.getKey()).pid * pids.get(entry.getKey()).getCorrection()),
-                            HashMap::putAll), telemetry);
+                            HashMap::putAll),
+                    telemetry);
             telemetry.update();
         }
     }
 
-    public PathFollower(Path path, DOFs dofs, HashMap<DOFs.DOF, PID.K> pids, HashMap<DOFs.DOF, K> k, Supplier<Boolean> isStopRequested) {
+    public PathFollower(Path path, DOFs dofs, HashMap<DOFs.DOF, PID.K> pids, HashMap<DOFs.DOF, K> k,
+                        Supplier<Boolean> isStopRequested) {
         this.path = path;
         this.dofs = dofs;
-        this.pids = pids.entrySet().stream().collect(
-                HashMap::new, (HashMap<DOFs.DOF, PID> map, Map.Entry<DOFs.DOF, PID.K> entry) -> map.put(entry.getKey(),
+        this.pids = pids.entrySet().stream().collect(HashMap::new,
+                (HashMap<DOFs.DOF, PID> map, Map.Entry<DOFs.DOF, PID.K> entry)
+                        -> map.put(entry.getKey(),
                         new PID(entry.getValue(), path.getDeviation(dofs.getPosition()).get(entry.getKey()))),
                 HashMap::putAll);
         this.k = k;

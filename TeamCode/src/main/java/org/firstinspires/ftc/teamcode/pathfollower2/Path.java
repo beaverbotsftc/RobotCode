@@ -33,11 +33,19 @@ public class Path {
         return index >= paths.size();
     }
 
-    public HashMap<DOFs.DOF, Double> getGradient() {
+    public HashMap<DOFs.DOF, Double> getGradientV() {
         return paths.get(index).f.entrySet().stream().collect(
                 HashMap::new,
                 (HashMap<DOFs.DOF, Double> map, Map.Entry<DOFs.DOF, Function<Double, Double>> entry) -> map.put(entry.getKey(),
                         (entry.getValue().apply(t + epsilon) - entry.getValue().apply(t)) / epsilon),
+                HashMap::putAll);
+    }
+
+    public HashMap<DOFs.DOF, Double> getGradientA() {
+        return paths.get(index).f.entrySet().stream().collect(
+                HashMap::new,
+                (HashMap<DOFs.DOF, Double> map, Map.Entry<DOFs.DOF, Function<Double, Double>> entry) -> map.put(entry.getKey(),
+                        (entry.getValue().apply(t) - 2 * entry.getValue().apply(t + epsilon) + entry.getValue().apply(t + 2 * epsilon)) / (epsilon * epsilon)),
                 HashMap::putAll);
     }
 

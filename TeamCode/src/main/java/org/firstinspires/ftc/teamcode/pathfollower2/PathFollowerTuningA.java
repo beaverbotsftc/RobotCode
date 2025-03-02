@@ -2,21 +2,26 @@ package org.firstinspires.ftc.teamcode.pathfollower2;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
+
 import org.firstinspires.ftc.teamcode.collections.Motors;
 import org.firstinspires.ftc.teamcode.collections.Sensors;
 
-@TeleOp(name = "Path follower tuning")
-public class PathFollowerTuning extends LinearOpMode {
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+
+@TeleOp(name = "Path follower tuning A")
+public class PathFollowerTuningA extends LinearOpMode {
     final double kGoal = 5;
     final double kGuess = 0.1;
     final double kTime = 1;
+    final double kDegree = 0.5;
     final double kAlpha = 0.1;
     final double reinitTime = 2;
 
     double alpha = 1;
+
+    double degree = 2;
 
     HashMap<DOFs.DOF, Double> lastPosition = new HashMap<DOFs.DOF, Double>() {
         {
@@ -26,13 +31,7 @@ public class PathFollowerTuning extends LinearOpMode {
         }
     };
 
-    final HashMap<DOFs.DOF, Double> initalGuess = new HashMap<DOFs.DOF, Double>() {
-        {
-            put(DOFs.DOF.X, 0.0222);
-            put(DOFs.DOF.Y, 0.1);
-            put(DOFs.DOF.THETA, 0.0191);
-        }
-    };
+    final HashMap<DOFs.DOF, Double> initalGuess = TuningConstants.a;
 
     @Override
     public void runOpMode() {
@@ -70,6 +69,7 @@ public class PathFollowerTuning extends LinearOpMode {
                 telemetry.addData("Goal", goal);
                 telemetry.addData("DOFs", usedDofs);
                 telemetry.addData("Time", time);
+                telemetry.addData("Degree", degree);
                 telemetry.addData("Alpha", alpha);
                 telemetry.addData("Position", lastPosition);
                 telemetry.addLine("To modify DOFs: up (X), left (Y), left trigger (THETA)");
@@ -78,6 +78,7 @@ public class PathFollowerTuning extends LinearOpMode {
                 telemetry.addLine(
                         "To modify goal: X & Y (gamepad 2, left stick), to modify THETA (gamepad 2, right stick X)");
                 telemetry.addLine("To modify time: gamepad 1 right stick Y.");
+                telemetry.addLine("To modify degree: gamepad 2, up and down");
                 telemetry.addLine("To modify alpha: gamepad 2, right stick Y");
                 telemetry.addLine("Press circle to continue.");
                 telemetry.update();
@@ -92,6 +93,13 @@ public class PathFollowerTuning extends LinearOpMode {
                 goal.put(DOFs.DOF.Y, goal.get(DOFs.DOF.Y) + gamepad2.left_stick_x * dt * kGoal);
                 goal.put(DOFs.DOF.THETA, goal.get(DOFs.DOF.THETA) + gamepad2.right_stick_x * dt * kGoal);
                 time -= gamepad1.right_stick_y * dt * kTime;
+
+                if (gamepad2.dpad_up) {
+                    degree += dt * kDegree;
+                } else if (gamepad2.dpad_down) {
+                    degree -= dt * kDegree;
+                }
+
                 alpha -= gamepad2.right_stick_y * dt * kAlpha;
 
                 if (gamepad1.dpad_up) {
@@ -114,7 +122,7 @@ public class PathFollowerTuning extends LinearOpMode {
             DOFs dofs = new DOFs(sensors.odometry, motors);
 
             Path path = new PathBuilder()
-                    .linearTo(
+                    .easePolynomialTo(
                             new HashMap<DOFs.DOF, Double>() {
                                 {
                                     for (DOFs.DOF dof : usedDofs) put(dof, goal.get(dof));
@@ -123,6 +131,7 @@ public class PathFollowerTuning extends LinearOpMode {
                                         put(dof, 0.0);
                                 }
                             },
+                            2,
                             time)
                     .buildSegment()
                     .build();
@@ -137,7 +146,7 @@ public class PathFollowerTuning extends LinearOpMode {
                     },
                     new HashMap<DOFs.DOF, PathFollower.K>() {
                         {
-                            for (DOFs.DOF dof : DOFs.DOF.values()) put(dof, new PathFollower.K(guess.get(dof), 0));
+                            for (DOFs.DOF dof : DOFs.DOF.values()) put(dof, new PathFollower.K(TuningConstants.v.get(dof), guess.get(dof), 0));
                         }
                     }, this::isStopRequested);
 

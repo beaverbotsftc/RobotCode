@@ -47,8 +47,7 @@ public class MathUtils {
             double scaledT = t * 2;
             double factor = Math.pow(scaledT, degree);
             return start + (end - start) * factor / 2;
-        }
-        else {
+        } else {
             double scaledT = (t - 0.5) * 2;
             double factor = 1 - Math.pow(1 - scaledT, degree);
             return start + (end - start) * (0.5 + factor / 2);

@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.pathfollower2.PID;
 import org.firstinspires.ftc.teamcode.pathfollower2.Path;
 import org.firstinspires.ftc.teamcode.pathfollower2.PathBuilder;
 import org.firstinspires.ftc.teamcode.pathfollower2.PathFollower;
+import org.firstinspires.ftc.teamcode.pathfollower2.TuningConstants;
 
 import java.util.HashMap;
 
@@ -61,9 +62,7 @@ public class MovementFlex2x3 extends LinearOpMode {
             put(DOFs.DOF.Y, new PID.K(0.2, 0.1, 0.02));
             put(DOFs.DOF.THETA, new PID.K(0.25, 0.05, 0.0025));
         }}, new HashMap<DOFs.DOF, PathFollower.K>() {{
-            put(DOFs.DOF.X, new PathFollower.K(TuningConstants.x, 1));
-            put(DOFs.DOF.Y, new PathFollower.K(TuningConstants.y, 1));
-            put(DOFs.DOF.THETA, new PathFollower.K(TuningConstants.theta, 1));
+            for (DOFs.DOF dof : DOFs.DOF.values()) put(dof, new PathFollower.K(TuningConstants.v.get(dof), 0, 1));
         }}, this::isStopRequested);
 
         pathFollower.run(telemetry);
