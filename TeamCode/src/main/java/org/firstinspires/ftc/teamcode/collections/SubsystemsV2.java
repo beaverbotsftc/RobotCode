@@ -21,7 +21,25 @@ public class SubsystemsV2 {
     public Servo outtakeWristServo = null;
     public Servo outtakeLeftArmServo = null;
     public Servo outtakeRightArmServo = null;
-    public HashMap<String, Double> pos = new HashMap<>();
+
+    public HashMap<String, Double> intakePos = new HashMap<String, Double>() {{
+        put("Claw Open", 0.5);
+        put("Claw Close", 0.0);
+        put("Wrist Up", 0.85);
+        put("Wrist Straight", 0.5);
+        put("Wrist Down", 0.15);
+        put("Rotation Straight", 0.5);
+    }};
+
+    public HashMap<String, Double> outtakePos = new HashMap<String, Double>() {{
+        put("Claw Open", 0.5);
+        put("Claw Close", 0.0);
+        put("Wrist Up", 0.75);
+        put("Wrist Down", 0.25);
+        put("Rotation Straight", 0.5);
+        put("Arm Parallel Ground", 0.2);
+        put("Arm Parallel Slides", 0.8);
+    }};
 
     public void init(HardwareMap hardwareMap) {
         leftVerSlide = hardwareMap.get(DcMotor.class, "left ver slide");
@@ -86,6 +104,14 @@ public class SubsystemsV2 {
         rightVerSlide.setPower(power);
     }
 
+    public void verticalSlide(double power){
+        leftVerSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightVerSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        leftVerSlide.setPower(power);
+        rightVerSlide.setPower(power);
+    }
+
     public void resetVerticalSlide(){
         leftVerSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightVerSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -104,6 +130,14 @@ public class SubsystemsV2 {
         rightHorSlide.setPower(power);
     }
 
+    public void horizontalSlide(double power){
+        leftHorSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightHorSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        leftHorSlide.setPower(power);
+        rightHorSlide.setPower(power);
+    }
+
     public void resetHorizontalSlide(){
         leftHorSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightHorSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -111,15 +145,44 @@ public class SubsystemsV2 {
         rightHorSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
-    public void setIntakeSubStatePos(double claw, double wrist, double arm){
-        intakeRotationServo.setPosition(wrist);
+    public void setIntakeSubStatePos(double claw, double rotation, double arm){
+        intakeRotationServo.setPosition(rotation);
         intakeArmServo.setPosition(arm);
         intakeClawServo.setPosition(claw);
     }
-    public void setOuttakeSubStatePos(double claw, double wrist, double arm){
-        outtakeRotationServo.setPosition(wrist);
+
+    public void powerOffIntakeSubStatePos(){
+        intakeRotationServo.getController().pwmDisable();
+        intakeArmServo.getController().pwmDisable();
+        intakeClawServo.getController().pwmDisable();
+    }
+
+    public void powerOnIntakeSubStatePos(){
+        intakeRotationServo.getController().pwmEnable();
+        intakeArmServo.getController().pwmEnable();
+        intakeClawServo.getController().pwmEnable();
+    }
+    public void setOuttakeSubStatePos(double claw, double rotation, double wrist, double arm){
+        outtakeRotationServo.setPosition(rotation);
         outtakeLeftArmServo.setPosition(arm);
         outtakeRightArmServo.setPosition(arm);
         outtakeClawServo.setPosition(claw);
+        outtakeWristServo.setPosition(wrist);
+    }
+
+    public void powerOffOuttakeSubStatePos(){
+        outtakeRotationServo.getController().pwmDisable();
+        outtakeLeftArmServo.getController().pwmDisable();
+        outtakeRightArmServo.getController().pwmDisable();
+        outtakeClawServo.getController().pwmDisable();
+        outtakeWristServo.getController().pwmDisable();
+    }
+
+    public void powerOnOuttakeSubStatePos(){
+        outtakeRotationServo.getController().pwmEnable();
+        outtakeLeftArmServo.getController().pwmEnable();
+        outtakeRightArmServo.getController().pwmEnable();
+        outtakeClawServo.getController().pwmEnable();
+        outtakeWristServo.getController().pwmEnable();
     }
 }

@@ -16,7 +16,7 @@ public class Controller {
     public boolean cross = false;
     public boolean triangle = false;
 
-    void update() {
+    public void update() {
         lastSquare = square;
         lastCircle = circle;
         lastCross = cross;

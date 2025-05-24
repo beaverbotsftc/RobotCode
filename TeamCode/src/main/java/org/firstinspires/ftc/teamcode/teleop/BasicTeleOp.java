@@ -17,6 +17,7 @@ public class BasicTeleOp extends LinearOpMode {
     private double speed = 0.5;
     private double turnspeed = 0.5;
     private double inverse = 1;
+    private boolean isRightOuttakeArm = true;
 
     @Override
     public void runOpMode() {
@@ -48,14 +49,6 @@ public class BasicTeleOp extends LinearOpMode {
                 turnspeed = 0.6;
             }
 
-            //Inverse Controls
-            if(gamepad1.left_stick_button){
-                inverse = 1;
-                gamepad1.rumbleBlips(1);
-            } else if (gamepad1.right_stick_button) {
-                inverse = -1;
-                gamepad1.rumbleBlips(1);
-            }
 
             if(gamepad1.right_trigger > 0.05) {
                 subsystems.verticalSlide(gamepad1.right_trigger);
@@ -67,34 +60,61 @@ public class BasicTeleOp extends LinearOpMode {
 
             subsystems.horizontalSlide(gamepad2.left_stick_y);
 
-            if (gamepad2.dpad_up){
+            if (gamepad1.dpad_up){
                 subsystems.intakeClawServo.setPosition(subsystems.intakeClawServo.getPosition() + 0.001);
-            }else if(gamepad2.dpad_down){
+            }else if(gamepad1.dpad_down){
                 subsystems.intakeClawServo.setPosition(subsystems.intakeClawServo.getPosition() - 0.001);
             }
 
-
-
-            if (gamepad2.dpad_right){
+            if (gamepad1.dpad_right){
                 subsystems.intakeRotationServo.setPosition(subsystems.intakeRotationServo.getPosition() + 0.001);
-            }else if(gamepad2.dpad_left){
+            }else if(gamepad1.dpad_left){
                 subsystems.intakeRotationServo.setPosition(subsystems.intakeRotationServo.getPosition() - 0.001);
             }
 
-            if (gamepad2.triangle){
+            if (gamepad1.triangle){
                 subsystems.intakeArmServo.setPosition(subsystems.intakeArmServo.getPosition() + 0.001);
-            }else if(gamepad2.cross){
+            }else if(gamepad1.cross){
                 subsystems.intakeArmServo.setPosition(subsystems.intakeArmServo.getPosition() - 0.001);
             }
 
-            if (gamepad2.left_bumper) {
-                subsystems.outtakeArm(subsystems.outtakeArmServo.getPosition() + 0.001);
-            } else if (gamepad2.right_bumper) {
-                subsystems.outtakeArm(subsystems.outtakeArmServo.getPosition() - 0.001);
+            if(gamepad2.share){
+                isRightOuttakeArm = false;
+            } else if (gamepad2.options) {
+                isRightOuttakeArm = true;
             }
 
+            if (gamepad2.left_bumper) {
+                if (isRightOuttakeArm){
+                    subsystems.outtakeRightArmServo.setPosition(subsystems.outtakeRightArmServo.getPosition() + 0.001);
+                }else{
+                    subsystems.outtakeLeftArmServo.setPosition(subsystems.outtakeLeftArmServo.getPosition() + 0.001);
+                }
+            } else if (gamepad2.right_bumper) {
+                if (isRightOuttakeArm){
+                    subsystems.outtakeRightArmServo.setPosition(subsystems.outtakeRightArmServo.getPosition() - 0.001);
+                }else{
+                    subsystems.outtakeLeftArmServo.setPosition(subsystems.outtakeLeftArmServo.getPosition() - 0.001);
+                }
+            }
 
+            if (gamepad2.dpad_up){
+                subsystems.outtakeClawServo.setPosition(subsystems.outtakeClawServo.getPosition() + 0.001);
+            }else if(gamepad2.dpad_down){
+                subsystems.outtakeClawServo.setPosition(subsystems.outtakeClawServo.getPosition() - 0.001);
+            }
 
+            if (gamepad1.dpad_right){
+                subsystems.outtakeRotationServo.setPosition(subsystems.outtakeRotationServo.getPosition() + 0.001);
+            } else if (gamepad1.dpad_left){
+                subsystems.outtakeRotationServo.setPosition(subsystems.outtakeRotationServo.getPosition() - 0.001);
+            }
+
+            if (gamepad1.triangle){
+                subsystems.outtakeWristServo.setPosition(subsystems.outtakeWristServo.getPosition() + 0.001);
+            } else if (gamepad1.cross){
+                subsystems.outtakeWristServo.setPosition(subsystems.outtakeWristServo.getPosition() - 0.001);
+            }
             double max;
 
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
@@ -121,10 +141,7 @@ public class BasicTeleOp extends LinearOpMode {
                 leftBackPower   /= max;
                 rightBackPower  /= max;
             }
-
-
-
-            // Send calculated power to wheels
+            
             motors.leftFrontDrive.setPower(leftFrontPower);
             motors.rightFrontDrive.setPower(rightFrontPower);
             motors.leftBackDrive.setPower(leftBackPower);
@@ -137,6 +154,32 @@ public class BasicTeleOp extends LinearOpMode {
             telemetry.addData("Horizontal Slide Power", subsystems.leftHorSlide.getPower());
             telemetry.addData("Intake Claw Servo Position", subsystems.intakeClawServo.getPosition());
             telemetry.addData("Intake Rotation Servo Position", subsystems.intakeRotationServo.getPosition());
+            // ------------ User Instructions Telemetry ------------
+            telemetry.addLine("--- Gamepad 1 Controls ---");
+            telemetry.addData("Left Stick (Y, X)", "Drive Fwd/Rev, Strafe L/R");
+            telemetry.addData("Right Stick (X)", "Turn L/R");
+            telemetry.addData("Left Bumper", "Hold for SLOW Speed Mode");
+            telemetry.addData("Right Bumper", "Hold for FAST Speed Mode");
+            telemetry.addData("Right Trigger", "Vertical Slide UP (Power: %.2f)", gamepad1.right_trigger);
+            telemetry.addData("Left Trigger", "Vertical Slide DOWN (Power: %.2f)", gamepad1.left_trigger);
+            telemetry.addData("D-Pad Up", "Intake Claw: Adjust Pos (+0.001)");
+            telemetry.addData("D-Pad Down", "Intake Claw: Adjust Pos (-0.001)");
+            telemetry.addData("D-Pad Right", "Intake Rotate & Outtake Rotate: Adjust Pos (+0.001)");
+            telemetry.addData("D-Pad Left", "Intake Rotate & Outtake Rotate: Adjust Pos (-0.001)");
+            telemetry.addData("Triangle (Y)", "Intake Arm & Outtake Wrist: Adjust Pos (+0.001)");
+            telemetry.addData("Cross (A)", "Intake Arm & Outtake Wrist: Adjust Pos (-0.001)");
+
+            telemetry.addLine("--- Gamepad 2 Controls ---");
+            telemetry.addData("Left Stick (Y)", "Horizontal Slide Fwd/Rev (Power: %.2f)", gamepad2.left_stick_y);
+            telemetry.addData("Share Button (View/Back)", "Select LEFT Outtake Arm");
+            telemetry.addData("Options Button (Menu/Start)", "Select RIGHT Outtake Arm");
+            telemetry.addData("  Currently Selected Arm", isRightOuttakeArm ? "RIGHT" : "LEFT");
+            telemetry.addData("Left Bumper", "Selected Outtake Arm: Adjust Pos (+0.001)");
+            telemetry.addData("Right Bumper", "Selected Outtake Arm: Adjust Pos (-0.001)");
+            telemetry.addData("D-Pad Up", "Outtake Claw: Adjust Pos (+0.001)");
+            telemetry.addData("D-Pad Down", "Outtake Claw: Adjust Pos (-0.001)");
+            telemetry.addLine("------------------------------------"); // Separator before other data
+            // ------------ End User Instructions Telemetry ------------
             telemetry.update();
         }
     }
