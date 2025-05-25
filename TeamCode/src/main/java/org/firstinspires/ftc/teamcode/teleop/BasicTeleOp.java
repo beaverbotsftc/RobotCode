@@ -104,15 +104,15 @@ public class BasicTeleOp extends LinearOpMode {
                 subsystems.outtakeClawServo.setPosition(subsystems.outtakeClawServo.getPosition() - 0.001);
             }
 
-            if (gamepad1.dpad_right){
+            if (gamepad2.dpad_right){
                 subsystems.outtakeRotationServo.setPosition(subsystems.outtakeRotationServo.getPosition() + 0.001);
-            } else if (gamepad1.dpad_left){
+            } else if (gamepad2.dpad_left){
                 subsystems.outtakeRotationServo.setPosition(subsystems.outtakeRotationServo.getPosition() - 0.001);
             }
 
-            if (gamepad1.triangle){
+            if (gamepad2.triangle){
                 subsystems.outtakeWristServo.setPosition(subsystems.outtakeWristServo.getPosition() + 0.001);
-            } else if (gamepad1.cross){
+            } else if (gamepad2.cross){
                 subsystems.outtakeWristServo.setPosition(subsystems.outtakeWristServo.getPosition() - 0.001);
             }
             double max;
@@ -147,39 +147,52 @@ public class BasicTeleOp extends LinearOpMode {
             motors.leftBackDrive.setPower(leftBackPower);
             motors.rightBackDrive.setPower(rightBackPower);
 
-            // Show the elapsed game time and wheel power.
+            // Show the elapsed game time, wheel power, and servo positions
             telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
-            telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
-            telemetry.addData("Horizontal Slide Power", subsystems.leftHorSlide.getPower());
-            telemetry.addData("Intake Claw Servo Position", subsystems.intakeClawServo.getPosition());
-            telemetry.addData("Intake Rotation Servo Position", subsystems.intakeRotationServo.getPosition());
+            telemetry.addData("Front left/Right Power", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
+            telemetry.addData("Back  left/Right Power", "%4.2f, %4.2f", leftBackPower, rightBackPower);
+            telemetry.addData("Horizontal Slide Power", "%.2f", subsystems.leftHorSlide.getPower()); // Assuming horizontalSlide() sets power for leftHorSlide
+
+            telemetry.addLine("--- Servo Positions ---");
+            telemetry.addData("Intake Claw", "Pos: %.3f", subsystems.intakeClawServo.getPosition());
+            telemetry.addData("Intake Rotation", "Pos: %.3f", subsystems.intakeRotationServo.getPosition());
+            telemetry.addData("Intake Arm", "Pos: %.3f", subsystems.intakeArmServo.getPosition());
+            telemetry.addData("Outtake Left Arm", "Pos: %.3f", subsystems.outtakeLeftArmServo.getPosition());
+            telemetry.addData("Outtake Right Arm", "Pos: %.3f", subsystems.outtakeRightArmServo.getPosition());
+            telemetry.addData("Outtake Claw", "Pos: %.3f", subsystems.outtakeClawServo.getPosition());
+            telemetry.addData("Outtake Rotation", "Pos: %.3f", subsystems.outtakeRotationServo.getPosition());
+            telemetry.addData("Outtake Wrist", "Pos: %.3f", subsystems.outtakeWristServo.getPosition());
+            telemetry.addLine(" "); // Blank line for spacing
+
             // ------------ User Instructions Telemetry ------------
-            telemetry.addLine("--- Gamepad 1 Controls ---");
+            telemetry.addLine("--- Gamepad 1 Controls (Driver 1) ---");
             telemetry.addData("Left Stick (Y, X)", "Drive Fwd/Rev, Strafe L/R");
             telemetry.addData("Right Stick (X)", "Turn L/R");
-            telemetry.addData("Left Bumper", "Hold for SLOW Speed Mode");
-            telemetry.addData("Right Bumper", "Hold for FAST Speed Mode");
+            telemetry.addData("Left Bumper", "Hold for SLOW Speed (Current: %.2f)", (gamepad1.left_bumper ? 0.25 : (gamepad1.right_bumper ? 1.0 : 0.55)));
+            telemetry.addData("Right Bumper", "Hold for FAST Speed (Current: %.2f)", (gamepad1.left_bumper ? 0.25 : (gamepad1.right_bumper ? 1.0 : 0.55)));
             telemetry.addData("Right Trigger", "Vertical Slide UP (Power: %.2f)", gamepad1.right_trigger);
             telemetry.addData("Left Trigger", "Vertical Slide DOWN (Power: %.2f)", gamepad1.left_trigger);
-            telemetry.addData("D-Pad Up", "Intake Claw: Adjust Pos (+0.001)");
-            telemetry.addData("D-Pad Down", "Intake Claw: Adjust Pos (-0.001)");
-            telemetry.addData("D-Pad Right", "Intake Rotate & Outtake Rotate: Adjust Pos (+0.001)");
-            telemetry.addData("D-Pad Left", "Intake Rotate & Outtake Rotate: Adjust Pos (-0.001)");
-            telemetry.addData("Triangle (Y)", "Intake Arm & Outtake Wrist: Adjust Pos (+0.001)");
-            telemetry.addData("Cross (A)", "Intake Arm & Outtake Wrist: Adjust Pos (-0.001)");
+            telemetry.addData("D-Pad Up", "Intake Claw (+0.001)");
+            telemetry.addData("D-Pad Down", "Intake Claw (-0.001)");
+            telemetry.addData("D-Pad Right", "Intake Rotation (+0.001)");      // CORRECTED
+            telemetry.addData("D-Pad Left", "Intake Rotation (-0.001)");       // CORRECTED
+            telemetry.addData("Triangle (Y)", "Intake Arm (+0.001)");        // CORRECTED
+            telemetry.addData("Cross (A)", "Intake Arm (-0.001)");
 
-            telemetry.addLine("--- Gamepad 2 Controls ---");
+            telemetry.addLine("--- Gamepad 2 Controls (Driver 2) ---");
             telemetry.addData("Left Stick (Y)", "Horizontal Slide Fwd/Rev (Power: %.2f)", gamepad2.left_stick_y);
-            telemetry.addData("Share Button (View/Back)", "Select LEFT Outtake Arm");
-            telemetry.addData("Options Button (Menu/Start)", "Select RIGHT Outtake Arm");
+            telemetry.addData("Share Button", "Select LEFT Outtake Arm");
+            telemetry.addData("Options Button", "Select RIGHT Outtake Arm");
             telemetry.addData("  Currently Selected Arm", isRightOuttakeArm ? "RIGHT" : "LEFT");
-            telemetry.addData("Left Bumper", "Selected Outtake Arm: Adjust Pos (+0.001)");
-            telemetry.addData("Right Bumper", "Selected Outtake Arm: Adjust Pos (-0.001)");
-            telemetry.addData("D-Pad Up", "Outtake Claw: Adjust Pos (+0.001)");
-            telemetry.addData("D-Pad Down", "Outtake Claw: Adjust Pos (-0.001)");
-            telemetry.addLine("------------------------------------"); // Separator before other data
-            // ------------ End User Instructions Telemetry ------------
+            telemetry.addData("Left Bumper", "Selected Outtake Arm (+0.001)");
+            telemetry.addData("Right Bumper", "Selected Outtake Arm (-0.001)");
+            telemetry.addData("D-Pad Up", "Outtake Claw (+0.001)");
+            telemetry.addData("D-Pad Down", "Outtake Claw (-0.001)");
+            telemetry.addData("D-Pad Right", "Outtake Rotation (+0.001)");    // ADDED/CLARIFIED
+            telemetry.addData("D-Pad Left", "Outtake Rotation (-0.001)");     // ADDED/CLARIFIED
+            telemetry.addData("Triangle (Y)", "Outtake Wrist (+0.001)");      // ADDED/CLARIFIED
+            telemetry.addData("Cross (A)", "Outtake Wrist (-0.001)");        // ADDED/CLARIFIED
+            telemetry.addLine("------------------------------------");
             telemetry.update();
         }
     }

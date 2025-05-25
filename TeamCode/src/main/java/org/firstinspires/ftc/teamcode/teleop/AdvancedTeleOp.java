@@ -9,18 +9,19 @@ import org.firstinspires.ftc.teamcode.collections.Motors;
 import org.firstinspires.ftc.teamcode.collections.SubsystemsV2;
 
 
-@TeleOp(name="Basic TeleOp", group="Linear OpMode")
+@TeleOp(name="Advanced TeleOp", group="Linear OpMode")
 public class AdvancedTeleOp extends LinearOpMode {
 
     // Declare OpMode members for each of the 4 motors.
     private ElapsedTime runtime = new ElapsedTime();
     private Motors motors = new Motors();
-    private SubsystemsV2 subsystems = new SubsystemsV2();
+    private SubsystemsV2 sub = new SubsystemsV2();
     private double speed = 0.5;
     private double turnspeed = 0.5;
     private double inverse = 1;
     private boolean isVerSlideEnabled = false;
     private boolean isHorSlideEnabled = false;
+    private boolean isIntakeRotationEnabled = false;
     private boolean isHanging = false;
     private Controller controller = new Controller();
     public enum SampleStates {
@@ -32,7 +33,14 @@ public class AdvancedTeleOp extends LinearOpMode {
         TRANSFER,
         DROP_OFF,
         DROPPED_OFF,
-        GOING_DOWN
+        GOING_DOWN;
+        public SampleStates increment() {
+            return SampleStates.values()[(this.ordinal() + 1) % SampleStates.values().length];
+        }
+
+        public SampleStates decrement(){
+            return SampleStates.values()[(this.ordinal() + SampleStates.values().length - 1) % SampleStates.values().length];
+        }
     }
 
     public enum SpecimenPickState {
@@ -42,6 +50,7 @@ public class AdvancedTeleOp extends LinearOpMode {
     public enum SpecimenDropState {
         // States to be defined
     }
+    private String activeState = "Sample";
     private SampleStates currentSampleState = SampleStates.TRAVEL;
     private SpecimenPickState currentSpecPickState; // Consider initializing
     private SpecimenDropState currentSpecDropState;
@@ -49,11 +58,8 @@ public class AdvancedTeleOp extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-
-        // Initialize the hardware variables. Note that the strings used here must correspond
-        // to the names assigned during the robot configuration step on the DS or RC devices.
         motors.init(hardwareMap);
-        subsystems.init(hardwareMap);
+        sub.init(hardwareMap);
         controller.init(gamepad1, gamepad2);
 
         // Wait for the game to start (driver presses START)
@@ -82,23 +88,30 @@ public class AdvancedTeleOp extends LinearOpMode {
 
             if(isVerSlideEnabled)
                 if(gamepad1.left_trigger > 0.05) {
-                    subsystems.verticalSlide(gamepad1.left_trigger);
+                    sub.verticalSlide(gamepad1.left_trigger);
                 }else if(gamepad1.right_trigger > 0.05){
-                    subsystems.verticalSlide(-gamepad1.right_trigger);
+                    sub.verticalSlide(-gamepad1.right_trigger);
                 }else{
-                    subsystems.verticalSlide(0);
+                    sub.verticalSlide(0);
                 }
             else if(isHorSlideEnabled){
                 if(gamepad1.left_trigger > 0.05) {
-                    subsystems.horizontalSlide(gamepad1.right_trigger);
+                    sub.horizontalSlide(gamepad1.right_trigger);
                 }else if(gamepad1.right_trigger > 0.05){
-                    subsystems.horizontalSlide(-gamepad1.left_trigger);
+                    sub.horizontalSlide(-gamepad1.left_trigger);
                 }else{
-                    subsystems.horizontalSlide(0);
+                    sub.horizontalSlide(0);
                 }
             }
 
-            stateMachines();
+            if(controller.isSquareJustPressed()){
+                currentSampleState = currentSampleState.increment();
+                stateMachines();
+            } else if (controller.isCrossJustPressed()) {
+                currentSampleState = currentSampleState.decrement();
+                stateMachines();
+            }
+
 
             double max;
 
@@ -130,20 +143,19 @@ public class AdvancedTeleOp extends LinearOpMode {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
-            telemetry.addData("Horizontal Slide Power", subsystems.leftHorSlide.getPower());
-            telemetry.addData("Intake Claw Servo Position", subsystems.intakeClawServo.getPosition());
-            telemetry.addData("Intake Rotation Servo Position", subsystems.intakeRotationServo.getPosition());
+            telemetry.addData("Horizontal Slide Power", sub.leftHorSlide.getPower());
+            telemetry.addData("Intake Claw Servo Position", sub.intakeClawServo.getPosition());
+            telemetry.addData("Intake Rotation Servo Position", sub.intakeRotationServo.getPosition());
             telemetry.addData("VerSlideEnabled", isVerSlideEnabled);
             telemetry.addData("HorSlideEnabled", isHorSlideEnabled);
-            telemetry.addData("LeftVer Pos", subsystems.leftVerSlide.getCurrentPosition());
-            telemetry.addData("LeftHor Pos", subsystems.leftHorSlide.getCurrentPosition());
-            telemetry.addData("Intake Claw", subsystems.intakeClawServo.getPosition());
-            telemetry.addData("Intake Wrist (RotServo)", subsystems.intakeRotationServo.getPosition());
-            telemetry.addData("Intake Rotation (ArmServo)", subsystems.intakeArmServo.getPosition());
-            telemetry.addData("Outtake Claw", subsystems.outtakeClawServo.getPosition());
-            telemetry.addData("Outtake Wrist", subsystems.outtakeWristServo.getPosition());
-            telemetry.addData("Outtake Rotation", subsystems.outtakeRotationServo.getPosition());
-            telemetry.update();
+            telemetry.addData("LeftVer Pos", sub.leftVerSlide.getCurrentPosition());
+            telemetry.addData("LeftHor Pos", sub.leftHorSlide.getCurrentPosition());
+            telemetry.addData("Intake Claw", sub.intakeClawServo.getPosition());
+            telemetry.addData("Intake Wrist (RotServo)", sub.intakeRotationServo.getPosition());
+            telemetry.addData("Intake Rotation (ArmServo)", sub.intakeArmServo.getPosition());
+            telemetry.addData("Outtake Claw", sub.outtakeClawServo.getPosition());
+            telemetry.addData("Outtake Wrist", sub.outtakeWristServo.getPosition());
+            telemetry.addData("Outtake Rotation", sub.outtakeRotationServo.getPosition());
             telemetry.update();
         }
     }
@@ -151,22 +163,105 @@ public class AdvancedTeleOp extends LinearOpMode {
     private void stateMachines() {
         switch (currentSampleState) {
             case TRAVEL:
+                setControlFlags(false, false, false);
+                sub.setOuttakeToTravelState();
+                sub.setIntakeToTravelState();
+                sub.powerOnOuttakeSubStatePos();
+                sub.powerOnIntakeSubStatePos();
                 break;
             case READY_TO_EXTEND:
+                setControlFlags(true, false, false); // Horizontal slides enabled
+                sub.powerOffOuttakeSubStatePos();
+                sub.setIntakeSubStatePos(
+                        sub.inPos.get("Claw Open"),
+                        sub.inPos.get("Wrist Straight"),
+                        sub.inPos.get("Rotation Straight")
+                );
+                sub.powerOnIntakeSubStatePos();
                 break;
             case PICK_UP:
+                setControlFlags(true, false, false); // Horizontal slides still enabled for pickup
+                sub.powerOffOuttakeSubStatePos();
+                sub.setIntakeSubStatePos(
+                        sub.inPos.get("Claw Open"),
+                        sub.inPos.get("Wrist Down"),
+                        sub.inPos.get("Rotation Straight")
+                );
+                sub.powerOnIntakeSubStatePos();
                 break;
             case PICKED_UP:
+                setControlFlags(false, false, true); // Intake rotation variable, horizontal slides disabled
+                sub.powerOffOuttakeSubStatePos();
+                sub.setIntakeSubStatePos(
+                        sub.inPos.get("Claw Close"),
+                        sub.inPos.get("Wrist Down")
+                );
+                sub.powerOnIntakeSubStatePos();
                 break;
             case RETRACTED:
+                setControlFlags(false, false, false); // Slides retracting, no trigger control
+                sub.setOuttakeToTravelState();
+                sub.powerOnOuttakeSubStatePos();
+                sub.setIntakeSubStatePos(
+                        sub.inPos.get("Claw Close"),
+                        sub.inPos.get("Wrist Up"),
+                        sub.inPos.get("Rotation Straight")
+                );
+                sub.powerOnIntakeSubStatePos();
+                // Note: subsystems.retractHorizontalSlides(); typically called on transition *to* this state
                 break;
             case TRANSFER:
+                setControlFlags(false, false, false);
+                sub.setOuttakeSubStatePos(
+                        sub.outPos.get("Claw Close"),
+                        sub.outPos.get("Rotation Straight"),
+                        sub.outPos.get("Wrist Down"),
+                        sub.outPos.get("Arm Parallel Ground")
+                );
+                sub.powerOnOuttakeSubStatePos();
+                sub.setIntakeSubStatePos(
+                        sub.inPos.get("Claw Open"),
+                        sub.inPos.get("Wrist Up"),
+                        sub.inPos.get("Rotation Straight")
+                );
+                sub.powerOnIntakeSubStatePos();
                 break;
             case DROP_OFF:
+                setControlFlags(false, true, false); // Vertical slides enabled
+                sub.setOuttakeSubStatePos(
+                        sub.outPos.get("Claw Close"),
+                        sub.outPos.get("Rotation Straight"),
+                        sub.outPos.get("Wrist Up"),
+                        sub.outPos.get("Arm Parallel Slides")
+                );
+                sub.powerOnOuttakeSubStatePos();
+                sub.setIntakeToTravelState();
+                sub.powerOnIntakeSubStatePos();
                 break;
             case DROPPED_OFF:
+                setControlFlags(false, true, false); // Vertical slides still enabled
+                sub.setOuttakeSubStatePos(
+                        sub.outPos.get("Claw Open"),
+                        sub.outPos.get("Rotation Straight"),
+                        sub.outPos.get("Wrist Up"),
+                        sub.outPos.get("Arm Parallel Slides")
+                );
+                sub.powerOnOuttakeSubStatePos();
+                sub.setIntakeToTravelState();
+                sub.powerOnIntakeSubStatePos();
                 break;
             case GOING_DOWN:
+                setControlFlags(false, false, false); // Vertical slides retracting, no trigger control
+                sub.setOuttakeSubStatePos(
+                        sub.outPos.get("Claw Open"),
+                        sub.outPos.get("Rotation Straight"),
+                        sub.outPos.get("Wrist Down"),
+                        sub.outPos.get("Arm Parallel Slides")
+                );
+                sub.powerOnOuttakeSubStatePos();
+                sub.setIntakeToTravelState();
+                sub.powerOnIntakeSubStatePos();
+                // Note: subsystems.retractVerticalSlides(); typically called on transition *to* this state
                 break;
         }
 
@@ -202,4 +297,9 @@ public class AdvancedTeleOp extends LinearOpMode {
         }
     }
 
+    private void setControlFlags(boolean hor, boolean ver, boolean rotation){
+        isHorSlideEnabled = hor;
+        isVerSlideEnabled = ver; // Vertical Disabled for trigger control
+        isIntakeRotationEnabled = rotation;
+    }
 }

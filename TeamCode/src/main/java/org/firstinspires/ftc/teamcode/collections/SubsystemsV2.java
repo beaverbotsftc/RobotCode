@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import java.util.HashMap;
 
@@ -22,7 +21,7 @@ public class SubsystemsV2 {
     public Servo outtakeLeftArmServo = null;
     public Servo outtakeRightArmServo = null;
 
-    public HashMap<String, Double> intakePos = new HashMap<String, Double>() {{
+    public HashMap<String, Double> inPos = new HashMap<String, Double>() {{
         put("Claw Open", 0.5);
         put("Claw Close", 0.0);
         put("Wrist Up", 0.85);
@@ -31,7 +30,7 @@ public class SubsystemsV2 {
         put("Rotation Straight", 0.5);
     }};
 
-    public HashMap<String, Double> outtakePos = new HashMap<String, Double>() {{
+    public HashMap<String, Double> outPos = new HashMap<String, Double>() {{
         put("Claw Open", 0.5);
         put("Claw Close", 0.0);
         put("Wrist Up", 0.75);
@@ -151,6 +150,11 @@ public class SubsystemsV2 {
         intakeClawServo.setPosition(claw);
     }
 
+    public void setIntakeSubStatePos(double claw, double arm){
+        intakeArmServo.setPosition(arm);
+        intakeClawServo.setPosition(claw);
+    }
+
     public void powerOffIntakeSubStatePos(){
         intakeRotationServo.getController().pwmDisable();
         intakeArmServo.getController().pwmDisable();
@@ -184,5 +188,33 @@ public class SubsystemsV2 {
         outtakeRightArmServo.getController().pwmEnable();
         outtakeClawServo.getController().pwmEnable();
         outtakeWristServo.getController().pwmEnable();
+    }
+
+    public void setIntakeToTravelState() {
+        setIntakeSubStatePos(
+                inPos.get("Claw Open"),
+                inPos.get("Wrist Up"),
+                inPos.get("Rotation Straight")
+        );
+        powerOnIntakeSubStatePos();
+    }
+
+    public void setIntakeToTransferState() {
+        setIntakeSubStatePos(
+                inPos.get("Claw Close"),
+                inPos.get("Wrist Up"),
+                inPos.get("Rotation Straight")
+        );
+        powerOnIntakeSubStatePos();
+    }
+
+    public void setOuttakeToTravelState() {
+        setOuttakeSubStatePos(
+                outPos.get("Claw Open"),
+                outPos.get("Rotation Straight"),
+                outPos.get("Wrist Down"),
+                outPos.get("Arm Parallel Ground")
+        );
+        powerOnOuttakeSubStatePos();
     }
 }
