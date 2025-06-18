@@ -5,9 +5,11 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.collections.Controller;
+import org.firstinspires.ftc.teamcode.collections.InConstants;
 import org.firstinspires.ftc.teamcode.collections.Motors;
+import org.firstinspires.ftc.teamcode.collections.OutConstants;
 import org.firstinspires.ftc.teamcode.collections.SubsystemsV2;
-
+            
 
 @TeleOp(name="Advanced TeleOp", group="Linear OpMode")
 public class AdvancedTeleOp extends LinearOpMode {
@@ -52,7 +54,7 @@ public class AdvancedTeleOp extends LinearOpMode {
     }
     private String activeState = "Sample";
     private SampleStates currentSampleState = SampleStates.TRAVEL;
-    private SpecimenPickState currentSpecPickState; // Consider initializing
+    private SpecimenPickState currentSpecPickState;
     private SpecimenDropState currentSpecDropState;
 
 
@@ -115,9 +117,9 @@ public class AdvancedTeleOp extends LinearOpMode {
 
             double max;
 
-            double axial   =  -gamepad1.left_stick_y * speed * inverse;  // Note: pushing stick forward gives negative value
-            double lateral =  gamepad1.left_stick_x * speed * inverse;
-            double yaw     =  gamepad1.right_stick_x * turnspeed;
+            double axial   =  -changeInput(gamepad1.left_stick_y) * speed * inverse;  // Note: pushing stick forward gives negative value
+            double lateral =  changeInput(gamepad1.left_stick_x) * speed * inverse;
+            double yaw     =  changeInput(gamepad1.right_stick_x) * turnspeed;
 
             double leftFrontPower  = axial + lateral + yaw;
             double rightFrontPower = axial - lateral - yaw;
@@ -170,98 +172,96 @@ public class AdvancedTeleOp extends LinearOpMode {
                 sub.powerOnIntakeSubStatePos();
                 break;
             case READY_TO_EXTEND:
-                setControlFlags(true, false, false); // Horizontal slides enabled
+                setControlFlags(true, false, false);
                 sub.powerOffOuttakeSubStatePos();
                 sub.setIntakeSubStatePos(
-                        sub.inPos.get("Claw Open"),
-                        sub.inPos.get("Wrist Straight"),
-                        sub.inPos.get("Rotation Straight")
+                        InConstants.Claw_Open,
+                        InConstants.Wrist_Straight,
+                        InConstants.Rotation_Straight
                 );
                 sub.powerOnIntakeSubStatePos();
                 break;
             case PICK_UP:
-                setControlFlags(true, false, false); // Horizontal slides still enabled for pickup
+                setControlFlags(true, false, false);
                 sub.powerOffOuttakeSubStatePos();
                 sub.setIntakeSubStatePos(
-                        sub.inPos.get("Claw Open"),
-                        sub.inPos.get("Wrist Down"),
-                        sub.inPos.get("Rotation Straight")
+                        InConstants.Claw_Open,
+                        InConstants.Wrist_Down,
+                        InConstants.Rotation_Straight
                 );
                 sub.powerOnIntakeSubStatePos();
                 break;
             case PICKED_UP:
-                setControlFlags(false, false, true); // Intake rotation variable, horizontal slides disabled
+                setControlFlags(false, false, true);
                 sub.powerOffOuttakeSubStatePos();
                 sub.setIntakeSubStatePos(
-                        sub.inPos.get("Claw Close"),
-                        sub.inPos.get("Wrist Down")
+                        InConstants.Claw_Close,
+                        InConstants.Wrist_Down
                 );
                 sub.powerOnIntakeSubStatePos();
                 break;
             case RETRACTED:
-                setControlFlags(false, false, false); // Slides retracting, no trigger control
+                setControlFlags(false, false, false);
                 sub.setOuttakeToTravelState();
                 sub.powerOnOuttakeSubStatePos();
                 sub.setIntakeSubStatePos(
-                        sub.inPos.get("Claw Close"),
-                        sub.inPos.get("Wrist Up"),
-                        sub.inPos.get("Rotation Straight")
+                        InConstants.Claw_Close,
+                        InConstants.Wrist_Up,
+                        InConstants.Rotation_Straight
                 );
                 sub.powerOnIntakeSubStatePos();
-                // Note: subsystems.retractHorizontalSlides(); typically called on transition *to* this state
                 break;
             case TRANSFER:
                 setControlFlags(false, false, false);
                 sub.setOuttakeSubStatePos(
-                        sub.outPos.get("Claw Close"),
-                        sub.outPos.get("Rotation Straight"),
-                        sub.outPos.get("Wrist Down"),
-                        sub.outPos.get("Arm Parallel Ground")
+                        OutConstants.Claw_Close,
+                        OutConstants.Rotation_Straight,
+                        OutConstants.Wrist_Down,
+                        OutConstants.Arm_Parallel_Ground
                 );
                 sub.powerOnOuttakeSubStatePos();
                 sub.setIntakeSubStatePos(
-                        sub.inPos.get("Claw Open"),
-                        sub.inPos.get("Wrist Up"),
-                        sub.inPos.get("Rotation Straight")
+                        InConstants.Claw_Open,
+                        InConstants.Wrist_Up,
+                        InConstants.Rotation_Straight
                 );
                 sub.powerOnIntakeSubStatePos();
                 break;
             case DROP_OFF:
-                setControlFlags(false, true, false); // Vertical slides enabled
+                setControlFlags(false, true, false);
                 sub.setOuttakeSubStatePos(
-                        sub.outPos.get("Claw Close"),
-                        sub.outPos.get("Rotation Straight"),
-                        sub.outPos.get("Wrist Up"),
-                        sub.outPos.get("Arm Parallel Slides")
+                        OutConstants.Claw_Close,
+                        OutConstants.Rotation_Straight,
+                        OutConstants.Wrist_Up,
+                        OutConstants.Arm_Parallel_Slides
                 );
                 sub.powerOnOuttakeSubStatePos();
                 sub.setIntakeToTravelState();
                 sub.powerOnIntakeSubStatePos();
                 break;
             case DROPPED_OFF:
-                setControlFlags(false, true, false); // Vertical slides still enabled
+                setControlFlags(false, true, false);
                 sub.setOuttakeSubStatePos(
-                        sub.outPos.get("Claw Open"),
-                        sub.outPos.get("Rotation Straight"),
-                        sub.outPos.get("Wrist Up"),
-                        sub.outPos.get("Arm Parallel Slides")
+                        OutConstants.Claw_Open,
+                        OutConstants.Rotation_Straight,
+                        OutConstants.Wrist_Up,
+                        OutConstants.Arm_Parallel_Slides
                 );
                 sub.powerOnOuttakeSubStatePos();
                 sub.setIntakeToTravelState();
                 sub.powerOnIntakeSubStatePos();
                 break;
             case GOING_DOWN:
-                setControlFlags(false, false, false); // Vertical slides retracting, no trigger control
+                setControlFlags(false, false, false);
                 sub.setOuttakeSubStatePos(
-                        sub.outPos.get("Claw Open"),
-                        sub.outPos.get("Rotation Straight"),
-                        sub.outPos.get("Wrist Down"),
-                        sub.outPos.get("Arm Parallel Slides")
+                        OutConstants.Claw_Open,
+                        OutConstants.Rotation_Straight,
+                        OutConstants.Wrist_Down,
+                        OutConstants.Arm_Parallel_Slides
                 );
                 sub.powerOnOuttakeSubStatePos();
                 sub.setIntakeToTravelState();
                 sub.powerOnIntakeSubStatePos();
-                // Note: subsystems.retractVerticalSlides(); typically called on transition *to* this state
                 break;
         }
 
@@ -302,4 +302,9 @@ public class AdvancedTeleOp extends LinearOpMode {
         isVerSlideEnabled = ver; // Vertical Disabled for trigger control
         isIntakeRotationEnabled = rotation;
     }
+
+    private double changeInput(double x){
+        return Math.signum(x) * (1 - Math.cos(x * Math.PI / 2.0));
+    }
+
 }

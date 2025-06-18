@@ -21,24 +21,6 @@ public class SubsystemsV2 {
     public Servo outtakeLeftArmServo = null;
     public Servo outtakeRightArmServo = null;
 
-    public HashMap<String, Double> inPos = new HashMap<String, Double>() {{
-        put("Claw Open", 0.5);
-        put("Claw Close", 0.0);
-        put("Wrist Up", 0.85);
-        put("Wrist Straight", 0.5);
-        put("Wrist Down", 0.15);
-        put("Rotation Straight", 0.5);
-    }};
-
-    public HashMap<String, Double> outPos = new HashMap<String, Double>() {{
-        put("Claw Open", 0.5);
-        put("Claw Close", 0.0);
-        put("Wrist Up", 0.75);
-        put("Wrist Down", 0.25);
-        put("Rotation Straight", 0.5);
-        put("Arm Parallel Ground", 0.2);
-        put("Arm Parallel Slides", 0.8);
-    }};
 
     public void init(HardwareMap hardwareMap) {
         leftVerSlide = hardwareMap.get(DcMotor.class, "left ver slide");
@@ -192,28 +174,28 @@ public class SubsystemsV2 {
 
     public void setIntakeToTravelState() {
         setIntakeSubStatePos(
-                inPos.get("Claw Open"),
-                inPos.get("Wrist Up"),
-                inPos.get("Rotation Straight")
+                InConstants.Claw_Open,
+                InConstants.Wrist_Up,
+                InConstants.Rotation_Straight
         );
         powerOnIntakeSubStatePos();
     }
 
     public void setIntakeToTransferState() {
         setIntakeSubStatePos(
-                inPos.get("Claw Close"),
-                inPos.get("Wrist Up"),
-                inPos.get("Rotation Straight")
+                OutConstants.Claw_Close,
+                OutConstants.Wrist_Up,
+                OutConstants.Rotation_Straight
         );
         powerOnIntakeSubStatePos();
     }
 
     public void setOuttakeToTravelState() {
         setOuttakeSubStatePos(
-                outPos.get("Claw Open"),
-                outPos.get("Rotation Straight"),
-                outPos.get("Wrist Down"),
-                outPos.get("Arm Parallel Ground")
+                OutConstants.Claw_Open,
+                OutConstants.Rotation_Straight,
+                OutConstants.Wrist_Down,
+                OutConstants.Arm_Parallel_Ground
         );
         powerOnOuttakeSubStatePos();
     }
