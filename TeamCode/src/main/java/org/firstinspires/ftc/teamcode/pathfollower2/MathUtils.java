@@ -58,6 +58,7 @@ public class MathUtils {
         return easePolynomial(easePolynomial(start, end, initialDegree, t), easePolynomial(start, end, finalDegree, t), interpolationDegree, t);
     }
 
+    // Consider De Casteljau's algorithm
     public static double bezier(double[] points, double t) {
         if (points.length == 1) return points[0];
 

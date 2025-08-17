@@ -25,7 +25,7 @@ public class PathFollower { // extends Thread
     public HashMap<DOFs.DOF, PID> pids;
     public HashMap<DOFs.DOF, K> k;
 
-    public void run(Telemetry telemetry) {
+    public void run(Telemetry telemetry, double[] weights) {
         double lastLoopTime = (double) System.currentTimeMillis() * 1e-3;
 
         while (!isStopRequested.get()) {
@@ -43,7 +43,7 @@ public class PathFollower { // extends Thread
                             put(dof, 0.0);
                         }
                     }
-                }, telemetry);
+                }, telemetry, weights);
                 break; // Stop once the path is complete
             }
 
@@ -64,11 +64,11 @@ public class PathFollower { // extends Thread
             dofs.apply(pids.entrySet().stream().collect(HashMap::new,
                             (HashMap<DOFs.DOF, Double> map, Map.Entry<DOFs.DOF, PID> entry)
                                     -> map.put(entry.getKey(),
-                                    k.get(entry.getKey()).gradientV * gradientV.get(entry.getKey())
-                                            + k.get(entry.getKey()).gradientA * gradientA.get(entry.getKey())
-                                            + k.get(entry.getKey()).pid * pids.get(entry.getKey()).getCorrection()),
+                                        k.get(entry.getKey()).gradientV * gradientV.get(entry.getKey())
+                                        + k.get(entry.getKey()).gradientA * gradientA.get(entry.getKey())
+                                        + k.get(entry.getKey()).pid * pids.get(entry.getKey()).getCorrection()),
                             HashMap::putAll),
-                    telemetry);
+                    telemetry, weights);
             telemetry.update();
         }
     }

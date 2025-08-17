@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.pathfollower2.PathFollower;
 import org.firstinspires.ftc.teamcode.pathfollower2.TuningConstants;
 
 import java.util.HashMap;
+import org.firstinspires.ftc.teamcode.pathfollower2.TuningConstants;
 
 @Autonomous(name = "Specimen Park")
 public class ParkSpecimen extends LinearOpMode {
@@ -45,6 +46,6 @@ public class ParkSpecimen extends LinearOpMode {
             for (DOFs.DOF dof : DOFs.DOF.values()) put(dof, new PathFollower.K(TuningConstants.v.get(dof), 0, 1));
         }}, this::isStopRequested);
 
-        pathFollower.run(telemetry);
+        pathFollower.run(telemetry, TuningConstants.weights);
     }
 }

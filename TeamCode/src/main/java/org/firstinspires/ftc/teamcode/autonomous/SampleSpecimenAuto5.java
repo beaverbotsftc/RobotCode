@@ -95,6 +95,6 @@ public class SampleSpecimenAuto5 extends LinearOpMode {
         }}, this::isStopRequested);
 
 
-        pathFollower.run(telemetry);
+        pathFollower.run(telemetry, TuningConstants.weights);
     }
 }

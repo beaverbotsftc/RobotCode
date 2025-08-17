@@ -20,8 +20,7 @@ public class Path {
             lastIndex = index;
         }
 
-        new Thread(paths.get(index).onIteration).start();
-        paths.get(index).onIterationBlocking.run();
+        paths.get(index).onIteration.run();
 
         t += dt;
 

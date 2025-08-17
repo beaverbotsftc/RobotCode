@@ -9,14 +9,12 @@ public class PathSegment {
   public Runnable onInit;
   public Runnable onIteration;
   public Runnable onInitBlocking;
-  public Runnable onIterationBlocking;
 
-  public PathSegment(HashMap<DOFs.DOF, Function<Double, Double>> f, Function<Double, Boolean> isFinished, Runnable onInit, Runnable onIteration, Runnable onInitBlocking, Runnable onIterationBlocking) {
+  public PathSegment(HashMap<DOFs.DOF, Function<Double, Double>> f, Function<Double, Boolean> isFinished, Runnable onInit, Runnable onIteration, Runnable onInitBlocking) {
     this.f = f;
     this.isFinished = isFinished;
     this.onInit = onInit;
     this.onIteration = onIteration;
     this.onInitBlocking = onInitBlocking;
-    this.onIterationBlocking = onIterationBlocking;
   }
 }

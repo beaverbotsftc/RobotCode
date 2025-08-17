@@ -78,8 +78,8 @@ public class PathFollowerTuningA extends LinearOpMode {
                 telemetry.addLine(
                         "To modify goal: X & Y (gamepad 2, left stick), to modify THETA (gamepad 2, right stick X)");
                 telemetry.addLine("To modify time: gamepad 1 right stick Y.");
-                telemetry.addLine("To modify degree: gamepad 2, up and down");
                 telemetry.addLine("To modify alpha: gamepad 2, right stick Y");
+                telemetry.addLine("To modify degree: gamepad 2, up and down");
                 telemetry.addLine("Press circle to continue.");
                 telemetry.update();
 
@@ -131,7 +131,7 @@ public class PathFollowerTuningA extends LinearOpMode {
                                         put(dof, 0.0);
                                 }
                             },
-                            2,
+                            degree,
                             time)
                     .buildSegment()
                     .build();
@@ -150,7 +150,7 @@ public class PathFollowerTuningA extends LinearOpMode {
                         }
                     }, this::isStopRequested);
 
-            pathFollower.run(telemetry);
+            pathFollower.run(telemetry, TuningConstants.weights);
 
             for (DOFs.DOF dof : DOFs.DOF.values())
                 if (usedDofs.contains(dof))

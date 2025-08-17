@@ -11,7 +11,6 @@ public class PathBuilder {
     public Runnable onInit;
     public Runnable onIteration;
     public Runnable onInitBlocking;
-    public Runnable onIterationBlocking;
     public HashMap<DOFs.DOF, Function<Double, Double>> f;
     public Function<Double, Boolean> isFinished;
     public double clock = 0;
@@ -197,11 +196,6 @@ public class PathBuilder {
         return this;
     }
 
-    public PathBuilder onIterationBlocking(Runnable onIterationBlocking) {
-        this.onIterationBlocking = onIterationBlocking;
-        return this;
-    }
-
     public PathBuilder buildSegment() {
         if (autoIsFinished) {
             double capturedClock = this.clock;
@@ -209,7 +203,7 @@ public class PathBuilder {
         }
 
         Function<Double, Boolean> isFinishedCaptured = isFinished;
-        pathSegments.add(new PathSegment(f, isFinishedCaptured, onInit, onIteration, onInitBlocking, onIterationBlocking));
+        pathSegments.add(new PathSegment(f, isFinishedCaptured, onInit, onIteration, onInitBlocking));
         resetPathSegment();
         return this;
     }
@@ -230,7 +224,6 @@ public class PathBuilder {
         this.onInit = () -> {};
         this.onIteration = () -> {};
         this.onInitBlocking = () -> {};
-        this.onIterationBlocking = () -> {};
         this.clock = 0;
         this.autoIsFinished = true;
     }

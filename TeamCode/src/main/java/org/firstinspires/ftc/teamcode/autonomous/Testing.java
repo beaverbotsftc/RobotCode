@@ -92,6 +92,6 @@ public class Testing extends LinearOpMode {
         }}, this::isStopRequested);
 
 
-        pathFollower.run(telemetry);
+        pathFollower.run(telemetry, TuningConstants.weights);
     }
 }

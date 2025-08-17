@@ -62,6 +62,6 @@ public class Showcase extends LinearOpMode {
             for (DOFs.DOF dof : DOFs.DOF.values()) put(dof, new PathFollower.K(TuningConstants.v.get(dof), 0, 1));
         }}, this::isStopRequested);
 
-        pathFollower.run(telemetry);
+        pathFollower.run(telemetry, TuningConstants.weights);
     }
 }

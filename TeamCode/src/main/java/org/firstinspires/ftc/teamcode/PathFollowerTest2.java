@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.pathfollower2.PathBuilder;
 import org.firstinspires.ftc.teamcode.pathfollower2.PathFollower;
 
 import java.util.HashMap;
+import org.firstinspires.ftc.teamcode.pathfollower2.TuningConstants;
 
 
 @TeleOp(name="Path follower test 2")
@@ -77,7 +78,7 @@ public class PathFollowerTest2 extends LinearOpMode {
 
         waitForStart();
 
-        pathFollower.run(telemetry);
+        pathFollower.run(telemetry, TuningConstants.weights);
 
         // while (opModeIsActive()) {}
     }

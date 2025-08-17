@@ -14,4 +14,13 @@ public class TuningConstants {
         put(DOFs.DOF.Y, 0.01);
         put(DOFs.DOF.THETA, 0.01);
     }};
+
+    public static final HashMap<DOFs.DOF, PID.K> pid = new HashMap<DOFs.DOF, PID.K>() {{
+        put(DOFs.DOF.X, new PID.K(1, 0, 0));
+        put(DOFs.DOF.Y, new PID.K(1, 0, 0));
+        put(DOFs.DOF.THETA, new PID.K(1, 0, 0));
+    }};
+
+    public static final double[] weights = { 1.0, 0.15, 1.0, 1.0, 1.0, 1.0, 0.35 };
+    public static final boolean[] frozenWeights = { false, false, false, false, false, false, true };
 }

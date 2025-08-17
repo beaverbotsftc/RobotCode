@@ -25,4 +25,6 @@ android {
 
 dependencies {
     implementation project(':FtcRobotController')
+    implementation project(':BeaverCommand')
+    implementation project(':BeaverTracking')
 }

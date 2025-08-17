@@ -13,10 +13,12 @@ public class PathFollowerTuningV extends LinearOpMode {
     final double kGoal = 5;
     final double kGuess = 0.1;
     final double kTime = 1;
+    final double kDegree = 0.1;
     final double kAlpha = 0.1;
     final double reinitTime = 2;
 
     double alpha = 1;
+    double degree = 1;
 
     HashMap<DOFs.DOF, Double> lastPosition = new HashMap<DOFs.DOF, Double>() {
         {
@@ -73,6 +75,7 @@ public class PathFollowerTuningV extends LinearOpMode {
                         "To modify goal: X & Y (gamepad 2, left stick), to modify THETA (gamepad 2, right stick X)");
                 telemetry.addLine("To modify time: gamepad 1 right stick Y.");
                 telemetry.addLine("To modify alpha: gamepad 2, right stick Y");
+                telemetry.addLine("To modify degree: gamepad 2, up and down");
                 telemetry.addLine("Press circle to continue.");
                 telemetry.update();
 
@@ -87,6 +90,12 @@ public class PathFollowerTuningV extends LinearOpMode {
                 goal.put(DOFs.DOF.THETA, goal.get(DOFs.DOF.THETA) + gamepad2.right_stick_x * dt * kGoal);
                 time -= gamepad1.right_stick_y * dt * kTime;
                 alpha -= gamepad2.right_stick_y * dt * kAlpha;
+
+                if (gamepad2.dpad_up) {
+                    degree += dt * kDegree;
+                } else if (gamepad2.dpad_down) {
+                    degree -= dt * kDegree;
+                }
 
                 if (gamepad1.dpad_up) {
                     usedDofs.add(DOFs.DOF.X);
@@ -108,7 +117,7 @@ public class PathFollowerTuningV extends LinearOpMode {
             DOFs dofs = new DOFs(sensors.odometry, motors);
 
             Path path = new PathBuilder()
-                    .linearTo(
+                    .easePolynomialTo(
                             new HashMap<DOFs.DOF, Double>() {
                                 {
                                     for (DOFs.DOF dof : usedDofs) put(dof, goal.get(dof));
@@ -117,6 +126,7 @@ public class PathFollowerTuningV extends LinearOpMode {
                                         put(dof, 0.0);
                                 }
                             },
+                            degree,
                             time)
                     .buildSegment()
                     .build();
@@ -135,7 +145,7 @@ public class PathFollowerTuningV extends LinearOpMode {
                         }
                     }, this::isStopRequested);
 
-            pathFollower.run(telemetry);
+            pathFollower.run(telemetry, TuningConstants.weights);
 
             for (DOFs.DOF dof : DOFs.DOF.values())
                 if (usedDofs.contains(dof))
