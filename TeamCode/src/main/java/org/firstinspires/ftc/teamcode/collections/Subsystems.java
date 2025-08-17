@@ -13,8 +13,12 @@ public class Subsystems {
     public Servo intakeRotationServo;
     public Servo intakeClawServo;
     public Servo intakeArmServo;
-    public Servo outtakeArmServo;
-    public Servo outtakeArmServoLeft;
+    public Servo outtakeRotationServo = null;
+    public Servo outtakeClawServo = null;
+    public Servo outtakeWristServo = null;
+    public Servo outtakeLeftArmServo = null;
+    public Servo outtakeRightArmServo = null;
+
 
     public void init(HardwareMap hardwareMap) {
         leftVerSlide = hardwareMap.get(DcMotor.class, "left ver slide");
@@ -48,8 +52,25 @@ public class Subsystems {
         intakeArmServo = hardwareMap.get(Servo.class, "intake arm servo");
         intakeArmServo.setDirection(Servo.Direction.FORWARD);
 
-        outtakeArmServo = hardwareMap.get(Servo.class, "outtake arm servo right");
-        outtakeArmServo.setDirection(Servo.Direction.FORWARD);
+        // Initialize outtakeRotationServo
+        outtakeRotationServo = hardwareMap.get(Servo.class, "outtake rotation servo");
+        outtakeRotationServo.setDirection(Servo.Direction.FORWARD);
+
+        // Initialize outtakeClawServo
+        outtakeClawServo = hardwareMap.get(Servo.class, "outtake claw servo");
+        outtakeClawServo.setDirection(Servo.Direction.FORWARD);
+
+        // Initialize outtakeWristServo
+        outtakeWristServo = hardwareMap.get(Servo.class, "outtake wrist servo");
+        outtakeWristServo.setDirection(Servo.Direction.FORWARD);
+
+        // Initialize outtakeLeftArmServo
+        outtakeLeftArmServo = hardwareMap.get(Servo.class, "outtake left arm servo");
+        outtakeLeftArmServo.setDirection(Servo.Direction.FORWARD);
+
+        // Initialize outtakeRightArmServo
+        outtakeRightArmServo = hardwareMap.get(Servo.class, "outtake right arm servo");
+        outtakeRightArmServo.setDirection(Servo.Direction.REVERSE);
     }
     public void verticalSlide(double power){
         leftVerSlide.setPower(power);
@@ -61,8 +82,4 @@ public class Subsystems {
         rightHorSlide.setPower(power);
     }
 
-    /// @param position between 0 and 1
-    public void outtakeArm(double position) {
-        outtakeArmServo.setPosition(position);
-    }
 }
