@@ -27,4 +27,5 @@ dependencies {
     implementation project(':FtcRobotController')
     implementation project(':BeaverCommand')
     implementation project(':BeaverTracking')
+    implementation project(':BeaverOptimize')
 }
