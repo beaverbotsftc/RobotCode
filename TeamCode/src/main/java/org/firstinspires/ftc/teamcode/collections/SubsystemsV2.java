@@ -68,11 +68,11 @@ public class SubsystemsV2 {
 
         // Initialize outtakeLeftArmServo
         outtakeLeftArmServo = hardwareMap.get(Servo.class, "outtake left arm servo");
-        outtakeLeftArmServo.setDirection(Servo.Direction.FORWARD);
+        outtakeLeftArmServo.setDirection(Servo.Direction.REVERSE);
 
         // Initialize outtakeRightArmServo
         outtakeRightArmServo = hardwareMap.get(Servo.class, "outtake right arm servo");
-        outtakeRightArmServo.setDirection(Servo.Direction.REVERSE);
+        outtakeRightArmServo.setDirection(Servo.Direction.FORWARD);
     }
     public void verticalSlide(double pos, double power){
         leftVerSlide.setTargetPosition((int) pos);
