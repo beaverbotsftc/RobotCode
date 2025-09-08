@@ -1,5 +1,7 @@
 package org.beaverbots.BeaverOptimize;
 
+import android.util.Pair;
+
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 
@@ -9,18 +11,21 @@ public final class GradientDescent {
 
     private static final double BASE_EPSILON = 1e-8;
 
+    private GradientDescent() {}
+
     private static double getEpsilon(double x) {
         return BASE_EPSILON * Math.max(1.0, Math.abs(x));
     }
 
-    public static RealVector optimize(RealVector initialParameters,
-                                      ToDoubleFunction<RealVector> lossFunction,
-                                      double learningRate,
-                                      int steps) {
+    public static Pair<RealVector, Double> optimize(RealVector initialParameters,
+                                                    ToDoubleFunction<RealVector> lossFunction,
+                                                    double learningRate,
+                                                    int steps, double maxLossGradient) {
         RealVector currentParameters = initialParameters.copy();
 
         for (int i = 0; i < steps; i++) {
             RealVector gradient = numericalGradient(currentParameters, lossFunction);
+            gradient = gradient.map(g -> Math.max(-maxLossGradient, Math.min(g, maxLossGradient)));
 
             if (!Double.isFinite(gradient.getNorm())) {
                 throw new ArithmeticException("Gradient is infinite");
@@ -28,11 +33,15 @@ public final class GradientDescent {
 
             RealVector step = gradient.mapMultiply(learningRate);
 
-            // Move against the gradient
             currentParameters = currentParameters.subtract(step);
         }
 
-        return currentParameters;
+        final double initialLoss = lossFunction.applyAsDouble(initialParameters);
+        final double currentLoss = lossFunction.applyAsDouble(currentParameters);
+
+        if (currentLoss > initialLoss)
+            return new Pair<>(initialParameters, initialLoss);
+        return new Pair<>(currentParameters, currentLoss);
     }
 
     private static RealVector numericalGradient(RealVector parameters, ToDoubleFunction<RealVector> lossFunction) {

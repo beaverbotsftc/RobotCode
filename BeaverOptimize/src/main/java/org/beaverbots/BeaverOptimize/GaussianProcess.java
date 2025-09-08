@@ -2,6 +2,8 @@ package org.beaverbots.BeaverOptimize;
 
 import android.util.Pair;
 
+import com.qualcomm.robotcore.util.RobotLog;
+
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.CholeskyDecomposition;
@@ -17,40 +19,72 @@ import java.util.List;
 import java.util.function.ToDoubleFunction;
 
 public class GaussianProcess {
-    private MultivariateGaussianDistribution distribution = new MultivariateGaussianDistribution(new ArrayRealVector(), new Array2DRowRealMatrix());
-
-    /// index 0 is for noise
-    private RealVector hyperparameters = new ArrayRealVector(new double[] { 0 });
+    ///  Index 0 is for noise
+    ///  Log space
+    private RealVector hyperparameters;
 
     private List<Pair<RealVector, Double>> train = new ArrayList<>();
 
     private Kernel kernel;
 
-    private RandomGenerator rng;
-
     public GaussianProcess(Kernel kernel) {
         this.kernel = kernel;
-        this.rng = new Well19937c();
+        hyperparameters = new ArrayRealVector(1 + kernel.getHyperparametersSize(), 0);
     }
 
     public void addTrainingPoint(RealVector x, double y) {
         train.add(new Pair<>(x, y));
     }
 
-    public void optimizeHyperparameters(double learningRate, int steps, int iterations, double variance, double exponent) {
-        RealVector bestHyperparameters = hyperparameters;
-        double loss = Double.POSITIVE_INFINITY;
-
-        for (int i = 0; i < iterations; i++) {
-            RealVector delta = new ArrayRealVector(bestHyperparameters.getDimension());
-            for (int d = 0; d < bestHyperparameters.getDimension(); d++) {
-                delta.setEntry(d, rng.nextGaussian() * variance * Math.pow((double) i / iterations, exponent));
-            }
-
-            RealVector perturbedHyperparameters = hyperparameters.copy().add(delta);
-
-            RealVector proposedHyperparameters = GradientDescent.optimize(perturbedHyperparameters, createNlmlLossFunction(), learningRate, steps);
+    public Pair<Double, Double> predict(RealVector xStar) {
+        if (train.isEmpty()) {
+            throw new IllegalStateException("Cannot make predictions without training data.");
         }
+
+        RealVector expHyperparameters = hyperparameters.map(x -> Math.exp(x));
+
+        double noiseVariance = expHyperparameters.getEntry(0);
+
+        RealMatrix xTrain = getTrainingInputs();
+        RealVector yTrain = getTrainingOutputs();
+        final int n = train.size();
+
+        RealMatrix kTrain = computeKernelMatrix(xTrain, xTrain, expHyperparameters);
+        RealMatrix kNoisy = kTrain.add(
+                MatrixUtils.createRealIdentityMatrix(n).scalarMultiply(noiseVariance)
+        );
+
+        RealMatrix xStarMatrix = new Array2DRowRealMatrix(1, xStar.getDimension());
+        xStarMatrix.setRowVector(0, xStar);
+        RealVector kStar = computeKernelMatrix(xTrain, xStarMatrix, expHyperparameters).getColumnVector(0);
+
+        double kStarStar = kernel.evaluate(xStar, xStar, expHyperparameters);
+
+        DecompositionSolver solver = new CholeskyDecomposition(kNoisy).getSolver();
+
+        RealVector alpha = solver.solve(yTrain); // alpha is the pre-computed (K_y)^-1 * y
+        double predictedMean = kStar.dotProduct(alpha);
+
+        RealVector v = solver.solve(kStar); // v is the pre-computed (K_y)^-1 * k_*
+        double predictedVariance = kStarStar - kStar.dotProduct(v);
+
+        return new Pair<>(predictedMean, predictedVariance);
+    }
+
+    public void optimizeHyperparameters(double learningRate, int steps, int iterations, RealVector variance, double exponent, double maxLossGradient) {
+        ToDoubleFunction<RealVector> nlml = createNlmlLossFunction();
+
+        Pair<RealVector, Double> result = IteratedLocalSearch.optimize(
+                this.hyperparameters,
+                nlml,
+                learningRate,
+                steps,
+                iterations,
+                variance,
+                exponent, maxLossGradient
+        );
+
+        this.hyperparameters = result.first;
     }
 
     private ToDoubleFunction<RealVector> createNlmlLossFunction() {
@@ -126,5 +160,4 @@ public class GaussianProcess {
         }
         return yTrain;
     }
-
 }

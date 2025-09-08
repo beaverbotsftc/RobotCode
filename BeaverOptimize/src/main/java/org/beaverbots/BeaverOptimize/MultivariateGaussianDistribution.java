@@ -12,6 +12,7 @@ import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
 
+// TODO: Evaluate if it being unused is cause for this class' removal
 // TODO: Review AI code
 public final class MultivariateGaussianDistribution {
     private final RealVector mean;
