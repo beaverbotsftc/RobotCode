@@ -10,19 +10,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public final class FollowPath implements Command  {
+public final class HolonomicFollowPath implements Command  {
     private final Localizer localizer;
     private final Locomotion locomotion;
 
-    private final PathTracker pathTracker;
+    private final HolonomicPathTracker pathTracker;
 
     private ElapsedTime elapsedTime;
 
-    public FollowPath(Path path, PIDF pidf, Localizer localizer, Locomotion locomotion) {
+    public HolonomicFollowPath(Path path, PIDF pidf, Localizer localizer, Locomotion locomotion) {
         this.localizer = localizer;
         this.locomotion = locomotion;
-        this.pathTracker = new PathTracker(path, pidf);
-        // TODO: Find a better dt getter
+        this.pathTracker = new HolonomicPathTracker(path, pidf);
     }
 
     @Override
@@ -33,7 +32,6 @@ public final class FollowPath implements Command  {
     @Override
     public void start() {
         elapsedTime = new ElapsedTime();
-        // TODO: Check if this works without .reset(); it may need .reset()
     }
 
     @Override

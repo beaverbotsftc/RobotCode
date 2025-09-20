@@ -1,9 +1,9 @@
-package org.firstinspires.ftc.teamcode.tests;
+package org.firstinspires.ftc.teamcode.subsystems;
 
 import org.beaverbots.BeaverCommand.HardwareManager;
 import org.beaverbots.BeaverCommand.Subsystem;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.teamcode.pinpoint.GoBildaPinpointDriver;
+import org.firstinspires.ftc.teamcode.drivers.GoBildaPinpointDriver;
 
 public final class Pinpoint implements Subsystem {
     private GoBildaPinpointDriver pinpoint;
