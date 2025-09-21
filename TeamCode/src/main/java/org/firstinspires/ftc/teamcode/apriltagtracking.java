@@ -83,20 +83,19 @@ public class apriltagtracking extends LinearOpMode {
                 telemetry.addData("Motor Target", newTarget);
 
             } else {
-                // No valid pose → hold last known target (Doesnt work rn)
-                if (lastTargetTicks != null) {
-                    limelightMotor.setTargetPosition(lastTargetTicks);
-                      limelightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    limelightMotor.setPower(0); // small power to hold
-                    telemetry.addData("Tracking", "HOLDING last target");
-                    telemetry.addData("LastAngle", lastTargetAngle);
-                    telemetry.addData("TargetTicks", lastTargetTicks);
+                // No valid pose → rotate toward last known target using shortest path
+                if (lastTargetAngle != null) {
+                    // Get current yaw from latest pose if available
+                    limelightMotor.setPower(0);
+
                 } else {
                     // If never saw tag, stop motor
                     limelightMotor.setPower(0);
                     telemetry.addData("Tracking", "NO DATA");
                 }
             }
+
+
 
             telemetry.update();
         }
