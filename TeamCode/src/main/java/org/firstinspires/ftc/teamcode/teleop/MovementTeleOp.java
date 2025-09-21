@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="MovementTeleOp")
 public class MovementTeleOp extends LinearOpMode {
-    private final double slowSpeed = 0.3;
+    private final double slowSpeed = 0.6;
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor leftFrontDrive = null;
     private DcMotor leftBackDrive = null;
@@ -39,10 +39,9 @@ public class MovementTeleOp extends LinearOpMode {
         while (opModeIsActive()) {
             double max;
 
-            // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
-            double axial   = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
-            double lateral =  gamepad1.left_stick_x;
-            double yaw     =  gamepad1.right_stick_x;
+            double axial   =  -changeInput(gamepad1.left_stick_y);  // Note: pushing stick forward gives negative value
+            double lateral =  changeInput(gamepad1.left_stick_x);
+            double yaw     =  changeInput(gamepad1.right_stick_x);
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             // Set up a variable for each drive wheel to save the power level for telemetry.
@@ -78,5 +77,9 @@ public class MovementTeleOp extends LinearOpMode {
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
             telemetry.update();
         }
+    }
+
+    private double changeInput(double x){
+        return Math.signum(x) * (1 - Math.cos(x * Math.PI / 2.0));
     }
 }
