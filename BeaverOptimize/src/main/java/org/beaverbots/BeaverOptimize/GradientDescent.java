@@ -2,6 +2,8 @@ package org.beaverbots.BeaverOptimize;
 
 import android.util.Pair;
 
+import com.qualcomm.robotcore.util.RobotLog;
+
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 
@@ -27,10 +29,6 @@ public final class GradientDescent {
             RealVector gradient = numericalGradient(currentParameters, lossFunction);
             gradient = gradient.map(g -> Math.max(-maxLossGradient, Math.min(g, maxLossGradient)));
 
-            if (!Double.isFinite(gradient.getNorm())) {
-                throw new ArithmeticException("Gradient is infinite");
-            }
-
             RealVector step = gradient.mapMultiply(learningRate);
 
             currentParameters = currentParameters.subtract(step);
@@ -52,24 +50,20 @@ public final class GradientDescent {
             double originalValue = parameters.getEntry(i);
             double epsilon = getEpsilon(originalValue);
 
-            // Calculate loss at p + epsilon
             RealVector paramsPlusEpsilon = parameters.copy();
             paramsPlusEpsilon.addToEntry(i, epsilon);
             double lossPlus = lossFunction.applyAsDouble(paramsPlusEpsilon);
 
-            // Calculate loss at p - epsilon
             RealVector paramsMinusEpsilon = parameters.copy();
             paramsMinusEpsilon.addToEntry(i, -epsilon);
             double lossMinus = lossFunction.applyAsDouble(paramsMinusEpsilon);
 
-            // If loss is not a finite number, this dimension's gradient is set to 0
-            if (!Double.isFinite(lossPlus) || !Double.isFinite(lossMinus)) {
-                gradient.setEntry(i, 0.0);
-                continue; // Skip to the next dimension
+            double partialDerivative = (lossPlus - lossMinus) / (2.0 * epsilon);
+            if (!Double.isFinite(partialDerivative)) { // Includes NaN too
+                RobotLog.ee("BeaverOptimize", "Infinite or NaN partial derivative encountered, continuing by setting it to 0.");
+                partialDerivative = 0;
             }
 
-            // Central difference formula for the partial derivative
-            double partialDerivative = (lossPlus - lossMinus) / (2.0 * epsilon);
             gradient.setEntry(i, partialDerivative);
         }
         return gradient;

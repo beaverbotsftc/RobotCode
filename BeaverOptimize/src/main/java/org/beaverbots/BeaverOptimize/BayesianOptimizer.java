@@ -22,12 +22,13 @@ public class BayesianOptimizer {
     final static private double EXPONENT = 2.0;
     final static private double MAX_LOSS_GRADIENT = 1000.0;
 
-    final static private double PERTURBATION_SCALE = 0.2;
+    final static private double OUT_OF_BOUNDS_SLOPE = 1e10;
+    final static private double OUT_OF_BOUNDS_MINIMUM = 1e10;
 
-    final static private double OUT_OF_BOUNDS_PENALTY = 1e10; // Let's not use +inf, it causes problems
+    final static private double PERTURBATION_SCALE = 0.3;
 
-    public BayesianOptimizer(Pair<RealVector, RealVector> bounds, double confidence) {
-        this.gaussianProcess = new GaussianProcess(new RBFKernel());
+    public BayesianOptimizer(Kernel kernel, Pair<RealVector, RealVector> bounds, double confidence) {
+        this.gaussianProcess = new GaussianProcess(kernel, bounds.first.getDimension());
         this.bounds = bounds;
         this.middle = bounds.first.add(bounds.second).mapDivide(2);
         setConfidence(confidence);
@@ -55,19 +56,22 @@ public class BayesianOptimizer {
 
     public RealVector findNextPoint() {
         ToDoubleFunction<RealVector> lcb = x -> {
-            // Check bounds
+            double outOfBoundsPenalty = 0;
             for (int i = 0; i < x.getDimension(); i++) {
-                if (x.getEntry(i) < bounds.first.getEntry(i) || x.getEntry(i) > bounds.second.getEntry(i)) {
-                    return OUT_OF_BOUNDS_PENALTY;
+                if (x.getEntry(i) < bounds.first.getEntry(i)) {
+                    outOfBoundsPenalty += OUT_OF_BOUNDS_SLOPE * (bounds.first.getEntry(i) - x.getEntry(i));
+                } else if (x.getEntry(i) > bounds.second.getEntry(i)) {
+                    outOfBoundsPenalty += OUT_OF_BOUNDS_SLOPE * (x.getEntry(i) - bounds.second.getEntry(i));
                 }
             }
+            if (outOfBoundsPenalty != 0) return outOfBoundsPenalty + OUT_OF_BOUNDS_MINIMUM;
 
             Pair<Double, Double> prediction = gaussianProcess.predict(x);
             double mu = prediction.first;
             double variance = prediction.second;
             double sigma = Math.sqrt(Math.max(variance, 1e-9));
 
-            // We minimize the lcb.
+            // We minimize the LCB.
             return mu - kappa * sigma;
         };
 

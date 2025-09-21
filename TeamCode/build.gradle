@@ -28,4 +28,5 @@ dependencies {
     implementation project(':BeaverCommand')
     implementation project(':BeaverTracking')
     implementation project(':BeaverOptimize')
+    implementation project(':BeaverSensor')
 }

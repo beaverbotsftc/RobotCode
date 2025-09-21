@@ -27,9 +27,9 @@ public class GaussianProcess {
 
     private Kernel kernel;
 
-    public GaussianProcess(Kernel kernel) {
+    public GaussianProcess(Kernel kernel, int dimension) {
         this.kernel = kernel;
-        hyperparameters = new ArrayRealVector(1 + kernel.getHyperparametersSize(), 0);
+        hyperparameters = new ArrayRealVector(1 + kernel.getHyperparametersSize(dimension), 0);
     }
 
     public void addTrainingPoint(RealVector x, double y) {
@@ -44,21 +44,22 @@ public class GaussianProcess {
         RealVector expHyperparameters = hyperparameters.map(x -> Math.exp(x));
 
         double noiseVariance = expHyperparameters.getEntry(0);
+        RealVector kernelHyperparameters = expHyperparameters.getSubVector(1, expHyperparameters.getDimension() - 1);
 
         RealMatrix xTrain = getTrainingInputs();
         RealVector yTrain = getTrainingOutputs();
         final int n = train.size();
 
-        RealMatrix kTrain = computeKernelMatrix(xTrain, xTrain, expHyperparameters);
+        RealMatrix kTrain = computeKernelMatrix(xTrain, xTrain, kernelHyperparameters);
         RealMatrix kNoisy = kTrain.add(
                 MatrixUtils.createRealIdentityMatrix(n).scalarMultiply(noiseVariance)
         );
 
         RealMatrix xStarMatrix = new Array2DRowRealMatrix(1, xStar.getDimension());
         xStarMatrix.setRowVector(0, xStar);
-        RealVector kStar = computeKernelMatrix(xTrain, xStarMatrix, expHyperparameters).getColumnVector(0);
+        RealVector kStar = computeKernelMatrix(xTrain, xStarMatrix, kernelHyperparameters).getColumnVector(0);
 
-        double kStarStar = kernel.evaluate(xStar, xStar, expHyperparameters);
+        double kStarStar = kernel.evaluate(xStar, xStar, kernelHyperparameters);
 
         DecompositionSolver solver = new CholeskyDecomposition(kNoisy).getSolver();
 
@@ -98,12 +99,12 @@ public class GaussianProcess {
         }
 
         // The returned lambda is the actual loss function.
-        return (hyperparamsLogSpace) -> {
-            RealVector hyperparams = hyperparamsLogSpace.map(Math::exp);
+        return (proposedHyperparameters) -> {
+            RealVector expHyperparameters = proposedHyperparameters.map(Math::exp);
 
-            double noiseVariance = hyperparams.getEntry(0);
+            double noiseVariance = expHyperparameters.getEntry(0);
 
-            RealMatrix kTrain = computeKernelMatrix(xTrain, xTrain, hyperparams);
+            RealMatrix kTrain = computeKernelMatrix(xTrain, xTrain, expHyperparameters.getSubVector(1, expHyperparameters.getDimension() - 1));
             RealMatrix kNoisy = kTrain.add(
                     MatrixUtils.createRealIdentityMatrix(n).scalarMultiply(noiseVariance)
             );
