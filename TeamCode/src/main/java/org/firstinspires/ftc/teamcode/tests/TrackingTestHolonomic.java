@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Random;
 
 @TeleOp
-public class TrackingTest extends CommandRuntimeOpMode {
+public class TrackingTestHolonomic extends CommandRuntimeOpMode {
     public static class SimulatedRobot implements Localizer, Locomotion {
         private static final double MAX_LINEAR_ACCEL = 5.0; // units/s^2
         private static final double MAX_ANGULAR_ACCEL = Math.PI; // rad/s^2

@@ -9,9 +9,14 @@ public interface Command {
     }
 
     ///  Returns true if and only if the Command finished. Otherwise, it shall return false.
+    ///  To call periodic before start is undefined behavior
     boolean periodic();
 
+    ///  Is called before either periodic or stop is called
+    ///  However, command reuse is okay and therefore it must handle that
     default void start() {}
+
+    ///  To call stop before start is undefined behavior
     default void stop() {}
 
     static Set<Subsystem> calculateDependencies(Command self) {

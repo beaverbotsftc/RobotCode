@@ -11,19 +11,8 @@ public abstract class CommandGroup implements Command {
     protected final List<Command> commands;
 
     public CommandGroup(Command... commands) {
+        if (commands.length == 0) throw new IllegalArgumentException("Must have at least one command");
         this.commands = new ArrayList<>(Arrays.asList(commands));
-        checkDependencies();
-    }
-
-    private void checkDependencies() {
-        Set<Subsystem> dependencies = new HashSet<>();
-        for (Command command : commands) {
-            Set<Subsystem> commandDependencies = Command.calculateDependencies(command);
-            if (!Collections.disjoint(dependencies, commandDependencies)) {
-                throw new ConflictingCommandsException(String.format("Command '%s' has dependencies not disjoint with the rest of the command group.", command));
-            }
-            dependencies.addAll(commandDependencies);
-        }
     }
 
     public final Set<Subsystem> getDependencies() {
