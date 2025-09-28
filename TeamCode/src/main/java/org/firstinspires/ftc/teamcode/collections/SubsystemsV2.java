@@ -143,6 +143,14 @@ public class SubsystemsV2 {
         intakeClawServo.getController().pwmDisable();
     }
 
+    public void flipIntakeRotation(){
+        if(Math.abs(intakeRotationServo.getPosition() - InConstants.Rotation_Flipped) <= 0.02){
+            intakeRotationServo.setPosition(InConstants.Rotation_Straight);
+        }else if (Math.abs(intakeRotationServo.getPosition() - InConstants.Rotation_Straight) <= 0.02){
+            intakeRotationServo.setPosition(InConstants.Rotation_Flipped);
+        }
+    }
+
     public void powerOnIntakeSubStatePos(){
         intakeRotationServo.getController().pwmEnable();
         intakeArmServo.getController().pwmEnable();
