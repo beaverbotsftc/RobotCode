@@ -23,15 +23,14 @@ public class Shooter {
     public static final double SHOOTER_EXIT_HEIGHT_IN = 8.0;
     public static final double SHOOTER_EXIT_HEIGHT_M = SHOOTER_EXIT_HEIGHT_IN * INCH_TO_M;
 
-    // Fixed arc angle so the ball “arches” onto the target
-    public static final double ARC_ANGLE_DEG = 50.0;
+    // Desired base RPM (we'll adjust angle instead of speed)
+    public static final double BASE_RPM = 4500.0;
 
     // Shooter wheel radius (m)
     public static final double WHEEL_RADIUS_M = 0.05; // 5 cm
 
-    // Motor limits
-    public static final double MAX_RPM = 6000.0;
-    public static final double MIN_RPM = 200.0;
+    // Friction coefficient (0–1): 1 = no loss, 0.85 = 15% velocity loss
+    public static final double FRICTION_COEFF = 0.9;
 
     // Gravity
     public static final double G = 9.80665;
@@ -54,47 +53,53 @@ public class Shooter {
     // ---------------- Core logic ----------------
 
     /**
-     * Computes shooter wheel RPM and angle for a given horizontal distance (in meters).
-     * Uses a fixed “arched” shot angle to ensure the ball travels upward and lands on target.
+     * Computes shooter wheel angle for a given horizontal distance (m)
+     * using a fixed RPM (launch speed). Accounts for friction losses.
      *
-     * @param distanceM  horizontal distance to target in meters
-     * @return ShotParameters containing motor RPM, angle, and status message
+     * @param distanceM  horizontal distance to target (m)
+     * @return ShotParameters containing RPM, angle, and message
      */
     public static ShotParameters computeShotForDistanceMeters(double distanceM) {
-        double thetaDeg = ARC_ANGLE_DEG;
-        double theta = Math.toRadians(thetaDeg);
         double h0 = SHOOTER_EXIT_HEIGHT_M;
         double hT = TARGET_HEIGHT_M;
 
-        double cosTheta = Math.cos(theta);
-        double tanTheta = Math.tan(theta);
-        double denom = 2.0 * cosTheta * cosTheta * (h0 + distanceM * tanTheta - hT);
+        // Convert base RPM to effective velocity (after friction loss)
+        double vWheel = BASE_RPM / 60.0 * 2.0 * Math.PI * WHEEL_RADIUS_M;
+        double v0 = vWheel * FRICTION_COEFF;
 
-        if (denom <= 0) {
-            String msg = "Unfeasible shot: geometry invalid for chosen angle. Increase angle or shooter height.";
-            return new ShotParameters(0.0, thetaDeg, false, msg);
+        // Compute the required launch angle (in radians)
+        double g = G;
+        double a = (g * distanceM * distanceM) / (2 * v0 * v0);
+        double b = distanceM;
+        double c = h0 - hT;
+
+        // Solve quadratic form for tan(theta)
+        // hT - h0 = x*tan(theta) - (g*x^2)/(2*v0^2*cos^2(theta))
+        // Rearranged into t = tan(theta):  a*t^2 - b*t + c + a = 0
+        double A = a;
+        double B = -b;
+        double C = c + a;
+
+        double discriminant = B * B - 4 * A * C;
+        if (discriminant < 0) {
+            return new ShotParameters(BASE_RPM, 45.0, false, "No valid angle solution.");
         }
 
-        double v0sq = G * distanceM * distanceM / denom;
-        if (v0sq <= 0) {
-            return new ShotParameters(0.0, thetaDeg, false, "No valid solution (negative velocity squared).");
+        // Two possible angles (lower and higher arcs)
+        double t1 = (-B + Math.sqrt(discriminant)) / (2 * A);
+        double t2 = (-B - Math.sqrt(discriminant)) / (2 * A);
+
+        // Choose the higher arc (steeper shot)
+        double chosenTan = Math.max(t1, t2);
+        double thetaDeg = Math.toDegrees(Math.atan(chosenTan));
+
+        // Feasibility check
+        if (thetaDeg < 10 || thetaDeg > 75) {
+            return new ShotParameters(BASE_RPM, thetaDeg, false,
+                    String.format("Angle %.1f° out of range", thetaDeg));
         }
 
-        double v0 = Math.sqrt(v0sq);
-        double wheelRpm = v0 / (2.0 * Math.PI * WHEEL_RADIUS_M) * 60.0;
-
-        boolean feasible = true;
-        String msg = "OK";
-
-        if (wheelRpm > MAX_RPM) {
-            msg = String.format("RPM capped at %.0f (required %.0f)", MAX_RPM, wheelRpm);
-            wheelRpm = MAX_RPM;
-        } else if (wheelRpm < MIN_RPM) {
-            msg = String.format("RPM raised to %.0f (required %.0f)", MIN_RPM, wheelRpm);
-            wheelRpm = MIN_RPM;
-        }
-
-        return new ShotParameters(wheelRpm, thetaDeg, feasible, msg);
+        return new ShotParameters(BASE_RPM, thetaDeg, true, "OK");
     }
 
     /**
