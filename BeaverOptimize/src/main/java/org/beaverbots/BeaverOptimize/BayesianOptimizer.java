@@ -3,6 +3,7 @@ package org.beaverbots.BeaverOptimize;
 import android.util.Pair;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
+import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 
 import java.util.ArrayList;
@@ -17,8 +18,8 @@ public class BayesianOptimizer {
     private double kappa;
 
     final static private double LEARNING_RATE = 0.001;
-    final static private int LOCAL_STEPS = 5000;
-    final static private int GLOBAL_ITERATIONS = 100;
+    final static private int LOCAL_STEPS = 120;
+    final static private int GLOBAL_ITERATIONS = 120;
     final static private double EXPONENT = 2.0;
     final static private double MAX_LOSS_GRADIENT = 1000.0;
 
@@ -26,6 +27,14 @@ public class BayesianOptimizer {
     final static private double OUT_OF_BOUNDS_MINIMUM = 1e10;
 
     final static private double PERTURBATION_SCALE = 0.3;
+
+    final static private double HYPERPARAMETERS_LEARNING_RATE = 0.01;
+    final static private int HYPERPARAMETERS_LOCAL_STEPS = 50;
+    final static private int HYPERPARAMETERS_GLOBAL_ITERATIONS = 20;
+    final static private double HYPERPARAMETERS_VARIANCE_MULTIPLIER = 1;
+    final static private double HYPERPARAMETERS_EXPONENT = 2;
+    final static private double HYPERPARAMETERS_MAX_LOSS_GRADIENT = 100;
+    final static private double HYPERPARAMETERS_UPDATE_BASE = 1.2;
 
     public BayesianOptimizer(Kernel kernel, Pair<RealVector, RealVector> bounds, double confidence) {
         this.gaussianProcess = new GaussianProcess(kernel, bounds.first.getDimension());
@@ -52,9 +61,27 @@ public class BayesianOptimizer {
     public void addObservedPoint(RealVector x, double y) {
         observedPoints.add(new Pair<>(x, y));
         gaussianProcess.addTrainingPoint(x, y);
+        if (
+                observedPoints.size() != 1 &&
+                (int) (Math.log(observedPoints.size()) / Math.log(HYPERPARAMETERS_UPDATE_BASE))
+                != (int) (Math.log(observedPoints.size() - 1) / Math.log(HYPERPARAMETERS_UPDATE_BASE))) {
+            gaussianProcess.optimizeHyperparameters(
+                    HYPERPARAMETERS_LEARNING_RATE,
+                    HYPERPARAMETERS_LOCAL_STEPS,
+                    HYPERPARAMETERS_GLOBAL_ITERATIONS,
+                    new ArrayRealVector(
+                            gaussianProcess.getHyperparameterDimension(),
+                            HYPERPARAMETERS_VARIANCE_MULTIPLIER),
+                    HYPERPARAMETERS_EXPONENT,
+                    HYPERPARAMETERS_MAX_LOSS_GRADIENT);
+        }
     }
 
     public RealVector findNextPoint() {
+        if (observedPoints.isEmpty()) {
+            return bounds.first.add(bounds.second).mapDivide(2);
+        }
+
         ToDoubleFunction<RealVector> lcb = x -> {
             double outOfBoundsPenalty = 0;
             for (int i = 0; i < x.getDimension(); i++) {

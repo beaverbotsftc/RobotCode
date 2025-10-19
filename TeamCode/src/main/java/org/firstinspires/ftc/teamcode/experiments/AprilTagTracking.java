@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.experiments;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 @Autonomous(name = "Limelight_AimAtTag20_Encoders")
-public class apriltagtracking extends LinearOpMode {
+public class AprilTagTracking extends LinearOpMode {
 
     private Limelight3A limelight;
     private DcMotor limelightMotor;

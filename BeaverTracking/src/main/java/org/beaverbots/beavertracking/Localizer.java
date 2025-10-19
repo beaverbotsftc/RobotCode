@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface Localizer extends Subsystem {
     List<Double> getPosition();
+
+    List<Double> getVelocity();
 }

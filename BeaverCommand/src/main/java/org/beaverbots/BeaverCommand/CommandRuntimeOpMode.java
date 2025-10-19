@@ -11,128 +11,130 @@ import java.util.List;
 import java.util.Set;
 
 public abstract class CommandRuntimeOpMode extends OpMode {
-    private List<Command> canonicalCommandBuffer = new ArrayList<>();
-    private List<Command> updatedCommandBuffer = new ArrayList<>();
-    private final List<Subsystem> subsystems = new ArrayList<>();
-    private Set<Subsystem> canonicalUsedSubsystems = new HashSet<>();
-    private Set<Subsystem> updatedUsedSubsystems = new HashSet<>();
+    private final List<Command> commandBuffer = new ArrayList<>();
+    private final Set<Subsystem> usedSubsystems = new HashSet<>();
+    private final List<Subsystem> registeredSubsystems = new ArrayList<>();
 
-    // This just removes all earlier conflicting dependencies
-    private void solveDependencyConflicts() {
-        List<Command> commandBuffer = new ArrayList<>();
-        Set<Subsystem> usedSubsystems = new HashSet<>();
+    private final List<Command> commandsToSchedule = new ArrayList<>();
+    private final Set<Command> commandsToCancel = new HashSet<>();
 
-        // Iterate over the command buffer in reverse
-        // This is fine because it will be overwritten at the end of the function
-        Collections.reverse(updatedCommandBuffer);
-        for (Command command : updatedCommandBuffer) {
+    private boolean isInitialized = false;
+
+    private void runScheduler() {
+        for (Command command : commandBuffer) {
+            if (command.periodic()) {
+                RobotLog.dd("BeaverCommand", String.format("Command '%s' finished.", command));
+                commandsToCancel.add(command);
+            }
+        }
+
+        if (!commandsToCancel.isEmpty()) {
+            for (Command command : commandsToCancel) {
+                // Only stop if it's actually running and wasn't just queued for schedule then cancelled.
+                if (commandBuffer.contains(command)) {
+                    RobotLog.dd("BeaverCommand", String.format("Running stop() on command '%s' due to cancellation or finish.", command));
+                    command.stop();
+                    commandBuffer.remove(command);
+                }
+            }
+            commandsToCancel.clear();
+        }
+
+        if (!commandsToSchedule.isEmpty()) {
+            for (Command command : commandsToSchedule) {
+                RobotLog.dd("BeaverCommand", String.format("Running start() on newly scheduled command '%s'", command));
+                command.start();
+                commandBuffer.add(command);
+            }
+            commandsToSchedule.clear();
+        }
+
+        Set<Subsystem> conflictingSubsystems = new HashSet<>();
+        for (int i = commandBuffer.size() - 1; i >= 0; i--) {
+            Command command = commandBuffer.get(i);
             Set<Subsystem> dependencies = Command.calculateDependencies(command);
-            if (Collections.disjoint(dependencies, usedSubsystems)) {
-                RobotLog.dd("BeaverCommand", "Keeping command '%s' in the command buffer; it has no dependency conflicts.", command);
-                commandBuffer.add(command);
-                usedSubsystems.addAll(dependencies);
-            } else {
-                RobotLog.dd("BeaverCommand", "Removing command '%s' from the command buffer; it has dependency conflicts.", command);
-            }
-        }
 
-        // The updated command buffer was built in reverse, so this will undo that
-        Collections.reverse(commandBuffer);
-
-        updatedCommandBuffer = commandBuffer;
-        updatedUsedSubsystems = usedSubsystems;
-    }
-
-    private void runAllCommands() {
-        List<Command> commandBuffer = new ArrayList<>();
-        for (Command command : this.canonicalCommandBuffer) {
-            RobotLog.dd("BeaverCommand", "Running periodic() on command '%s'", command);
-            if (!command.periodic()) {
-                // It should remain in the command buffer, because it isn't finished yet
-                RobotLog.dd("BeaverCommand", "Keeping command '%s' in the command buffer; it didn't finish yet.", command);
-                commandBuffer.add(command);
-            } else {
-                // It should be removed from the command buffer due to the command finishing
-                RobotLog.dd("BeaverCommand", "Removing command '%s' from the command buffer; it finished.", command);
-                RobotLog.dd("BeaverCommand", "Running stop() on command '%s'", command);
+            if (!Collections.disjoint(dependencies, conflictingSubsystems)) {
+                RobotLog.dd("BeaverCommand", String.format("Cancelling command '%s' due to dependency conflict.", command));
                 command.stop();
+                commandBuffer.remove(i);
+            }
+
+            conflictingSubsystems.addAll(dependencies);
+        }
+
+        usedSubsystems.clear();
+        for (Command command : commandBuffer) {
+            usedSubsystems.addAll(Command.calculateDependencies(command));
+        }
+
+        for (Subsystem subsystem : registeredSubsystems) {
+            if (!usedSubsystems.contains(subsystem)) {
+                subsystem.periodicDefault();
             }
         }
-        // Dependency logic
-        updatedCommandBuffer = commandBuffer;
     }
 
-    private void runAllSubsystems() {
-        for (Subsystem subsystem : subsystems) {
-            RobotLog.dd("BeaverCommand", "Running periodic() on subsystem: '%s'", subsystem);
+    private void runSubsystems() {
+        for (Subsystem subsystem : registeredSubsystems) {
             subsystem.periodic();
         }
-    }
-
-    private void runAllSubsystemsDefaults() {
-        for (Subsystem subsystem : subsystems) {
-            if (!canonicalUsedSubsystems.contains(subsystem)) {
-                RobotLog.dd("BeaverCommand", "Running periodicDefault() on subsystem: '%s', it's not being used.", subsystem);
-                subsystem.periodicDefault();
-            } else {
-                RobotLog.dd("BeaverCommand", "Not running periodicDefault() on subsystem: '%s', it's being used.", subsystem);
-            }
-        }
-    }
-
-    private void updateState() {
-        canonicalCommandBuffer = updatedCommandBuffer;
-        canonicalUsedSubsystems = updatedUsedSubsystems;
     }
 
     public final void init() {
         HardwareManager.init(hardwareMap);
         onInit();
     }
+
     public final void init_loop() {
-        runAllSubsystems();
+        if (!isInitialized) {
+            isInitialized = true;
+        }
+
+        runSubsystems();
         periodicInit();
-        updateState();
-        runAllCommands();
-        runAllSubsystemsDefaults();
+        runScheduler();
     }
+
     public final void start() {
         onStart();
     }
+
     public final void loop() {
-        runAllSubsystems();
+        runSubsystems();
         periodic();
-        updateState();
-        runAllCommands();
-        runAllSubsystemsDefaults();
+        runScheduler();
     }
+
     public final void stop() {
+        cancelAll();
+        runScheduler(); // To process cancellations
         onStop();
     }
 
-    ///  Note that this does *not* solve dependency conflicts. For that, use the public schedule function.
-    private void scheduleIndividual(Command command) {
-        RobotLog.dd("BeaverCommand", "Command '%s' being scheduled.", command);
-        updatedCommandBuffer.add(command);
-        RobotLog.dd("BeaverCommand", "Running start() on command '%s'", command);
-        command.start();
-    }
-
-    /// Should any command's dependencies conflict with any others', the one added last
-    /// will take precedence, and the earlier ones will be stopped.
     protected final void schedule(Command... commands) {
-        for (Command command : commands) {
-            scheduleIndividual(command);
-        }
-        solveDependencyConflicts();
+        RobotLog.dd("BeaverCommand", String.format("Command(s) being scheduled: %s", Arrays.toString(commands)));
+        commandsToSchedule.addAll(Arrays.asList(commands));
     }
 
-    /// In an effort to decrease bugs and increase determinism, subsystem periodic() methods
-    /// are (concurrently) executed in the order they were registered.
-    /// However, relying on this is fragile and not good practice.
+    protected final void cancel(Command... commands) {
+        RobotLog.dd("BeaverCommand", String.format("Command(s) being cancelled: %s", Arrays.toString(commands)));
+        commandsToCancel.addAll(Arrays.asList(commands));
+    }
+
+    protected final void cancelAll() {
+        RobotLog.dd("BeaverCommand", "Cancelling all commands");
+        commandsToCancel.addAll(commandBuffer);
+        commandsToSchedule.clear(); // Also clear any pending commands that haven't started.
+    }
+
     protected final void register(Subsystem... subsystems) {
         RobotLog.dd("BeaverCommand", "Subsystem(s) being registered: %s", Arrays.toString(subsystems));
-        this.subsystems.addAll(Arrays.asList(subsystems));
+        this.registeredSubsystems.addAll(Arrays.asList(subsystems));
+    }
+
+    protected final Set<Command> getRunningCommands() {
+        return new HashSet<>(commandBuffer);
     }
 
     protected void onInit() {}
