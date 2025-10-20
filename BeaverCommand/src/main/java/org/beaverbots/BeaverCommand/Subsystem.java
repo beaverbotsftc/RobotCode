@@ -23,8 +23,8 @@ public interface Subsystem {
         dependencies.add(self);
         for (Subsystem dependency : self.getDependencies()) {
             // TODO: Evaluate whether recursive dependencies is illegal or not / has any valid use case.
-            // TODO: If not, throw an exception here.
-            if (dependencies.contains(dependency)) continue;
+            // TODO: If so, continue here.
+            if (dependencies.contains(dependency)) throw new CircularDependencyException(String.format("%s requires %s, which (potentially indirectly) requires %s.", self, dependency, self));
             Subsystem.calculateDependencies(dependency, dependencies);
         }
     }

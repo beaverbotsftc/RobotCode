@@ -29,4 +29,5 @@ dependencies {
     implementation project(':BeaverTracking')
     implementation project(':BeaverOptimize')
     implementation project(':BeaverSensor')
+    implementation "org.apache.commons:commons-math3:3.6.1"
 }
