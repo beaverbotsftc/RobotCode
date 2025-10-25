@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
 @TeleOp(name = "Shooter Test", group = "Test")
-public class shootertest extends LinearOpMode {
+public class ShooterTest extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {

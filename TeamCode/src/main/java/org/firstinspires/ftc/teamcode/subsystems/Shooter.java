@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import org.beaverbots.BeaverCommand.Subsystem;
+
 /**
  * Shooter math utility and subsystem.
  *
@@ -7,7 +9,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
  * - If fixed BASE_RPM would force an impractical steep arc, computeRequiredRpmForAngle(...)
  *   can be used to find what RPM you must set to achieve a chosen slight arc.
  */
-public class Shooter {
+public class Shooter implements Subsystem {
 
     // ---------------- Constants ----------------
     public static final double TARGET_HEIGHT_IN = 40.0;      // target height (inches)

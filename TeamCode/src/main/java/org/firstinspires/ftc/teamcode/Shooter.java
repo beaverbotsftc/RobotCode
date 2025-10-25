@@ -4,10 +4,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @TeleOp(name="Joystick Motor Control with Increment/Decrement + RPM", group="Examples")
-public class shooter extends LinearOpMode {
+public class Shooter extends LinearOpMode {
 
     private DcMotorEx motor;
     private DcMotorEx motor2;
