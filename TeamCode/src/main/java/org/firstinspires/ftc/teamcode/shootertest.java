@@ -19,7 +19,7 @@ public class shootertest extends LinearOpMode {
         double distanceToTargetInches = 100.0; // change this for testing
 
         // Compute shot parameters from Shooter utility
-        Shooter.ShotParameters shot = Shooter.computeShotForDistanceInches(distanceToTargetInches);
+        Shooter.ShotParameters shot = Shooter.computeSlightArcForDistanceInches(distanceToTargetInches);
 
         if (shot.feasible) {
             telemetry.addLine("=== Shooter Calculations ===");
