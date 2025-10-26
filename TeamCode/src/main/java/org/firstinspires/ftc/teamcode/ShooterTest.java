@@ -15,28 +15,30 @@ public class ShooterTest extends LinearOpMode {
 
         waitForStart();
 
-        // Example distance to target (in inches)
-        double distanceToTargetInches = 100.0; // change this for testing
+        // Example test parameters — you can modify these for experiments
+        double distanceToTargetInches = 100.0; // horizontal distance to target
+        double launchAngleDeg = 25.0;          // desired shooting angle (deg)
+        double hoodContactLengthIn = 5.0;      // hood contact length (inches)
 
-        // Compute shot parameters from Shooter utility
-        Shooter.ShotParameters shot = Shooter.computeSlightArcForDistanceInches(distanceToTargetInches);
+        // Compute required RPM for the given parameters
+        Shooter.ShotParameters shot = Shooter.computeRequiredRpmForAngleInches(
+                distanceToTargetInches,
+                launchAngleDeg,
+                hoodContactLengthIn
+        );
 
-        if (shot.feasible) {
-            telemetry.addLine("=== Shooter Calculations ===");
-            telemetry.addData("Distance (in)", distanceToTargetInches);
-            telemetry.addData("Target Height (in)", Shooter.TARGET_HEIGHT_IN);
-            telemetry.addData("Shooter Height (in)", Shooter.SHOOTER_EXIT_HEIGHT_IN);
-            telemetry.addData("Angle (deg)", "%.2f", shot.angleDeg);
-            telemetry.addData("Required RPM", "%.2f", shot.motorRpm);
-            telemetry.addData("Message", shot.message);
-        } else {
-            telemetry.addLine("Shot not feasible!");
-            telemetry.addData("Reason", shot.message);
-        }
-
+        // Display results
+        telemetry.addLine("=== Shooter Calculations ===");
+        telemetry.addData("Distance (in)", "%.1f", distanceToTargetInches);
+        telemetry.addData("Target Height (in)", "%.1f", Shooter.TARGET_HEIGHT_IN);
+        telemetry.addData("Shooter Height (in)", "%.1f", Shooter.SHOOTER_EXIT_HEIGHT_IN);
+        telemetry.addData("Launch Angle (deg)", "%.2f", shot.launchAngleDeg);
+        telemetry.addData("Required RPM", "%.1f", shot.motorRpm);
+        telemetry.addData("Feasible", shot.feasible ? "Yes" : "No");
+        telemetry.addData("Message", shot.message);
         telemetry.update();
 
-        // Keep showing telemetry until stop
+        // Keep showing telemetry until stopped
         while (opModeIsActive()) {
             idle();
         }
