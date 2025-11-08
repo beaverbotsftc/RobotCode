@@ -45,13 +45,13 @@ public final class FakeLocomotionAndLocalization implements Locomotion, Localize
     }
 
     @Override
-    public List<Double> getPosition() {
+    public List<Double> getPositionAsList() {
         RobotLog.d(String.format("FakeLocomotionAndLocalization : %s : getPosition() called; position: %.3f, %.3f, %.3f rad", name, x, y, theta));
         return List.of(x, y, theta);
     }
 
     @Override
-    public List<Double> getVelocity() {
+    public List<Double> getVelocityAsList() {
         RobotLog.d(String.format("FakeLocomotionAndLocalization : %s : getVelocity() called; velocity: %.3f, %.3f, %.3f rad", name, vx, vy, vtheta));
         return List.of(vx, vy, vtheta);
     }

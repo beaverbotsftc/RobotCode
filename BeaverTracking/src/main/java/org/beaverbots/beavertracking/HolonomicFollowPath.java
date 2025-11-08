@@ -1,6 +1,7 @@
 package org.beaverbots.beavertracking;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.RobotLog;
 
 import org.beaverbots.BeaverCommand.Command;
 import org.beaverbots.BeaverCommand.Subsystem;
@@ -39,7 +40,7 @@ public final class HolonomicFollowPath implements Command  {
         final double dt = elapsedTime.seconds();
         if (dt == 0) return false;
 
-        final List<Double> movement = pathTracker.update(localizer.getPosition(), dt);
+        final List<Double> movement = pathTracker.update(localizer.getPositionAsList(), dt);
 
         locomotion.move(movement);
 

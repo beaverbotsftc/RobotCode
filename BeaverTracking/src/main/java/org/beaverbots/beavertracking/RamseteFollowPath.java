@@ -40,7 +40,7 @@ public final class RamseteFollowPath implements Command  {
         final double dt = elapsedTime.seconds();
         if (dt == 0) return false;
 
-        final List<Double> movement = pathTracker.update(localizer.getPosition(), dt);
+        final List<Double> movement = pathTracker.update(localizer.getPositionAsList(), dt);
 
         locomotion.move(movement);
 

@@ -56,9 +56,9 @@ public class HolonomicTrackingTest extends CommandRuntimeOpMode {
     protected void periodic() {
         if (done) return;
         time.add(clock.time());
-        x.add(locomotionAndLocalization.getPosition().get(0));
-        y.add(locomotionAndLocalization.getPosition().get(1));
-        theta.add(locomotionAndLocalization.getPosition().get(2));
+        x.add(locomotionAndLocalization.getPositionAsList().get(0));
+        y.add(locomotionAndLocalization.getPositionAsList().get(1));
+        theta.add(locomotionAndLocalization.getPositionAsList().get(2));
 
         if (!getRunningCommands().contains(tracker) && clock.seconds() > 1 && !done) {
             String output = "import matplotlib.pyplot as plt\n\n";

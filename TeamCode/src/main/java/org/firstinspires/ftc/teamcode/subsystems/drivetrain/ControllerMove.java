@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode.subsystems.drivetrain;
 
+import com.qualcomm.robotcore.util.RobotLog;
+
 import org.beaverbots.BeaverCommand.Command;
 import org.beaverbots.BeaverCommand.Subsystem;
+import org.firstinspires.ftc.teamcode.DrivetrainState;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 
 import java.util.Collections;
@@ -24,11 +27,14 @@ public final class ControllerMove implements Command {
 
     @Override
     public boolean periodic() {
-        double x = gamepad.getLeftX();
-        double y = gamepad.getLeftY();
-        double theta = gamepad.getRightX();
+        double x = gamepad.getLeftY();
+        double y = -gamepad.getLeftX();
+        double theta = -gamepad.getRightX();
 
-        drivetrain.setMotion(x, y, theta);
+        RobotLog.dd("AAA", "X" + String.valueOf(x));
+        RobotLog.dd("AAA", "Y" + String.valueOf(y));
+        RobotLog.dd("AAA", "T" + String.valueOf(theta));
+        drivetrain.move(new DrivetrainState(x, y, theta));
 
         return false;
     }
