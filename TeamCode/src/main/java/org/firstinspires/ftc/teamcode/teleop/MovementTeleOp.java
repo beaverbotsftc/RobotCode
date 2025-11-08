@@ -2,12 +2,14 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="MovementTeleOp")
 public class MovementTeleOp extends LinearOpMode {
-    private final double slowSpeed = 0.6;
+    private final double slowSpeed = 0.7;
     private ElapsedTime runtime = new ElapsedTime();
     private DcMotor leftFrontDrive = null;
     private DcMotor leftBackDrive = null;
@@ -18,15 +20,15 @@ public class MovementTeleOp extends LinearOpMode {
     public void runOpMode() {
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
-        leftFrontDrive  = hardwareMap.get(DcMotor.class, "left_front");
-        leftBackDrive  = hardwareMap.get(DcMotor.class, "left_back");
-        rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front");
-        rightBackDrive = hardwareMap.get(DcMotor.class, "right_back");
+        leftFrontDrive  = hardwareMap.get(DcMotor.class, "left front");
+        leftBackDrive  = hardwareMap.get(DcMotor.class, "left back");
+        rightFrontDrive = hardwareMap.get(DcMotor.class, "right front");
+        rightBackDrive = hardwareMap.get(DcMotor.class, "right back");
 
-        leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
-        leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
-        rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
-        rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
+        leftFrontDrive.setDirection(DcMotor.Direction.FORWARD);
+        leftBackDrive.setDirection(DcMotor.Direction.FORWARD);
+        rightFrontDrive.setDirection(DcMotor.Direction.REVERSE);
+        rightBackDrive.setDirection(DcMotor.Direction.REVERSE);
 
         // Wait for the game to start (driver presses START)
         telemetry.addData("Status", "Initialized");
@@ -63,7 +65,7 @@ public class MovementTeleOp extends LinearOpMode {
                 rightBackPower  /= max;
             }
 
-            double speed = gamepad1.right_bumper ? 1 : slowSpeed;
+            double speed = gamepad1.right_bumper ? 1 : gamepad1.left_bumper ? 0.4 : slowSpeed;
 
             // Send calculated power to wheels
             leftFrontDrive.setPower(speed * leftFrontPower);
