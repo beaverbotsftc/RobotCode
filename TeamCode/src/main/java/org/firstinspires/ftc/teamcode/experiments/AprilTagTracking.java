@@ -7,7 +7,7 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
-@Autonomous(name = "Limelight_AimAtTag20_Encoders")
+@Autonomous(group = "Experiments")
 public class AprilTagTracking extends LinearOpMode {
 
     private Limelight3A limelight;
