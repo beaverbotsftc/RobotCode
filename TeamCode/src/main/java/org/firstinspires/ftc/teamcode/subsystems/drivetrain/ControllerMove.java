@@ -31,9 +31,6 @@ public final class ControllerMove implements Command {
         double y = -gamepad.getLeftX();
         double theta = -gamepad.getRightX();
 
-        RobotLog.dd("AAA", "X" + String.valueOf(x));
-        RobotLog.dd("AAA", "Y" + String.valueOf(y));
-        RobotLog.dd("AAA", "T" + String.valueOf(theta));
         drivetrain.move(new DrivetrainState(x, y, theta));
 
         return false;
