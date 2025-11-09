@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.experiments;
 
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.beaverbots.BeaverCommand.CommandRuntimeOpMode;
 import org.beaverbots.beavertracking.HolonomicFollowPath;
@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
 
 import java.util.List;
 
-@TeleOp(group = "Experiments")
+@Autonomous(group = "Experiments")
 public class ReturningExperiment extends CommandRuntimeOpMode {
     private Drivetrain drivetrain;
     private Pinpoint pinpoint;

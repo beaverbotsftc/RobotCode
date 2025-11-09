@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-@TeleOp(group = "Tests")
+@Autonomous(group = "Tests")
 public class SensorFilterTest1 extends LinearOpMode {
     // Simulation parameters
     private static final double SIMULATION_DURATION_S = 12.0;

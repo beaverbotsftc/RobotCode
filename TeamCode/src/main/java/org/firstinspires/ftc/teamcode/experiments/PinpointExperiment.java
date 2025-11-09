@@ -1,12 +1,13 @@
 package org.firstinspires.ftc.teamcode.experiments;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.beaverbots.BeaverCommand.CommandRuntimeOpMode;
 import org.firstinspires.ftc.teamcode.DrivetrainState;
 import org.firstinspires.ftc.teamcode.subsystems.Pinpoint;
 
-@TeleOp(group = "Experiments")
+@Autonomous(group = "Experiments")
 public class PinpointExperiment extends CommandRuntimeOpMode {
     private Pinpoint pinpoint;
 

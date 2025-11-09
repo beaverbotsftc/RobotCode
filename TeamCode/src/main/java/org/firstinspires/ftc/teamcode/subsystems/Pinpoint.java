@@ -16,7 +16,7 @@ public final class Pinpoint implements Localizer, Subsystem {
 
     public Pinpoint(DrivetrainState pose) {
         pinpoint = HardwareManager.claim(GoBildaPinpointDriver.class, "pinpoint");
-        pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.FORWARD);
+        pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         pinpoint.setOffsets(Constants.pinpointXOffset, Constants.pinpointYOffset);
         pinpoint.recalibrateIMU();
