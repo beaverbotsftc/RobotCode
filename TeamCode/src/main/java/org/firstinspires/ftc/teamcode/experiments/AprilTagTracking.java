@@ -29,7 +29,7 @@ public class AprilTagTracking extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        limelightMotor = hardwareMap.get(DcMotor.class, "Motor");
+        limelightMotor = hardwareMap.get(DcMotor.class, "right back");
 
         // Reset encoder
         limelightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
