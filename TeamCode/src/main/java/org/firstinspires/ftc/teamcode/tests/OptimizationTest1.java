@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.tests;
 import android.util.Pair;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.apache.commons.math3.linear.ArrayRealVector;
@@ -14,7 +14,7 @@ import org.beaverbots.BeaverOptimize.RBFKernel;
 import java.util.function.DoublePredicate;
 import java.util.function.ToDoubleFunction;
 
-@TeleOp(group = "Tests")
+@Autonomous(group = "Tests")
 public class OptimizationTest1 extends LinearOpMode {
     final static int MAX_ITERATIONS = 64;
     @Override

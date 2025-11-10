@@ -1,14 +1,9 @@
-package org.firstinspires.ftc.teamcode.subsystems.intake;
+package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.beaverbots.BeaverCommand.HardwareManager;
 import org.beaverbots.BeaverCommand.Subsystem;
-import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.DrivetrainState;
-
-import java.util.List;
 
 public final class Intake implements Subsystem {
     private double maxPower;
@@ -31,7 +26,7 @@ public final class Intake implements Subsystem {
         intake.setPower(velocity);
     }
 
-    public void move(double velocity) {
+    public void spin(double velocity) {
         this.velocity = velocity;
     }
 

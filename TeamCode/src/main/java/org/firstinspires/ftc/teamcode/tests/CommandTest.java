@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.tests;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.RobotLog;
 
@@ -10,7 +11,7 @@ import org.firstinspires.ftc.teamcode.tests.utils.FakeSubsystem;
 import java.util.HashSet;
 import java.util.Set;
 
-@TeleOp(group = "Tests")
+@Autonomous(group = "Tests")
 public final class CommandTest extends CommandRuntimeOpMode {
     FakeSubsystem subsystem1 = new FakeSubsystem(new HashSet<>(), "Subsystem 1");
     FakeSubsystem subsystem2 = new FakeSubsystem(new HashSet<>(), "Subsystem 2");
