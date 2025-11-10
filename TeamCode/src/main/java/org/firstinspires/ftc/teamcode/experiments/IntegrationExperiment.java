@@ -18,8 +18,8 @@ public class IntegrationExperiment extends CommandRuntimeOpMode {
     @Override
     public void onInit() {
         gamepad = new Gamepad(gamepad1);
-        drivetrain = new MecanumDrivetrain(0.7);
-        intake = new Intake(1);
+        drivetrain = new MecanumDrivetrain(0.8);
+        intake = new Intake(0.1);
     }
 
     @Override

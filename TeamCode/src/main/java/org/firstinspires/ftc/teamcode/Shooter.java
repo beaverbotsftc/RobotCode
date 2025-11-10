@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-@TeleOp(name="Motor Control w/ increment and speed", group="Examples")
+@TeleOp(name="Motor Control w/ Increment and RPM", group="Examples")
 public class Shooter extends LinearOpMode {
 
     private DcMotorEx motor;

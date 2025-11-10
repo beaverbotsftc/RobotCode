@@ -43,10 +43,11 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 import java.util.List;
-@TeleOp(name = "Limelight Distance Experiment", group = "Sensor")
+@TeleOp(name = "Limelight Distance Experiment")
 public class LimelightDistanceExperiment extends LinearOpMode {
 
     private Limelight3A limelight;
+    private boolean pipeline0 = false;
 
     @Override
     public void runOpMode() throws InterruptedException
@@ -55,7 +56,7 @@ public class LimelightDistanceExperiment extends LinearOpMode {
 
         telemetry.setMsTransmissionInterval(11);
 
-        limelight.pipelineSwitch(0);
+        limelight.pipelineSwitch(9);
 
         limelight.start();
 
@@ -64,6 +65,15 @@ public class LimelightDistanceExperiment extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
+
+            if(gamepad1.triangleWasPressed()){
+                pipeline0 = true;
+                limelight.pipelineSwitch(0);
+            }else if (gamepad1.crossWasPressed()){
+                pipeline0 = false;
+                limelight.pipelineSwitch(9);
+            }
+
             LLStatus status = limelight.getStatus();
             telemetry.addData("Name", "%s",
                     status.getName());
@@ -71,34 +81,47 @@ public class LimelightDistanceExperiment extends LinearOpMode {
                     status.getTemp(), (int)status.getFps());
 
             LLResult result = limelight.getLatestResult();
-            if (result.isValid() && result.getBotpose() != null) {
-                // Access general information
-                Pose3D botpose = result.getBotpose();
-                double captureLatency = result.getCaptureLatency();
-                double targetingLatency = result.getTargetingLatency();
-                double parseLatency = result.getParseLatency();
-                telemetry.addData("LL Latency", captureLatency + targetingLatency);
 
-                telemetry.addData("Target X", result.getTx());
-                telemetry.addData("txnc", result.getTxNC());
-                telemetry.addData("Target Y", result.getTy());
-                telemetry.addData("tync", result.getTyNC());
-                telemetry.addData("Target Area", result.getTa());
+            if(pipeline0){
 
-                telemetry.addData("Botpose", botpose.toString());
+                if (result.isValid() && result.getBotpose() != null) {
+                    // Access general information
+                    Pose3D botpose = result.getBotpose();
+
+                    telemetry.addData("Target Area", result.getTa());
+                    telemetry.addLine("");
+                    telemetry.addData("Botpose", botpose.toString());
+                    telemetry.addLine("");
 
 
-                // Access fiducial results
-                List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
-                for (LLResultTypes.FiducialResult fr : fiducialResults) {
-                    telemetry.addData("Fiducial", "ID: %d, Family: %s, X: %.2f, Y: %.2f", fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees());
+                    // Access fiducial results
+                    List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
+                    for (LLResultTypes.FiducialResult fr : fiducialResults) {
+                        telemetry.addData("Fiducial", "ID: %d, Family: %s, X: %.2f, Y: %.2f", fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees());
+                    }
+                } else {
+                    telemetry.addData("Limelight", "No data available");
                 }
-            } else {
-                telemetry.addData("Limelight", "No data available");
+            }else{
+                if (result.isValid()) {
+                    // Access general information
+                    telemetry.addData("Target Area", result.getTa());
+                    telemetry.addLine("");
+
+                    // Access fiducial results
+                    List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
+                    for (LLResultTypes.FiducialResult fr : fiducialResults) {
+                        telemetry.addData("Fiducial", "ID: %d, Family: %s, X: %.2f, Y: %.2f", fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees());
+                    }
+                } else {
+                    telemetry.addData("Limelight", "No data available");
+                }
+
             }
 
             telemetry.update();
         }
+
         limelight.stop();
     }
 }
