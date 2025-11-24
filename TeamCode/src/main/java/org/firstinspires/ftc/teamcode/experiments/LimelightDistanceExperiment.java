@@ -69,10 +69,13 @@ public class LimelightDistanceExperiment extends LinearOpMode {
             if(gamepad1.triangleWasPressed()){
                 pipeline0 = true;
                 limelight.pipelineSwitch(0);
+                telemetry.addData("Pipeline 0: ", pipeline0);
             }else if (gamepad1.crossWasPressed()){
                 pipeline0 = false;
                 limelight.pipelineSwitch(9);
             }
+
+            telemetry.addData("Pipeline 0: ", pipeline0);
 
             LLStatus status = limelight.getStatus();
             telemetry.addData("Name", "%s",
@@ -82,11 +85,12 @@ public class LimelightDistanceExperiment extends LinearOpMode {
 
             LLResult result = limelight.getLatestResult();
 
-            if(pipeline0){
+            if(!pipeline0){
 
                 if (result.isValid() && result.getBotpose() != null) {
                     // Access general information
                     Pose3D botpose = result.getBotpose();
+                    telemetry.addLine("Pipeline 9 -> Goal");
 
                     telemetry.addData("Target Area", result.getTa());
                     telemetry.addLine("");
@@ -105,6 +109,7 @@ public class LimelightDistanceExperiment extends LinearOpMode {
             }else{
                 if (result.isValid()) {
                     // Access general information
+                    telemetry.addLine("Pipeline 0 -> Obelisk");
                     telemetry.addData("Target Area", result.getTa());
                     telemetry.addLine("");
 

@@ -4,22 +4,26 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name="Motor Control w/ Increment and RPM", group="Examples")
+@TeleOp(name="Shooter Tester", group="Examples")
 public class Shooter extends LinearOpMode {
 
     private DcMotorEx motor;
     private DcMotorEx motor2;
+    private Servo hoodServo;
     private double power = 0;
     private static final double MAX_RPM = 6000.0;
     private static final int TICKS_PER_REV = 28;
 
     @Override
     public void runOpMode(){
-        motor = hardwareMap.get(DcMotorEx.class, "right back");
+        motor = hardwareMap.get(DcMotorEx.class, "shoot");
         motor.setDirection(DcMotor.Direction.FORWARD);
-        motor2 = hardwareMap.get(DcMotorEx.class, "right front");
+        motor2 = hardwareMap.get(DcMotorEx.class, "shoot2");
         motor2.setDirection(DcMotor.Direction.REVERSE);
+
+        hoodServo = hardwareMap.get(Servo.class, "hood");
 
         // Reset encoders
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -34,7 +38,7 @@ public class Shooter extends LinearOpMode {
             String preset = "Joystick";
 
             // Increment power when triangle is pressed
-            if (gamepad1.triangleWasPressed()) {
+            if (gamepad1.rightBumperWasPressed()) {
                 if (power < 1) {
                     power += 0.05;
                 }
@@ -42,11 +46,17 @@ public class Shooter extends LinearOpMode {
             }
 
             // Decrement power when X is pressed
-            if (gamepad1.xWasPressed()) {
+            if (gamepad1.leftBumperWasPressed()) {
                 if(power > 0){
                     power -= 0.05;
                 }
                 preset = "Decremented Power";
+            }
+
+            if(gamepad1.dpadLeftWasPressed()){
+                hoodServo.setPosition(hoodServo.getPosition() + 0.05);
+            }else if(gamepad1.dpadRightWasPressed()){
+                hoodServo.setPosition(hoodServo.getPosition() - 0.05);
             }
 
             // Apply motor power
@@ -68,6 +78,9 @@ public class Shooter extends LinearOpMode {
             telemetry.addData("Motor 2 RPM", "%.1f", rpm2);
             telemetry.addData("Motor 1 encode", "%.1f", encoder);
             telemetry.addData("Motor 2 encode", "%.1f", encoder2);
+
+            telemetry.addLine("");
+            telemetry.addData("Hood Pos", hoodServo.getPosition());
             telemetry.update();
         }
     }
