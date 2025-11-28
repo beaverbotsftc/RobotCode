@@ -20,8 +20,7 @@ public class ScrimmageTeleOpV2 extends LinearOpMode {
     private DcMotorEx motor;
     private DcMotorEx motor2;
     private Servo hoodServo;
-    private double shootrpm = 1000;
-    private static final double MAX_RPM = 6000.0;
+    private double shootrpm = 2000;
     private static final int TICKS_PER_REV = 28;
 
     @Override
@@ -68,27 +67,32 @@ public class ScrimmageTeleOpV2 extends LinearOpMode {
             intake.setPower(gamepad1.right_trigger >= 0.05 ? gamepad1.right_trigger : gamepad1.left_trigger >= 0.05 ? gamepad1.left_trigger * -1 : 0);
 
             //Hood Servo
-            if(gamepad1.left_bumper){
-                hoodServo.setPosition(hoodServo.getPosition() + 0.006);
-            }else if(gamepad1.right_bumper){
-                hoodServo.setPosition(hoodServo.getPosition() - 0.006);
+            if(gamepad1.leftBumperWasPressed()){
+                shootrpm = 2050;
+                hoodServo.setPosition(0.0);
+            }else if(gamepad1.rightBumperWasPressed()){
+                shootrpm = 3000;
+                hoodServo.setPosition(0.51);
             }
 
             //Controls for shooter power
             if (gamepad1.triangle && shootrpm < 5000) {
-                shootrpm += 10;
+                shootrpm += 5;
             }
             if (gamepad1.cross && shootrpm > 249) {
-                shootrpm -= 10;
+                shootrpm -= 5;
             }
 
             double rpm1 = ticksPerSecondToRPM(motor.getVelocity());
             double rpm2 = ticksPerSecondToRPM(motor2.getVelocity());
             double motorPower = rpmToPower(shootrpm);
 
-            if(gamepad1.dpad_left) {
+            if(gamepad1.dpad_right) {
                 motor.setPower(motorPower);
                 motor2.setPower(motorPower);
+            } else if (gamepad1.dpad_left) {
+                motor.setPower(-0.75 * motorPower);
+                motor2.setPower(-0.75 * motorPower);
             }else{
                 motor.setPower(0);
                 motor2.setPower(0);
@@ -97,7 +101,7 @@ public class ScrimmageTeleOpV2 extends LinearOpMode {
             if(motorPower != 0){
                 double velocity = (rpm1+rpm2)/2.0;
                 if(Math.abs(velocity - shootrpm)/shootrpm <= 0.05){
-                    gamepad1.rumble(0.5,0.5, Gamepad.RUMBLE_DURATION_CONTINUOUS);
+                    gamepad1.rumble(0.45,0.45, Gamepad.RUMBLE_DURATION_CONTINUOUS);
                 }else{
                     gamepad1.stopRumble();
                 }
@@ -107,7 +111,7 @@ public class ScrimmageTeleOpV2 extends LinearOpMode {
 
             double axial   =  -changeInput(gamepad1.left_stick_y);
             double lateral =  changeInput(gamepad1.left_stick_x);
-            double yaw     =  changeTurn(gamepad1.right_stick_x);
+            double yaw     =  0.85*changeTurn(gamepad1.right_stick_x);
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             // Set up a variable for each drive wheel to save the power level for telemetry.
@@ -129,7 +133,7 @@ public class ScrimmageTeleOpV2 extends LinearOpMode {
                 rightBackPower  /= max;
             }
 
-            double speed = gamepad1.right_stick_button ? 0.5 : 1;
+            double speed = gamepad1.touchpad? 0.5 : 1;
 
             // Send calculated power to wheels
             leftFrontDrive.setPower(speed * leftFrontPower);
@@ -161,12 +165,12 @@ public class ScrimmageTeleOpV2 extends LinearOpMode {
     }
 
     private double changeTurn(double x){
-        return 4.00000*(Math.pow(x,5))/5.00000 + x/5;
+        return 4.0*(Math.pow(x,5))/5.0 + x/5.0;
     }
 
     private double ticksPerSecondToRPM(double ticksPerSecond) {
         return (ticksPerSecond / TICKS_PER_REV) * 60.0;
     }
 
-    private double rpmToPower(double rpm) { return rpm/5140; }
+    private double rpmToPower(double rpm) {return rpm/5140;}
 }
