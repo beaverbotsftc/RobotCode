@@ -40,6 +40,11 @@ public class ScrimmageTeleOpV2 extends LinearOpMode {
         rightFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         rightBackDrive.setDirection(DcMotor.Direction.REVERSE);
 
+        leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         motor = hardwareMap.get(DcMotorEx.class, "shoot");
         motor.setDirection(DcMotor.Direction.REVERSE);
         motor2 = hardwareMap.get(DcMotorEx.class, "shoot2");

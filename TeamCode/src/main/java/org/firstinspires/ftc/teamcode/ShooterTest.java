@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import org.firstinspires.ftc.teamcode.subsystems.Shooter;
+import org.firstinspires.ftc.teamcode.subsystems.ShooterAdi;
 
 @TeleOp(name = "Shooter Test", group = "Test")
 public class ShooterTest extends LinearOpMode {
@@ -21,7 +21,7 @@ public class ShooterTest extends LinearOpMode {
         double hoodContactLengthIn = 5.0;      // hood contact length (inches)
 
         // Compute required RPM for the given parameters
-        Shooter.ShotParameters shot = Shooter.computeRequiredRpmForAngleInches(
+        ShooterAdi.ShotParameters shot = ShooterAdi.computeRequiredRpmForAngleInches(
                 distanceToTargetInches,
                 launchAngleDeg,
                 hoodContactLengthIn
@@ -30,8 +30,8 @@ public class ShooterTest extends LinearOpMode {
         // Display results
         telemetry.addLine("=== Shooter Calculations ===");
         telemetry.addData("Distance (in)", "%.1f", distanceToTargetInches);
-        telemetry.addData("Target Height (in)", "%.1f", Shooter.TARGET_HEIGHT_IN);
-        telemetry.addData("Shooter Height (in)", "%.1f", Shooter.SHOOTER_EXIT_HEIGHT_IN);
+        telemetry.addData("Target Height (in)", "%.1f", ShooterAdi.TARGET_HEIGHT_IN);
+        telemetry.addData("Shooter Height (in)", "%.1f", ShooterAdi.SHOOTER_EXIT_HEIGHT_IN);
         telemetry.addData("Launch Angle (deg)", "%.2f", shot.launchAngleDeg);
         telemetry.addData("Required RPM", "%.1f", shot.motorRpm);
         telemetry.addData("Feasible", shot.feasible ? "Yes" : "No");

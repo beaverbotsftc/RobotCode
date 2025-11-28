@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp(name="Shooter Tester", group="Examples")
-public class Shooter extends LinearOpMode {
+public class ShooterTester extends LinearOpMode {
 
     private DcMotorEx motor;
     private DcMotorEx motor2;

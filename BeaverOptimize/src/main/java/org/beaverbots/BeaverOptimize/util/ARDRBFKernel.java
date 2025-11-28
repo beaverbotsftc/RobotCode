@@ -1,21 +1,25 @@
-package org.beaverbots.BeaverOptimize;
+package org.beaverbots.BeaverOptimize.util;
 
 import org.apache.commons.math3.linear.RealVector;
+import org.beaverbots.BeaverOptimize.Kernel;
 
 public class ARDRBFKernel implements Kernel {
     @Override
-    public double evaluate(RealVector x1, RealVector x2, RealVector logHypers) {
-        // Hypers: [0]=LogSignalVar, [1..D]=LogLengthScales
-        double signalVar = Math.exp(logHypers.getEntry(0));
-
+    public double evaluate(RealVector x1, RealVector x2, RealVector hypers) {
+        // Hyperparameters: [0]=signalVar, [1..D]lengthScales=
         double weightedDistSq = 0;
         for (int i = 0; i < x1.getDimension(); i++) {
-            double lengthScale = Math.exp(logHypers.getEntry(i + 1));
+            double lengthScale = hypers.getEntry(i + 1);
+
+            if (lengthScale < 1e-9) {
+                lengthScale = 1e-9;
+            }
+
             double diff = (x1.getEntry(i) - x2.getEntry(i)) / lengthScale;
             weightedDistSq += diff * diff;
         }
 
-        return signalVar * Math.exp(-0.5 * weightedDistSq);
+        return hypers.getEntry(0) * Math.exp(-0.5 * weightedDistSq);
     }
 
     @Override

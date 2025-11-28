@@ -94,6 +94,7 @@ public abstract class CommandRuntimeOpMode extends OpMode {
         runSubsystems();
         periodicInit();
         runScheduler();
+        telemetry.update();
     }
 
     public final void start() {
@@ -104,6 +105,7 @@ public abstract class CommandRuntimeOpMode extends OpMode {
         runSubsystems();
         periodic();
         runScheduler();
+        telemetry.update();
     }
 
     public final void stop() {

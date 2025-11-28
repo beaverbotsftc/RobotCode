@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems.drivetrain;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.util.RobotLog;
 
 import org.beaverbots.BeaverCommand.HardwareManager;
 import org.beaverbots.BeaverCommand.Subsystem;
@@ -33,6 +33,18 @@ public final class MecanumDrivetrain implements Drivetrain, Subsystem {
         frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         backRight.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        /*
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        */
     }
 
     public MecanumDrivetrain() {
@@ -40,10 +52,10 @@ public final class MecanumDrivetrain implements Drivetrain, Subsystem {
     }
 
     public void periodic() {
-        double frontLeftPower = (velocity.getX() - velocity.getY() - velocity.getTheta()) * Constants.frontLeftDrivetrainMotorPower * Constants.drivetrainPowerConversionFactor;
-        double frontRightPower = (velocity.getX() + velocity.getY() + velocity.getTheta()) * Constants.frontRightDrivetrainMotorPower * Constants.drivetrainPowerConversionFactor;
-        double backLeftPower = (velocity.getX() + velocity.getY() - velocity.getTheta()) * Constants.backLeftDrivetrainMotorPower * Constants.drivetrainPowerConversionFactor;
-        double backRightPower = (velocity.getX() - velocity.getY() + velocity.getTheta()) * Constants.backRightDrivetrainMotorPower * Constants.drivetrainPowerConversionFactor;
+        double frontLeftPower = (velocity.getX() * Constants.drivetrainPowerConversionFactorX - velocity.getY() * Constants.drivetrainPowerConversionFactorY - velocity.getTheta() * Constants.drivetrainPowerConversionFactorTheta);
+        double frontRightPower = (velocity.getX() * Constants.drivetrainPowerConversionFactorX + velocity.getY() * Constants.drivetrainPowerConversionFactorY + velocity.getTheta() * Constants.drivetrainPowerConversionFactorTheta);
+        double backLeftPower = (velocity.getX() * Constants.drivetrainPowerConversionFactorX + velocity.getY() * Constants.drivetrainPowerConversionFactorY - velocity.getTheta() * Constants.drivetrainPowerConversionFactorTheta);
+        double backRightPower = (velocity.getX() * Constants.drivetrainPowerConversionFactorX - velocity.getY() * Constants.drivetrainPowerConversionFactorY + velocity.getTheta() * Constants.drivetrainPowerConversionFactorTheta);
 
         double maxPower = Math.max(Math.abs(frontLeftPower),
                 Math.max(Math.abs(frontRightPower),

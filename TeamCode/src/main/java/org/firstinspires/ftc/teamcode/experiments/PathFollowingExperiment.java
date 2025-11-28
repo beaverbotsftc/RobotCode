@@ -22,7 +22,7 @@ public class PathFollowingExperiment extends CommandRuntimeOpMode {
 
     @Override
     public void onInit() {
-        drivetrain = new MecanumDrivetrain(0.3);
+        drivetrain = new MecanumDrivetrain(0.7);
         pinpoint = new Pinpoint(new DrivetrainState(0, 0, 0));
     }
 
@@ -30,14 +30,14 @@ public class PathFollowingExperiment extends CommandRuntimeOpMode {
     public void onStart() {
         register(drivetrain, pinpoint);
         Path path = new Path(List.of(
-                new PathAxis(t -> 0, 0, Double.POSITIVE_INFINITY),
-                new PathAxis(t -> 0, 0, Double.POSITIVE_INFINITY),
-                new PathAxis(t -> 0, 0, Double.POSITIVE_INFINITY)
+                new PathAxis(t -> 12 * Math.cos(t / 5), 0, Double.POSITIVE_INFINITY),
+                new PathAxis(t -> 12 * Math.sin(t / 5), 0, Double.POSITIVE_INFINITY),
+                new PathAxis(t -> t / 3, 0, Double.POSITIVE_INFINITY)
         ), t -> false);
         PIDF pidf = new PIDF(List.of(
-                new PIDFAxis(new PIDFAxis.K(0.1, 0.1, 0, 0, 0.4, 1, 0)),
-                new PIDFAxis(new PIDFAxis.K(0.1, 0.1, 0, 0, 0.4, 1, 0)),
-                new PIDFAxis(new PIDFAxis.K(1, 1, 0, 0, 0.4, 1, 0))
+                new PIDFAxis(new PIDFAxis.K(0.2, 0, 0, 0, 0.4, 1, 0)),
+                new PIDFAxis(new PIDFAxis.K(0.2, 0, 0, 0, 0.4, 1, 0)),
+                new PIDFAxis(new PIDFAxis.K(1.5, 0, 0, 0, 0.4, 1, 0))
         ));
         schedule(new HolonomicFollowPath(path, pidf, pinpoint, drivetrain));
     }
@@ -45,5 +45,6 @@ public class PathFollowingExperiment extends CommandRuntimeOpMode {
     @Override
     public void periodic() {
         telemetry.addData("Position", pinpoint.getPosition());
+        telemetry.addData("Velocity", pinpoint.getVelocity());
     }
 }

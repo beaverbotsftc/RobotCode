@@ -1,7 +1,14 @@
-package org.beaverbots.BeaverCommand;
+package org.beaverbots.BeaverCommand.util;
 
-public class SequentialCommandGroup extends CommandGroup {
+import org.beaverbots.BeaverCommand.Command;
+import org.beaverbots.BeaverCommand.CommandGroup;
+
+public class Sequential extends CommandGroup {
     private boolean newCommandStart = true;
+
+    public Sequential(Command... commands) {
+        super(commands);
+    }
 
     @Override
     public boolean periodic() {

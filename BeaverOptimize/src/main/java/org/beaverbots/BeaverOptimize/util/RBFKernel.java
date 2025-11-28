@@ -1,6 +1,7 @@
-package org.beaverbots.BeaverOptimize;
+package org.beaverbots.BeaverOptimize.util;
 
 import org.apache.commons.math3.linear.RealVector;
+import org.beaverbots.BeaverOptimize.Kernel;
 
 public class RBFKernel implements Kernel {
     @Override

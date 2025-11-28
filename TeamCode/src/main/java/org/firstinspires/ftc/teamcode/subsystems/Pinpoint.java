@@ -45,7 +45,7 @@ public final class Pinpoint implements Localizer, Subsystem {
 
       public void periodic() {
         pinpoint.update();
-        currentPose = new DrivetrainState(pinpoint.getPosition());
-        currentVelocity = new DrivetrainState(pinpoint.getVelocity());
+        currentPose = new DrivetrainState(pinpoint.getPosition(), pinpoint.getHeading());
+        currentVelocity = new DrivetrainState(pinpoint.getVelocity(), pinpoint.getHeadingVelocity());
     }
 }

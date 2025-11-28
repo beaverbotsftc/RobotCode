@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-public class Shooter {
+public class ShooterAdi {
 
     // --- Conversion constants ---
     public static final double INCH_TO_M = 0.0254;

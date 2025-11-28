@@ -9,20 +9,19 @@ import com.qualcomm.robotcore.util.RobotLog;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 import org.beaverbots.BeaverOptimize.BayesianOptimizer;
-import org.beaverbots.BeaverOptimize.RBFKernel;
+import org.beaverbots.BeaverOptimize.util.RBFKernel;
 
-import java.util.function.DoublePredicate;
 import java.util.function.ToDoubleFunction;
 
 @Autonomous(group = "Tests")
 public class OptimizationTest1 extends LinearOpMode {
-    final static int MAX_ITERATIONS = 64;
+    final static int MAX_ITERATIONS = 24;
     @Override
     public void runOpMode() {
         BayesianOptimizer optimizer1 = new BayesianOptimizer(new RBFKernel(), new Pair<>(
                 new ArrayRealVector(new double[]{ 0 }),
                 new ArrayRealVector(new double[]{ 1.5 })),
-                0.9);
+                0.9, 5);
         // Minimum at f(0.5) = 0
         ToDoubleFunction<RealVector> f1 = (RealVector v) -> {
             double x = v.getEntry(0);
@@ -32,7 +31,7 @@ public class OptimizationTest1 extends LinearOpMode {
         BayesianOptimizer optimizer2 = new BayesianOptimizer(new RBFKernel(), new Pair<>(
                 new ArrayRealVector(new double[]{ 0 }),
                 new ArrayRealVector(new double[]{ 1 })),
-                0.9);
+                0.9, 5);
         // Minimum at f(0) = 0.25
         ToDoubleFunction<RealVector> f2 = (RealVector v) -> {
             double x = v.getEntry(0);
@@ -42,7 +41,7 @@ public class OptimizationTest1 extends LinearOpMode {
         BayesianOptimizer optimizer3 = new BayesianOptimizer(new RBFKernel(), new Pair<>(
                 new ArrayRealVector(new double[]{ 0 }),
                 new ArrayRealVector(new double[]{ 100 })),
-                0.99);
+                0.99, 5);
         // Minimum at f(12.0936) = -4.8765
         ToDoubleFunction<RealVector> f3 = (RealVector v) -> {
             double x = v.getEntry(0);
@@ -52,7 +51,7 @@ public class OptimizationTest1 extends LinearOpMode {
         BayesianOptimizer optimizer4 = new BayesianOptimizer(new RBFKernel(), new Pair<>(
                 new ArrayRealVector(new double[]{ 0, 0 }),
                 new ArrayRealVector(new double[]{ 100, 100 })),
-                0.99);
+                0.99, 5);
         // Minimum at f(13.6692, 22.3828) = -95.3058
         ToDoubleFunction<RealVector> f4 = (RealVector v) -> {
             double x = v.getEntry(0);
@@ -69,7 +68,7 @@ public class OptimizationTest1 extends LinearOpMode {
         BayesianOptimizer optimizer5 = new BayesianOptimizer(new RBFKernel(), new Pair<>(
                 new ArrayRealVector(new double[]{ -15, 2500, 1920, 0 }),
                 new ArrayRealVector(new double[]{ 14, 5000, 1930, 12 })),
-                0.99);
+                0.99, 5);
         // Minimum at f(10.0002, 4502.0934, 1928.4998, 8.9913) = -400.88513
         ToDoubleFunction<RealVector> f5 = (RealVector v) -> {
             double x = v.getEntry(0);
@@ -111,8 +110,7 @@ public class OptimizationTest1 extends LinearOpMode {
         }
 
         for (int i = 0; i <= MAX_ITERATIONS; i++) {
-            RealVector nextPoint = optimizer2.findNextPoint();
-            double value = f2.applyAsDouble(nextPoint);
+            RealVector nextPoint = optimizer2.findNextPoint(); double value = f2.applyAsDouble(nextPoint);
             optimizer2.addObservedPoint(nextPoint, value);
             RobotLog.i("Test 2: iteration " + i + " point tested " + nextPoint + " : " + value);
             RobotLog.i("Test 2: iteration " + i + " best point " + optimizer2.getBestObservedPoint().first + " : " + optimizer2.getBestObservedPoint().second);

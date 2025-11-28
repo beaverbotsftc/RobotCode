@@ -20,7 +20,13 @@ public class Gamepad implements Subsystem {
     private boolean leftBumper = false;
     private boolean rightBumper = false;
 
+    private boolean circle = false;
+    private boolean cross = false;
+    private boolean square = false;
+    private boolean triangle = false;
+
     public Gamepad(com.qualcomm.robotcore.hardware.Gamepad gamepad) {
+        gamepad.setLedColor(1 / 256.0, 0.0, 64 / 256.0, com.qualcomm.robotcore.hardware.Gamepad.LED_DURATION_CONTINUOUS);
         this.gamepad = gamepad;
     }
 
@@ -35,6 +41,11 @@ public class Gamepad implements Subsystem {
 
         leftBumper = gamepad.left_bumper;
         rightBumper = gamepad.right_bumper;
+
+        circle = gamepad.circle;
+        cross = gamepad.cross;
+        square = gamepad.square;
+        triangle = gamepad.triangle;
     }
 
     public double getLeftX() {
@@ -68,4 +79,9 @@ public class Gamepad implements Subsystem {
     public boolean getRightBumper() {
         return rightBumper;
     }
+
+    public boolean getCircle() {return circle;}
+    public boolean getCross() {return cross;}
+    public boolean getSquare() {return square;}
+    public boolean getTriangle() {return triangle;}
 }

@@ -13,7 +13,7 @@ import org.beaverbots.BeaverCommand.util.Sequential;
 import org.beaverbots.BeaverCommand.util.Stopwatch;
 import org.beaverbots.BeaverCommand.util.WaitUntil;
 import org.beaverbots.BeaverOptimize.BayesianOptimizer;
-import org.beaverbots.BeaverOptimize.RBFKernel;
+import org.beaverbots.BeaverOptimize.util.RBFKernel;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.DrivetrainState;
 import org.firstinspires.ftc.teamcode.commands.DirectControl;
@@ -27,9 +27,9 @@ import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
 @TeleOp
 public class DrivetrainConversionsTuningY extends CommandRuntimeOpMode {
     private static BayesianOptimizer optimizer = new BayesianOptimizer(new RBFKernel(), new Pair<>(
-            new ArrayRealVector(new double[] {0.01, 0.01, 0.1}),
-            new ArrayRealVector(new double[] {0.02, 0.02, 0.2})
-    ), 0.9);
+            new ArrayRealVector(new double[] {Constants.drivetrainPowerConversionFactorY}),
+            new ArrayRealVector(new double[] {Constants.drivetrainPowerConversionFactorY * 1.4})
+    ), 0.9, 10);
 
     private RealVector point;
 
@@ -41,14 +41,12 @@ public class DrivetrainConversionsTuningY extends CommandRuntimeOpMode {
     private Intake intake;
     private Shooter shooter;
 
-    private double loss = 0;
+    private double loss;
 
     Stopwatch stopwatch = new Stopwatch();
 
     private void applyPoint(RealVector point) {
-        Constants.drivetrainPowerConversionFactorX = point.getEntry(0);
-        Constants.drivetrainPowerConversionFactorY = point.getEntry(1);
-        Constants.drivetrainPowerConversionFactorTheta = point.getEntry(2);
+        Constants.drivetrainPowerConversionFactorY = point.getEntry(0);
     }
 
     @Override
@@ -79,35 +77,19 @@ public class DrivetrainConversionsTuningY extends CommandRuntimeOpMode {
         register(intake, shooter);
 
         schedule(new Sequential(
-                new WaitUntil(() -> gamepad.getCross()),
-                new Instant(() -> pinpoint.resetPosition(new DrivetrainState(0, 0, 0))),
-                new Instant(() -> stopwatch.reset()),
-                new Instant(() -> drivetrain.move(new DrivetrainState(24, 0, 0))),
-                new WaitUntil(() -> stopwatch.getElapsed() > 2),
-                new Instant(() -> RobotLog.d(String.format("X: %f", pinpoint.getPosition().getX()))),
-                new Instant(() -> loss += Math.pow((pinpoint.getPosition().getX() - 24 * 2), 2)),
-                new Instant(() -> drivetrain.move(new DrivetrainState(0, 0, 0))),
-                new WaitUntil(() -> gamepad.getCross()),
-                new Instant(() -> pinpoint.resetPosition(new DrivetrainState(0, 0, 0))),
-                new Instant(() -> stopwatch.reset()),
-                new Instant(() -> drivetrain.move(new DrivetrainState(0, 24, 0))),
-                new WaitUntil(() -> stopwatch.getElapsed() > 2),
-                new Instant(() -> RobotLog.d(String.format("Y: %f", pinpoint.getPosition().getY()))),
-                new Instant(() -> loss += Math.pow((pinpoint.getPosition().getY() - 24 * 2), 2)),
-                new Instant(() -> drivetrain.move(new DrivetrainState(0, 0, 0))),
-                new WaitUntil(() -> gamepad.getCross()),
-                new Instant(() -> pinpoint.resetPosition(new DrivetrainState(0, 0, 0))),
-                new Instant(() -> stopwatch.reset()),
-                new Instant(() -> drivetrain.move(new DrivetrainState(0, 0, Math.PI))),
-                new WaitUntil(() -> stopwatch.getElapsed() > 2),
-                new Instant(() -> RobotLog.d(String.format("Theta: %f", pinpoint.getPosition().getTheta()))),
-                new Instant(() -> loss += Math.pow((pinpoint.getPosition().getTheta() - Math.PI * 2), 2) * 10),
-                new Instant(() -> drivetrain.move(new DrivetrainState(0, 0, 0))),
-                new Instant(() -> RobotLog.d(String.format("Loss: %f", loss))),
-                new WaitUntil(() -> gamepad.getCircle()),
-                new Instant(() -> optimizer.addObservedPoint(point, loss)),
-                new DirectControl(gamepad, drivetrain, intake, shooter)
-            )
+                    new WaitUntil(() -> gamepad.getCross()),
+                    new Instant(() -> stopwatch.reset()),
+                    new Instant(() -> drivetrain.move(new DrivetrainState(0, 24, 0))),
+                    new WaitUntil(() -> stopwatch.getElapsed() > 2),
+                    new Instant(() -> RobotLog.d(String.format("Y: %f", pinpoint.getVelocity().getY()))),
+                    new Instant(() -> loss = Math.pow((pinpoint.getVelocity().getY() - 24), 2)),
+                    new Instant(() -> drivetrain.move(new DrivetrainState(0, 0, 0))),
+                    new Instant(() -> RobotLog.d(String.format("Loss: %f", loss))),
+                    new WaitUntil(() -> gamepad.getCircle()),
+                    new Instant(() -> optimizer.addObservedPoint(point, loss)),
+                    new Instant(() -> gamepad1.rumble(1000)),
+                    new DirectControl(gamepad, drivetrain, intake, shooter)
+                )
         );
     }
 }

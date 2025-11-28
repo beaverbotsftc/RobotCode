@@ -23,6 +23,12 @@ public final class DrivetrainState {
         theta = pose.getHeading(AngleUnit.RADIANS);
     }
 
+    public DrivetrainState(Pose2D pose, double theta) {
+        x = pose.getX(DistanceUnit.INCH);
+        y = pose.getY(DistanceUnit.INCH);
+        this.theta = theta;
+    }
+
     public DrivetrainState(List<Double> state) {
         x = state.get(0);
         y = state.get(1);
@@ -46,6 +52,6 @@ public final class DrivetrainState {
     }
 
     public String toString() {
-        return String.format("x=%s, y=%s, theta=%s", String.valueOf(x), String.valueOf(y), String.valueOf(theta));
+        return String.format("x=%.2f, y=%.2f, theta=%.2f", x, y, theta);
     }
 }
