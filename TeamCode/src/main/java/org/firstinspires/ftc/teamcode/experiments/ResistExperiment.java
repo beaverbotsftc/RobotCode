@@ -48,8 +48,4 @@ public class ResistExperiment extends CommandRuntimeOpMode {
                         drivetrain)
         );
     }
-
-    @Override
-    public void periodic() {
-    }
 }

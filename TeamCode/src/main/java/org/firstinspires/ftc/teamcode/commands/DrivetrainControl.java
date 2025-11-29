@@ -32,6 +32,10 @@ public class DrivetrainControl implements Command {
 
         drivetrain.move(new DrivetrainState(x, y, theta));
 
+        if (gamepad.getDpadDownJustPressed()) {
+            drivetrain.toggleBrake();
+        }
+
         return false;
     }
 }

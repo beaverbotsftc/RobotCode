@@ -11,6 +11,11 @@ public class Sequential extends CommandGroup {
     }
 
     @Override
+    protected void checkDependencies() {
+        // Router intentionally allows shared dependencies (mutually exclusive)
+    }
+
+    @Override
     public boolean periodic() {
         if (newCommandStart)
             commands.get(0).start();

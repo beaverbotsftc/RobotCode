@@ -22,7 +22,7 @@ public final class SimpleControl implements Command {
         this.drivetrain = drivetrain;
         this.intake = intake;
         this.shooter = shooter;
-        this.drivetrain.toggleBraking(true);
+        this.drivetrain.setBrake(true);
     }
 
     @Override

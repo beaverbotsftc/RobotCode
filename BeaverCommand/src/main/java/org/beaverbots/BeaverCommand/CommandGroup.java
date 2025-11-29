@@ -15,7 +15,7 @@ public abstract class CommandGroup implements Command {
         checkDependencies();
     }
 
-    private void checkDependencies() {
+    protected void checkDependencies() {
         Set<Subsystem> dependencies = new HashSet<>();
         for (Command command : commands) {
             Set<Subsystem> commandDependencies = Command.calculateDependencies(command);

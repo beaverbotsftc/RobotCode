@@ -3,15 +3,18 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import org.beaverbots.BeaverCommand.Subsystem;
 
 public class Gamepad implements Subsystem {
+
     private com.qualcomm.robotcore.hardware.Gamepad gamepad;
 
-    // Joystick values (No edge detection)
+    private static final double DEADZONE = 0.1;
+
+    // --- Joystick Values ---
     private double leftX = 0;
     private double leftY = 0;
     private double rightX = 0;
     private double rightY = 0;
 
-    // Current Values
+    // --- Current Button Values ---
     private double leftTrigger = 0;
     private double rightTrigger = 0;
     private boolean leftBumper = false;
@@ -21,11 +24,14 @@ public class Gamepad implements Subsystem {
     private boolean square = false;
     private boolean triangle = false;
 
-    // --- D-Pad Current ---
     private boolean dpadUp = false;
     private boolean dpadDown = false;
     private boolean dpadLeft = false;
     private boolean dpadRight = false;
+
+    // Stick buttons
+    private boolean leftStickPressed = false;
+    private boolean rightStickPressed = false;
 
     // --- Previous State Tracking ---
     private boolean lastLeftTriggerState = false;
@@ -37,14 +43,15 @@ public class Gamepad implements Subsystem {
     private boolean lastSquare = false;
     private boolean lastTriangle = false;
 
-    // D-Pad previous
     private boolean lastDpadUp = false;
     private boolean lastDpadDown = false;
     private boolean lastDpadLeft = false;
     private boolean lastDpadRight = false;
 
-    // --- Edge Detection Results ---
+    private boolean lastLeftStickPressed = false;
+    private boolean lastRightStickPressed = false;
 
+    // --- Edge Detection Output ---
     private boolean leftTriggerJustPressed = false;
     private boolean leftTriggerJustReleased = false;
     private boolean rightTriggerJustPressed = false;
@@ -64,7 +71,6 @@ public class Gamepad implements Subsystem {
     private boolean triangleJustPressed = false;
     private boolean triangleJustReleased = false;
 
-    // D-Pad edges
     private boolean dpadUpJustPressed = false;
     private boolean dpadUpJustReleased = false;
     private boolean dpadDownJustPressed = false;
@@ -74,20 +80,37 @@ public class Gamepad implements Subsystem {
     private boolean dpadRightJustPressed = false;
     private boolean dpadRightJustReleased = false;
 
+    private boolean leftStickJustPressed = false;
+    private boolean leftStickJustReleased = false;
+    private boolean rightStickJustPressed = false;
+    private boolean rightStickJustReleased = false;
+
     public Gamepad(com.qualcomm.robotcore.hardware.Gamepad gamepad) {
-        gamepad.setLedColor(1 / 256.0, 0.0, 64 / 256.0, com.qualcomm.robotcore.hardware.Gamepad.LED_DURATION_CONTINUOUS);
+        gamepad.setLedColor(
+                1 / 256.0,
+                0.0,
+                64 / 256.0,
+                com.qualcomm.robotcore.hardware.Gamepad.LED_DURATION_CONTINUOUS);
         this.gamepad = gamepad;
+    }
+
+    private double applyDeadzone(double value) {
+        return Math.abs(value) < DEADZONE ? 0 : value;
     }
 
     @Override
     public void periodic() {
-        leftX = gamepad.left_stick_x;
-        leftY = -gamepad.left_stick_y;
-        rightX = gamepad.right_stick_x;
-        rightY = -gamepad.right_stick_y;
 
-        leftTrigger = gamepad.left_trigger;
-        rightTrigger = gamepad.right_trigger;
+        // --- Joysticks ---
+        leftX = applyDeadzone(gamepad.left_stick_x);
+        leftY = applyDeadzone(-gamepad.left_stick_y);
+        rightX = applyDeadzone(gamepad.right_stick_x);
+        rightY = applyDeadzone(-gamepad.right_stick_y);
+
+        // --- Triggers & Buttons ---
+        leftTrigger = applyDeadzone(gamepad.left_trigger);
+        rightTrigger = applyDeadzone(gamepad.right_trigger);
+
         leftBumper = gamepad.left_bumper;
         rightBumper = gamepad.right_bumper;
         circle = gamepad.circle;
@@ -95,13 +118,21 @@ public class Gamepad implements Subsystem {
         square = gamepad.square;
         triangle = gamepad.triangle;
 
-        // --- D-Pad Current Values ---
+        // --- D-Pad ---
         dpadUp = gamepad.dpad_up;
         dpadDown = gamepad.dpad_down;
         dpadLeft = gamepad.dpad_left;
         dpadRight = gamepad.dpad_right;
 
-        // --- Triggers ---
+        // --- Stick Buttons ---
+        leftStickPressed = gamepad.left_stick_button;
+        rightStickPressed = gamepad.right_stick_button;
+
+        // ================================
+        // =     EDGE DETECTION LOGIC     =
+        // ================================
+
+        // --- Trigger Edges ---
         boolean currentLeftTriggerState = leftTrigger > 0;
         leftTriggerJustPressed = currentLeftTriggerState && !lastLeftTriggerState;
         leftTriggerJustReleased = !currentLeftTriggerState && lastLeftTriggerState;
@@ -138,7 +169,7 @@ public class Gamepad implements Subsystem {
         triangleJustReleased = !triangle && lastTriangle;
         lastTriangle = triangle;
 
-        // --- D-Pad Edge Detection ---
+        // --- D-Pad ---
         dpadUpJustPressed = dpadUp && !lastDpadUp;
         dpadUpJustReleased = !dpadUp && lastDpadUp;
         lastDpadUp = dpadUp;
@@ -154,33 +185,62 @@ public class Gamepad implements Subsystem {
         dpadRightJustPressed = dpadRight && !lastDpadRight;
         dpadRightJustReleased = !dpadRight && lastDpadRight;
         lastDpadRight = dpadRight;
+
+        // --- Stick Buttons ---
+        leftStickJustPressed = leftStickPressed && !lastLeftStickPressed;
+        leftStickJustReleased = !leftStickPressed && lastLeftStickPressed;
+        lastLeftStickPressed = leftStickPressed;
+
+        rightStickJustPressed = rightStickPressed && !lastRightStickPressed;
+        rightStickJustReleased = !rightStickPressed && lastRightStickPressed;
+        lastRightStickPressed = rightStickPressed;
     }
 
-    public void rumble(int durationMs) {
-        gamepad.rumble(durationMs);
+    // ================================
+    // =           RUMBLE             =
+    // ================================
+
+    public void rumble() {
+        gamepad.rumble(com.qualcomm.robotcore.hardware.Gamepad.RUMBLE_DURATION_CONTINUOUS);
     }
 
-    public void rumble(double leftRumble, double rightRumble, int durationMs) {
-        gamepad.rumble(leftRumble,rightRumble,durationMs);
+    public void rumble(int duration) {
+        gamepad.rumble(duration);
     }
 
-    public void stopRumble(){
+    public void rumble(double rumble) {
+        gamepad.rumble(rumble, rumble,
+                com.qualcomm.robotcore.hardware.Gamepad.RUMBLE_DURATION_CONTINUOUS);
+    }
+
+    public void rumble(double rumble, int duration) {
+        gamepad.rumble(rumble, rumble, duration);
+    }
+
+    public void rumble(double leftRumble, double rightRumble) {
+        gamepad.rumble(leftRumble, rightRumble,
+                com.qualcomm.robotcore.hardware.Gamepad.RUMBLE_DURATION_CONTINUOUS);
+    }
+
+    public void rumble(double leftRumble, double rightRumble, int duration) {
+        gamepad.rumble(leftRumble, rightRumble, duration);
+    }
+
+    public void stopRumble() {
         gamepad.stopRumble();
     }
 
-    public void rumblePulse(int pulseAmount){
-        gamepad.rumbleBlips(pulseAmount);
-    }
+    // ================================
+    // =        STANDARD GETTERS       =
+    // ================================
 
-
-    // --- Standard Getters ---
     public double getLeftX() { return leftX; }
     public double getLeftY() { return leftY; }
     public double getRightX() { return rightX; }
     public double getRightY() { return rightY; }
 
-    public double getLeftTrigger() { return leftTrigger <= 0.05 ? 0 : leftTrigger; }
-    public double getRightTrigger() { return rightTrigger <= 0.05 ? 0 : rightTrigger; }
+    public double getLeftTrigger() { return leftTrigger; }
+    public double getRightTrigger() { return rightTrigger; }
 
     public boolean getLeftBumper() { return leftBumper; }
     public boolean getRightBumper() { return rightBumper; }
@@ -190,13 +250,18 @@ public class Gamepad implements Subsystem {
     public boolean getSquare() { return square; }
     public boolean getTriangle() { return triangle; }
 
-    // --- D-Pad Getters ---
     public boolean getDpadUp() { return dpadUp; }
     public boolean getDpadDown() { return dpadDown; }
     public boolean getDpadLeft() { return dpadLeft; }
     public boolean getDpadRight() { return dpadRight; }
 
-    // --- Just Pressed ---
+    public boolean getLeftStickPressed() { return leftStickPressed; }
+    public boolean getRightStickPressed() { return rightStickPressed; }
+
+    // ================================
+    // =        JUST PRESSED GETTERS   =
+    // ================================
+
     public boolean getLeftTriggerJustPressed() { return leftTriggerJustPressed; }
     public boolean getRightTriggerJustPressed() { return rightTriggerJustPressed; }
 
@@ -213,7 +278,13 @@ public class Gamepad implements Subsystem {
     public boolean getDpadLeftJustPressed() { return dpadLeftJustPressed; }
     public boolean getDpadRightJustPressed() { return dpadRightJustPressed; }
 
-    // --- Just Released ---
+    public boolean getLeftStickJustPressed() { return leftStickJustPressed; }
+    public boolean getRightStickJustPressed() { return rightStickJustPressed; }
+
+    // ================================
+    // =       JUST RELEASED GETTERS   =
+    // ================================
+
     public boolean getLeftTriggerJustReleased() { return leftTriggerJustReleased; }
     public boolean getRightTriggerJustReleased() { return rightTriggerJustReleased; }
 
@@ -229,4 +300,7 @@ public class Gamepad implements Subsystem {
     public boolean getDpadDownJustReleased() { return dpadDownJustReleased; }
     public boolean getDpadLeftJustReleased() { return dpadLeftJustReleased; }
     public boolean getDpadRightJustReleased() { return dpadRightJustReleased; }
+
+    public boolean getLeftStickJustReleased() { return leftStickJustReleased; }
+    public boolean getRightStickJustReleased() { return rightStickJustReleased; }
 }

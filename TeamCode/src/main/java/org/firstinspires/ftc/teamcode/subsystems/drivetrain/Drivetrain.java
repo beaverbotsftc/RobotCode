@@ -5,7 +5,8 @@ import org.beaverbots.beavertracking.Locomotion;
 import java.util.List;
 
 public interface Drivetrain extends Locomotion {
-    void toggleBraking(boolean brake);
+    void setBrake(boolean brake);
+    void toggleBrake();
     void move(DrivetrainState velocity);
     void move(DrivetrainState velocity, DrivetrainState position);
     void move(List<Double> velocity, List<Double> position);

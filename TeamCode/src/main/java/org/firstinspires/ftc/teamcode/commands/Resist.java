@@ -28,7 +28,7 @@ public class Resist implements Command {
     }
 
     public Set<Subsystem> getDependencies() {
-        return followPathCommand.getDependencies();
+        return Set.of(drivetrain);
     }
 
     public void start() {

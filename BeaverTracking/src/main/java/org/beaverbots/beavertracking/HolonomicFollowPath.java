@@ -7,6 +7,7 @@ import org.beaverbots.BeaverCommand.Command;
 import org.beaverbots.BeaverCommand.Subsystem;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,7 +28,7 @@ public class HolonomicFollowPath implements Command  {
 
     @Override
     public Set<Subsystem> getDependencies() {
-        return new HashSet<>(Arrays.asList(localizer, locomotion));
+        return new HashSet<>(Collections.singletonList(locomotion));
     }
 
     @Override

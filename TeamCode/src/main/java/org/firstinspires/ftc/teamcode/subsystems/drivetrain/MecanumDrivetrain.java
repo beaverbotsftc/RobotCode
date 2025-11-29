@@ -20,6 +20,8 @@ public final class MecanumDrivetrain implements Drivetrain, Subsystem {
 
     private double maxPower;
 
+    private boolean isBreaking = true;
+
     public MecanumDrivetrain(double maxPower) {
         this.maxPower = maxPower;
 
@@ -37,6 +39,8 @@ public final class MecanumDrivetrain implements Drivetrain, Subsystem {
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        setBrake(isBreaking);
     }
 
     public MecanumDrivetrain() {
@@ -87,17 +91,22 @@ public final class MecanumDrivetrain implements Drivetrain, Subsystem {
         this.maxPower = maxPower;
     }
 
-    public void toggleBraking(boolean brake){
-        if(brake){
+    public void setBrake(boolean brake) {
+        isBreaking = brake;
+        if (brake) {
             frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        }else{
+        } else {
             frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         }
+    }
+
+    public void toggleBrake() {
+        setBrake(!isBreaking);
     }
 }
