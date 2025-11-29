@@ -15,8 +15,8 @@ import org.beaverbots.BeaverCommand.util.WaitUntil;
 import org.beaverbots.BeaverOptimize.BayesianOptimizer;
 import org.beaverbots.BeaverOptimize.util.RBFKernel;
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.DrivetrainState;
-import org.firstinspires.ftc.teamcode.commands.DirectControl;
+import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.commands.SimpleControl;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Pinpoint;
@@ -27,8 +27,8 @@ import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
 @TeleOp
 public class DrivetrainConversionsTuningTheta extends CommandRuntimeOpMode {
     private static BayesianOptimizer optimizer = new BayesianOptimizer(new RBFKernel(), new Pair<>(
-            new ArrayRealVector(new double[] {Constants.drivetrainPowerConversionFactorTheta}),
-            new ArrayRealVector(new double[] {Constants.drivetrainPowerConversionFactorTheta * 1.4})
+            new ArrayRealVector(new double[] {Constants.drivetrainPowerConversionFactorTheta * 0.8}),
+            new ArrayRealVector(new double[] {Constants.drivetrainPowerConversionFactorTheta})
     ), 0.9, 10);
 
     private RealVector point;
@@ -90,7 +90,7 @@ public class DrivetrainConversionsTuningTheta extends CommandRuntimeOpMode {
                 new Instant(() -> optimizer.addObservedPoint(point, loss)),
                 new Instant(() -> gamepad1.rumble(1000)),
                 new Instant(() -> requestOpModeStop()),
-                new DirectControl(gamepad, drivetrain, intake, shooter)
+                new SimpleControl(gamepad, drivetrain, intake, shooter)
             )
         );
     }

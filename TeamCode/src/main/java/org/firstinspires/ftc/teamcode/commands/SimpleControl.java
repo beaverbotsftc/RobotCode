@@ -1,10 +1,8 @@
 package org.firstinspires.ftc.teamcode.commands;
 
-import com.qualcomm.robotcore.util.RobotLog;
-
 import org.beaverbots.BeaverCommand.Command;
 import org.beaverbots.BeaverCommand.Subsystem;
-import org.firstinspires.ftc.teamcode.DrivetrainState;
+import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
@@ -12,13 +10,13 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake;
 
 import java.util.Set;
 
-public final class DirectControl implements Command {
+public final class SimpleControl implements Command {
     Gamepad gamepad;
     Drivetrain drivetrain;
     Intake intake;
     Shooter shooter;
 
-    public DirectControl(Gamepad gamepad, Drivetrain drivetrain, Intake intake, Shooter shooter) {
+    public SimpleControl(Gamepad gamepad, Drivetrain drivetrain, Intake intake, Shooter shooter) {
         this.gamepad = gamepad;
         this.drivetrain = drivetrain;
         this.intake = intake;

@@ -63,7 +63,7 @@ public class ScrimmageTeleOpV2 extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
-        gamepad1.setLedColor(255,0,255,gamepad1.LED_DURATION_CONTINUOUS);
+        gamepad1.setLedColor(255,0,255, gamepad1.LED_DURATION_CONTINUOUS);
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {

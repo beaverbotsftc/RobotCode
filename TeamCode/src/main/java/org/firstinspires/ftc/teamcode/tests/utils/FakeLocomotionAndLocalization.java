@@ -8,7 +8,7 @@ import org.beaverbots.beavertracking.Locomotion;
 import java.util.List;
 
 public final class FakeLocomotionAndLocalization implements Locomotion, Localizer {
-    public static enum LocomotionType {
+    public enum LocomotionType {
         HOLONOMIC,
         TANK,
     }
@@ -56,47 +56,58 @@ public final class FakeLocomotionAndLocalization implements Locomotion, Localize
         return List.of(vx, vy, vtheta);
     }
 
+    /**
+     * Updates the robot's state based on a desired global velocity command.
+     * The simulation assumes each call represents one discrete time step.
+     * @param velocity The desired global velocity vector [vx, vy, vtheta].
+     * @param position The robot's current global position vector [x, y, theta], used for non-holonomic constraints.
+     */
     @Override
-    public void move(List<Double> movement) {
+    public void move(List<Double> velocity, List<Double> position) {
+        double desiredGlobalVx = velocity.get(0);
+        double desiredGlobalVy = velocity.get(1);
+        double desiredGlobalVtheta = velocity.get(2);
+        double currentGlobalTheta = position.get(2);
+
         switch (locomotionType) {
             case HOLONOMIC: {
-                double vxDesired = movement.get(0);
-                double vyDesired = movement.get(1);
-                double vthetaDesired = movement.get(2);
+                // For a holonomic drive, the desired global velocities can be targeted directly.
+                RobotLog.d("FakeLocomotionAndLocalization : %s : move() called; holonomic mode; desired global velocity: %.3f, %.3f, %.3f rad", name, desiredGlobalVx, desiredGlobalVy, desiredGlobalVtheta);
 
-                RobotLog.d("FakeLocomotionAndLocalization : %s : move() called; holonomic mode; desired velocity: %.3f, %.3f, %.3f rad", name, vxDesired, vyDesired, vthetaDesired);
-
-                vx += (vxDesired - vx) * acceleration;
-                vy += (vyDesired - vy) * acceleration;
-                vtheta += (vthetaDesired - vtheta) * angularAcceleration;
-
+                vx += (desiredGlobalVx - vx) * acceleration;
+                vy += (desiredGlobalVy - vy) * acceleration;
+                vtheta += (desiredGlobalVtheta - vtheta) * angularAcceleration;
                 break;
             }
             case TANK: {
-                double vForwardDesired = movement.get(0);
-                double vthetaDesired = movement.get(1);
+                // For a tank drive, we must enforce non-holonomic constraints. The robot can only move
+                // forward along its current heading.
+                RobotLog.d("FakeLocomotionAndLocalization : %s : move() called; tank mode; desired global velocity: %.3f, %.3f, %.3f rad", name, desiredGlobalVx, desiredGlobalVy, desiredGlobalVtheta);
 
-                RobotLog.d(String.format("FakeLocomotionAndLocalization : %s : move() called; tank mode; desired velocity: %.3f, %.3f rad", name, vForwardDesired, vthetaDesired));
+                // Project the desired global velocity vector onto the robot's current heading vector
+                // to find the desired forward speed.
+                double cosTheta = Math.cos(currentGlobalTheta);
+                double sinTheta = Math.sin(currentGlobalTheta);
+                double desiredForwardSpeed = desiredGlobalVx * cosTheta + desiredGlobalVy * sinTheta;
 
-                double vxDesired = vForwardDesired * Math.cos(theta);
-                double vyDesired = vForwardDesired * Math.sin(theta);
+                // The desired global velocity is now constrained to be only in the forward direction.
+                double constrainedVx = desiredForwardSpeed * cosTheta;
+                double constrainedVy = desiredForwardSpeed * sinTheta;
 
-                vx += (vxDesired - vx) * acceleration;
-                vy += (vyDesired - vy) * acceleration;
-                vtheta += (vthetaDesired - vtheta) * angularAcceleration;
-
-                double forwardSpeed = vx * Math.cos(theta) + vy * Math.sin(theta);
-                vx = forwardSpeed * Math.cos(theta);
-                vy = forwardSpeed * Math.sin(theta);
-
+                // Update internal velocities towards the constrained target.
+                vx += (constrainedVx - vx) * acceleration;
+                vy += (constrainedVy - vy) * acceleration;
+                vtheta += (desiredGlobalVtheta - vtheta) * angularAcceleration;
                 break;
             }
         }
 
-        vx *= 1 - frictionalDeceleration;
-        vy *= 1 - frictionalDeceleration;
-        vtheta *= 1 - frictionalAngularDeceleration;
+        // Apply friction to the actual velocities
+        vx *= (1 - frictionalDeceleration);
+        vy *= (1 - frictionalDeceleration);
+        vtheta *= (1 - frictionalAngularDeceleration);
 
+        // Integrate velocity to update position (assuming dt=1 for simplicity)
         x += vx;
         y += vy;
         theta += vtheta;

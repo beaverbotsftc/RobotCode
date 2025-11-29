@@ -3,8 +3,8 @@ package org.firstinspires.ftc.teamcode.teleop;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.beaverbots.BeaverCommand.CommandRuntimeOpMode;
-import org.firstinspires.ftc.teamcode.DrivetrainState;
-import org.firstinspires.ftc.teamcode.commands.DirectControl;
+import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.commands.SimpleControl;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Pinpoint;
@@ -32,7 +32,7 @@ public class Debug extends CommandRuntimeOpMode {
     @Override
     public void onStart() {
         register(gamepad, drivetrain, intake, shooter, pinpoint);
-        schedule(new DirectControl(gamepad, drivetrain, intake, shooter));
+        schedule(new SimpleControl(gamepad, drivetrain, intake, shooter));
     }
 
     @Override

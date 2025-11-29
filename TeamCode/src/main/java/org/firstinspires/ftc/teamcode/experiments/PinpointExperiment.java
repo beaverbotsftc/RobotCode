@@ -1,10 +1,9 @@
 package org.firstinspires.ftc.teamcode.experiments;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.beaverbots.BeaverCommand.CommandRuntimeOpMode;
-import org.firstinspires.ftc.teamcode.DrivetrainState;
+import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
 import org.firstinspires.ftc.teamcode.subsystems.Pinpoint;
 
 @Autonomous(group = "Experiments")

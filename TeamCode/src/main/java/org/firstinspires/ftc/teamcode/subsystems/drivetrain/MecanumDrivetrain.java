@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import org.beaverbots.BeaverCommand.HardwareManager;
 import org.beaverbots.BeaverCommand.Subsystem;
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.DrivetrainState;
 
 import java.util.List;
 
@@ -82,8 +81,12 @@ public final class MecanumDrivetrain implements Drivetrain, Subsystem {
         this.velocity = velocity;
     }
 
-    public void move(List<Double> velocity) {
-        this.velocity = new DrivetrainState(velocity);
+    public void move(DrivetrainState velocity, DrivetrainState position) {
+        this.velocity = velocity.toLocalVelocity(position);
+    }
+
+    public void move(List<Double> velocity, List<Double> position) {
+        move(new DrivetrainState(velocity), new DrivetrainState(position));
     }
 
     public void setMaxPower(double maxPower) {

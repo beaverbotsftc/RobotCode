@@ -14,7 +14,7 @@ import org.beaverbots.BeaverCommand.util.WaitUntil;
 import org.beaverbots.BeaverOptimize.BayesianOptimizer;
 import org.beaverbots.BeaverOptimize.util.RBFKernel;
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.DrivetrainState;
+import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.Pinpoint;
 

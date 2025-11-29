@@ -40,9 +40,11 @@ public final class HolonomicFollowPath implements Command  {
         final double dt = elapsedTime.seconds();
         if (dt == 0) return false;
 
-        final List<Double> movement = pathTracker.update(localizer.getPositionAsList(), dt);
+        final List<Double> position = localizer.getPositionAsList();
 
-        locomotion.move(movement);
+        final List<Double> movement = pathTracker.update(position, dt);
+
+        locomotion.move(movement, position);
 
         elapsedTime.reset();
 

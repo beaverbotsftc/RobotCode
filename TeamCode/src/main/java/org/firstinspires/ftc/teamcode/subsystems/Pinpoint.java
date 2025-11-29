@@ -4,7 +4,7 @@ import org.beaverbots.BeaverCommand.HardwareManager;
 import org.beaverbots.BeaverCommand.Subsystem;
 import org.beaverbots.beavertracking.Localizer;
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.DrivetrainState;
+import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
 import org.firstinspires.ftc.teamcode.drivers.GoBildaPinpointDriver;
 
 import java.util.List;

@@ -22,32 +22,30 @@ public abstract class CommandRuntimeOpMode extends OpMode {
 
     private void runScheduler() {
         for (Command command : commandBuffer) {
-            if (command.periodic()) {
+            if (!commandsToCancel.contains(command) && command.periodic()) {
                 RobotLog.dd("BeaverCommand", String.format("Command '%s' finished.", command));
                 commandsToCancel.add(command);
             }
         }
 
-        if (!commandsToCancel.isEmpty()) {
-            for (Command command : commandsToCancel) {
-                // Only stop if it's actually running and wasn't just queued for schedule then cancelled.
-                if (commandBuffer.contains(command)) {
-                    RobotLog.dd("BeaverCommand", String.format("Running stop() on command '%s' due to cancellation or finish.", command));
-                    command.stop();
-                    commandBuffer.remove(command);
-                }
+        for (Command command : commandsToCancel) {
+            // Only stop if it's actually running and wasn't just queued for schedule then cancelled.
+            if (commandBuffer.contains(command)) {
+                RobotLog.dd("BeaverCommand", String.format("Running stop() on command '%s' due to cancellation or finish.", command));
+                command.stop();
+                commandBuffer.remove(command);
             }
-            commandsToCancel.clear();
         }
 
-        if (!commandsToSchedule.isEmpty()) {
-            for (Command command : commandsToSchedule) {
-                RobotLog.dd("BeaverCommand", String.format("Running start() on newly scheduled command '%s'", command));
-                command.start();
-                commandBuffer.add(command);
-            }
-            commandsToSchedule.clear();
+        for (Command command : commandsToSchedule) {
+            if (commandsToCancel.contains(command)) continue;
+            RobotLog.dd("BeaverCommand", String.format("Running start() on newly scheduled command '%s'", command));
+            command.start();
+            commandBuffer.add(command);
         }
+
+        commandsToSchedule.clear();
+        commandsToCancel.clear();
 
         Set<Subsystem> conflictingSubsystems = new HashSet<>();
         for (int i = commandBuffer.size() - 1; i >= 0; i--) {

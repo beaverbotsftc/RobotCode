@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.beaverbots.BeaverCommand.CommandRuntimeOpMode;
@@ -12,7 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Autonomous(group = "Tests")
-public final class CommandTest extends CommandRuntimeOpMode {
+public final class CommandTest1 extends CommandRuntimeOpMode {
     FakeSubsystem subsystem1 = new FakeSubsystem(new HashSet<>(), "Subsystem 1");
     FakeSubsystem subsystem2 = new FakeSubsystem(new HashSet<>(), "Subsystem 2");
     FakeSubsystem subsystem3 = new FakeSubsystem(Set.of(subsystem1), "Subsystem 3");

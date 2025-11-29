@@ -8,7 +8,7 @@ import org.beaverbots.beavertracking.PIDF;
 import org.beaverbots.beavertracking.PIDFAxis;
 import org.beaverbots.beavertracking.Path;
 import org.beaverbots.beavertracking.PathAxis;
-import org.firstinspires.ftc.teamcode.DrivetrainState;
+import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
 import org.firstinspires.ftc.teamcode.subsystems.Pinpoint;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;

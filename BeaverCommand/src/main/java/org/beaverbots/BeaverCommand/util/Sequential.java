@@ -14,6 +14,7 @@ public class Sequential extends CommandGroup {
     public boolean periodic() {
         if (newCommandStart)
             commands.get(0).start();
+        newCommandStart = false;
 
         if (commands.get(0).periodic()) {
             commands.get(0).stop();
