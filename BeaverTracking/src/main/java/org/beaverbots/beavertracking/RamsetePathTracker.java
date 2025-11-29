@@ -8,7 +8,7 @@ import java.util.List;
 /// (Unchecked!) For all points on the path, theta must be exactly tangent to the path (either forwards or backwards).
 /// (Unchecked!) The input theta must be in (-inf, inf), and must not suddenly jump from -179.999 to 180.0 or something.
 /// The output dimensionality is exactly 2, corresponding to v, omega.
-public final class RamsetePathTracker implements PathTracker {
+public class RamsetePathTracker implements PathTracker {
     private final Path path;
 
     private final K k;

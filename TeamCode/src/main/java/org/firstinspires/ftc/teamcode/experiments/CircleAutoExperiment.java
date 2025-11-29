@@ -38,8 +38,8 @@ public class CircleAutoExperiment extends CommandRuntimeOpMode {
                         new HolonomicFollowPath(
                                 new Path(
                                         List.of(
-                                                new PathAxis(t -> 24 * Math.cos(t / 3) - 24, 0, 6 * Math.PI),
-                                                new PathAxis(t -> 24 * Math.sin(t / 3), 0, 6 * Math.PI),
+                                                new PathAxis(t -> 24 * Math.cos(t) - 24, 0, 6 * Math.PI),
+                                                new PathAxis(t -> 24 * Math.sin(t), 0, 6 * Math.PI),
                                                 new PathAxis(t -> -t, 0, 6 * Math.PI)),
                                         t -> t > 6 * Math.PI),
                                 new PIDF(

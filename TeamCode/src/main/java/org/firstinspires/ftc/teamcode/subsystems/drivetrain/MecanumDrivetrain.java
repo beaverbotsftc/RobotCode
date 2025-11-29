@@ -59,6 +59,7 @@ public final class MecanumDrivetrain implements Drivetrain, Subsystem {
         double maxPower = Math.max(Math.abs(frontLeftPower),
                 Math.max(Math.abs(frontRightPower),
                         Math.max(Math.abs(backLeftPower), Math.abs(backRightPower))));
+
         if (maxPower > this.maxPower) {
             frontLeftPower /= maxPower;
             frontRightPower /= maxPower;

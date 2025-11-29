@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public final class HolonomicFollowPath implements Command  {
+public class HolonomicFollowPath implements Command  {
     private final Localizer localizer;
     private final Locomotion locomotion;
 
