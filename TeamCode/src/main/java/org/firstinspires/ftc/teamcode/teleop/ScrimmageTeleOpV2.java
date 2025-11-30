@@ -75,7 +75,6 @@ public class ScrimmageTeleOpV2 extends LinearOpMode {
             //Intake
             intake.setPower(gamepad1.right_trigger >= 0.05 ? gamepad1.right_trigger : gamepad1.left_trigger >= 0.05 ? gamepad1.left_trigger * -1 : 0);
 
-            stopperServo.setPower(-intake.getPower());
 
             //Hood Servo
             if(gamepad1.leftBumperWasPressed()){
@@ -101,6 +100,7 @@ public class ScrimmageTeleOpV2 extends LinearOpMode {
             if(gamepad1.dpad_right) {
                 motor.setPower(motorPower);
                 motor2.setPower(motorPower);
+                stopperServo.setPower(-1);
             } else if (gamepad1.dpad_left) {
                 motor.setPower(-0.75 * motorPower);
                 motor2.setPower(-0.75 * motorPower);

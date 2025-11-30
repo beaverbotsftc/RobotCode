@@ -59,6 +59,10 @@ public final class DrivetrainState {
         return new Pose2D(DistanceUnit.INCH, x, y, AngleUnit.RADIANS, theta);
     }
 
+    public double[] toArray() {
+        return new double[]{x, y, theta};
+    }
+
     public DrivetrainState toLocal(DrivetrainState reference) {
         double deltaX = this.x - reference.getX();
         double deltaY = this.y - reference.getY();
