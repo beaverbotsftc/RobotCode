@@ -133,6 +133,11 @@ public abstract class CommandRuntimeOpMode extends OpMode {
         this.registeredSubsystems.addAll(Arrays.asList(subsystems));
     }
 
+    protected final void unregister(Subsystem... subsystems) {
+        RobotLog.dd("BeaverCommand", "Subsystem(s) being unregistered: %s", Arrays.toString(subsystems));
+        this.registeredSubsystems.removeAll(Arrays.asList(subsystems));
+    }
+
     protected final Set<Command> getRunningCommands() {
         return new HashSet<>(commandBuffer);
     }
