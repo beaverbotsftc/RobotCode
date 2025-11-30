@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -20,6 +21,7 @@ public class ScrimmageTeleOpV2 extends LinearOpMode {
     private DcMotorEx motor;
     private DcMotorEx motor2;
     private Servo hoodServo;
+    private CRServo stopperServo;
     private double shootrpm = 2000;
     private static final int TICKS_PER_REV = 28;
 
@@ -51,6 +53,8 @@ public class ScrimmageTeleOpV2 extends LinearOpMode {
 
         hoodServo = hardwareMap.get(Servo.class, "hood");
 
+        stopperServo = hardwareMap.get(CRServo.class, "stopper");
+
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -70,6 +74,8 @@ public class ScrimmageTeleOpV2 extends LinearOpMode {
 
             //Intake
             intake.setPower(gamepad1.right_trigger >= 0.05 ? gamepad1.right_trigger : gamepad1.left_trigger >= 0.05 ? gamepad1.left_trigger * -1 : 0);
+
+            stopperServo.setPower(intake.getPower());
 
             //Hood Servo
             if(gamepad1.leftBumperWasPressed()){
