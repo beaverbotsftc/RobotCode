@@ -25,7 +25,6 @@ public class TeleOp extends CommandRuntimeOpMode {
     private Shooter shooter;
     private Pinpoint pinpoint;
     private Limelight limelight;
-
     private ShooterControl shooterControl;
 
     @Override

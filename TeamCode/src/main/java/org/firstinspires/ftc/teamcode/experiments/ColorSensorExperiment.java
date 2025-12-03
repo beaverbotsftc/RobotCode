@@ -24,7 +24,7 @@ public class ColorSensorExperiment extends LinearOpMode {
 
     float gain = 59;
     final float[] hsvValues = new float[3];
-    colorSensor = hardwareMap.get(NormalizedColorSensor.class, "color");
+    colorSensor = hardwareMap.get(NormalizedColorSensor.class, "color2");
 
     waitForStart();
 
