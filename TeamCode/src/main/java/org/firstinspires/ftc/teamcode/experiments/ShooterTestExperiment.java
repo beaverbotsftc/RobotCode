@@ -1,11 +1,11 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.experiments;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.subsystems.ShooterAdi;
 
 @TeleOp(name = "Shooter Test", group = "Test")
-public class ShooterTest extends LinearOpMode {
+public class ShooterTestExperiment extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {

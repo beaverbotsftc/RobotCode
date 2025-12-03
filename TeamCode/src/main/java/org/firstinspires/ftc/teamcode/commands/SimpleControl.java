@@ -42,16 +42,16 @@ public final class SimpleControl implements Command {
 
         intake.spin(intakeSpeed);
 
-        if(gamepad.getDpadLeft()){
+        if (gamepad.getDpadLeft()) {
             shooter.spin(shootrpm);
 
             double velocity = shooter.getVelocity();
-            if(Math.abs(velocity - shootrpm)/shootrpm <= 0.05){
-                gamepad.rumble(0.45,0.45, com.qualcomm.robotcore.hardware.Gamepad.RUMBLE_DURATION_CONTINUOUS);
-            }else{
+            if (Math.abs(velocity - shootrpm) / shootrpm <= 0.05) {
+                gamepad.rumble(0.45, 0.45, com.qualcomm.robotcore.hardware.Gamepad.RUMBLE_DURATION_CONTINUOUS);
+            } else {
                 gamepad.stopRumble();
             }
-        }else{
+        } else {
             shooter.spin(0);
         }
 
@@ -62,10 +62,10 @@ public final class SimpleControl implements Command {
             shootrpm -= 5;
         }
 
-        if(gamepad.getLeftBumperJustPressed()){
+        if (gamepad.getLeftBumperJustPressed()) {
             shooter.setHood(0.0);
             shootrpm = 2050.0;
-        }else if(gamepad.getRightBumperJustPressed()){
+        } else if (gamepad.getRightBumperJustPressed()) {
             shooter.setHood(0.51);
             shootrpm = 3000.0;
         }
@@ -73,11 +73,11 @@ public final class SimpleControl implements Command {
         return false;
     }
 
-    private double changeInput(double x){
+    private double changeInput(double x) {
         return Math.signum(x) * (1 - Math.cos(x * Math.PI / 2.0));
     }
 
-    private double changeTurn(double x){
-        return 4.0*(Math.pow(x,5))/5.0 + x/5.0;
+    private double changeTurn(double x) {
+        return 4.0 * (Math.pow(x, 5)) / 5.0 + x / 5.0;
     }
 }

@@ -28,6 +28,8 @@ public class Limelight implements Subsystem {
     private static int PIPELINE_GOAL = 9;
     private Pipeline currentPipeline;
 
+    private double lastPositionAttemptTime = Double.NaN;
+
     private Limelight3A limelight;
 
     public Limelight() {
@@ -93,14 +95,15 @@ public class Limelight implements Subsystem {
         if (currentPipeline != Pipeline.GOAL) throw new IllegalStateException("Invalid pipeline currently selected");
 
         LLResult result = limelight.getLatestResult();
+        if (result.getTimestamp() == lastPositionAttemptTime) return null;
         if (!result.isValid()) return null;
 
         Position position = result.getBotpose().getPosition();
         YawPitchRollAngles orientation = result.getBotpose().getOrientation();
 
-        double x = DistanceUnit.INCH.fromUnit(position.unit, position.x);
-        double y = DistanceUnit.INCH.fromUnit(position.unit, position.y);
-        double theta = orientation.getYaw(AngleUnit.RADIANS);
+        double x = -DistanceUnit.INCH.fromUnit(position.unit, position.x) + 72;
+        double y = -DistanceUnit.INCH.fromUnit(position.unit, position.y) + 72;
+        double theta = -orientation.getYaw(AngleUnit.RADIANS) - Math.PI / 4;
 
         return new DrivetrainState(x, y, theta);
     }

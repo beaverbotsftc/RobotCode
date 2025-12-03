@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.beaverbots.BeaverCommand.CommandRuntimeOpMode;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
-import org.firstinspires.ftc.teamcode.subsystems.Pinpoint;
+import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 
 @Autonomous(group = "Experiments")
 public class PinpointExperiment extends CommandRuntimeOpMode {

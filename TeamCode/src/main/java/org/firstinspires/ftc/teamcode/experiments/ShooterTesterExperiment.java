@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.experiments;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp(name="Shooter Tester", group="Examples")
-public class ShooterTester extends LinearOpMode {
+public class ShooterTesterExperiment extends LinearOpMode {
 
     private DcMotorEx motor;
     private DcMotorEx motor2;

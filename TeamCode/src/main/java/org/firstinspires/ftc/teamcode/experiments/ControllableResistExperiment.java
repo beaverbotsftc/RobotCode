@@ -1,17 +1,14 @@
 package org.firstinspires.ftc.teamcode.experiments;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.util.RobotLog;
 
 import org.beaverbots.BeaverCommand.Command;
 import org.beaverbots.BeaverCommand.CommandRuntimeOpMode;
+import org.firstinspires.ftc.teamcode.Side;
 import org.firstinspires.ftc.teamcode.commands.DrivetrainControl;
 import org.firstinspires.ftc.teamcode.commands.Resist;
-import org.firstinspires.ftc.teamcode.commands.SimpleControl;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
-import org.firstinspires.ftc.teamcode.subsystems.Intake;
-import org.firstinspires.ftc.teamcode.subsystems.Pinpoint;
-import org.firstinspires.ftc.teamcode.subsystems.Shooter;
+import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
@@ -48,7 +45,7 @@ public class ControllableResistExperiment extends CommandRuntimeOpMode {
 
             cancel(runningMovementCommand);
             if (resist) {
-                schedule(new Resist(pinpoint, drivetrain));
+                schedule(new Resist(pinpoint, drivetrain, Side.RED));
             } else {
                 schedule(new DrivetrainControl(drivetrain, gamepad));
             }

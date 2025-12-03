@@ -10,7 +10,7 @@ import org.beaverbots.beavertracking.Path;
 import org.beaverbots.beavertracking.PathAxis;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
-import org.firstinspires.ftc.teamcode.subsystems.Pinpoint;
+import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
 

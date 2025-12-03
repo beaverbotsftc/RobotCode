@@ -19,20 +19,25 @@ public final class PathAxis {
     }
 
     private void checkBounds(double t) {
-        if (t < startTime || t > endTime) {
+        if (t < startTime) {
             throw new IllegalArgumentException(
-                    String.format("Parameter t=%.4f is out of the valid range [%.4f, %.4f]", t, startTime, endTime)
+                    String.format("Parameter t=%.4f is before the valid range [%.4f, %.4f]", t, startTime, endTime)
             );
         }
     }
 
     public double position(double t) {
         checkBounds(t);
+        if (t > endTime) return path.applyAsDouble(endTime);
         return path.applyAsDouble(t);
     }
 
     public double velocity(double t) {
         checkBounds(t);
+
+        if (t > endTime) {
+            return 0;
+        }
 
         // At the start of the interval, we can only look forward. Use forward difference.
         if (t < startTime + epsilon) {
@@ -54,18 +59,13 @@ public final class PathAxis {
         checkBounds(t);
 
         // At the start of the interval, we can only look forward. Use forward difference on velocity.
-        if (t < startTime + epsilon) {
+        if (t < startTime + epsilon)
             return (velocity(t + epsilon) - velocity(t)) / epsilon;
-        }
-
         // At the end of the interval, we can only look backward. Use backward difference on velocity.
-        else if (t > endTime - epsilon) {
+        else if (t > endTime - epsilon)
             return (velocity(t) - velocity(t - epsilon)) / epsilon;
-        }
-
         // In the middle, the central difference is more accurate.
-        else {
+        else
             return (velocity(t + epsilon) - velocity(t - epsilon)) / (2 * epsilon);
-        }
     }
 }

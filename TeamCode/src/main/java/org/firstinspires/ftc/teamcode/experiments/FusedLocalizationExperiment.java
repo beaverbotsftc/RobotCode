@@ -1,8 +1,10 @@
-package org.firstinspires.ftc.teamcode.teleop;
-
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+package org.firstinspires.ftc.teamcode.experiments;
 
 import org.beaverbots.BeaverCommand.CommandRuntimeOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+
+import org.firstinspires.ftc.teamcode.subsystems.Limelight;
+import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
 import org.firstinspires.ftc.teamcode.commands.SimpleControl;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
@@ -12,13 +14,15 @@ import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
 
-@TeleOp
-public class Debug extends CommandRuntimeOpMode {
+@Autonomous
+public class FusedLocalizationExperiment extends CommandRuntimeOpMode {
     private Gamepad gamepad;
     private Drivetrain drivetrain;
     private Intake intake;
     private Shooter shooter;
     private Pinpoint pinpoint;
+    private FusedLocalizer fusedLocalizer;
+    private Limelight limelight;
 
     @Override
     public void onInit() {
@@ -27,18 +31,24 @@ public class Debug extends CommandRuntimeOpMode {
         intake = new Intake();
         shooter = new Shooter();
         pinpoint = new Pinpoint(new DrivetrainState(0, 0, 0));
-
+        limelight = new Limelight();
+        fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new DrivetrainState(0, 0, 0));
     }
 
     @Override
     public void onStart() {
-        register(gamepad, drivetrain, intake, shooter, pinpoint);
+        register(gamepad, drivetrain, intake, shooter, pinpoint, limelight, fusedLocalizer);
         schedule(new SimpleControl(gamepad, drivetrain, intake, shooter));
     }
 
     @Override
     public void periodic() {
-        telemetry.addLine(pinpoint.getPosition().toString());
-        telemetry.addLine(pinpoint.getVelocity().toString());
+        telemetry.addLine("Pinpoint pos: " + pinpoint.getPosition().toString());
+        telemetry.addLine("Fused pos: " + fusedLocalizer.getPosition().toString());
+        telemetry.addLine("Vel: " + pinpoint.getVelocity().toString());
+
+        if (gamepad.getCircleJustPressed()) {
+            fusedLocalizer.run();
+        }
     }
 }

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems.drivetrain;
 
 import androidx.annotation.NonNull;
 
+import org.apache.commons.math3.linear.RealVector;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
@@ -31,16 +32,24 @@ public final class DrivetrainState {
         this.theta = theta;
     }
 
-    public DrivetrainState(List<Double> state) {
-        if (state.size() == 3) {
-            x = state.get(0);
-            y = state.get(1);
-            theta = state.get(2);
-        } else if (state.size() == 2) {
-            x = state.get(0);
+    public DrivetrainState(double[] state) {
+        if (state.length == 3) {
+            x = state[0];
+            y = state[1];
+            theta = state[2];
+        } else if (state.length == 2) {
+            x = state[0];
             y = 0;
-            theta = state.get(1);
+            theta = state[1];
         }
+    }
+
+    public DrivetrainState(List<Double> state) {
+        this(state.stream().mapToDouble(Double::doubleValue).toArray());
+    }
+
+    public DrivetrainState(RealVector state) {
+        this(state.toArray());
     }
 
     public double getX() {

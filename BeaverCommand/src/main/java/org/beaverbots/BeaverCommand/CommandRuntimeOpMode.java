@@ -142,6 +142,10 @@ public abstract class CommandRuntimeOpMode extends OpMode {
         return new HashSet<>(commandBuffer);
     }
 
+    protected final boolean isRunning(Command command) {
+        return getRunningCommands().contains(command);
+    }
+
     protected void onInit() {}
     protected void periodicInit() {}
     protected void onStart() {}

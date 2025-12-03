@@ -1,10 +1,8 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
-import org.beaverbots.BeaverCommand.Command;
 import org.beaverbots.BeaverCommand.CommandRuntimeOpMode;
 import org.beaverbots.BeaverCommand.util.router.Router;
 import org.beaverbots.BeaverCommand.util.router.Selector;
-import org.firstinspires.ftc.teamcode.Motif;
 import org.firstinspires.ftc.teamcode.Side;
 import org.firstinspires.ftc.teamcode.commands.DrivetrainControl;
 import org.firstinspires.ftc.teamcode.commands.IntakeControl;
@@ -13,7 +11,7 @@ import org.firstinspires.ftc.teamcode.commands.ShooterControl;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
-import org.firstinspires.ftc.teamcode.subsystems.Pinpoint;
+import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
@@ -47,7 +45,7 @@ public class TeleOp extends CommandRuntimeOpMode {
         schedule(new Router(
                         new Selector(() -> gamepad.getLeftStickPressed()),
                         new DrivetrainControl(drivetrain, gamepad),
-                        new Resist(pinpoint, drivetrain)),
+                        new Resist(pinpoint, drivetrain, Side.RED)),
                 new IntakeControl(intake, gamepad), shooterControl);
         limelight.goalPipeline();
     }

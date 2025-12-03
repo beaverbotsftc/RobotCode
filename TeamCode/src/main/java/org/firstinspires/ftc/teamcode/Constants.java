@@ -58,4 +58,9 @@ public final class Constants {
     public static double pinpointXOffset = -4;
     // Forward of center is positive, behind center is negative
     public static double pinpointYOffset = -2.5;
+
+    public static final double redGoalX = 132;
+    public static final double redGoalY = 0;
+    public static final double blueGoalX = 132;
+    public static final double blueGoalY = 132;
 }

@@ -16,7 +16,7 @@ import org.beaverbots.BeaverOptimize.util.RBFKernel;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
-import org.firstinspires.ftc.teamcode.subsystems.Pinpoint;
+import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 
 @TeleOp
 public class PinpointTuning extends CommandRuntimeOpMode {

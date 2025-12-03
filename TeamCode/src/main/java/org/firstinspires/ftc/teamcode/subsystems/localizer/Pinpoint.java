@@ -1,8 +1,7 @@
-package org.firstinspires.ftc.teamcode.subsystems;
+package org.firstinspires.ftc.teamcode.subsystems.localizer;
 
 import org.beaverbots.BeaverCommand.HardwareManager;
 import org.beaverbots.BeaverCommand.Subsystem;
-import org.beaverbots.beavertracking.Localizer;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
 import org.firstinspires.ftc.teamcode.drivers.GoBildaPinpointDriver;
@@ -43,9 +42,17 @@ public final class Pinpoint implements Localizer, Subsystem {
         return currentVelocity;
     }
 
-      public void periodic() {
+    public void periodic() {
         pinpoint.update();
         currentPose = new DrivetrainState(pinpoint.getPosition(), pinpoint.getHeading());
         currentVelocity = new DrivetrainState(pinpoint.getVelocity(), pinpoint.getHeadingVelocity());
+    }
+
+    public void setPosition(DrivetrainState position) {
+        pinpoint.setPosition(position.toPose2d());
+    }
+
+    public double wind(double theta) {
+        return Localizer.wind(theta, getPosition().getTheta());
     }
 }
