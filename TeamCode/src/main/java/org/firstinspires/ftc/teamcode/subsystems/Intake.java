@@ -10,6 +10,8 @@ public final class Intake implements Subsystem {
 
     private DcMotorEx intake;
 
+    private DcMotorEx stopper;
+
     private double power;
 
     public Intake(double maxPower) {
