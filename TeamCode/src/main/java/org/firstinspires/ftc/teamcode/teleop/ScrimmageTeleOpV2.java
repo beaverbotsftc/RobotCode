@@ -1,12 +1,20 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import android.graphics.Color;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="ScrimmageTeleOpV2")
@@ -16,13 +24,14 @@ public class ScrimmageTeleOpV2 extends LinearOpMode {
     private DcMotor leftBackDrive = null;
     private DcMotor rightFrontDrive = null;
     private DcMotor rightBackDrive = null;
-    private DcMotor intake = null;
+    private DcMotorEx intake = null;
 
     private DcMotorEx motor;
     private DcMotorEx motor2;
     private Servo hoodServo;
-    private CRServo stopperServo;
-    private double shootrpm = 2000;
+    private DcMotorEx stopper;
+    NormalizedColorSensor colorSensor;
+    private double shootrpm = 2550;
     private static final int TICKS_PER_REV = 28;
 
     @Override
@@ -34,7 +43,7 @@ public class ScrimmageTeleOpV2 extends LinearOpMode {
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right front");
         rightBackDrive = hardwareMap.get(DcMotor.class, "right back");
 
-        intake = hardwareMap.get(DcMotor.class, "intake");
+        intake = hardwareMap.get(DcMotorEx.class, "intake");
 
         leftFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         leftBackDrive.setDirection(DcMotor.Direction.FORWARD);
@@ -53,12 +62,19 @@ public class ScrimmageTeleOpV2 extends LinearOpMode {
 
         hoodServo = hardwareMap.get(Servo.class, "hood");
 
-        stopperServo = hardwareMap.get(CRServo.class, "stopper");
+        stopper = hardwareMap.get(DcMotorEx.class, "stopper");
 
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        motor2.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        final float[] hsvValues = new float[3];
+        colorSensor = hardwareMap.get(NormalizedColorSensor.class, "color2");
+        colorSensor.setGain(59);
+
 
         // Wait for the game to start (driver presses START)
         telemetry.addData("Status", "Initialized");
@@ -72,18 +88,44 @@ public class ScrimmageTeleOpV2 extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
+            //Color Sensor Detection
+            NormalizedRGBA colors = colorSensor.getNormalizedColors();
+            Color.colorToHSV(colors.toColor(), hsvValues);
+            double dist = ((DistanceSensor) colorSensor).getDistance(DistanceUnit.CM);
+
+            if(gamepad1.right_bumper) {
+                stopper.setPower(0.85);
+            }else if (gamepad1.left_bumper){
+                stopper.setPower(-0.85);
+            }else{
+                stopper.setPower(0);
+            }
+
             //Intake
-            intake.setPower(gamepad1.right_trigger >= 0.05 ? gamepad1.right_trigger : gamepad1.left_trigger >= 0.05 ? gamepad1.left_trigger * -1 : 0);
+            if(gamepad1.right_trigger >= 0.05){
+                if(stopper.getPower() < -0.5){
+                    intake.setPower(0.8 * gamepad1.right_trigger);
+                }else{
+                    intake.setPower(gamepad1.right_trigger);
+                }
+            }else if(gamepad1.left_trigger >= 0.05){
+                intake.setPower(-gamepad1.left_trigger);
+            }else{
+                intake.setPower(0);
+            }
 
 
             //Hood Servo
+            /*
             if(gamepad1.leftBumperWasPressed()){
-                shootrpm = 2050;
+                shootrpm = 2500;
                 hoodServo.setPosition(0.0);
             }else if(gamepad1.rightBumperWasPressed()){
-                shootrpm = 3000;
+                shootrpm = 3500;
                 hoodServo.setPosition(0.51);
             }
+
+             */
 
             //Controls for shooter power
             if (gamepad1.triangle && shootrpm < 5000) {
@@ -95,23 +137,20 @@ public class ScrimmageTeleOpV2 extends LinearOpMode {
 
             double rpm1 = ticksPerSecondToRPM(motor.getVelocity());
             double rpm2 = ticksPerSecondToRPM(motor2.getVelocity());
-            double motorPower = rpmToPower(shootrpm);
+            double velocity = (rpm1+rpm2)/2.0;
+            double motorPower = powerPiecewise(velocity);
 
-            if(gamepad1.dpad_right) {
+
+            if (gamepad1.square) { //This is left back button
                 motor.setPower(motorPower);
                 motor2.setPower(motorPower);
-                stopperServo.setPower(-1);
-            } else if (gamepad1.dpad_left) {
-                motor.setPower(-0.75 * motorPower);
-                motor2.setPower(-0.75 * motorPower);
             }else{
                 motor.setPower(0);
                 motor2.setPower(0);
             }
 
             if(motorPower != 0){
-                double velocity = (rpm1+rpm2)/2.0;
-                if(Math.abs(velocity - shootrpm)/shootrpm <= 0.05){
+                if(Math.abs(velocity - shootrpm)/shootrpm <= 0.04){
                     gamepad1.rumble(0.45,0.45, Gamepad.RUMBLE_DURATION_CONTINUOUS);
                 }else{
                     gamepad1.stopRumble();
@@ -122,7 +161,7 @@ public class ScrimmageTeleOpV2 extends LinearOpMode {
 
             double axial   =  -changeInput(gamepad1.left_stick_y);
             double lateral =  changeInput(gamepad1.left_stick_x);
-            double yaw     =  0.85*changeTurn(gamepad1.right_stick_x);
+            double yaw     =  0.75*changeTurn(gamepad1.right_stick_x);
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             // Set up a variable for each drive wheel to save the power level for telemetry.
@@ -144,13 +183,11 @@ public class ScrimmageTeleOpV2 extends LinearOpMode {
                 rightBackPower  /= max;
             }
 
-            double speed = gamepad1.touchpad? 0.5 : 1;
-
             // Send calculated power to wheels
-            leftFrontDrive.setPower(speed * leftFrontPower);
-            rightFrontDrive.setPower(speed * rightFrontPower);
-            leftBackDrive.setPower(speed * leftBackPower);
-            rightBackDrive.setPower(speed * rightBackPower);
+            leftFrontDrive.setPower(leftFrontPower);
+            rightFrontDrive.setPower(rightFrontPower);
+            leftBackDrive.setPower(leftBackPower);
+            rightBackDrive.setPower(rightBackPower);
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
@@ -167,6 +204,11 @@ public class ScrimmageTeleOpV2 extends LinearOpMode {
             telemetry.addData("Current Motor Power", "%.2f", motor.getPower());
             telemetry.addData("Motor 1 RPM", "%.1f", rpm1);
             telemetry.addData("Motor 2 RPM", "%.1f", rpm2);
+
+            telemetry.addLine("");
+            telemetry.addData("Current Intake Motor Power", "%.2f", intake.getPower());
+            telemetry.addData("Intake RPM", "%.1f", intake.getVelocity());
+
             telemetry.update();
         }
     }
@@ -184,4 +226,15 @@ public class ScrimmageTeleOpV2 extends LinearOpMode {
     }
 
     private double rpmToPower(double rpm) {return rpm/5140;}
+
+    private double powerPiecewise(double rpm) {
+        if (rpm < 300) {
+            return 0.6 + (rpm * (0.4 / 300.0));
+        } else if (rpm < 1500) {
+            return 1.0;
+        } else {
+            return (rpm * -0.000358969756798) + 1.54;
+        }
+    }
+
 }
