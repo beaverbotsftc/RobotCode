@@ -25,7 +25,7 @@ public final class Intake implements Subsystem {
     }
 
     public void periodic() {
-        intake.setPower(Math.min(power, maxPower));
+        intake.setPower(maxPower * power);
     }
 
     public void spin(double power) {

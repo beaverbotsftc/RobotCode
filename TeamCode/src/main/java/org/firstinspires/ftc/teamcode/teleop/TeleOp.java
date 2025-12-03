@@ -51,7 +51,7 @@ public class TeleOp extends CommandRuntimeOpMode {
                         new Selector(() -> gamepad.getLeftStickPressed()),
                         new DrivetrainControl(drivetrain, gamepad),
                         new Resist(pinpoint, drivetrain, Side.RED)),
-                new IntakeControl(intake, gamepad), shooterControl);
+                new IntakeControl(intake, stopper, colorSensor, gamepad), shooterControl);
         limelight.goalPipeline();
     }
 
