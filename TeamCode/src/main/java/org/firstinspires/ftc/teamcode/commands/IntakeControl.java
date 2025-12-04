@@ -22,7 +22,7 @@ public class IntakeControl implements Command {
     public boolean periodic() {
         double intakeSpeed = gamepad.getRightTrigger() - gamepad.getLeftTrigger();
 
-        if(gamepad.getCircle()){
+        if(gamepad.getCircle() && gamepad.getSquare()){
             stopper.spinForward();
             intake.setMaxPower(1);
         }else if(intakeSpeed > 0 && colorSensor.checkBack()){

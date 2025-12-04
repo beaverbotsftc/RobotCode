@@ -9,7 +9,7 @@ public class ShooterControl implements Command {
     Gamepad gamepad;
     Shooter shooter;
 
-    double shootRpm = 2050.0;
+    double shootRpm = 2550.0;
 
     public ShooterControl(Shooter shooter, Gamepad gamepad) {
         this.shooter = shooter;
@@ -22,7 +22,7 @@ public class ShooterControl implements Command {
 
             double velocity = shooter.getVelocity();
 
-            if (Math.abs(velocity - shootRpm) / shootRpm <= 0.05) {
+            if (Math.abs(velocity - shootRpm) / shootRpm <= 0.024) {
                 gamepad.rumble(0.45, 0.45, com.qualcomm.robotcore.hardware.Gamepad.RUMBLE_DURATION_CONTINUOUS);
             } else {
                 gamepad.stopRumble();
@@ -40,10 +40,10 @@ public class ShooterControl implements Command {
 
         if (gamepad.getLeftBumperJustPressed()) {
             shooter.setHood(0.05);
-            shootRpm = 2050.0;
+            shootRpm = 2550.0;
         } else if (gamepad.getRightBumperJustPressed()) {
             shooter.setHood(0.51);
-            shootRpm = 3000.0;
+            shootRpm = 3150.0;
         }
 
         return false;
@@ -52,4 +52,6 @@ public class ShooterControl implements Command {
     public double getShootRpm() {
         return shootRpm;
     }
+
+    public double getCurrentRPM() { return shooter.getVelocity(); }
 }
