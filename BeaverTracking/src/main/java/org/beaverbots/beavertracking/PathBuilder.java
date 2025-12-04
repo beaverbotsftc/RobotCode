@@ -26,7 +26,7 @@ public class PathBuilder {
         }
     }
 
-    public PathBuilder wait(double time) {
+    public PathBuilder waitFor(double time) {
         clock += time;
         return this;
     }

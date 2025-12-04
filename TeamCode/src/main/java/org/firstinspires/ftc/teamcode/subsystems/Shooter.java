@@ -6,12 +6,16 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.beaverbots.BeaverCommand.HardwareManager;
 import org.beaverbots.BeaverCommand.Subsystem;
+import org.beaverbots.BeaverCommand.util.Stopwatch;
+import org.beaverbots.beavertracking.PIDFAxis;
 
 public final class Shooter implements Subsystem {
     private DcMotorEx shooterLeft;
     private DcMotorEx shooterRight;
     private Servo hood;
     private double rpm;
+    private PIDFAxis pidf = new PIDFAxis(new PIDFAxis.K(0, 0, 0, 1, 1, 1, 0.1));
+    private Stopwatch stopwatch;
 
     public Shooter() {
         shooterLeft = HardwareManager.claim(DcMotorEx.class, "shoot");
@@ -25,12 +29,15 @@ public final class Shooter implements Subsystem {
         shooterRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         hood = HardwareManager.claim("hood");
+
+        stopwatch = new Stopwatch();
     }
 
 
     public void periodic() {
-        shooterLeft.setPower(rpm/5140.0);
-        shooterRight.setPower(rpm/5140.0);
+        double correction = pidf.update(rpm - getVelocity() , rpm / 5140.0,  stopwatch.getDt());
+        shooterLeft.setPower(correction);
+        shooterRight.setPower(correction);
     }
 
     public void spin(double rpm) {

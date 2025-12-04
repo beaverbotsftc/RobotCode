@@ -2,17 +2,18 @@ package org.firstinspires.ftc.teamcode.autonomous;
 
 import android.util.Pair;
 
-import com.qualcomm.robotcore.util.RobotLog;
-
 import org.beaverbots.BeaverCommand.Command;
 import org.beaverbots.BeaverCommand.CommandRuntimeOpMode;
 import org.beaverbots.BeaverCommand.util.Instant;
+import org.beaverbots.BeaverCommand.util.Parallel;
 import org.beaverbots.BeaverCommand.util.Sequential;
+import org.beaverbots.BeaverCommand.util.Stopwatch;
+import org.beaverbots.BeaverCommand.util.Wait;
+import org.beaverbots.BeaverCommand.util.WaitUntil;
 import org.beaverbots.beavertracking.HolonomicFollowPath;
 import org.beaverbots.beavertracking.PIDF;
 import org.beaverbots.beavertracking.PIDFAxis;
 import org.beaverbots.beavertracking.Path;
-import org.beaverbots.beavertracking.PathAxis;
 import org.beaverbots.beavertracking.PathBuilder;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Motif;
@@ -21,6 +22,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
+import org.firstinspires.ftc.teamcode.subsystems.Stopper;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
@@ -36,14 +38,17 @@ public class Autonomous extends CommandRuntimeOpMode {
     private Drivetrain drivetrain;
     private Intake intake;
     private Shooter shooter;
+    private Stopper stopper;
     private Pinpoint pinpoint;
     private Limelight limelight;
-    private Localizer localizer;
+    private Localizer fusedLocalizer;
 
     private final Side side = Side.RED;
     private Motif motif;
 
     private boolean motifScanning = false;
+
+    private Stopwatch stopwatch = new Stopwatch();
 
     @Override
     public void onInit() {
@@ -51,11 +56,12 @@ public class Autonomous extends CommandRuntimeOpMode {
         drivetrain = new MecanumDrivetrain();
         intake = new Intake();
         shooter = new Shooter();
+        stopper = new Stopper();
         pinpoint = new Pinpoint(new DrivetrainState(0, 0, 0));
         limelight = new Limelight();
-        localizer = new FusedLocalizer(pinpoint, limelight, new DrivetrainState(0, 0, 0));
+        fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new DrivetrainState(0, 0, 0));
 
-        register(gamepad, drivetrain, intake, shooter, pinpoint, limelight, localizer);
+        register(gamepad, drivetrain, intake, shooter, stopper, pinpoint, limelight, fusedLocalizer);
         limelight.goalPipeline();
     }
 
@@ -68,40 +74,59 @@ public class Autonomous extends CommandRuntimeOpMode {
             telemetry.addData("Motif:", motif);
             telemetry.addLine(limelight.getStatus().toString());
         } else if (gamepad.getDpadUpJustPressed()) {
-            unregister(localizer);
+            pinpoint.setPosition(fusedLocalizer.getPosition());
+            unregister(fusedLocalizer);
             limelight.obeliskPipeline();
             motifScanning = true;
         }
 
-        if(!motifScanning) {
-            telemetry.addData("Position:", localizer.getPosition().toString());
+        if (!motifScanning) {
+            telemetry.addData("Position:", fusedLocalizer.getPosition().toString());
         }
     }
 
     @Override
     public void onStart() {
-        //limelight.goalPipeline();
-        //register(localizer);
-
-        Pair<Path, Command> auto = new PathBuilder(localizer.getPositionAsList())
-                .moveTo(new DrivetrainState(83.4, 58.7, -0.68).toList(), 10)
-                .waitFor(20)
-                .build(null);
-        Command followPathCommand = new HolonomicFollowPath(
-                auto.first,
-                new PIDF(List.of(
-                        new PIDFAxis(new PIDFAxis.K(Constants.pidPX, Constants.pidIX, Constants.pidDX, 1, 6, 48, Constants.pidTauX)),
-                        new PIDFAxis(new PIDFAxis.K(Constants.pidPY, Constants.pidIY, Constants.pidDY, 1, 6, 48, Constants.pidTauY)),
-                        new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, 1, 6, 48, Constants.pidTauTheta)))),
-                localizer, drivetrain);
+        Pair<Path, Command> auto = new PathBuilder(fusedLocalizer.getPositionAsList())
+                .linearToEase(new DrivetrainState(83.4, 58.7, -0.68).toList(), 6, 10)
+                .linearToEase(new DrivetrainState(83.4, 58.7, -0.68).toList(), 2, 2)
+                .addCommand(new Sequential(
+                        new Instant(() -> shooter.spin(2200)),
+                        new WaitUntil(() -> Math.abs(shooter.getVelocity() - 2200) < 30),
+                        new Parallel(
+                                new Instant(() -> intake.spin(1)),
+                                new Instant(() -> stopper.spinForward())
+                        ),
+                        new Wait(5),
+                        new Parallel(
+                                new Instant(() -> intake.spin(0)),
+                                new Instant(() -> stopper.spin(0)),
+                                new Instant(() -> shooter.spin(0))
+                        )
+                ))
+                .waitFor(10)
+                .moveTo(new DrivetrainState(32, 36, 0).toList(), 5)
+                .waitFor(5)
+                .build(stopwatch);
+        Command followPathCommand =
+                new Parallel(
+                        new HolonomicFollowPath(
+                                auto.first,
+                                new PIDF(List.of(
+                                        new PIDFAxis(new PIDFAxis.K(Constants.pidPX, Constants.pidIX, Constants.pidDX, 1, 6, 48, Constants.pidTauX)),
+                                        new PIDFAxis(new PIDFAxis.K(Constants.pidPY, Constants.pidIY, Constants.pidDY, 1, 6, 48, Constants.pidTauY)),
+                                        new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, 1, 6, 48, Constants.pidTauTheta)))),
+                                pinpoint, drivetrain),
+                        auto.second);
         schedule(new Sequential(
                 followPathCommand,
                 new Instant(() -> drivetrain.move(new DrivetrainState(0, 0, 0)))
         ));
+        stopwatch.reset();
     }
 
     @Override
     public void periodic() {
-        telemetry.addData("Position:", localizer.getPosition().toString());
+        telemetry.addData("Position:", pinpoint.getPosition().toString());
     }
 }

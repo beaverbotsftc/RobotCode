@@ -40,10 +40,10 @@ public class ShooterControl implements Command {
 
         if (gamepad.getLeftBumperJustPressed()) {
             shooter.setHood(0.05);
-            shootRpm = 2050.0;
+            shootRpm = 2550.0;
         } else if (gamepad.getRightBumperJustPressed()) {
             shooter.setHood(0.51);
-            shootRpm = 3000.0;
+            shootRpm = 3500.0;
         }
 
         return false;

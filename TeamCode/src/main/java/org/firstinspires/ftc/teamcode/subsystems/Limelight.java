@@ -101,6 +101,8 @@ public class Limelight implements Subsystem {
         if (result.getTimestamp() == lastPositionAttemptTime) return null;
         if (!result.isValid()) return null;
 
+        lastPositionAttemptTime = result.getTimestamp();
+
         Position position = result.getBotpose().getPosition();
         YawPitchRollAngles orientation = result.getBotpose().getOrientation();
 

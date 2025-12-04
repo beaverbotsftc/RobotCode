@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.Stopper;
+import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
@@ -30,6 +31,7 @@ public class TeleOp extends CommandRuntimeOpMode {
     private Limelight limelight;
     private ShooterControl shooterControl;
     private ColorSensor colorSensor;
+    private FusedLocalizer fusedLocalizer;
 
     @Override
     public void onInit() {
@@ -40,19 +42,28 @@ public class TeleOp extends CommandRuntimeOpMode {
         shooter = new Shooter();
         pinpoint = new Pinpoint(new DrivetrainState(0, 0, 0));
         limelight = new Limelight();
+        fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new DrivetrainState(0, 0, 0));
         colorSensor = new ColorSensor();
+        limelight.goalPipeline();
+        register(gamepad, drivetrain, intake, stopper, shooter, pinpoint, limelight, colorSensor, fusedLocalizer);
+    }
+
+    @Override
+    public void periodicInit() {
+        if (gamepad.getDpadUpJustPressed()) {
+            pinpoint.setPosition(fusedLocalizer.getPosition());
+            unregister(fusedLocalizer);
+        }
     }
 
     @Override
     public void onStart() {
-        register(gamepad, drivetrain, intake, stopper, shooter, pinpoint, limelight, colorSensor);
         shooterControl = new ShooterControl(shooter, gamepad);
         schedule(new Router(
                         new Selector(() -> gamepad.getLeftStickPressed()),
                         new DrivetrainControl(drivetrain, gamepad),
                         new Resist(pinpoint, drivetrain, Side.RED)),
                 new IntakeControl(intake, stopper, colorSensor, gamepad), shooterControl);
-        limelight.goalPipeline();
     }
 
     @Override
