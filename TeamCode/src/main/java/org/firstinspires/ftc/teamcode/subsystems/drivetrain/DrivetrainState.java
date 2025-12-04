@@ -72,6 +72,10 @@ public final class DrivetrainState {
         return new double[]{x, y, theta};
     }
 
+    public List<Double> toList() {
+        return List.of(x, y, theta);
+    }
+
     public DrivetrainState toLocal(DrivetrainState reference) {
         double deltaX = this.x - reference.getX();
         double deltaY = this.y - reference.getY();

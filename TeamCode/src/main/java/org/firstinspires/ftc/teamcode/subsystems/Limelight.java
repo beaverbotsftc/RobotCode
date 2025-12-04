@@ -4,7 +4,6 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
-import com.qualcomm.robotcore.util.RobotLog;
 
 import org.beaverbots.BeaverCommand.HardwareManager;
 import org.beaverbots.BeaverCommand.Subsystem;
@@ -53,7 +52,7 @@ public class Limelight implements Subsystem {
         currentPipeline = Pipeline.GOAL;
     }
 
-    public LLStatus status() {
+    public LLStatus getStatus() {
         return limelight.getStatus();
     }
 
@@ -69,23 +68,27 @@ public class Limelight implements Subsystem {
             case 1:
                 switch (resultsList.get(0).getFiducialId()) {
                     case 21:
-                        return Motif.GREEN_PURPLE_PURPLE;
+                        return Motif.GPP;
                     case 22:
-                        return Motif.PURPLE_GREEN_PURPLE;
+                        return Motif.PGP;
                     case 23:
-                        return Motif.PURPLE_PURPLE_GREEN;
+                        return Motif.PPG;
+                    default:
+                        return null;
                 }
             case 2:
                 Set<Integer> ids = Set.of(resultsList.get(0).getFiducialId(), resultsList.get(1).getFiducialId());
                 switch (side) {
                     case RED:
-                        if (ids.equals(Set.of(21, 22))) return Motif.GREEN_PURPLE_PURPLE;
-                        else if (ids.equals(Set.of(22, 23))) return Motif.PURPLE_GREEN_PURPLE;
-                        else return Motif.PURPLE_PURPLE_GREEN;
+                        if (ids.equals(Set.of(21, 22))) return Motif.GPP;
+                        else if (ids.equals(Set.of(22, 23))) return Motif.PGP;
+                        else if (ids.equals(Set.of(21, 23))) return Motif.PPG;
                     case BLUE:
-                        if (ids.equals(Set.of(21, 23))) return Motif.GREEN_PURPLE_PURPLE;
-                        else if (ids.equals(Set.of(21, 22))) return Motif.PURPLE_GREEN_PURPLE;
-                        else return Motif.PURPLE_PURPLE_GREEN;
+                        if (ids.equals(Set.of(21, 23))) return Motif.GPP;
+                        else if (ids.equals(Set.of(21, 22))) return Motif.PGP;
+                        else if (ids.equals(Set.of(22, 23))) return Motif.PPG;
+                    default:
+                        return null;
                 }
         }
         return null;
@@ -103,7 +106,7 @@ public class Limelight implements Subsystem {
 
         double x = -DistanceUnit.INCH.fromUnit(position.unit, position.x) + 72;
         double y = -DistanceUnit.INCH.fromUnit(position.unit, position.y) + 72;
-        double theta = -orientation.getYaw(AngleUnit.RADIANS) - Math.PI / 4;
+        double theta = orientation.getYaw(AngleUnit.RADIANS) + Math.PI;
 
         return new DrivetrainState(x, y, theta);
     }

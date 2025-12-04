@@ -112,4 +112,11 @@ public final class FakeLocomotionAndLocalization implements Locomotion, Localize
         y += vy;
         theta += vtheta;
     }
+
+    public double wind(double theta) {
+        double TWO_PI = 2.0 * Math.PI;
+        double delta = this.theta - theta;
+        double normalizedDelta = delta - TWO_PI * Math.floor((delta + Math.PI) / TWO_PI);
+        return theta + normalizedDelta;
+    }
 }

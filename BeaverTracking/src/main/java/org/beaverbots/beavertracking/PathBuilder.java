@@ -3,6 +3,10 @@ package org.beaverbots.beavertracking;
 import android.util.Pair;
 
 import org.beaverbots.BeaverCommand.Command;
+import org.beaverbots.BeaverCommand.util.Parallel;
+import org.beaverbots.BeaverCommand.util.Sequential;
+import org.beaverbots.BeaverCommand.util.Stopwatch;
+import org.beaverbots.BeaverCommand.util.WaitUntil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -101,6 +105,26 @@ public class PathBuilder {
             // After easing window: follow f1
             return f1.applyAsDouble(t);
         };
+    }
+
+    public Pair<Path, Command> build(Stopwatch stopwatch) {
+        List<PathAxis> paths = new ArrayList<>();
+        for (int i = 0; i < f.size(); i++) {
+            paths.add(new PathAxis(f.get(i), 0, clock));
+        }
+        Path path = new Path(paths, t -> t >= clock);
+
+        Command[] timedCommands = new Command[commands.size()];
+        for (int i = 0; i < commands.size(); i++) {
+            final double commandTimeCaptured = commands.get(i).first;
+            timedCommands[i] = new Sequential(
+                    new WaitUntil(() -> stopwatch.getElapsed() > commandTimeCaptured),
+                    commands.get(i).second
+            );
+        }
+        Command command = new Parallel(timedCommands);
+
+        return new Pair<>(path, command);
     }
 
     private double quinticSmoothstep(double t) {

@@ -44,11 +44,8 @@ public class FusedLocalizationExperiment extends CommandRuntimeOpMode {
     @Override
     public void periodic() {
         telemetry.addLine("Pinpoint pos: " + pinpoint.getPosition().toString());
+        telemetry.addLine("Limelight pos: " + limelight.getEstimatedPosition());
         telemetry.addLine("Fused pos: " + fusedLocalizer.getPosition().toString());
         telemetry.addLine("Vel: " + pinpoint.getVelocity().toString());
-
-        if (gamepad.getCircleJustPressed()) {
-            fusedLocalizer.run();
-        }
     }
 }

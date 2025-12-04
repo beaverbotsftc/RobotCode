@@ -22,8 +22,6 @@ public class FusedLocalizer implements Subsystem, Localizer {
     private RealVector lastFilterPinpointState;
     private RealVector highFrequencyPose;
 
-    private boolean runFilter = false;
-
     private Stopwatch stopwatch;
 
     public Set<Subsystem> getDependencies() {
@@ -93,8 +91,6 @@ public class FusedLocalizer implements Subsystem, Localizer {
 
         lastTickPinpointState = currentRawPinpointState;
 
-        if (!runFilter) return;
-
         double dt = stopwatch.getDt();
 
         RealVector cumulativeDelta = currentRawPinpointState.subtract(lastFilterPinpointState);
@@ -111,8 +107,8 @@ public class FusedLocalizer implements Subsystem, Localizer {
 
         if (limelightEstimation != null) {
             filter.update(
-                    new ArrayRealVector(limelightEstimation.toArray()),
-                    new Array2DRowRealMatrix(new double[][]{{3.87499225, 0, 0}, {0, 3.87499225, 0}, {0, 0, 3.87499225}}).scalarMultiply(5),
+                    new ArrayRealVector(new double[] {limelightEstimation.getX(), limelightEstimation.getY(), wind(limelightEstimation.getTheta())}),
+                    new Array2DRowRealMatrix(new double[][]{{3.87499225, 0, 0}, {0, 3.87499225, 0}, {0, 0, 3.87499225}}).scalarMultiply(2),
                     x -> x);
         }
 
@@ -127,10 +123,6 @@ public class FusedLocalizer implements Subsystem, Localizer {
 
     public DrivetrainState getVelocity() {
         return pinpoint.getVelocity();
-    }
-
-    public void run() {
-        runFilter = true;
     }
 
     public List<Double> getPositionAsList() {
