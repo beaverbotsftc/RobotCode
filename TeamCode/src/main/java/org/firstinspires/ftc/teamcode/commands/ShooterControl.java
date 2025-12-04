@@ -9,7 +9,7 @@ public class ShooterControl implements Command {
     Gamepad gamepad;
     Shooter shooter;
 
-    double shootRpm = 2050.0;
+    double shootRpm = 2450.0;
 
     public ShooterControl(Shooter shooter, Gamepad gamepad) {
         this.shooter = shooter;
@@ -40,10 +40,10 @@ public class ShooterControl implements Command {
 
         if (gamepad.getLeftBumperJustPressed()) {
             shooter.setHood(0.05);
-            shootRpm = 2050.0;
+            shootRpm = 2500.0;
         } else if (gamepad.getRightBumperJustPressed()) {
             shooter.setHood(0.51);
-            shootRpm = 3000.0;
+            shootRpm = 3150.0;
         }
 
         return false;
@@ -51,5 +51,9 @@ public class ShooterControl implements Command {
 
     public double getShootRpm() {
         return shootRpm;
+    }
+
+    public double getCurrentRPM(){
+        return shooter.getVelocity();
     }
 }
