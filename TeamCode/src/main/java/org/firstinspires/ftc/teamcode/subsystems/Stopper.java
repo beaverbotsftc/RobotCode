@@ -26,4 +26,6 @@ public final class Stopper implements Subsystem {
 
     public void spinForward(){ this.power = maxPower;}
 
+    public void stop() { this.power = 0; }
+
 }

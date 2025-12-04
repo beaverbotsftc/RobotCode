@@ -17,7 +17,7 @@ public class ShooterControl implements Command {
     }
 
     public boolean periodic() {
-        if (gamepad.getDpadLeft()) {
+        if (gamepad.getSquare()) {
             shooter.spin(shootRpm);
 
             double velocity = shooter.getVelocity();
@@ -27,8 +27,6 @@ public class ShooterControl implements Command {
             } else {
                 gamepad.stopRumble();
             }
-        } else if (gamepad.getDpadRight()) {
-            shooter.spin(-1000);
         } else {
             shooter.spin(0);
         }
