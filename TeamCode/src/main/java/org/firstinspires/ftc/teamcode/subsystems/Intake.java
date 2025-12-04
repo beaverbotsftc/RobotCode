@@ -10,6 +10,8 @@ public final class Intake implements Subsystem {
 
     private DcMotorEx intake;
 
+    private DcMotorEx stopper;
+
     private double power;
 
     public Intake(double maxPower) {
@@ -23,7 +25,7 @@ public final class Intake implements Subsystem {
     }
 
     public void periodic() {
-        intake.setPower(Math.min(power, maxPower));
+        intake.setPower(maxPower * power);
     }
 
     public void spin(double power) {
