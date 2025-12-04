@@ -30,9 +30,9 @@ public class FusedLocalizationExperiment extends CommandRuntimeOpMode {
         drivetrain = new MecanumDrivetrain();
         intake = new Intake();
         shooter = new Shooter();
-        pinpoint = new Pinpoint(new DrivetrainState(0, 0, 0));
+        pinpoint = new Pinpoint(new DrivetrainState(8, 8, 0));
         limelight = new Limelight();
-        fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new DrivetrainState(0, 0, 0));
+        fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new DrivetrainState(8, 8, 0));
     }
 
     @Override

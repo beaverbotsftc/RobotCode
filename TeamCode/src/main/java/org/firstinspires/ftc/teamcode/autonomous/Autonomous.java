@@ -80,11 +80,12 @@ public class Autonomous extends CommandRuntimeOpMode {
 
     @Override
     public void onStart() {
-        limelight.goalPipeline();
-        register(localizer);
+        //limelight.goalPipeline();
+        //register(localizer);
 
         Pair<Path, Command> auto = new PathBuilder(localizer.getPositionAsList())
-                .moveTo(new DrivetrainState(83.4, 58.7, -3.17).toList(), 10)
+                .moveTo(new DrivetrainState(83.4, 58.7, -0.68).toList(), 10)
+                .waitFor(20)
                 .build(null);
         Command followPathCommand = new HolonomicFollowPath(
                 auto.first,
@@ -101,5 +102,6 @@ public class Autonomous extends CommandRuntimeOpMode {
 
     @Override
     public void periodic() {
+        telemetry.addData("Position:", localizer.getPosition().toString());
     }
 }

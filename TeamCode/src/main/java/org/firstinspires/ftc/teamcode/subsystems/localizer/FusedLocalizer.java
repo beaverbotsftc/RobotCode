@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems.localizer;
 
+import com.qualcomm.robotcore.util.RobotLog;
+
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
@@ -9,6 +11,7 @@ import org.beaverbots.BeaverSensor.UnscentedKalmanFilter;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -106,9 +109,10 @@ public class FusedLocalizer implements Subsystem, Localizer {
         DrivetrainState limelightEstimation = limelight.getEstimatedPosition();
 
         if (limelightEstimation != null) {
+            RobotLog.dd("FusedLocalizer", Arrays.toString(new double[]{limelightEstimation.getX(), limelightEstimation.getY(), wind(limelightEstimation.getTheta())}));
             filter.update(
                     new ArrayRealVector(new double[] {limelightEstimation.getX(), limelightEstimation.getY(), wind(limelightEstimation.getTheta())}),
-                    new Array2DRowRealMatrix(new double[][]{{3.87499225, 0, 0}, {0, 3.87499225, 0}, {0, 0, 3.87499225}}).scalarMultiply(2),
+                    new Array2DRowRealMatrix(new double[][]{{3.87499225, 0, 0}, {0, 3.87499225, 0}, {0, 0, 3.87499225}}).scalarMultiply(3),
                     x -> x);
         }
 
