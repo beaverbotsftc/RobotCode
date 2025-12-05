@@ -37,10 +37,17 @@ public final class PIDFAxis {
     public double update(double error, double feedforward, double dt) {
         final double dNoisy = (error - lastError) / dt;
         lastError = error;
+        double derivative = dLowPassFilter.update(dNoisy, dt);
 
-        i += error * dt;
-        i = Math.min(Math.max(i, -k.integrationClamp), k.integrationClamp);
+        if (Math.abs(unclampedControl(error, derivative, feedforward)) < k.outputClamp) {
+            i += error * dt;
+            i = Math.min(Math.max(i, -k.integrationClamp), k.integrationClamp);
+        }
 
-        return Math.min(Math.max(k.p * error + k.i * i + k.d * dLowPassFilter.update(dNoisy, dt) + k.f * feedforward, -k.outputClamp), k.outputClamp);
+        return Math.min(Math.max(unclampedControl(error, derivative, feedforward), -k.outputClamp), k.outputClamp);
+    }
+
+    private double unclampedControl(double error, double derivative, double feedforward) {
+        return k.p * error + k.i * i + k.d * derivative + k.f * feedforward;
     }
 }

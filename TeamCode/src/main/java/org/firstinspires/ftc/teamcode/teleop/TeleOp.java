@@ -69,6 +69,6 @@ public class TeleOp extends CommandRuntimeOpMode {
     @Override
     public void periodic() {
         telemetry.addData("Shoot RPM:", shooterControl.getShootRpm());
-        telemetry.addData("Current RPM:", shooterControl.getCurrentRPM());
+        telemetry.addData("Current RPM:", shooter.getVelocity());
     }
 }

@@ -2,12 +2,6 @@ package org.beaverbots.beavertracking;
 
 import android.util.Pair;
 
-import org.beaverbots.BeaverCommand.Command;
-import org.beaverbots.BeaverCommand.util.Parallel;
-import org.beaverbots.BeaverCommand.util.Sequential;
-import org.beaverbots.BeaverCommand.util.Stopwatch;
-import org.beaverbots.BeaverCommand.util.WaitUntil;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.DoubleUnaryOperator;
@@ -17,7 +11,6 @@ public class PathBuilder {
 
     protected double clock;
     protected List<DoubleUnaryOperator> f = new ArrayList<>();
-    protected List<Pair<Double, Command>> commands = new ArrayList<>();
 
     public PathBuilder(List<Double> startingPosition) {
         for (int i = 0; i < startingPosition.size(); i++) {
@@ -26,24 +19,40 @@ public class PathBuilder {
         }
     }
 
+    public PathBuilder(Path path) {
+        this(path.position(0));
+    }
+
     public PathBuilder waitFor(double time) {
         clock += time;
         return this;
     }
 
-    public PathBuilder addCommand(Command command) {
-        commands.add(new Pair<>(clock, command));
+    private void append(int i, DoubleUnaryOperator fX, double time) {
+        final DoubleUnaryOperator fPrevious = f.get(i);
+        final double clockCaptured = clock;
+        f.set(i, t -> t > clockCaptured ? fX.applyAsDouble(t - clockCaptured) : fPrevious.applyAsDouble(t));
+    }
+
+    private void appendEase(int i, DoubleUnaryOperator fNew, double easingTime) {
+        final DoubleUnaryOperator fPrevious = f.get(i);
+        f.set(i, easeTransition(fPrevious, fNew, clock, easingTime));
+    }
+
+    public PathBuilder halt(double easingTime, double time) {
+        for (int i = 0; i < f.size(); i++) {
+            final double target = f.get(i).applyAsDouble(clock);
+            appendEase(i, t -> target, easingTime);
+        }
+        clock += time;
+
         return this;
     }
 
     public PathBuilder moveTo(List<Double> x, double time) {
         for (int i = 0; i < x.size(); i++) {
-            final DoubleUnaryOperator fPrevious = f.get(i);
             final double target = x.get(i);
-
-            DoubleUnaryOperator fNew = t -> target;
-
-            f.set(i, easeTransition(fPrevious, fNew, clock, time));
+            appendEase(i, t -> target, time);
         }
 
         clock += time;
@@ -51,7 +60,7 @@ public class PathBuilder {
         return this;
     }
 
-    public PathBuilder linearToEase(List<Double> x, double easingTime, double time) {
+    public PathBuilder linearTo(List<Double> x, double easingTime, double time) {
         for (int i = 0; i < x.size(); i++) {
             final DoubleUnaryOperator fPrevious = f.get(i);
             final double target = x.get(i);
@@ -66,7 +75,7 @@ public class PathBuilder {
                 return start + u * (target - start);
             };
 
-            f.set(i, easeTransition(fPrevious, fNew, clock, easingTime));
+            appendEase(i, fNew, easingTime);
         }
 
         clock += time;
@@ -107,24 +116,17 @@ public class PathBuilder {
         };
     }
 
-    public Pair<Path, Command> build(Stopwatch stopwatch) {
+    ///  First is the actual path, the second is the path you can use to hold the end position
+    public Pair<Path, Path> build() {
         List<PathAxis> paths = new ArrayList<>();
+        List<PathAxis> holdPaths = new ArrayList<>();
         for (int i = 0; i < f.size(); i++) {
             paths.add(new PathAxis(f.get(i), 0, clock));
+            final double endpoint = f.get(i).applyAsDouble(clock);
+            holdPaths.add(new PathAxis(t -> endpoint, 0, Double.POSITIVE_INFINITY));
         }
-        Path path = new Path(paths, t -> t >= clock);
 
-        Command[] timedCommands = new Command[commands.size()];
-        for (int i = 0; i < commands.size(); i++) {
-            final double commandTimeCaptured = commands.get(i).first;
-            timedCommands[i] = new Sequential(
-                    new WaitUntil(() -> stopwatch.getElapsed() > commandTimeCaptured),
-                    commands.get(i).second
-            );
-        }
-        Command command = new Parallel(timedCommands);
-
-        return new Pair<>(path, command);
+        return new Pair<>(new Path(paths, t -> t >= clock), new Path(holdPaths, t -> false));
     }
 
     private double quinticSmoothstep(double t) {

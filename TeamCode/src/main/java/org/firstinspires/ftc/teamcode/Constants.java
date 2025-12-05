@@ -11,23 +11,27 @@ public final class Constants {
     // K_i = 0.4 * K_u / T_u
     // K_d = 0.06666 * K_u * T_u
 
-    // Ku_X = 35
+    // Ku_X = 22
     // Tu_X = 1
-    // Ku_Y = 38
+    // Ku_Y = 23
     // Tu_Y = 0.7
-    // Ku_Theta = 30
+    // Ku_Theta = 18
     // Tu_Theta = 0.35
 
-    public static double pidPX = 7;
-    public static double pidIX = 14;
-    public static double pidDX = 2.3333333333333333;
-    public static double pidPY = 7.6;
-    public static double pidIY = 21.71428571428571;
-    public static double pidDY = 3.619047619047619;
-    public static double pidPTheta = 6;
-    public static double pidITheta = 34.28571428571429;
-    public static double pidDTheta = 0.7;
-    */
+    public static double pidPX = 4.4;
+    public static double pidIX = 8.8;
+    public static double pidDX = 1.46652;
+    public static double pidTauX = 0.1;
+    public static double pidPY = 4.6;
+    public static double pidIY = 13.142857142857146;
+    public static double pidDY = 1.073226;
+    public static double pidTauY = 0.1;
+    public static double pidPTheta = 3.6;
+    public static double pidITheta = 20.571428571428573;
+    public static double pidDTheta = 0.41995799999999994;
+    public static double pidTauTheta = 0.1;
+*/
+
 
     public static double pidPX = 3;
     public static double pidIX = 0;
@@ -59,8 +63,8 @@ public final class Constants {
     // Forward of center is positive, behind center is negative
     public static double pinpointYOffset = -2.5;
 
-    public static final double redGoalX = 144;
-    public static final double redGoalY = 0;
-    public static final double blueGoalX = 144;
-    public static final double blueGoalY = 144;
+    public static final double redGoalX = 144 - 12;
+    public static final double redGoalY = 0 + 12;
+    public static final double blueGoalX = 144 - 12;
+    public static final double blueGoalY = 144 - 12;
 }

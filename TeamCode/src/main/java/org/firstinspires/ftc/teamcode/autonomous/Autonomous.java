@@ -6,6 +6,7 @@ import org.beaverbots.BeaverCommand.Command;
 import org.beaverbots.BeaverCommand.CommandRuntimeOpMode;
 import org.beaverbots.BeaverCommand.util.Instant;
 import org.beaverbots.BeaverCommand.util.Parallel;
+import org.beaverbots.BeaverCommand.util.PrimaryParallel;
 import org.beaverbots.BeaverCommand.util.Sequential;
 import org.beaverbots.BeaverCommand.util.Stopwatch;
 import org.beaverbots.BeaverCommand.util.Wait;
@@ -87,46 +88,113 @@ public class Autonomous extends CommandRuntimeOpMode {
 
     @Override
     public void onStart() {
-        Pair<Path, Command> auto = new PathBuilder(fusedLocalizer.getPositionAsList())
-                .linearToEase(new DrivetrainState(83.4, 58.7, -0.68).toList(), 6, 10)
-                .linearToEase(new DrivetrainState(83.4, 58.7, -0.68).toList(), 2, 2)
-                .addCommand(new Sequential(
-                        new Instant(() -> shooter.spin(2200)),
-                        new WaitUntil(() -> Math.abs(shooter.getVelocity() - 2200) < 30),
-                        new Parallel(
-                                new Instant(() -> intake.spin(1)),
-                                new Instant(() -> stopper.spinForward())
-                        ),
-                        new Wait(5),
-                        new Parallel(
-                                new Instant(() -> intake.spin(0)),
-                                new Instant(() -> stopper.spin(0)),
-                                new Instant(() -> shooter.spin(0))
-                        )
-                ))
-                .waitFor(10)
-                .moveTo(new DrivetrainState(32, 36, 0).toList(), 5)
-                .waitFor(5)
-                .build(stopwatch);
-        Command followPathCommand =
-                new Parallel(
-                        new HolonomicFollowPath(
-                                auto.first,
-                                new PIDF(List.of(
-                                        new PIDFAxis(new PIDFAxis.K(Constants.pidPX, Constants.pidIX, Constants.pidDX, 1, 6, 48, Constants.pidTauX)),
-                                        new PIDFAxis(new PIDFAxis.K(Constants.pidPY, Constants.pidIY, Constants.pidDY, 1, 6, 48, Constants.pidTauY)),
-                                        new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, 1, 6, 48, Constants.pidTauTheta)))),
-                                pinpoint, drivetrain),
-                        auto.second);
+        Pair<Path, Path> autoPart1 = new PathBuilder(pinpoint.getPositionAsList())
+                .linearTo(new DrivetrainState(83.4, 58.7, -0.68).toList(), 0.3, 0.5)
+                .halt(0.3, 0.5)
+                .build();
+
+        Pair<Path, Path> autoPart2 = new PathBuilder(autoPart1.second)
+                .linearTo(new DrivetrainState(84, 52, -Math.PI / 2).toList(), 0.3, 0.7)
+                .halt(1, 1)
+                .linearTo(new DrivetrainState(84, 28, -Math.PI / 2).toList(), 1, 4)
+                .halt(0.2, 0.5)
+                .build();
+
+        Pair<Path, Path> autoPart3 = new PathBuilder(autoPart2.second)
+                .linearTo(new DrivetrainState(83.4, 58.7, -0.68).toList(), 0.7, 0.7)
+                .halt(0.3, 0.5)
+                .build();
+
+        Pair<Path, Path> autoPart4 = new PathBuilder(autoPart3.second)
+                .linearTo(new DrivetrainState(58, 52, -Math.PI / 2).toList(), 0.3, 0.7)
+                .halt(0.5, 1)
+                .linearTo(new DrivetrainState(58, 28, -Math.PI / 2).toList(), 1, 4)
+                .halt(0.2, 0.5)
+                .build();
+
+        Pair<Path, Path> autoPart5 = new PathBuilder(autoPart4.second)
+                .linearTo(new DrivetrainState(83.4, 58.7, -0.68).toList(), 1, 1)
+                .halt(0.4, 0.8)
+                .build();
+
+        Pair<Path, Path> autoPart6 = new PathBuilder(autoPart1.second)
+                .linearTo(new DrivetrainState(58, 56, 0).toList(), 0.2, 0.5)
+                .build();
+
         schedule(new Sequential(
-                followPathCommand,
-                new Instant(() -> drivetrain.move(new DrivetrainState(0, 0, 0)))
-        ));
+                followPathTemplate(autoPart1.first),
+                new Sequential(
+                        new PrimaryParallel(
+                                new Sequential(
+                                        new Instant(() -> shooter.spin(2150)),
+                                        new WaitUntil(() -> Math.abs(shooter.getVelocity() - 2200) < 30),
+                                        new Parallel(
+                                                new Instant(() -> intake.spin(1)),
+                                                new Instant(() -> stopper.spinForward())
+                                        ),
+                                        new Wait(2),
+                                        new Instant(() -> shooter.spin(0))
+                                ),
+                                followPathTemplate(autoPart1.second)
+                        ),
+                        new Instant(() -> intake.spin(1)),
+                        new Instant(() -> stopper.spinReverse()),
+                        followPathTemplate(autoPart2.first),
+                        new Instant(() -> intake.spin(0)),
+                        new Instant(() -> stopper.spin(0)),
+                        followPathTemplate(autoPart3.first),
+                        new PrimaryParallel(
+                                new Sequential(
+                                        new Instant(() -> shooter.spin(2150)),
+                                        new WaitUntil(() -> Math.abs(shooter.getVelocity() - 2200) < 30),
+                                        new Parallel(
+                                                new Instant(() -> intake.spin(1)),
+                                                new Instant(() -> stopper.spinForward())
+                                        ),
+                                        new Wait(2),
+                                        new Instant(() -> shooter.spin(0))
+                                ),
+                                followPathTemplate(autoPart3.second)
+                        ),
+                        new Instant(() -> intake.spin(1)),
+                        new Instant(() -> stopper.spinReverse()),
+                        followPathTemplate(autoPart4.first),
+                        new Instant(() -> intake.spin(0)),
+                        new Instant(() -> stopper.spin(0)),
+                        followPathTemplate(autoPart5.first),
+                        new PrimaryParallel(
+                                new Sequential(
+                                        new Instant(() -> shooter.spin(2150)),
+                                        new WaitUntil(() -> Math.abs(shooter.getVelocity() - 2200) < 30),
+                                        new Parallel(
+                                                new Instant(() -> intake.spin(1)),
+                                                new Instant(() -> stopper.spinForward())
+                                        ),
+                                        new Wait(2),
+                                        new Instant(() -> shooter.spin(0))
+                                ),
+                                followPathTemplate(autoPart5.second)
+                        ),
+                        followPathTemplate(autoPart6.first),
+                        new Instant(() -> requestOpModeStop())
+                )));
         stopwatch.reset();
     }
 
     @Override
     public void periodic() {
         telemetry.addData("Position:", pinpoint.getPosition().toString());
+    }
+
+    private Command followPathTemplate(Path path) {
+        return new Sequential(
+                new HolonomicFollowPath(
+                        path,
+                        new PIDF(List.of(
+                                new PIDFAxis(new PIDFAxis.K(Constants.pidPX, Constants.pidIX, Constants.pidDX, 1, 6, 48, Constants.pidTauX)),
+                                new PIDFAxis(new PIDFAxis.K(Constants.pidPY, Constants.pidIY, Constants.pidDY, 1, 6, 48, Constants.pidTauY)),
+                                new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, 1, 6, 48, Constants.pidTauTheta)))),
+                        pinpoint, drivetrain),
+                new Instant(() -> drivetrain.move(new DrivetrainState(0, 0, 0))));
     }
 }

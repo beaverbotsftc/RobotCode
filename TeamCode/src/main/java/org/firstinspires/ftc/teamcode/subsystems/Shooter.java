@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.RobotLog;
 
 import org.beaverbots.BeaverCommand.HardwareManager;
 import org.beaverbots.BeaverCommand.Subsystem;
@@ -38,6 +39,7 @@ public final class Shooter implements Subsystem {
         double correction = pidf.update(rpm - getVelocity() , rpm / 5140.0,  stopwatch.getDt());
         shooterLeft.setPower(correction);
         shooterRight.setPower(correction);
+        RobotLog.i(String.valueOf(getVelocity()));
     }
 
     public void spin(double rpm) {
