@@ -24,6 +24,9 @@ public final class Shooter implements Subsystem {
         shooterRight = HardwareManager.claim(DcMotorEx.class, "shoot2");
         shooterRight.setDirection(DcMotor.Direction.FORWARD);
 
+        shooterLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        shooterRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
         shooterLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooterRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         shooterLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -54,5 +57,15 @@ public final class Shooter implements Subsystem {
         double rpm1 = shooterLeft.getVelocity() / 28.0 * 60.0;
         double rpm2 = shooterRight.getVelocity() / 28.0 * 60.0;
         return (rpm1+rpm2)/2.0;
+    }
+
+    public void brakesOn(){
+        shooterLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        shooterRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+
+    public void brakesOff(){
+        shooterLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        shooterRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 }
