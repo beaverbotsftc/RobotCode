@@ -9,7 +9,7 @@ public class ShooterControl implements Command {
     Gamepad gamepad;
     Shooter shooter;
 
-    double shootRpm = 2050.0;
+    double shootRpm = 2450.0;
 
     public ShooterControl(Shooter shooter, Gamepad gamepad) {
         this.shooter = shooter;
@@ -51,5 +51,9 @@ public class ShooterControl implements Command {
 
     public double getShootRpm() {
         return shootRpm;
+    }
+
+    public double getCurrentRPM(){
+        return shooter.getVelocity();
     }
 }
