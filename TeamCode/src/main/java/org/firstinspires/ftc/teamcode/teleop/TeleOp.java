@@ -6,7 +6,7 @@ import org.beaverbots.BeaverCommand.util.router.Selector;
 import org.firstinspires.ftc.teamcode.Side;
 import org.firstinspires.ftc.teamcode.commands.DrivetrainControl;
 import org.firstinspires.ftc.teamcode.commands.IntakeControl;
-import org.firstinspires.ftc.teamcode.commands.Resist;
+import org.firstinspires.ftc.teamcode.commands.ShooterMode;
 import org.firstinspires.ftc.teamcode.commands.ShooterControl;
 import org.firstinspires.ftc.teamcode.subsystems.ColorSensor;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
@@ -62,7 +62,7 @@ public class TeleOp extends CommandRuntimeOpMode {
         schedule(new Router(
                         new Selector(() -> gamepad.getLeftStickPressed()),
                         new DrivetrainControl(drivetrain, gamepad),
-                        new Resist(pinpoint, drivetrain, Side.RED)),
+                        new ShooterMode(pinpoint, drivetrain, Side.RED)),
                 new IntakeControl(intake, stopper, colorSensor, gamepad), shooterControl);
     }
 

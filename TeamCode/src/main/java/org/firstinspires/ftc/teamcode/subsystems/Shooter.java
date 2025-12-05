@@ -15,7 +15,7 @@ public final class Shooter implements Subsystem {
     private DcMotorEx shooterRight;
     private Servo hood;
     private double rpm;
-    private PIDFAxis pidf = new PIDFAxis(new PIDFAxis.K(0, 0, 0, 1, 1, 1, 0.1));
+    private PIDFAxis pidf = new PIDFAxis(new PIDFAxis.K(0, 0, 0, 1, 1, 1, 0.1, 0));
     private Stopwatch stopwatch;
 
     public Shooter() {

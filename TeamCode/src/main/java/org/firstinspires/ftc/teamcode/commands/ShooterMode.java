@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.subsystems.localizer.Localizer;
 import java.util.List;
 import java.util.Set;
 
-public class Resist implements Command {
+public class ShooterMode implements Command {
     private Localizer localizer;
     private Drivetrain drivetrain;
 
@@ -24,7 +24,7 @@ public class Resist implements Command {
     private HolonomicFollowPath followPathCommand;
     private DrivetrainState target;
 
-    public Resist(Localizer localization, Drivetrain drivetrain, Side side) {
+    public ShooterMode(Localizer localization, Drivetrain drivetrain, Side side) {
         this.localizer = localization;
         this.drivetrain = drivetrain;
         this.side = side;
@@ -53,9 +53,9 @@ public class Resist implements Command {
                         new PathAxis(t -> finalDesiredAngle, 0, Double.POSITIVE_INFINITY)
                 ), t -> false),
                 new PIDF(List.of(
-                        new PIDFAxis(new PIDFAxis.K(Constants.pidPX, Constants.pidIX, Constants.pidDX, 1, 6, 48, Constants.pidTauX)),
-                        new PIDFAxis(new PIDFAxis.K(Constants.pidPY, Constants.pidIY, Constants.pidDY, 1, 6, 48, Constants.pidTauY)),
-                        new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, 1, 6, 48, Constants.pidTauTheta))
+                        new PIDFAxis(new PIDFAxis.K(Constants.pidPX, Constants.pidIX, Constants.pidDX, 1, 6, 48, Constants.pidTauX, Constants.pidGammaX)),
+                        new PIDFAxis(new PIDFAxis.K(Constants.pidPY, Constants.pidIY, Constants.pidDY, 1, 6, 48, Constants.pidTauY, Constants.pidGammaY)),
+                        new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, 1, 6, 48, Constants.pidTauTheta, Constants.pidGammaTheta))
                 )),
                 localizer, drivetrain
         );

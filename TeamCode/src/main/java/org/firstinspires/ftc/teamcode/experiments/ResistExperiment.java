@@ -48,9 +48,9 @@ public class ResistExperiment extends CommandRuntimeOpMode {
                                 t -> false),
                         new PIDF(
                                 List.of(
-                                        new PIDFAxis(new PIDFAxis.K(Constants.pidPX, Constants.pidIX, Constants.pidDX, 1, 6, 48, 0.1)),
-                                        new PIDFAxis(new PIDFAxis.K(Constants.pidPY, Constants.pidIY, Constants.pidDY, 1, 6, 48, 0.1)),
-                                        new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, 1, 6, 48, 0.1)))),
+                                        new PIDFAxis(new PIDFAxis.K(Constants.pidPX, Constants.pidIX, Constants.pidDX, 1, 6, 48, 0.1, Constants.pidGammaX)),
+                                        new PIDFAxis(new PIDFAxis.K(Constants.pidPY, Constants.pidIY, Constants.pidDY, 1, 6, 48, 0.1, Constants.pidGammaY)),
+                                        new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, 1, 6, 48, 0.1, Constants.pidGammaTheta)))),
                         localizer,
                         drivetrain)
         );

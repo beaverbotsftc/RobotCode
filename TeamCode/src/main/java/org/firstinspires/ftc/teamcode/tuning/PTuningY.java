@@ -63,9 +63,9 @@ public class PTuningY extends CommandRuntimeOpMode {
                         ),
                         new PIDF(
                                 List.of(
-                                        new PIDFAxis(new PIDFAxis.K(0, 0, 0, 0, 0, 0, 0)),
-                                        new PIDFAxis(new PIDFAxis.K(p, 0, 0, 0, 0, Double.POSITIVE_INFINITY, 0)),
-                                        new PIDFAxis(new PIDFAxis.K(0, 0, 0, 0, 0, 0, 0))
+                                        new PIDFAxis(new PIDFAxis.K(0, 0, 0, 0, 0, 0, 0, 0)),
+                                        new PIDFAxis(new PIDFAxis.K(p, 0, 0, 0, 0, Double.POSITIVE_INFINITY, 0, 0)),
+                                        new PIDFAxis(new PIDFAxis.K(0, 0, 0, 0, 0, 0, 0, 0))
                                 )
                         ),
                         pinpoint,

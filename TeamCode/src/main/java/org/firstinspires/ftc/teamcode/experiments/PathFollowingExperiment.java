@@ -8,6 +8,7 @@ import org.beaverbots.beavertracking.PIDF;
 import org.beaverbots.beavertracking.PIDFAxis;
 import org.beaverbots.beavertracking.Path;
 import org.beaverbots.beavertracking.PathAxis;
+import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
@@ -34,11 +35,14 @@ public class PathFollowingExperiment extends CommandRuntimeOpMode {
                 new PathAxis(t -> 12 * Math.sin(t / 5), 0, Double.POSITIVE_INFINITY),
                 new PathAxis(t -> t / 3, 0, Double.POSITIVE_INFINITY)
         ), t -> false);
-        PIDF pidf = new PIDF(List.of(
-                new PIDFAxis(new PIDFAxis.K(0.2, 0, 0, 0, 0.4, 1, 0)),
-                new PIDFAxis(new PIDFAxis.K(0.2, 0, 0, 0, 0.4, 1, 0)),
-                new PIDFAxis(new PIDFAxis.K(1.5, 0, 0, 0, 0.4, 1, 0))
-        ));
+        PIDF pidf = new PIDF(
+                List.of(
+                        new PIDFAxis(new PIDFAxis.K(Constants.pidPX, Constants.pidIX, Constants.pidDX, 1, 6, 48, Constants.pidTauX, Constants.pidGammaX)),
+                        new PIDFAxis(new PIDFAxis.K(Constants.pidPY, Constants.pidIY, Constants.pidDY, 1, 6, 48, Constants.pidTauY, Constants.pidGammaY)),
+                        new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, 1, 6, 48, Constants.pidTauTheta, Constants.pidGammaTheta))
+                )
+        );
+
         schedule(new HolonomicFollowPath(path, pidf, pinpoint, drivetrain));
     }
 

@@ -10,8 +10,11 @@ public final class PIDFAxis {
         public final double integrationClamp;
         public final double outputClamp;
         public final double tau;
+        public final double gamma;
 
-        public K(double p, double i, double d, double f, double integrationClamp, double outputClamp, double tau) {
+        public K(double p, double i, double d, double f,
+                 double integrationClamp, double outputClamp,
+                 double tau, double gamma) {
             this.p = p;
             this.i = i;
             this.d = d;
@@ -19,6 +22,7 @@ public final class PIDFAxis {
             this.integrationClamp = integrationClamp;
             this.outputClamp = outputClamp;
             this.tau = tau;
+            this.gamma = gamma;
         }
     }
 
@@ -37,17 +41,17 @@ public final class PIDFAxis {
     public double update(double error, double feedforward, double dt) {
         final double dNoisy = (error - lastError) / dt;
         lastError = error;
+
         double derivative = dLowPassFilter.update(dNoisy, dt);
 
-        if (Math.abs(unclampedControl(error, derivative, feedforward)) < k.outputClamp) {
-            i += error * dt;
-            i = Math.min(Math.max(i, -k.integrationClamp), k.integrationClamp);
-        }
+        double dampingFactor = 1.0 / (1.0 + k.gamma * (derivative * derivative));
 
-        return Math.min(Math.max(unclampedControl(error, derivative, feedforward), -k.outputClamp), k.outputClamp);
-    }
+        i += (error * dt) * dampingFactor;
 
-    private double unclampedControl(double error, double derivative, double feedforward) {
-        return k.p * error + k.i * i + k.d * derivative + k.f * feedforward;
+        i = Math.min(Math.max(i, -k.integrationClamp), k.integrationClamp);
+
+        double output = (k.p * error) + (k.i * i) + (k.d * derivative) + (k.f * feedforward);
+
+        return Math.min(Math.max(output, -k.outputClamp), k.outputClamp);
     }
 }

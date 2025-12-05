@@ -6,7 +6,7 @@ import org.beaverbots.BeaverCommand.Command;
 import org.beaverbots.BeaverCommand.CommandRuntimeOpMode;
 import org.firstinspires.ftc.teamcode.Side;
 import org.firstinspires.ftc.teamcode.commands.DrivetrainControl;
-import org.firstinspires.ftc.teamcode.commands.Resist;
+import org.firstinspires.ftc.teamcode.commands.ShooterMode;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
@@ -45,7 +45,7 @@ public class ControllableResistExperiment extends CommandRuntimeOpMode {
 
             cancel(runningMovementCommand);
             if (resist) {
-                schedule(new Resist(pinpoint, drivetrain, Side.RED));
+                schedule(new ShooterMode(pinpoint, drivetrain, Side.RED));
             } else {
                 schedule(new DrivetrainControl(drivetrain, gamepad));
             }
