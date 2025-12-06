@@ -4,6 +4,7 @@ import org.beaverbots.BeaverCommand.Command;
 import org.firstinspires.ftc.teamcode.subsystems.ColorSensor;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
+import org.firstinspires.ftc.teamcode.subsystems.Led;
 import org.firstinspires.ftc.teamcode.subsystems.Stopper;
 
 public class IntakeControl implements Command {
@@ -11,12 +12,14 @@ public class IntakeControl implements Command {
     private Stopper stopper;
     private ColorSensor colorSensor;
     private Gamepad gamepad;
+    private Led led;
 
-    public IntakeControl(Intake intake, Stopper stopper, ColorSensor colorSensor, Gamepad gamepad) {
+    public IntakeControl(Intake intake, Stopper stopper, ColorSensor colorSensor, Led led, Gamepad gamepad) {
         this.intake = intake;
         this.stopper = stopper;
         this.colorSensor = colorSensor;
         this.gamepad = gamepad;
+        this.led = led;
     }
 
     public boolean periodic() {
@@ -31,6 +34,12 @@ public class IntakeControl implements Command {
         }else{
             intake.setMaxPower(1.0);
             stopper.stop();
+        }
+
+        if(colorSensor.checkBack() && colorSensor.checkFront()){
+            led.setPurple();
+        }else{
+            led.turnOff();
         }
 
         intake.spin(intakeSpeed);
