@@ -89,7 +89,7 @@ public class AutonomousStaticBlueFar extends CommandRuntimeOpMode {
     @Override
     public void onStart() {
         Pair<Path, Path> autoPart1 = new PathBuilder(pinpoint.getPositionAsList())
-                .linearTo(new DrivetrainState(18, 84, 0.5).toList(), 0.3, 0.5)
+                .linearTo(new DrivetrainState(18, 84, 0.45).toList(), 0.3, 0.5)
                 .stop(0.3, 0.5)
                 .build();
 
@@ -101,12 +101,12 @@ public class AutonomousStaticBlueFar extends CommandRuntimeOpMode {
                 .build();
 
         Pair<Path, Path> autoPart3 = new PathBuilder(autoPart2.second)
-                .linearTo(new DrivetrainState(18, 84, 0.5).toList(), 0.5, 0.8)
+                .linearTo(new DrivetrainState(18, 84, 0.45).toList(), 0.5, 0.8)
                 .stop(0.3, 0.5)
                 .build();
 
         Pair<Path, Path> autoPart6 = new PathBuilder(autoPart1.second)
-                .linearTo(new DrivetrainState(36, 96, -0.68).toList(), 0.2, 0.5)
+                .linearTo(new DrivetrainState(36, 96, 0.45).toList(), 0.2, 0.5)
                 .build();
 
         schedule(new Sequential(
@@ -114,8 +114,8 @@ public class AutonomousStaticBlueFar extends CommandRuntimeOpMode {
                 new Sequential(
                         new RunUntil(
                                 new Sequential(
-                                        new Instant(() -> shooter.spin(3100)),
-                                        new WaitUntil(() -> Math.abs(shooter.getVelocity() - 3100) < 30),
+                                        new Instant(() -> shooter.spin(3000)),
+                                        new WaitUntil(() -> Math.abs(shooter.getVelocity() - 3000) < 30),
                                         new Parallel(
                                                 new Instant(() -> intake.spin(1)),
                                                 new Instant(() -> stopper.spinForward())
@@ -133,8 +133,8 @@ public class AutonomousStaticBlueFar extends CommandRuntimeOpMode {
                         followPathTemplate(autoPart3.first),
                         new RunUntil(
                                 new Sequential(
-                                        new Instant(() -> shooter.spin(3100)),
-                                        new WaitUntil(() -> Math.abs(shooter.getVelocity() - 3100) < 30),
+                                        new Instant(() -> shooter.spin(3000)),
+                                        new WaitUntil(() -> Math.abs(shooter.getVelocity() - 3000) < 30),
                                         new Parallel(
                                                 new Instant(() -> intake.spin(1)),
                                                 new Instant(() -> stopper.spinForward())

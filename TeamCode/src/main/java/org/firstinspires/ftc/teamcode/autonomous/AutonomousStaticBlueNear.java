@@ -123,7 +123,7 @@ public class AutonomousStaticBlueNear extends CommandRuntimeOpMode {
                 .build();
 
         Pair<Path, Path> autoPart6 = new PathBuilder(List.of(autoPart1.second.position(0).get(0), 144 - autoPart1.second.position(0).get(1), -autoPart1.second.position(0).get(2)))
-                .linearTo(new DrivetrainState(120, 56, -0.68).toList(), 0.2, 0.5)
+                .linearTo(new DrivetrainState(120, 60, -0.68).toList(), 0.2, 0.5)
                 .transform(List.of(x -> x, y -> 144 - y, theta -> -theta))
                 .build();
 
