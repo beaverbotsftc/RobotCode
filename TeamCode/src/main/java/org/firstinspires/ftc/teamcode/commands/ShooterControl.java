@@ -11,6 +11,7 @@ public class ShooterControl implements Command {
 
     double shootRpm = 2200.0;
     int shootPos = 1;
+    boolean shooterToggle = false;
 
     public ShooterControl(Shooter shooter, Gamepad gamepad) {
         this.shooter = shooter;
@@ -18,13 +19,6 @@ public class ShooterControl implements Command {
     }
 
     public boolean periodic() {
-        if (gamepad.getTriangle() && shootRpm < 4000) {
-            shootRpm += 5;
-        }
-        if (gamepad.getCross() && shootRpm > 100) {
-            shootRpm -= 5;
-        }
-
         if (gamepad.getLeftBumperJustPressed()) {
             shootPos = Math.max(1, shootPos-1);
         } else if (gamepad.getRightBumperJustPressed()) {
@@ -33,16 +27,20 @@ public class ShooterControl implements Command {
 
         if(shootPos == 1){
             shooter.setHood(0.27);
-            shootRpm = 2200.0;
+            shootRpm = 2500.0;
         } else if (shootPos == 2) {
             shooter.setHood(0.35);
-            shootRpm = 2600.0;
+            shootRpm = 2800.0;
         }else if (shootPos == 3){
             shooter.setHood(0.53);
-            shootRpm = 3250.0;
+            shootRpm = 3400.0;
         }
 
-        if (gamepad.getSquare()) {
+        if(gamepad.getSquareJustPressed()){
+            shooterToggle = !shooterToggle;
+        }
+
+        if (shooterToggle) {
             shooter.spin(shootRpm);
 
             double velocity = shooter.getVelocity();
