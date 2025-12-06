@@ -144,8 +144,7 @@ public class AutonomousStaticBlueFar extends CommandRuntimeOpMode {
                                 ),
                                 followPathTemplate(autoPart3.second)
                         ),
-                        followPathTemplate(autoPart6.first),
-                        new Instant(() -> requestOpModeStop())
+                        followPathTemplate(autoPart6.first)
                 )));
         stopwatch.reset();
     }
@@ -153,6 +152,10 @@ public class AutonomousStaticBlueFar extends CommandRuntimeOpMode {
     @Override
     public void periodic() {
         telemetry.addData("Position:", pinpoint.getPosition().toString());
+    }
+
+    public void onStop() {
+        CrossModeStorage.position = pinpoint.getPosition();
     }
 
     private Command followPathTemplate(Path path) {

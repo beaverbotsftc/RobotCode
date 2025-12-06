@@ -39,24 +39,6 @@ import java.util.stream.IntStream;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous
 public class Autonomous extends CommandRuntimeOpMode {
-    private enum Position {
-        GPP,
-        PGP,
-        PPG,
-        HUMAN,
-        FAR_SHOOT,
-        NEAR_SHOOT,
-        PARK_END,
-        NEAR_END,
-        MID_END,
-        FAR_END,
-    }
-
-    private final class Config {
-        public Side side;
-        public List<Position> positions;
-    }
-
     private Gamepad gamepad;
     private Drivetrain drivetrain;
     private Intake intake;
@@ -68,11 +50,6 @@ public class Autonomous extends CommandRuntimeOpMode {
 
     private Side side;
     private Motif motif;
-
-    private List<Position> positions;
-    private int selectedPosition;
-
-    private Stopwatch stopwatch = new Stopwatch();
 
     @Override
     public void onInit() {
