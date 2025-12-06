@@ -31,6 +31,12 @@ public final class ColorSensor implements Subsystem {
         updateBackHSV();
         return !(hsvBack[2] < 0.1) || !(getBackDistance() >= 7.5);
     }
+
+    public boolean checkFront() {
+        //return true if there is a ball, return false otherwise
+        updateFrontHSV();
+        return !(hsvFront[2] < 0.12) || !(getFrontDistance() >= 7.5);
+    }
     private void updateHSV(){
         NormalizedRGBA colors = colorFront.getNormalizedColors();
         Color.colorToHSV(colors.toColor(), hsvFront);

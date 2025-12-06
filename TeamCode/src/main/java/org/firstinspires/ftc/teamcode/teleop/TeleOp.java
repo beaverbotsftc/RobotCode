@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.commands.ShooterControl;
 import org.firstinspires.ftc.teamcode.subsystems.ColorSensor;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
+import org.firstinspires.ftc.teamcode.subsystems.Led;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.Stopper;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
@@ -33,6 +34,7 @@ public class TeleOp extends CommandRuntimeOpMode {
     private Limelight limelight;
     private ShooterControl shooterControl;
     private ColorSensor colorSensor;
+    private Led led;
     private FusedLocalizer fusedLocalizer;
 
     @Override
@@ -46,6 +48,7 @@ public class TeleOp extends CommandRuntimeOpMode {
         limelight = new Limelight();
         fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new DrivetrainState(0, 0, 0));
         colorSensor = new ColorSensor();
+        led = new Led();
         limelight.goalPipeline();
         register(gamepad, drivetrain, intake, stopper, shooter, pinpoint, limelight, colorSensor, fusedLocalizer);
     }
@@ -71,7 +74,7 @@ public class TeleOp extends CommandRuntimeOpMode {
                         new Selector(() -> gamepad.getLeftStickPressed()),
                         new DrivetrainControl(drivetrain, gamepad),
                         new ShooterMode(pinpoint, drivetrain, Side.RED)),
-                new IntakeControl(intake, stopper, colorSensor, gamepad), shooterControl);
+                new IntakeControl(intake, stopper, colorSensor, led, gamepad), shooterControl);
     }
 
     @Override
