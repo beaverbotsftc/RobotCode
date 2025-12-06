@@ -6,7 +6,8 @@ import org.beaverbots.BeaverCommand.Command;
 import org.beaverbots.BeaverCommand.CommandRuntimeOpMode;
 import org.beaverbots.BeaverCommand.util.Instant;
 import org.beaverbots.BeaverCommand.util.Parallel;
-import org.beaverbots.BeaverCommand.util.PrimaryParallel;
+import org.beaverbots.BeaverCommand.util.RunUntil;
+import org.beaverbots.BeaverCommand.util.Repeat;
 import org.beaverbots.BeaverCommand.util.Sequential;
 import org.beaverbots.BeaverCommand.util.Stopwatch;
 import org.beaverbots.BeaverCommand.util.Wait;
@@ -28,13 +29,34 @@ import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
-import org.firstinspires.ftc.teamcode.subsystems.localizer.Localizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous
 public class Autonomous extends CommandRuntimeOpMode {
+    private enum Position {
+        GPP,
+        PGP,
+        PPG,
+        HUMAN,
+        FAR_SHOOT,
+        NEAR_SHOOT,
+        PARK_END,
+        NEAR_END,
+        MID_END,
+        FAR_END,
+    }
+
+    private final class Config {
+        public Side side;
+        public List<Position> positions;
+    }
+
     private Gamepad gamepad;
     private Drivetrain drivetrain;
     private Intake intake;
@@ -42,12 +64,13 @@ public class Autonomous extends CommandRuntimeOpMode {
     private Stopper stopper;
     private Pinpoint pinpoint;
     private Limelight limelight;
-    private Localizer fusedLocalizer;
+    private FusedLocalizer fusedLocalizer;
 
-    private final Side side = Side.RED;
+    private Side side;
     private Motif motif;
 
-    private boolean motifScanning = false;
+    private List<Position> positions;
+    private int selectedPosition;
 
     private Stopwatch stopwatch = new Stopwatch();
 
@@ -64,120 +87,107 @@ public class Autonomous extends CommandRuntimeOpMode {
 
         register(gamepad, drivetrain, intake, shooter, stopper, pinpoint, limelight, fusedLocalizer);
         limelight.goalPipeline();
-    }
 
-    @Override
-    public void periodicInit() {
-        if (motifScanning) {
-            Motif result = limelight.getMotif(side);
-            if (result != null) motif = result;
-            telemetry.addData("Limelight now:", result);
-            telemetry.addData("Motif:", motif);
-            telemetry.addLine(limelight.getStatus().toString());
-        } else if (gamepad.getDpadUpJustPressed()) {
-            pinpoint.setPosition(fusedLocalizer.getPosition());
-            unregister(fusedLocalizer);
-            limelight.obeliskPipeline();
-            motifScanning = true;
-        }
+        // Will be cancelled upon starting the opmode
+        schedule(
+                new Sequential(
+                        new RunUntil(
+                                new WaitUntil(() -> gamepad.getLeftStickPressed() || gamepad.getRightStickPressed()),
+                                new Repeat(() -> {
+                                    telemetry.addData("Position:", fusedLocalizer.getPosition());
+                                    telemetry.addData("Covariance:", formatDoubleArray(fusedLocalizer.getCovariance().getData()));
+                                }),
+                                new Repeat(() -> {
+                                    telemetry.addLine("Hello, Graisen! Press left if you are on the blue side, and right for red.");
+                                    telemetry.addLine("Press up to add a new position, and down to remove the last one.");
+                                    telemetry.addLine("Left and right bumper selects the left and right position respectively,");
+                                    telemetry.addLine("and cross and triangle to cycle through the positions.");
+                                    telemetry.addLine("Press down a stick to exit the configuration.");
+                                    telemetry.addLine();
+                                    telemetry.addLine("Current positions:");
+                                    telemetry.addLine(IntStream.range(0, positions.size()).mapToObj(i -> {
+                                        if (i == selectedPosition)
+                                            return positions.get(i).toString().toUpperCase();
+                                        else
+                                            return positions.get(i).toString().toLowerCase();
+                                    }).collect(Collectors.toList()).toString());
 
-        if (!motifScanning) {
-            telemetry.addData("Position:", fusedLocalizer.getPosition().toString());
-        }
+                                    if (gamepad.getDpadUpJustPressed()) {
+                                        positions.add(Position.GPP);
+                                    }
+
+                                    if (gamepad.getDpadDownJustPressed() && !positions.isEmpty()) {
+                                        positions.remove(positions.size() - 1);
+                                    }
+
+                                    if (gamepad.getCrossJustPressed()) {
+                                        positions.set(selectedPosition, Position.values()[(positions.get(selectedPosition).ordinal() + 1) % Position.values().length]);
+                                    }
+
+                                    if (gamepad.getTriangleJustPressed()) {
+                                        positions.set(selectedPosition, Position.values()[(positions.get(selectedPosition).ordinal() - 1 + Position.values().length) % Position.values().length]);
+                                    }
+                                })
+                        ),
+                        new Instant(() -> {
+                            pinpoint.setPosition(fusedLocalizer.getPosition());
+                            unregister(fusedLocalizer);
+                            limelight.obeliskPipeline();
+                        }),
+                        new Repeat(() -> {
+                            final Motif limelightMotif = limelight.getMotif(side);
+                            if (limelightMotif != null) motif = limelightMotif;
+                        })
+                )
+        );
     }
 
     @Override
     public void onStart() {
-        Pair<Path, Path> autoPart1 = new PathBuilder(pinpoint.getPositionAsList())
-                .linearTo(new DrivetrainState(83.4, 58.7, -0.68).toList(), 0.3, 0.5)
-                .halt(0.3, 0.5)
-                .build();
+        cancelAll();
+        List<Command> sequence = new ArrayList<>();
+        DrivetrainState startPosition = pinpoint.getPosition();
+        for (int i = 0; i < positions.size(); i++) {
+            Position position = positions.get(i);
 
-        Pair<Path, Path> autoPart2 = new PathBuilder(autoPart1.second)
-                .linearTo(new DrivetrainState(84, 52, -Math.PI / 2).toList(), 0.3, 0.7)
-                .halt(1, 1)
-                .linearTo(new DrivetrainState(84, 28, -Math.PI / 2).toList(), 1, 4)
-                .halt(0.2, 0.5)
-                .build();
-
-        Pair<Path, Path> autoPart3 = new PathBuilder(autoPart2.second)
-                .linearTo(new DrivetrainState(83.4, 58.7, -0.68).toList(), 0.7, 0.7)
-                .halt(0.3, 0.5)
-                .build();
-
-        Pair<Path, Path> autoPart4 = new PathBuilder(autoPart3.second)
-                .linearTo(new DrivetrainState(58, 52, -Math.PI / 2).toList(), 0.3, 0.7)
-                .halt(0.5, 1)
-                .linearTo(new DrivetrainState(58, 28, -Math.PI / 2).toList(), 1, 4)
-                .halt(0.2, 0.5)
-                .build();
-
-        Pair<Path, Path> autoPart5 = new PathBuilder(autoPart4.second)
-                .linearTo(new DrivetrainState(83.4, 58.7, -0.68).toList(), 1, 1)
-                .halt(0.4, 0.8)
-                .build();
-
-        Pair<Path, Path> autoPart6 = new PathBuilder(autoPart1.second)
-                .linearTo(new DrivetrainState(58, 56, 0).toList(), 0.2, 0.5)
-                .build();
-
-        schedule(new Sequential(
-                followPathTemplate(autoPart1.first),
-                new Sequential(
-                        new PrimaryParallel(
-                                new Sequential(
-                                        new Instant(() -> shooter.spin(2150)),
-                                        new WaitUntil(() -> Math.abs(shooter.getVelocity() - 2200) < 30),
-                                        new Parallel(
-                                                new Instant(() -> intake.spin(1)),
-                                                new Instant(() -> stopper.spinForward())
-                                        ),
-                                        new Wait(2),
-                                        new Instant(() -> shooter.spin(0))
-                                ),
-                                followPathTemplate(autoPart1.second)
-                        ),
-                        new Instant(() -> intake.spin(1)),
-                        new Instant(() -> stopper.spinReverse()),
-                        followPathTemplate(autoPart2.first),
-                        new Instant(() -> intake.spin(0)),
-                        new Instant(() -> stopper.spin(0)),
-                        followPathTemplate(autoPart3.first),
-                        new PrimaryParallel(
-                                new Sequential(
-                                        new Instant(() -> shooter.spin(2150)),
-                                        new WaitUntil(() -> Math.abs(shooter.getVelocity() - 2200) < 30),
-                                        new Parallel(
-                                                new Instant(() -> intake.spin(1)),
-                                                new Instant(() -> stopper.spinForward())
-                                        ),
-                                        new Wait(2),
-                                        new Instant(() -> shooter.spin(0))
-                                ),
-                                followPathTemplate(autoPart3.second)
-                        ),
-                        new Instant(() -> intake.spin(1)),
-                        new Instant(() -> stopper.spinReverse()),
-                        followPathTemplate(autoPart4.first),
-                        new Instant(() -> intake.spin(0)),
-                        new Instant(() -> stopper.spin(0)),
-                        followPathTemplate(autoPart5.first),
-                        new PrimaryParallel(
-                                new Sequential(
-                                        new Instant(() -> shooter.spin(2150)),
-                                        new WaitUntil(() -> Math.abs(shooter.getVelocity() - 2200) < 30),
-                                        new Parallel(
-                                                new Instant(() -> intake.spin(1)),
-                                                new Instant(() -> stopper.spinForward())
-                                        ),
-                                        new Wait(2),
-                                        new Instant(() -> shooter.spin(0))
-                                ),
-                                followPathTemplate(autoPart5.second)
-                        ),
-                        followPathTemplate(autoPart6.first),
-                        new Instant(() -> requestOpModeStop())
-                )));
+            switch (position) {
+                case GPP:
+                    Pair<Path, Path> path = new PathBuilder(startPosition.toList())
+                            /*
+                            .bezierTo(
+                                    List.of(),
+                                    List.of(),
+                                    List.of()
+                            )
+                             */
+                            .build();
+                    startPosition = new DrivetrainState(path.second.position(0));
+                    sequence.add(
+                            followPathTemplate(
+                                    path.first
+                            )
+                    );
+                    break;
+                case PGP:
+                    break;
+                case PPG:
+                    break;
+                case HUMAN:
+                    break;
+                case FAR_SHOOT:
+                    break;
+                case NEAR_SHOOT:
+                    break;
+                case PARK_END:
+                    break;
+                case NEAR_END:
+                    break;
+                case MID_END:
+                    break;
+                case FAR_END:
+                    break;
+            }
+        }
         stopwatch.reset();
     }
 
@@ -196,5 +206,23 @@ public class Autonomous extends CommandRuntimeOpMode {
                                 new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, 1, 6, 48, Constants.pidTauTheta, Constants.pidGammaTheta)))),
                         pinpoint, drivetrain),
                 new Instant(() -> drivetrain.move(new DrivetrainState(0, 0, 0))));
+    }
+
+    public static String formatDoubleArray(double[][] array) {
+        StringBuilder sb = new StringBuilder();
+
+        for (double[] row : array) {
+            for (int i = 0; i < row.length; i++) {
+                String formatted = String.format("%.3f", row[i]);
+                sb.append(formatted);
+
+                if (i < row.length - 1) {
+                    sb.append(" ");
+                }
+            }
+            sb.append("\n");
+        }
+
+        return sb.toString();
     }
 }

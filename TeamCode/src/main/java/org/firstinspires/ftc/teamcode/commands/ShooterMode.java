@@ -42,6 +42,7 @@ public class ShooterMode implements Command {
             case RED: desiredAngle = localizer.wind(Math.atan2(Constants.redGoalY - localizer.getPosition().getY(), Constants.redGoalX - localizer.getPosition().getX())); break;
             case BLUE: desiredAngle = localizer.wind(Math.atan2(Constants.blueGoalY - localizer.getPosition().getY(), Constants.blueGoalX - localizer.getPosition().getX())); break;
         }
+        desiredAngle += 0.1; // TODO: Correction
 
         if (Math.abs(desiredAngle - position.getTheta()) > Math.PI / 2) desiredAngle = position.getTheta();
 

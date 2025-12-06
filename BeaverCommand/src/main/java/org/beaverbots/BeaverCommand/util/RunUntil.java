@@ -5,8 +5,8 @@ import org.beaverbots.BeaverCommand.CommandGroup;
 
 import java.util.Arrays;
 
-public class PrimaryParallel extends CommandGroup {
-    public PrimaryParallel(Command primary, Command... commands) {
+public class RunUntil extends CommandGroup {
+    public RunUntil(Command primary, Command... commands) {
         super(prepend(primary, commands));
     }
 
@@ -24,7 +24,9 @@ public class PrimaryParallel extends CommandGroup {
             if (command.periodic()) {
                 command.stop();
                 commands.remove(i);
-                return true;
+                if (i == 0) {
+                    return true;
+                }
             }
         }
         return false;

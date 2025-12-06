@@ -34,12 +34,7 @@ public class PathBuilder {
         f.set(i, t -> t > clockCaptured ? fX.applyAsDouble(t - clockCaptured) : fPrevious.applyAsDouble(t));
     }
 
-    private void appendEase(int i, DoubleUnaryOperator fNew, double easingTime) {
-        final DoubleUnaryOperator fPrevious = f.get(i);
-        f.set(i, easeTransition(fPrevious, fNew, clock, easingTime));
-    }
-
-    public PathBuilder halt(double easingTime, double time) {
+    public PathBuilder stop(double easingTime, double time) {
         for (int i = 0; i < f.size(); i++) {
             final double target = f.get(i).applyAsDouble(clock);
             appendEase(i, t -> target, easingTime);
@@ -60,17 +55,27 @@ public class PathBuilder {
         return this;
     }
 
+    private void appendEase(int i, DoubleUnaryOperator fNew, double easingTime) {
+        final DoubleUnaryOperator fPrevious = f.get(i);
+        final double clockCaptured = clock;
+
+        // Wrap fNew so it receives local time (t - clockCaptured)
+        // easeTransition still manages the blend in global time t
+        f.set(i, easeTransition(fPrevious, t -> fNew.applyAsDouble(t - clockCaptured), clockCaptured, easingTime));
+    }
+
+
     public PathBuilder linearTo(List<Double> x, double easingTime, double time) {
         for (int i = 0; i < x.size(); i++) {
             final DoubleUnaryOperator fPrevious = f.get(i);
             final double target = x.get(i);
-            final double clockCaptured = clock;
+
+            final double start = fPrevious.applyAsDouble(clock);
 
             DoubleUnaryOperator fNew = t -> {
-                double start = fPrevious.applyAsDouble(clockCaptured);
-                if (t <= clockCaptured) return start;
+                if (t <= 0) return start;
 
-                double u = (t - clockCaptured) / time;
+                double u = t / time;
 
                 return start + u * (target - start);
             };
@@ -79,6 +84,52 @@ public class PathBuilder {
         }
 
         clock += time;
+
+        return this;
+    }
+
+    public PathBuilder bezierTo(List<Double> control1, List<Double> control2, List<Double> target, double easingTime, double time) {
+        for (int i = 0; i < f.size(); i++) {
+            final DoubleUnaryOperator fPrevious = f.get(i);
+
+            final double p0 = fPrevious.applyAsDouble(clock);
+            final double p1 = control1.get(i);
+            final double p2 = control2.get(i);
+            final double p3 = target.get(i);
+
+            DoubleUnaryOperator fNew = t -> {
+                if (t <= 0) return p0;
+
+                double u = t / time;
+
+                if (u >= 1.0) return p3;
+
+                double invU = 1.0 - u;
+                double invU2 = invU * invU;
+                double invU3 = invU2 * invU;
+                double u2 = u * u;
+                double u3 = u2 * u;
+
+                return (invU3 * p0)
+                        + (3 * invU2 * u * p1)
+                        + (3 * invU * u2 * p2)
+                        + (u3 * p3);
+            };
+
+            appendEase(i, fNew, easingTime);
+        }
+
+        clock += time;
+
+        return this;
+    }
+    public PathBuilder transform(List<DoubleUnaryOperator> transformers) {
+        for (int i = 0; i < f.size(); i++) {
+            final DoubleUnaryOperator original = f.get(i);
+            final DoubleUnaryOperator transform = transformers.get(i);
+
+            f.set(i, t -> transform.applyAsDouble(original.applyAsDouble(t)));
+        }
 
         return this;
     }

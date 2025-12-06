@@ -2,6 +2,7 @@ package org.beaverbots.BeaverSensor;
 
 import com.qualcomm.robotcore.util.RobotLog;
 
+import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.CholeskyDecomposition;
@@ -181,6 +182,51 @@ public final class UnscentedKalmanFilter {
 
         return sigmaPoints;
     }
+
+    public boolean isMeasurementInlier(RealVector measurement, RealMatrix sensorCovariance, MeasurementFunction measurementFunction, double significanceLevel) {
+        final int measurementDim = measurement.getDimension();
+
+        List<RealVector> sigmaPoints = generateSigmaPoints();
+
+        List<RealVector> measurementPoints = new ArrayList<>();
+        for (RealVector point : sigmaPoints) {
+            measurementPoints.add(measurementFunction.apply(point));
+        }
+
+        RealVector predictedMeasurement = new ArrayRealVector(measurementDim);
+        for (int i = 0; i < measurementPoints.size(); i++) {
+            double w = (i == 0) ? weightMean : weight;
+            predictedMeasurement = predictedMeasurement.add(measurementPoints.get(i).mapMultiply(w));
+        }
+
+        RealMatrix innovationCovariance = new Array2DRowRealMatrix(measurementDim, measurementDim);
+        for (int i = 0; i < measurementPoints.size(); i++) {
+            double w = (i == 0) ? weightCovariance : weight;
+            RealVector deviation = measurementPoints.get(i).subtract(predictedMeasurement);
+            innovationCovariance = innovationCovariance.add(deviation.outerProduct(deviation).scalarMultiply(w));
+        }
+        innovationCovariance = innovationCovariance.add(sensorCovariance);
+
+        RealVector innovation = measurement.subtract(predictedMeasurement);
+
+        try {
+            // Solve S * x = innovation  (using cholesky solver) then maha = innovation^T * x
+            RealVector solve = choleskyDecomposeSafe(innovationCovariance).getSolver().solve(innovation);
+            double maha = innovation.dotProduct(solve);
+
+            // threshold = chi2inv(1 - significanceLevel, measurementDim)
+            ChiSquaredDistribution chi2 = new ChiSquaredDistribution(measurementDim);
+            double threshold = chi2.inverseCumulativeProbability(1.0 - significanceLevel);
+
+            RobotLog.dd("BeaverSensor", "Measurement Mahalanobis=" + maha + " threshold=" + threshold + " dim=" + measurementDim);
+
+            return maha <= threshold;
+        } catch (Exception e) {
+            RobotLog.ee("BeaverSensor", e, "Failed to evaluate measurement inlier test (numerical issue). Accepting measurement by default.");
+            return true;
+        }
+    }
+
 
     private RealMatrix matrixSqrt(RealMatrix matrix) {
         return choleskyDecomposeSafe(matrix).getL();

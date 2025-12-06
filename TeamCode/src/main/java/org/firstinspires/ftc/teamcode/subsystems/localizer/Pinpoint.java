@@ -19,11 +19,7 @@ public final class Pinpoint implements Localizer, Subsystem {
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         pinpoint.setOffsets(Constants.pinpointXOffset, Constants.pinpointYOffset);
         pinpoint.recalibrateIMU();
-        resetPosition(pose);
-    }
-
-    public void resetPosition(DrivetrainState pose) {
-        pinpoint.setPosition(pose.toPose2d());
+        setPosition(pose);
     }
 
     public List<Double> getPositionAsList() {

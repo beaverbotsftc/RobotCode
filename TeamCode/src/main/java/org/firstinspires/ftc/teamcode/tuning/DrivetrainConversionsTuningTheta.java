@@ -78,7 +78,7 @@ public class DrivetrainConversionsTuningTheta extends CommandRuntimeOpMode {
 
         schedule(new Sequential(
                 new WaitUntil(() -> gamepad.getCross()),
-                new Instant(() -> pinpoint.resetPosition(new DrivetrainState(0, 0, 0))),
+                new Instant(() -> pinpoint.setPosition(new DrivetrainState(0, 0, 0))),
                 new Instant(() -> stopwatch.reset()),
                 new Instant(() -> drivetrain.move(new DrivetrainState(0, 0, Math.PI))),
                 new WaitUntil(() -> stopwatch.getElapsed() > 2),

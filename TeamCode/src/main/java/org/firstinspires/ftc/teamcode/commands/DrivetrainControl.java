@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.beaverbots.BeaverCommand.Command;
 import org.beaverbots.BeaverCommand.Subsystem;
+import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
@@ -26,9 +27,9 @@ public class DrivetrainControl implements Command {
 
     @Override
     public boolean periodic() {
-        double x = gamepad.getLeftY() * 48;
-        double y = -gamepad.getLeftX() * 48;
-        double theta = -gamepad.getRightX() * Math.PI * 2;
+        double x = gamepad.getLeftY() / Constants.drivetrainPowerConversionFactorX; //* 70;
+        double y = -gamepad.getLeftX() / Constants.drivetrainPowerConversionFactorY; //* 70;
+        double theta = -gamepad.getRightX() / Constants.drivetrainPowerConversionFactorTheta; //* Math.PI * 2;
 
         drivetrain.move(new DrivetrainState(x, y, theta));
 

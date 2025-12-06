@@ -20,6 +20,8 @@ import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
 
+import java.util.Arrays;
+
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp
 public class TeleOp extends CommandRuntimeOpMode {
     private Gamepad gamepad;
@@ -50,14 +52,20 @@ public class TeleOp extends CommandRuntimeOpMode {
 
     @Override
     public void periodicInit() {
+        /*
         if (gamepad.getDpadUpJustPressed()) {
             pinpoint.setPosition(fusedLocalizer.getPosition());
             unregister(fusedLocalizer);
         }
+        */
+        telemetry.addData("Position:", fusedLocalizer.getPosition().toString());
+        telemetry.addData("Covariance:", Arrays.deepToString(fusedLocalizer.getCovariance().getData()));
     }
 
     @Override
     public void onStart() {
+        pinpoint.setPosition(fusedLocalizer.getPosition());
+        unregister(fusedLocalizer);
         shooterControl = new ShooterControl(shooter, gamepad);
         schedule(new Router(
                         new Selector(() -> gamepad.getLeftStickPressed()),
