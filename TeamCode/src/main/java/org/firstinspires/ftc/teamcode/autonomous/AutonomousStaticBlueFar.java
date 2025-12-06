@@ -89,19 +89,19 @@ public class AutonomousStaticBlueFar extends CommandRuntimeOpMode {
     @Override
     public void onStart() {
         Pair<Path, Path> autoPart1 = new PathBuilder(pinpoint.getPositionAsList())
-                .linearTo(new DrivetrainState(24, 84, 0.5).toList(), 0.3, 0.5)
+                .linearTo(new DrivetrainState(18, 84, 0.5).toList(), 0.3, 0.5)
                 .stop(0.3, 0.5)
                 .build();
 
         Pair<Path, Path> autoPart2 = new PathBuilder(autoPart1.second)
-                .linearTo(new DrivetrainState(36, 92, Math.PI / 2).toList(), 0.3, 0.7)
+                .linearTo(new DrivetrainState(42, 92, Math.PI / 2).toList(), 0.3, 0.7)
                 .stop(1, 1)
-                .linearTo(new DrivetrainState(36, 116, Math.PI / 2).toList(), 1, 4)
+                .linearTo(new DrivetrainState(42, 116, Math.PI / 2).toList(), 1, 4)
                 .stop(0.2, 0.5)
                 .build();
 
         Pair<Path, Path> autoPart3 = new PathBuilder(autoPart2.second)
-                .linearTo(new DrivetrainState(24, 84, 0.5).toList(), 0.5, 0.8)
+                .linearTo(new DrivetrainState(18, 84, 0.5).toList(), 0.5, 0.8)
                 .stop(0.3, 0.5)
                 .build();
 
@@ -114,8 +114,8 @@ public class AutonomousStaticBlueFar extends CommandRuntimeOpMode {
                 new Sequential(
                         new RunUntil(
                                 new Sequential(
-                                        new Instant(() -> shooter.spin(3150)),
-                                        new WaitUntil(() -> Math.abs(shooter.getVelocity() - 3150) < 30),
+                                        new Instant(() -> shooter.spin(3100)),
+                                        new WaitUntil(() -> Math.abs(shooter.getVelocity() - 3100) < 30),
                                         new Parallel(
                                                 new Instant(() -> intake.spin(1)),
                                                 new Instant(() -> stopper.spinForward())
@@ -133,8 +133,8 @@ public class AutonomousStaticBlueFar extends CommandRuntimeOpMode {
                         followPathTemplate(autoPart3.first),
                         new RunUntil(
                                 new Sequential(
-                                        new Instant(() -> shooter.spin(3250)),
-                                        new WaitUntil(() -> Math.abs(shooter.getVelocity() - 3250) < 30),
+                                        new Instant(() -> shooter.spin(3100)),
+                                        new WaitUntil(() -> Math.abs(shooter.getVelocity() - 3100) < 30),
                                         new Parallel(
                                                 new Instant(() -> intake.spin(1)),
                                                 new Instant(() -> stopper.spinForward())

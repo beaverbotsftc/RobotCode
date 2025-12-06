@@ -45,7 +45,7 @@ public class ControllableResistExperiment extends CommandRuntimeOpMode {
 
             cancel(runningMovementCommand);
             if (resist) {
-                schedule(new ShooterMode(pinpoint, drivetrain, Side.RED));
+                schedule(new ShooterMode(pinpoint, drivetrain, Side.RED, true));
             } else {
                 schedule(new DrivetrainControl(drivetrain, gamepad));
             }

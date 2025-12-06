@@ -23,11 +23,13 @@ public class ShooterMode implements Command {
     private Side side;
     private HolonomicFollowPath followPathCommand;
     private DrivetrainState target;
+    private boolean resistOnly;
 
-    public ShooterMode(Localizer localization, Drivetrain drivetrain, Side side) {
+    public ShooterMode(Localizer localization, Drivetrain drivetrain, Side side, boolean resistOnly) {
         this.localizer = localization;
         this.drivetrain = drivetrain;
         this.side = side;
+        this.resistOnly = resistOnly;
     }
 
     public Set<Subsystem> getDependencies() {
@@ -51,7 +53,7 @@ public class ShooterMode implements Command {
                 new Path(List.of(
                         new PathAxis(t -> position.getX(), 0, Double.POSITIVE_INFINITY),
                         new PathAxis(t -> position.getY(), 0, Double.POSITIVE_INFINITY),
-                        new PathAxis(t -> finalDesiredAngle, 0, Double.POSITIVE_INFINITY)
+                        new PathAxis(t -> resistOnly ? position.getTheta() : finalDesiredAngle, 0, Double.POSITIVE_INFINITY)
                 ), t -> false),
                 new PIDF(List.of(
                         new PIDFAxis(new PIDFAxis.K(Constants.pidPX, Constants.pidIX, Constants.pidDX, 1, 6, 48, Constants.pidTauX, Constants.pidGammaX)),

@@ -6,25 +6,24 @@ import org.beaverbots.BeaverCommand.util.router.Selector;
 import org.firstinspires.ftc.teamcode.Side;
 import org.firstinspires.ftc.teamcode.commands.DrivetrainControl;
 import org.firstinspires.ftc.teamcode.commands.IntakeControl;
-import org.firstinspires.ftc.teamcode.commands.ShooterMode;
 import org.firstinspires.ftc.teamcode.commands.ShooterControl;
+import org.firstinspires.ftc.teamcode.commands.ShooterMode;
 import org.firstinspires.ftc.teamcode.subsystems.ColorSensor;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
-import org.firstinspires.ftc.teamcode.subsystems.Led;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
-import org.firstinspires.ftc.teamcode.subsystems.Stopper;
-import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
-import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
+import org.firstinspires.ftc.teamcode.subsystems.Stopper;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
+import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
+import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 
 import java.util.Arrays;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp
-public class TeleOp extends CommandRuntimeOpMode {
+public class TeleOpNoAim extends CommandRuntimeOpMode {
     private Gamepad gamepad;
     private Drivetrain drivetrain;
     private Intake intake;
@@ -34,7 +33,6 @@ public class TeleOp extends CommandRuntimeOpMode {
     private Limelight limelight;
     private ShooterControl shooterControl;
     private ColorSensor colorSensor;
-    private Led led;
     private FusedLocalizer fusedLocalizer;
 
     @Override
@@ -48,7 +46,6 @@ public class TeleOp extends CommandRuntimeOpMode {
         limelight = new Limelight();
         fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new DrivetrainState(0, 0, 0));
         colorSensor = new ColorSensor();
-        led = new Led();
         limelight.goalPipeline();
         register(gamepad, drivetrain, intake, stopper, shooter, pinpoint, limelight, colorSensor, fusedLocalizer);
     }
@@ -73,8 +70,8 @@ public class TeleOp extends CommandRuntimeOpMode {
         schedule(new Router(
                         new Selector(() -> gamepad.getLeftStickPressed()),
                         new DrivetrainControl(drivetrain, gamepad),
-                        new ShooterMode(pinpoint, drivetrain, Side.RED, false)),
-                new IntakeControl(intake, stopper, colorSensor, led, gamepad), shooterControl);
+                        new ShooterMode(pinpoint, drivetrain, Side.RED, true)),
+                new IntakeControl(intake, stopper, colorSensor, gamepad), shooterControl);
     }
 
     @Override
