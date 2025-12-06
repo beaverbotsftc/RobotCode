@@ -50,7 +50,7 @@ public class ShooterModeExperiment extends CommandRuntimeOpMode {
                 new Router(
                         new Selector(() -> gamepad1.left_stick_button),
                         new DrivetrainControl(drivetrain, gamepad),
-                        new ShooterMode(localizer, drivetrain, Side.RED)
+                        new ShooterMode(localizer, drivetrain, Side.RED, false)
                 )
         );
     }
