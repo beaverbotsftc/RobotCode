@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.beaverbots.BeaverCommand.CommandRuntimeOpMode;
@@ -12,7 +13,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
 
-@TeleOp
+@Disabled
 public class Debug extends CommandRuntimeOpMode {
     private Gamepad gamepad;
     private Drivetrain drivetrain;

@@ -41,7 +41,7 @@ public class TeleOpNoAim extends CommandRuntimeOpMode {
         pinpoint = new Pinpoint(CrossModeStorage.position);
         colorSensor = new ColorSensor();
         led = new Led();
-        register(gamepad, drivetrain, intake, stopper, shooter, pinpoint, colorSensor);
+        register(gamepad, drivetrain, intake, stopper, shooter, pinpoint, colorSensor, led);
     }
 
     @Override

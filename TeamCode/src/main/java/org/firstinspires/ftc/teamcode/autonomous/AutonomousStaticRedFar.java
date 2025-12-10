@@ -89,24 +89,24 @@ public class AutonomousStaticRedFar extends CommandRuntimeOpMode {
     @Override
     public void onStart() {
         Pair<Path, Path> autoPart1 = new PathBuilder(List.of(pinpoint.getPositionAsList().get(0), pinpoint.getPositionAsList().get(1), pinpoint.getPositionAsList().get(2)))
-                .linearTo(new DrivetrainState(18, 144 - 84, 0.1 - 0.45).toList(), 0.3, 0.5)
+                .linearTo(new DrivetrainState(18, 144 - 84, Constants.shooterBias - 0.45).toList(), 0.3, 0.5)
                 .stop(0.3, 0.5)
                 .build();
 
         Pair<Path, Path> autoPart2 = new PathBuilder(List.of(autoPart1.second.position(0).get(0), autoPart1.second.position(0).get(1), autoPart1.second.position(0).get(2)))
-                .linearTo(new DrivetrainState(42, 144 - 92, 0.1 - Math.PI / 2).toList(), 0.3, 0.7)
+                .linearTo(new DrivetrainState(42, 144 - 92, - Math.PI / 2).toList(), 0.3, 0.7)
                 .stop(1, 1)
-                .linearTo(new DrivetrainState(42, 144 - 116, 0.1 - Math.PI / 2).toList(), 1, 4)
+                .linearTo(new DrivetrainState(42, 144 - 116, Math.PI / 2).toList(), 1, 4)
                 .stop(0.2, 0.5)
                 .build();
 
         Pair<Path, Path> autoPart3 = new PathBuilder(List.of(autoPart2.second.position(0).get(0), autoPart2.second.position(0).get(1), autoPart2.second.position(0).get(2)))
-                .linearTo(new DrivetrainState(18, 144 - 84, 0.1 - 0.45).toList(), 0.5, 0.8)
+                .linearTo(new DrivetrainState(18, 144 - 84, Constants.shooterBias - 0.45).toList(), 0.5, 0.8)
                 .stop(0.3, 0.5)
                 .build();
 
         Pair<Path, Path> autoPart6 = new PathBuilder(List.of(autoPart1.second.position(0).get(0), autoPart1.second.position(0).get(1), autoPart1.second.position(0).get(2)))
-                .linearTo(new DrivetrainState(36, 144 - 96, 0.1 - 0.45).toList(), 0.2, 0.5)
+                .linearTo(new DrivetrainState(10, 144 - 108, -0).toList(), 0.2, 0.5)
                 .build();
 
         schedule(new Sequential(
@@ -144,7 +144,8 @@ public class AutonomousStaticRedFar extends CommandRuntimeOpMode {
                                 ),
                                 followPathTemplate(autoPart3.second)
                         ),
-                        followPathTemplate(autoPart6.first)
+                        followPathTemplate(autoPart6.first),
+                        followPathTemplate(autoPart6.second)
                 )));
         stopwatch.reset();
     }
@@ -152,12 +153,9 @@ public class AutonomousStaticRedFar extends CommandRuntimeOpMode {
     @Override
     public void periodic() {
         telemetry.addData("Position:", pinpoint.getPosition().toString());
-    }
-
-
-    public void onStop() {
         CrossModeStorage.position = pinpoint.getPosition();
     }
+
 
     private Command followPathTemplate(Path path) {
         return new Sequential(

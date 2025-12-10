@@ -16,8 +16,9 @@ import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
 
 import java.util.List;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@TeleOp
+@Autonomous
 public class PTuningX extends CommandRuntimeOpMode {
     private Drivetrain drivetrain;
     private Pinpoint pinpoint;

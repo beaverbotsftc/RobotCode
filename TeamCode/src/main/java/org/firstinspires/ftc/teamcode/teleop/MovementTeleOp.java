@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -8,6 +9,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="MovementTeleOp")
+@Disabled
 public class MovementTeleOp extends LinearOpMode {
     private final double slowSpeed = 0.7;
     private ElapsedTime runtime = new ElapsedTime();

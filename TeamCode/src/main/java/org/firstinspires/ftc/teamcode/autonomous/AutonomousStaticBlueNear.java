@@ -91,11 +91,11 @@ public class AutonomousStaticBlueNear extends CommandRuntimeOpMode {
         Pair<Path, Path> autoPart1 = new PathBuilder(List.of(pinpoint.getPosition().getX(), 144 - pinpoint.getPosition().getY(), -pinpoint.getPosition().getTheta()))
                 .linearTo(new DrivetrainState(83.4, 58.7, -0.68).toList(), 0.3, 0.5)
                 .stop(0.3, 0.5)
-                .transform(List.of(x -> x, y -> 144 - y, theta -> 0.1 - theta))
+                .transform(List.of(x -> x, y -> 144 - y, theta -> -Constants.shooterBias - theta))
                 .build();
 
         Pair<Path, Path> autoPart2 = new PathBuilder(List.of(autoPart1.second.position(0).get(0), 144 - autoPart1.second.position(0).get(1), -autoPart1.second.position(0).get(2)))
-                .linearTo(new DrivetrainState(86, 52, -Math.PI / 2).toList(), 0.3, 0.7)
+                .linearTo(new DrivetrainState(86, 54, -Math.PI / 2).toList(), 0.3, 0.7)
                 .stop(1, 1)
                 .linearTo(new DrivetrainState(86, 28, -Math.PI / 2).toList(), 1, 4)
                 .stop(0.2, 0.5)
@@ -105,11 +105,11 @@ public class AutonomousStaticBlueNear extends CommandRuntimeOpMode {
         Pair<Path, Path> autoPart3 = new PathBuilder(List.of(autoPart2.second.position(0).get(0), 144 - autoPart2.second.position(0).get(1), -autoPart2.second.position(0).get(2)))
                 .linearTo(new DrivetrainState(83.4, 58.7, -0.68).toList(), 0.7, 0.7)
                 .stop(0.3, 0.5)
-                .transform(List.of(x -> x, y -> 144 - y, theta -> 0.1 - theta))
+                .transform(List.of(x -> x, y -> 144 - y, theta -> -Constants.shooterBias - theta))
                 .build();
 
         Pair<Path, Path> autoPart4 = new PathBuilder(List.of(autoPart3.second.position(0).get(0), 144 - autoPart3.second.position(0).get(1), -autoPart3.second.position(0).get(2)))
-                .linearTo(new DrivetrainState(60, 52, -Math.PI / 2).toList(), 0.3, 0.7)
+                .linearTo(new DrivetrainState(60, 54, -Math.PI / 2).toList(), 0.3, 0.7)
                 .stop(0.5, 1)
                 .linearTo(new DrivetrainState(60, 28, -Math.PI / 2).toList(), 1, 4)
                 .stop(0.2, 0.5)
@@ -119,11 +119,11 @@ public class AutonomousStaticBlueNear extends CommandRuntimeOpMode {
         Pair<Path, Path> autoPart5 = new PathBuilder(List.of(autoPart4.second.position(0).get(0), 144 - autoPart4.second.position(0).get(1), -autoPart4.second.position(0).get(2)))
                 .linearTo(new DrivetrainState(83.4, 58.7, -0.68).toList(), 1, 1)
                 .stop(0.4, 0.8)
-                .transform(List.of(x -> x, y -> 144 - y, theta -> 0.1 - theta))
+                .transform(List.of(x -> x, y -> 144 - y, theta -> -Constants.shooterBias - theta))
                 .build();
 
         Pair<Path, Path> autoPart6 = new PathBuilder(List.of(autoPart1.second.position(0).get(0), 144 - autoPart1.second.position(0).get(1), -autoPart1.second.position(0).get(2)))
-                .linearTo(new DrivetrainState(120, 60, -0.68).toList(), 0.2, 0.5)
+                .linearTo(new DrivetrainState(128, 60, -0.68).toList(), 0.0, 0.2)
                 .transform(List.of(x -> x, y -> 144 - y, theta -> -theta))
                 .build();
 
@@ -138,7 +138,7 @@ public class AutonomousStaticBlueNear extends CommandRuntimeOpMode {
                                                 new Instant(() -> intake.spin(1)),
                                                 new Instant(() -> stopper.spinForward())
                                         ),
-                                        new Wait(2),
+                                        new Wait(1.5),
                                         new Instant(() -> shooter.spin(0))
                                 ),
                                 followPathTemplate(autoPart1.second)
@@ -157,7 +157,7 @@ public class AutonomousStaticBlueNear extends CommandRuntimeOpMode {
                                                 new Instant(() -> intake.spin(1)),
                                                 new Instant(() -> stopper.spinForward())
                                         ),
-                                        new Wait(2),
+                                        new Wait(1.5),
                                         new Instant(() -> shooter.spin(0))
                                 ),
                                 followPathTemplate(autoPart3.second)
@@ -176,12 +176,13 @@ public class AutonomousStaticBlueNear extends CommandRuntimeOpMode {
                                                 new Instant(() -> intake.spin(1)),
                                                 new Instant(() -> stopper.spinForward())
                                         ),
-                                        new Wait(2),
+                                        new Wait(1.5),
                                         new Instant(() -> shooter.spin(0))
                                 ),
                                 followPathTemplate(autoPart5.second)
                         ),
-                        followPathTemplate(autoPart6.first)
+                        followPathTemplate(autoPart6.first),
+                        followPathTemplate(autoPart6.second)
                 )));
         stopwatch.reset();
     }
@@ -189,9 +190,6 @@ public class AutonomousStaticBlueNear extends CommandRuntimeOpMode {
     @Override
     public void periodic() {
         telemetry.addData("Position:", pinpoint.getPosition().toString());
-    }
-
-    public void onStop() {
         CrossModeStorage.position = pinpoint.getPosition();
     }
 

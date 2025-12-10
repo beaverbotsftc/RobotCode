@@ -44,7 +44,7 @@ public class ShooterMode implements Command {
             case RED: desiredAngle = localizer.wind(Math.atan2(Constants.redGoalY - localizer.getPosition().getY(), Constants.redGoalX - localizer.getPosition().getX())); break;
             case BLUE: desiredAngle = localizer.wind(Math.atan2(Constants.blueGoalY - localizer.getPosition().getY(), Constants.blueGoalX - localizer.getPosition().getX())); break;
         }
-        desiredAngle += 0.1; // TODO: Correction
+        desiredAngle -= Constants.shooterBias; // TODO: Correction
 
         if (Math.abs(desiredAngle - position.getTheta()) > Math.PI / 2) desiredAngle = position.getTheta();
 
@@ -56,9 +56,9 @@ public class ShooterMode implements Command {
                         new PathAxis(t -> resistOnly ? position.getTheta() : finalDesiredAngle, 0, Double.POSITIVE_INFINITY)
                 ), t -> false),
                 new PIDF(List.of(
-                        new PIDFAxis(new PIDFAxis.K(Constants.pidPX, Constants.pidIX, Constants.pidDX, 1, 6, 48, Constants.pidTauX, Constants.pidGammaX)),
-                        new PIDFAxis(new PIDFAxis.K(Constants.pidPY, Constants.pidIY, Constants.pidDY, 1, 6, 48, Constants.pidTauY, Constants.pidGammaY)),
-                        new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, 1, 6, 48, Constants.pidTauTheta, Constants.pidGammaTheta))
+                        new PIDFAxis(new PIDFAxis.K(Constants.pidPX * 2, Constants.pidIX, Constants.pidDX, 1, 6, 48, Constants.pidTauX, Constants.pidGammaX)),
+                        new PIDFAxis(new PIDFAxis.K(Constants.pidPY * 2, Constants.pidIY, Constants.pidDY, 1, 6, 48, Constants.pidTauY, Constants.pidGammaY)),
+                        new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta * 3, Constants.pidITheta, Constants.pidDTheta, 1, 6, 48, Constants.pidTauTheta, Constants.pidGammaTheta))
                 )),
                 localizer, drivetrain
         );

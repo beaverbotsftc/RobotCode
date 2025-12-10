@@ -17,8 +17,9 @@ import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@TeleOp
+@Autonomous
 public class PinpointTuning extends CommandRuntimeOpMode {
     private static BayesianOptimizer optimizer = new BayesianOptimizer(new RBFKernel(), new Pair<>(
             new ArrayRealVector(new double[] {-3.5, -2}),

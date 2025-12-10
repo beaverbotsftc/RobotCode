@@ -70,4 +70,6 @@ public final class Constants {
     public static final double redGoalY = 0 + 5;
     public static final double blueGoalX = 144 - 5;
     public static final double blueGoalY = 144 - 5;
+
+    public static final double shooterBias = -0.05;
 }

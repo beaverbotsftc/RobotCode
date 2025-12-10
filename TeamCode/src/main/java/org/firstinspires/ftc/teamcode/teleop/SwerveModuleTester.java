@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Swerve Module Tester")
+@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="Swerve Module Tester")
 public class SwerveModuleTester extends LinearOpMode {
     private final double slowSpeed = 0.5;
     private ElapsedTime runtime = new ElapsedTime();

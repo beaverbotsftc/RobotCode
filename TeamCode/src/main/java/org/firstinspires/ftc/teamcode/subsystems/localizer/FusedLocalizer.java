@@ -50,7 +50,7 @@ public class FusedLocalizer implements Subsystem, Localizer {
                 0.01,
                 // Now we just reference the helper method here
                 (RealVector state, RealVector control, double dt) -> applyPinpointDelta(state, control),
-                new Array2DRowRealMatrix(new double[][]{{0.01, 0, 0}, {0, 0.01, 0}, {0, 0, 0.005}})
+                new Array2DRowRealMatrix(new double[][]{{0.001, 0, 0}, {0, 0.001, 0}, {0, 0, 0.0005}})
         );
 
         stopwatch = new Stopwatch();

@@ -14,6 +14,10 @@ public final class Led implements Subsystem {
         this.led = HardwareManager.claim("led");
     }
 
+    public void periodic() {
+        led.setPosition(power);
+    }
+
     public void turnOff() {
         this.power = 0.0;
     }

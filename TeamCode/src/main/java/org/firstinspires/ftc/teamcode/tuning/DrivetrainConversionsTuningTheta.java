@@ -23,8 +23,9 @@ import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@TeleOp
+@Autonomous
 public class DrivetrainConversionsTuningTheta extends CommandRuntimeOpMode {
     private static BayesianOptimizer optimizer = new BayesianOptimizer(new RBFKernel(), new Pair<>(
             new ArrayRealVector(new double[] {Constants.drivetrainPowerConversionFactorTheta * 0.8}),

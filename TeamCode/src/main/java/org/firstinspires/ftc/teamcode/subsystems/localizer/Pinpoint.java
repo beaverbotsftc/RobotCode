@@ -2,6 +2,9 @@ package org.firstinspires.ftc.teamcode.subsystems.localizer;
 
 import org.beaverbots.BeaverCommand.HardwareManager;
 import org.beaverbots.BeaverCommand.Subsystem;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
 import org.firstinspires.ftc.teamcode.drivers.GoBildaPinpointDriver;
@@ -45,7 +48,7 @@ public final class Pinpoint implements Localizer, Subsystem {
     }
 
     public void setPosition(DrivetrainState position) {
-        pinpoint.setPosition(position.toPose2d());
+        pinpoint.setPosition(position != null ? position.toPose2d() : new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, 0));
     }
 
     public double wind(double theta) {

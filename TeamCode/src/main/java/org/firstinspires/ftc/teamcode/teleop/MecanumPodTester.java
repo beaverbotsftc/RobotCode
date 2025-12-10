@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="MecanumPodTester")
+@Disabled
 public class MecanumPodTester extends LinearOpMode {
     private final double slowSpeed = 0.6;
     private ElapsedTime runtime = new ElapsedTime();

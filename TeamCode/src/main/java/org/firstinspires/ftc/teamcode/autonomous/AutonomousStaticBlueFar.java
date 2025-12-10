@@ -106,7 +106,7 @@ public class AutonomousStaticBlueFar extends CommandRuntimeOpMode {
                 .build();
 
         Pair<Path, Path> autoPart6 = new PathBuilder(autoPart1.second)
-                .linearTo(new DrivetrainState(36, 96, 0.45).toList(), 0.2, 0.5)
+                .linearTo(new DrivetrainState(10, 108, 0.45).toList(), 0.2, 0.5)
                 .build();
 
         schedule(new Sequential(
@@ -144,7 +144,8 @@ public class AutonomousStaticBlueFar extends CommandRuntimeOpMode {
                                 ),
                                 followPathTemplate(autoPart3.second)
                         ),
-                        followPathTemplate(autoPart6.first)
+                        followPathTemplate(autoPart6.first),
+                        followPathTemplate(autoPart6.second)
                 )));
         stopwatch.reset();
     }
@@ -152,9 +153,6 @@ public class AutonomousStaticBlueFar extends CommandRuntimeOpMode {
     @Override
     public void periodic() {
         telemetry.addData("Position:", pinpoint.getPosition().toString());
-    }
-
-    public void onStop() {
         CrossModeStorage.position = pinpoint.getPosition();
     }
 
