@@ -42,14 +42,6 @@ public class ShooterControl implements Command {
 
         if (shooterToggle) {
             shooter.spin(shootRpm);
-
-            double velocity = shooter.getVelocity();
-
-            if (Math.abs(velocity - shootRpm) / shootRpm <= 0.016) {
-                gamepad.rumble(0.45, 0.45, com.qualcomm.robotcore.hardware.Gamepad.RUMBLE_DURATION_CONTINUOUS);
-            } else {
-                gamepad.stopRumble();
-            }
         } else {
             shooter.spin(0);
         }
@@ -61,7 +53,6 @@ public class ShooterControl implements Command {
             shooter.brakesOff();
         }
          */
-
 
         return false;
     }

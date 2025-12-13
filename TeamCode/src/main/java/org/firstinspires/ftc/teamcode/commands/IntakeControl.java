@@ -28,11 +28,11 @@ public class IntakeControl implements Command {
         if(gamepad.getCircle()){
             stopper.spinForward();
             intake.setMaxPower(1);
-        }else if(intakeSpeed > 0 && colorSensor.checkBack()){
+            intakeSpeed = 1.0;
+        }else if(intakeSpeed != 0){
             intake.setMaxPower(0.8);
             stopper.spinReverse();
         }else{
-            intake.setMaxPower(1.0);
             stopper.stop();
         }
 
