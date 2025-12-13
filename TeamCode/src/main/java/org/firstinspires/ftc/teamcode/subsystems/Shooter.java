@@ -59,13 +59,4 @@ public final class Shooter implements Subsystem {
         return (rpm1+rpm2)/2.0;
     }
 
-    public void brakesOn(){
-        shooterLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        shooterRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    }
-
-    public void brakesOff(){
-        shooterLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        shooterRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-    }
 }
