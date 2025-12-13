@@ -4,21 +4,29 @@ import org.beaverbots.BeaverCommand.Command;
 import org.beaverbots.BeaverCommand.CommandGroup;
 
 public class Sequential extends CommandGroup {
-    private boolean newCommandStart = true;
+    private boolean newCommandStart;
 
     public Sequential(Command... commands) {
         super(commands);
     }
 
     @Override
+    public void start() {
+        super.start();
+
+        newCommandStart = true;
+    }
+
+    @Override
     protected void checkDependencies() {
-        // Router intentionally allows shared dependencies (mutually exclusive)
+        // Sequential commands run one at a time, so they are allowed to share dependencies.
     }
 
     @Override
     public boolean periodic() {
-        if (newCommandStart)
-            commands.get(0).start();
+        if (commands.isEmpty()) return true;
+
+        if (newCommandStart) commands.get(0).start();
         newCommandStart = false;
 
         if (commands.get(0).periodic()) {

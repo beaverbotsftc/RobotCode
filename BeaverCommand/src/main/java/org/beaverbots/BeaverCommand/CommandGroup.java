@@ -8,10 +8,13 @@ import java.util.List;
 import java.util.Set;
 
 public abstract class CommandGroup implements Command {
-    protected final List<Command> commands;
+    protected List<Command> commands;
+
+    private final List<Command> initialCommands;
 
     public CommandGroup(Command... commands) {
-        this.commands = new ArrayList<>(Arrays.asList(commands));
+        this.initialCommands = new ArrayList<>(Arrays.asList(commands));
+        this.commands = new ArrayList<>(initialCommands);
         checkDependencies();
     }
 
@@ -33,5 +36,10 @@ public abstract class CommandGroup implements Command {
             dependencies.addAll(command.getDependencies());
         }
         return dependencies;
+    }
+
+    @Override
+    public void start() {
+        commands = new ArrayList<>(initialCommands);
     }
 }

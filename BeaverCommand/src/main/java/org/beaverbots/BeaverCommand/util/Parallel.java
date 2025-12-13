@@ -10,6 +10,8 @@ public class Parallel extends CommandGroup {
 
     @Override
     public void start() {
+        super.start();
+
         for (Command command : commands) {
             command.start();
         }

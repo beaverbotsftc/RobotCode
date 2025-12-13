@@ -54,11 +54,13 @@ public class ShooterControl implements Command {
             shooter.spin(0);
         }
 
+        /*
         if(gamepad.getDpadLeft()){
             shooter.brakesOn();
         }else{
             shooter.brakesOff();
         }
+         */
 
 
         return false;

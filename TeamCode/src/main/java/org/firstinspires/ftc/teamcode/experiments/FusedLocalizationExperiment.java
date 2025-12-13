@@ -13,9 +13,11 @@ import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
+import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 
 @Autonomous
 public class FusedLocalizationExperiment extends CommandRuntimeOpMode {
+    private VoltageSensor voltageSensor;
     private Gamepad gamepad;
     private Drivetrain drivetrain;
     private Intake intake;
@@ -26,10 +28,11 @@ public class FusedLocalizationExperiment extends CommandRuntimeOpMode {
 
     @Override
     public void onInit() {
+        voltageSensor = new VoltageSensor();
         gamepad = new Gamepad(gamepad1);
         drivetrain = new MecanumDrivetrain();
         intake = new Intake();
-        shooter = new Shooter();
+        shooter = new Shooter(voltageSensor);
         pinpoint = new Pinpoint(new DrivetrainState(8, 8, 0));
         limelight = new Limelight();
         fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new DrivetrainState(8, 8, 0));
@@ -37,7 +40,7 @@ public class FusedLocalizationExperiment extends CommandRuntimeOpMode {
 
     @Override
     public void onStart() {
-        register(gamepad, drivetrain, intake, shooter, pinpoint, limelight, fusedLocalizer);
+        register(voltageSensor, gamepad, drivetrain, intake, shooter, pinpoint, limelight, fusedLocalizer);
         schedule(new SimpleControl(gamepad, drivetrain, intake, shooter));
     }
 

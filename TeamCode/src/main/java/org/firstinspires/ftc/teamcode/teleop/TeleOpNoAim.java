@@ -18,9 +18,11 @@ import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
+import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp
 public class TeleOpNoAim extends CommandRuntimeOpMode {
+    private VoltageSensor voltageSensor;
     private Gamepad gamepad;
     private Drivetrain drivetrain;
     private Intake intake;
@@ -33,15 +35,16 @@ public class TeleOpNoAim extends CommandRuntimeOpMode {
 
     @Override
     public void onInit() {
+        voltageSensor = new VoltageSensor();
         gamepad = new Gamepad(gamepad1);
         drivetrain = new MecanumDrivetrain();
         intake = new Intake();
         stopper = new Stopper();
-        shooter = new Shooter();
+        shooter = new Shooter(voltageSensor);
         pinpoint = new Pinpoint(CrossModeStorage.position);
         colorSensor = new ColorSensor();
         led = new Led();
-        register(gamepad, drivetrain, intake, stopper, shooter, pinpoint, colorSensor, led);
+        register(voltageSensor, gamepad, drivetrain, intake, stopper, shooter, pinpoint, colorSensor, led);
     }
 
     @Override

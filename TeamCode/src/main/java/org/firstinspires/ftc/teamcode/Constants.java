@@ -72,4 +72,9 @@ public final class Constants {
     public static final double blueGoalY = 144 - 5;
 
     public static final double shooterBias = -0.05;
+
+    public static double shooterFrictionConversionFactor = 0.00258; // rpm -> proportion of max RPM at 1V
+    public static double pidPShooter = 0.003;
+    public static double pidIShooter = 0.003;
+    public static double pidGammaShooter = 0.0004;
 }

@@ -37,8 +37,8 @@ public class BayesianOptimizer {
     final static private double PERTURBATION_SCALE = 0.3;
 
     final static private double HYPERPARAMETERS_LEARNING_RATE = 0.01;
-    final static private int HYPERPARAMETERS_LOCAL_STEPS = 100;
-    final static private int HYPERPARAMETERS_GLOBAL_ITERATIONS = 50;
+    final static private int HYPERPARAMETERS_LOCAL_STEPS = 50;
+    final static private int HYPERPARAMETERS_GLOBAL_ITERATIONS = 25;
     final static private double HYPERPARAMETERS_VARIANCE_MULTIPLIER = 1;
     final static private double HYPERPARAMETERS_EXPONENT = 2;
     final static private double HYPERPARAMETERS_MAX_LOSS_GRADIENT = 100;

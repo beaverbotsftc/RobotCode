@@ -1,7 +1,9 @@
 package org.beaverbots.BeaverSensor;
 
 import com.qualcomm.robotcore.util.RobotLog;
-
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
@@ -10,14 +12,9 @@ import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.NonPositiveDefiniteMatrixException;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
-import org.apache.commons.math3.linear.SingularMatrixException;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public final class UnscentedKalmanFilter {
-    final static double beta = 2;
+    static final double beta = 2;
 
     final int dimensionality;
     final double alpha;
@@ -45,7 +42,13 @@ public final class UnscentedKalmanFilter {
     RealVector mean;
     RealMatrix covariance;
 
-    public UnscentedKalmanFilter(int dimensionality, RealVector mean, RealMatrix covariance, double alpha, PredictorFunction predictorFunction, RealMatrix processNoise) {
+    public UnscentedKalmanFilter(
+            int dimensionality,
+            RealVector mean,
+            RealMatrix covariance,
+            double alpha,
+            PredictorFunction predictorFunction,
+            RealMatrix processNoise) {
         this.dimensionality = dimensionality;
         this.alpha = alpha;
         kappa = 0;
@@ -94,8 +97,11 @@ public final class UnscentedKalmanFilter {
         }
     }
 
-    public void update(RealVector measurement, RealMatrix sensorCovariance, MeasurementFunction measurementFunction) {
-        final int measurementDim = measurement.getDimension();
+    public void update(
+            RealVector measurement,
+            RealMatrix sensorCovariance,
+            MeasurementFunction measurementFunction) {
+        final int measurementDimensionality = measurement.getDimension();
 
         List<RealVector> sigmaPoints = generateSigmaPoints();
 
@@ -104,13 +110,14 @@ public final class UnscentedKalmanFilter {
             measurementPoints.add(measurementFunction.apply(point));
         }
 
-        RealVector predictedMeasurement = new ArrayRealVector(measurementDim);
+        RealVector predictedMeasurement = new ArrayRealVector(measurementDimensionality);
         for (int i = 0; i < measurementPoints.size(); i++) {
             double w = (i == 0) ? weightMean : weight;
             predictedMeasurement = predictedMeasurement.add(measurementPoints.get(i).mapMultiply(w));
         }
 
-        RealMatrix innovationCovariance = new Array2DRowRealMatrix(measurementDim, measurementDim);
+        RealMatrix innovationCovariance = new Array2DRowRealMatrix(measurementDimensionality,
+                measurementDimensionality);
         for (int i = 0; i < measurementPoints.size(); i++) {
             double w = (i == 0) ? weightCovariance : weight;
             RealVector deviation = measurementPoints.get(i).subtract(predictedMeasurement);
@@ -118,7 +125,7 @@ public final class UnscentedKalmanFilter {
         }
         innovationCovariance = innovationCovariance.add(sensorCovariance);
 
-        RealMatrix crossCovariance = new Array2DRowRealMatrix(dimensionality, measurementDim);
+        RealMatrix crossCovariance = new Array2DRowRealMatrix(dimensionality, measurementDimensionality);
         for (int i = 0; i < sigmaPoints.size(); i++) {
             double w = (i == 0) ? weightCovariance : weight;
             RealVector stateDeviation = sigmaPoints.get(i).subtract(mean);
@@ -128,17 +135,24 @@ public final class UnscentedKalmanFilter {
 
         RealMatrix kalmanGain;
         try {
-            // Use safe cholesky here too to prevent crashing on singular innovation matrices
-            kalmanGain = crossCovariance.multiply(choleskyDecomposeSafe(innovationCovariance).getSolver().getInverse());
+            // Use safe cholesky here too to prevent crashing on singular innovation
+            // matrices
+            kalmanGain = crossCovariance.multiply(
+                    choleskyDecomposeSafe(innovationCovariance).getSolver().getInverse());
         } catch (Exception e) {
-            RobotLog.ee("BeaverSensor", e, "Failed to compute Kalman Gain (innovation inversion failed). Skipping update.");
+            RobotLog.ee(
+                    "BeaverSensor",
+                    e,
+                    "Failed to compute Kalman Gain (innovation inversion " + "failed). Skipping update.");
             return;
         }
 
         RealVector innovation = measurement.subtract(predictedMeasurement);
 
         RealVector newMean = mean.add(kalmanGain.operate(innovation));
-        RealMatrix newCovariance = enforceSymmetry(covariance.subtract(kalmanGain.multiply(innovationCovariance).multiply(kalmanGain.transpose())));
+        RealMatrix newCovariance = enforceSymmetry(
+                covariance.subtract(
+                        kalmanGain.multiply(innovationCovariance).multiply(kalmanGain.transpose())));
 
         if (isValidVector(newMean) && isValidMatrix(newCovariance)) {
             mean = newMean;
@@ -158,7 +172,9 @@ public final class UnscentedKalmanFilter {
 
     private List<RealVector> generateSigmaPoints() {
         if (!isValidMatrix(covariance)) {
-            RobotLog.ee("BeaverSensor", "Covariance is NaN/Inf before sigma point generation. Resetting to Identity.");
+            RobotLog.ee(
+                    "BeaverSensor",
+                    "Covariance is NaN/Inf before sigma point " + "generation. Resetting to Identity.");
             covariance = MatrixUtils.createRealIdentityMatrix(dimensionality);
         }
 
@@ -183,8 +199,12 @@ public final class UnscentedKalmanFilter {
         return sigmaPoints;
     }
 
-    public boolean isMeasurementInlier(RealVector measurement, RealMatrix sensorCovariance, MeasurementFunction measurementFunction, double significanceLevel) {
-        final int measurementDim = measurement.getDimension();
+    public boolean isMeasurementInlier(
+            RealVector measurement,
+            RealMatrix sensorCovariance,
+            MeasurementFunction measurementFunction,
+            double significanceLevel) {
+        final int measurementDimensionality = measurement.getDimension();
 
         List<RealVector> sigmaPoints = generateSigmaPoints();
 
@@ -193,13 +213,14 @@ public final class UnscentedKalmanFilter {
             measurementPoints.add(measurementFunction.apply(point));
         }
 
-        RealVector predictedMeasurement = new ArrayRealVector(measurementDim);
+        RealVector predictedMeasurement = new ArrayRealVector(measurementDimensionality);
         for (int i = 0; i < measurementPoints.size(); i++) {
             double w = (i == 0) ? weightMean : weight;
             predictedMeasurement = predictedMeasurement.add(measurementPoints.get(i).mapMultiply(w));
         }
 
-        RealMatrix innovationCovariance = new Array2DRowRealMatrix(measurementDim, measurementDim);
+        RealMatrix innovationCovariance = new Array2DRowRealMatrix(measurementDimensionality,
+                measurementDimensionality);
         for (int i = 0; i < measurementPoints.size(); i++) {
             double w = (i == 0) ? weightCovariance : weight;
             RealVector deviation = measurementPoints.get(i).subtract(predictedMeasurement);
@@ -210,23 +231,35 @@ public final class UnscentedKalmanFilter {
         RealVector innovation = measurement.subtract(predictedMeasurement);
 
         try {
-            // Solve S * x = innovation  (using cholesky solver) then maha = innovation^T * x
-            RealVector solve = choleskyDecomposeSafe(innovationCovariance).getSolver().solve(innovation);
-            double maha = innovation.dotProduct(solve);
+            // Solve S * x = innovation (using cholesky solver) then maha =
+            // innovation^T * x
+            RealVector covarianceWeightedInnovation = choleskyDecomposeSafe(innovationCovariance).getSolver()
+                    .solve(innovation);
+            double squaredMahalanobisDistance = innovation.dotProduct(covarianceWeightedInnovation);
 
             // threshold = chi2inv(1 - significanceLevel, measurementDim)
-            ChiSquaredDistribution chi2 = new ChiSquaredDistribution(measurementDim);
+            ChiSquaredDistribution chi2 = new ChiSquaredDistribution(measurementDimensionality);
             double threshold = chi2.inverseCumulativeProbability(1.0 - significanceLevel);
 
-            RobotLog.dd("BeaverSensor", "Measurement Mahalanobis=" + maha + " threshold=" + threshold + " dim=" + measurementDim);
+            RobotLog.dd(
+                    "BeaverSensor",
+                    "Measurement Mahalanobis="
+                            + squaredMahalanobisDistance
+                            + " threshold="
+                            + threshold
+                            + " dim="
+                            + measurementDimensionality);
 
-            return maha <= threshold;
+            return squaredMahalanobisDistance <= threshold;
         } catch (Exception e) {
-            RobotLog.ee("BeaverSensor", e, "Failed to evaluate measurement inlier test (numerical issue). Accepting measurement by default.");
+            RobotLog.ee(
+                    "BeaverSensor",
+                    e,
+                    "Failed to evaluate measurement inlier test (numerical "
+                            + "issue). Accepting measurement by default.");
             return true;
         }
     }
-
 
     private RealMatrix matrixSqrt(RealMatrix matrix) {
         return choleskyDecomposeSafe(matrix).getL();
@@ -240,7 +273,8 @@ public final class UnscentedKalmanFilter {
         for (int r = 0; r < m.getRowDimension(); r++) {
             for (int c = 0; c < m.getColumnDimension(); c++) {
                 double val = m.getEntry(r, c);
-                if (Double.isNaN(val) || Double.isInfinite(val)) return false;
+                if (Double.isNaN(val) || Double.isInfinite(val))
+                    return false;
             }
         }
         return true;
@@ -249,7 +283,8 @@ public final class UnscentedKalmanFilter {
     private boolean isValidVector(RealVector v) {
         for (int i = 0; i < v.getDimension(); i++) {
             double val = v.getEntry(i);
-            if (Double.isNaN(val) || Double.isInfinite(val)) return false;
+            if (Double.isNaN(val) || Double.isInfinite(val))
+                return false;
         }
         return true;
     }
@@ -263,14 +298,19 @@ public final class UnscentedKalmanFilter {
         try {
             return new CholeskyDecomposition(matrix);
         } catch (NonPositiveDefiniteMatrixException e) {
-            // RobotLog.ee("BeaverSensor", e, "Cholesky decomposition failed, attempting recovery.");
+            // RobotLog.ee("BeaverSensor", e, "Cholesky decomposition failed,
+            // attempting recovery.");
             for (int i = 0; i < 10; i++) {
                 try {
                     // Adjusted jitter calculation
                     double jitter = 1e-9 * Math.pow(10, i * 0.5);
-                    return new CholeskyDecomposition(matrix.add(MatrixUtils.createRealIdentityMatrix(matrix.getRowDimension()).scalarMultiply(jitter)));
+                    return new CholeskyDecomposition(
+                            matrix.add(
+                                    MatrixUtils.createRealIdentityMatrix(matrix.getRowDimension())
+                                            .scalarMultiply(jitter)));
                 } catch (NonPositiveDefiniteMatrixException e2) {
-                    // RobotLog.ee("BeaverSensor", e2, "Cholesky decomposition failed with correction: " + i + ", attempting recovery.");
+                    // RobotLog.ee("BeaverSensor", e2, "Cholesky decomposition failed with
+                    // correction: " + i + ", attempting recovery.");
                 }
             }
             throw e;

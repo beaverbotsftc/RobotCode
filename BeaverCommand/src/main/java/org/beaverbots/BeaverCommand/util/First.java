@@ -3,11 +3,11 @@ package org.beaverbots.BeaverCommand.util;
 import org.beaverbots.BeaverCommand.Command;
 import org.beaverbots.BeaverCommand.CommandGroup;
 
-import java.util.Arrays;
+public class First extends CommandGroup {
+    public static final boolean isLoud = true;
 
-public class RunUntil extends CommandGroup {
-    public RunUntil(Command primary, Command... commands) {
-        super(prepend(primary, commands));
+    public First(Command... commands) {
+        super(commands);
     }
 
     @Override
@@ -23,14 +23,10 @@ public class RunUntil extends CommandGroup {
     public boolean periodic() {
         for (int i = commands.size() - 1; i >= 0; i--) {
             Command command = commands.get(i);
-            if (command.periodic()) {
-                command.stop();
-                commands.remove(i);
-                if (i == 0) {
-                    return true;
-                }
-            }
+            if (command.periodic())
+                return true;
         }
+
         return false;
     }
 
@@ -40,11 +36,4 @@ public class RunUntil extends CommandGroup {
             command.stop();
         }
     }
-    private static <T> T[] prepend(T element, T[] array) {
-        T[] newArr = Arrays.copyOf(array, array.length + 1);
-        System.arraycopy(newArr, 0, newArr, 1, array.length);
-        newArr[0] = element;
-        return newArr;
-    }
-
 }

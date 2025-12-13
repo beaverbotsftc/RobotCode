@@ -32,9 +32,11 @@ import org.firstinspires.ftc.teamcode.subsystems.localizer.Localizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 
 import java.util.List;
+import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous
 public class AutonomousStaticBlueNear extends CommandRuntimeOpMode {
+    private VoltageSensor voltageSensor;
     private Gamepad gamepad;
     private Drivetrain drivetrain;
     private Intake intake;
@@ -53,16 +55,17 @@ public class AutonomousStaticBlueNear extends CommandRuntimeOpMode {
 
     @Override
     public void onInit() {
+        voltageSensor = new VoltageSensor();
         gamepad = new Gamepad(gamepad1);
         drivetrain = new MecanumDrivetrain();
         intake = new Intake();
-        shooter = new Shooter();
+        shooter = new Shooter(voltageSensor);
         stopper = new Stopper();
         pinpoint = new Pinpoint(new DrivetrainState(0, 0, 0));
         limelight = new Limelight();
         fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new DrivetrainState(0, 0, 0));
 
-        register(gamepad, drivetrain, intake, shooter, stopper, pinpoint, limelight, fusedLocalizer);
+        register(voltageSensor, gamepad, drivetrain, intake, shooter, stopper, pinpoint, limelight, fusedLocalizer);
         limelight.goalPipeline();
     }
 

@@ -1,0 +1,24 @@
+package org.firstinspires.ftc.teamcode.subsystems;
+
+import org.beaverbots.BeaverCommand.HardwareManager;
+import org.beaverbots.BeaverCommand.Subsystem;
+
+public class VoltageSensor implements Subsystem {
+    private final com.qualcomm.robotcore.hardware.VoltageSensor sensor1;
+    private final com.qualcomm.robotcore.hardware.VoltageSensor sensor2;
+
+    private double voltage;
+
+    public VoltageSensor() {
+        sensor1 = HardwareManager.claim(com.qualcomm.robotcore.hardware.VoltageSensor.class, "Control Hub");
+        sensor2 = HardwareManager.claim(com.qualcomm.robotcore.hardware.VoltageSensor.class, "Expansion Hub 2");
+    }
+
+    public void periodic() {
+        voltage = Math.min(sensor1.getVoltage(), sensor2.getVoltage());
+    }
+
+    public double getVoltage() {
+        return voltage;
+    }
+}

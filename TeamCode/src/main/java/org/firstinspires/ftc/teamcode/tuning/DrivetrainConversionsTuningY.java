@@ -24,9 +24,11 @@ import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 
 @Autonomous
 public class DrivetrainConversionsTuningY extends CommandRuntimeOpMode {
+    private VoltageSensor voltageSensor;
     private static BayesianOptimizer optimizer = new BayesianOptimizer(new RBFKernel(), new Pair<>(
             new ArrayRealVector(new double[] {Constants.drivetrainPowerConversionFactorY * 1.2}),
             new ArrayRealVector(new double[] {Constants.drivetrainPowerConversionFactorY * 1.4})
@@ -52,6 +54,7 @@ public class DrivetrainConversionsTuningY extends CommandRuntimeOpMode {
 
     @Override
     public void onInit() {
+        voltageSensor = new VoltageSensor();
         point = optimizer.findNextPoint();
         applyPoint(point);
 
@@ -66,12 +69,12 @@ public class DrivetrainConversionsTuningY extends CommandRuntimeOpMode {
         gamepad = new Gamepad(gamepad1);
 
         intake = new Intake();
-        shooter = new Shooter();
+        shooter = new Shooter(voltageSensor);
     }
 
     @Override
     public void onStart() {
-        register(pinpoint, drivetrain);
+        register(voltageSensor, pinpoint, drivetrain);
 
         register(gamepad);
 
