@@ -31,7 +31,9 @@ import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Localizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 
+import java.util.Arrays;
 import java.util.List;
+
 import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous
@@ -44,20 +46,19 @@ public class AutonomousStaticRedNear extends CommandRuntimeOpMode {
     private Stopper stopper;
     private Pinpoint pinpoint;
     private Limelight limelight;
-    private Localizer fusedLocalizer;
+    private FusedLocalizer fusedLocalizer;
 
     private final Side side = Side.RED;
     private Motif motif;
 
     private boolean motifScanning = false;
 
-    private Stopwatch stopwatch = new Stopwatch();
-
     @Override
     public void onInit() {
         voltageSensor = new VoltageSensor();
         gamepad = new Gamepad(gamepad1);
         drivetrain = new MecanumDrivetrain();
+        drivetrain.toggleBrake();
         intake = new Intake();
         shooter = new Shooter(voltageSensor);
         stopper = new Stopper();
@@ -67,6 +68,16 @@ public class AutonomousStaticRedNear extends CommandRuntimeOpMode {
 
         register(voltageSensor, gamepad, drivetrain, intake, shooter, stopper, pinpoint, limelight, fusedLocalizer);
         limelight.goalPipeline();
+
+        schedule(new Sequential(
+                new Instant(() -> {
+                    intake.spin(1);
+                    stopper.spinReverse();
+                }), new Wait(5), new Instant(() -> {
+            intake.spin(0);
+            stopper.spin(0);
+        })
+        ));
     }
 
     @Override
@@ -82,39 +93,39 @@ public class AutonomousStaticRedNear extends CommandRuntimeOpMode {
             unregister(fusedLocalizer);
             limelight.obeliskPipeline();
             motifScanning = true;
+            intake.spin(0);
+            stopper.spin(0);
         }
 
         if (!motifScanning) {
             telemetry.addData("Position:", fusedLocalizer.getPosition().toString());
+            telemetry.addData("Covariance:", fusedLocalizer.getCovariance().getData()[0][0]);
+            telemetry.addData("Covariance:", fusedLocalizer.getCovariance().getData()[1][1]);
+            telemetry.addData("Covariance:", fusedLocalizer.getCovariance().getData()[2][2]);
         }
     }
 
     @Override
     public void onStart() {
+        drivetrain.toggleBrake();
         Pair<Path, Path> autoPart1 = new PathBuilder(pinpoint.getPositionAsList())
-                .linearTo(new DrivetrainState(83.4, 58.7, -0.68).toList(), 0.3, 0.5)
+                .linearTo(new DrivetrainState(90.04, 52.94, -0.71).toList(), 0.3, 1)
                 .stop(0.3, 0.5)
                 .build();
 
         Pair<Path, Path> autoPart2 = new PathBuilder(autoPart1.second)
-                .linearTo(new DrivetrainState(84, 54, -Math.PI / 2).toList(), 0.3, 0.7)
-                .stop(1, 1)
-                .linearTo(new DrivetrainState(84, 28, -Math.PI / 2).toList(), 1, 4)
+                .linearTo(new DrivetrainState(87.41, 54, -Math.PI / 2).toList(), 0.3, 0.7)
+                .stop(0.2, 1)
+                .linearTo(new DrivetrainState(87.41, 28, -Math.PI / 2).toList(), 0.5, 2)
                 .stop(0.2, 0.5)
                 .build();
 
         Pair<Path, Path> autoPart3 = new PathBuilder(autoPart2.second)
-                .linearTo(new DrivetrainState(83.4, 58.7, -0.68).toList(), 0.7, 0.7)
+                .linearTo(new DrivetrainState(90.04, 52.94, -0.71).toList(), 0.7, 0.7)
                 .stop(0.3, 0.5)
                 .build();
 
-        Pair<Path, Path> autoPart4 = new PathBuilder(autoPart3.second)
-                .linearTo(new DrivetrainState(58, 54, -Math.PI / 2).toList(), 0.3, 0.7)
-                .stop(0.5, 1)
-                .linearTo(new DrivetrainState(58, 28, -Math.PI / 2).toList(), 1, 4)
-                .stop(0.2, 0.5)
-                .build();
-
+        /*
         Pair<Path, Path> autoPart5 = new PathBuilder(autoPart4.second)
                 .linearTo(new DrivetrainState(83.4, 58.7, -0.68).toList(), 1, 1)
                 .stop(0.4, 0.8)
@@ -123,24 +134,22 @@ public class AutonomousStaticRedNear extends CommandRuntimeOpMode {
         Pair<Path, Path> autoPart6 = new PathBuilder(autoPart1.second)
                 .linearTo(new DrivetrainState(128, 60, -0.68).toList(), 0.0, 0.2)
                 .build();
+         */
 
-        schedule(new Sequential(
-                followPathTemplate(autoPart1.first),
+        schedule(
+                new Instant(() -> shooter.spin(2200)),
+                new Instant(() -> shooter.setHood(0.27)),
                 new Sequential(
+                        followPathTemplate(autoPart1.first),
                         new RunUntil(
                                 new Sequential(
-                                        new Instant(() -> shooter.spin(2150)),
-                                        new WaitUntil(() -> Math.abs(shooter.getVelocity() - 2200) < 30),
-                                        new Parallel(
-                                                new Instant(() -> intake.spin(1)),
-                                                new Instant(() -> stopper.spinForward())
-                                        ),
-                                        new Wait(1.5),
-                                        new Instant(() -> shooter.spin(0))
+                                        new WaitUntil(() -> Math.abs(shooter.getVelocity() - 2200) < 100),
+                                        new Instant(() -> intake.spin(1)),
+                                        new Instant(() -> stopper.spinForward()),
+                                        new Wait(2)
                                 ),
                                 followPathTemplate(autoPart1.second)
                         ),
-                        new Instant(() -> intake.spin(1)),
                         new Instant(() -> stopper.spinReverse()),
                         followPathTemplate(autoPart2.first),
                         new Instant(() -> intake.spin(0)),
@@ -148,40 +157,15 @@ public class AutonomousStaticRedNear extends CommandRuntimeOpMode {
                         followPathTemplate(autoPart3.first),
                         new RunUntil(
                                 new Sequential(
-                                        new Instant(() -> shooter.spin(2150)),
-                                        new WaitUntil(() -> Math.abs(shooter.getVelocity() - 2200) < 30),
-                                        new Parallel(
-                                                new Instant(() -> intake.spin(1)),
-                                                new Instant(() -> stopper.spinForward())
-                                        ),
-                                        new Wait(1.5),
-                                        new Instant(() -> shooter.spin(0))
+                                        new WaitUntil(() -> Math.abs(shooter.getVelocity() - 2200) < 100),
+                                        new Instant(() -> intake.spin(1)),
+                                        new Instant(() -> stopper.spinForward()),
+                                        new Wait(2)
                                 ),
                                 followPathTemplate(autoPart3.second)
                         ),
-                        new Instant(() -> intake.spin(1)),
-                        new Instant(() -> stopper.spinReverse()),
-                        followPathTemplate(autoPart4.first),
-                        new Instant(() -> intake.spin(0)),
-                        new Instant(() -> stopper.spin(0)),
-                        followPathTemplate(autoPart5.first),
-                        new RunUntil(
-                                new Sequential(
-                                        new Instant(() -> shooter.spin(2150)),
-                                        new WaitUntil(() -> Math.abs(shooter.getVelocity() - 2200) < 30),
-                                        new Parallel(
-                                                new Instant(() -> intake.spin(1)),
-                                                new Instant(() -> stopper.spinForward())
-                                        ),
-                                        new Wait(1.5),
-                                        new Instant(() -> shooter.spin(0))
-                                ),
-                                followPathTemplate(autoPart5.second)
-                        ),
-                        followPathTemplate(autoPart6.first),
-                        followPathTemplate(autoPart6.second)
-                )));
-        stopwatch.reset();
+                        new Instant(() -> shooter.spin(0))
+                ));
     }
 
     @Override

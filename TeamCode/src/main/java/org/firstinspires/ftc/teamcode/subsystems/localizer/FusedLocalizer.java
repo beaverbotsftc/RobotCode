@@ -107,7 +107,7 @@ public class FusedLocalizer implements Subsystem, Localizer {
             RealMatrix sensorCovariance = new Array2DRowRealMatrix(new double[][]{
                     {3.875, 0, 0},
                     {0, 3.875, 0},
-                    {0, 0, 3.875}
+                    {0, 0, 20}
             }).scalarMultiply(3);
 
             if (filter.isMeasurementInlier(measurement, sensorCovariance, x -> x, 0.05)) {

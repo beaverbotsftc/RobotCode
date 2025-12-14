@@ -56,9 +56,9 @@ public class ShooterMode implements Command {
                         new PathAxis(t -> resistOnly ? position.getTheta() : finalDesiredAngle, 0, Double.POSITIVE_INFINITY)
                 ), t -> false),
                 new PIDF(List.of(
-                        new PIDFAxis(new PIDFAxis.K(Constants.pidPX * 2, Constants.pidIX, Constants.pidDX, 1, 6, 48, Constants.pidTauX, Constants.pidGammaX)),
-                        new PIDFAxis(new PIDFAxis.K(Constants.pidPY * 2, Constants.pidIY, Constants.pidDY, 1, 6, 48, Constants.pidTauY, Constants.pidGammaY)),
-                        new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta * 3, Constants.pidITheta, Constants.pidDTheta, 1, 6, 48, Constants.pidTauTheta, Constants.pidGammaTheta))
+                        new PIDFAxis(new PIDFAxis.K(Constants.pidPX * 1.5, Constants.pidIX, Constants.pidDX, 1, 6, 48, Constants.pidTauX, Constants.pidGammaX)),
+                        new PIDFAxis(new PIDFAxis.K(Constants.pidPY * 1.5, Constants.pidIY, Constants.pidDY, 1, 6, 48, Constants.pidTauY, Constants.pidGammaY)),
+                        new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta * 2, Constants.pidITheta, Constants.pidDTheta, 1, 6, 48, Constants.pidTauTheta, Constants.pidGammaTheta))
                 )),
                 localizer, drivetrain
         );

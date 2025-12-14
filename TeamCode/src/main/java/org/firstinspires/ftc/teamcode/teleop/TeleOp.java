@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.qualcomm.robotcore.util.RobotLog;
+
 import org.beaverbots.BeaverCommand.CommandRuntimeOpMode;
+import org.beaverbots.BeaverCommand.util.Repeat;
 import org.beaverbots.BeaverCommand.util.router.Router;
 import org.beaverbots.BeaverCommand.util.router.Selector;
 import org.firstinspires.ftc.teamcode.Side;
@@ -13,7 +16,9 @@ import org.firstinspires.ftc.teamcode.subsystems.ColorSensor;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Led;
+import org.firstinspires.ftc.teamcode.subsystems.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.Stopper;
+import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
@@ -31,6 +36,8 @@ public class TeleOp extends CommandRuntimeOpMode {
     private Pinpoint pinpoint;
     private ShooterControl shooterControl;
     private ColorSensor colorSensor;
+    private FusedLocalizer fusedLocalizer;
+    private Limelight limelight;
     private Led led;
 
     @Override
@@ -43,8 +50,11 @@ public class TeleOp extends CommandRuntimeOpMode {
         shooter = new Shooter(voltageSensor);
         pinpoint = new Pinpoint(CrossModeStorage.position);
         colorSensor = new ColorSensor();
+        limelight = new Limelight();
+        limelight.goalPipeline();
+        fusedLocalizer = new FusedLocalizer(pinpoint, limelight, CrossModeStorage.position);
         led = new Led();
-        register(voltageSensor, gamepad, drivetrain, intake, stopper, shooter, pinpoint, colorSensor, led);
+        register(voltageSensor, gamepad, drivetrain, intake, stopper, shooter, pinpoint, colorSensor, led, limelight, fusedLocalizer);
     }
 
     @Override
@@ -57,9 +67,16 @@ public class TeleOp extends CommandRuntimeOpMode {
                 new IntakeControl(intake, stopper, colorSensor, led, gamepad), shooterControl);
     }
 
+    private boolean a = false;
+
     @Override
     public void periodic() {
         telemetry.addData("Shoot RPM:", shooterControl.getShootRpm());
         telemetry.addData("Current RPM:", shooter.getVelocity());
+        telemetry.addData("Fused position:", fusedLocalizer.getPosition());
+        if (gamepad.getDpadUpJustPressed() && !a) {
+            pinpoint.setPosition(fusedLocalizer.getPosition());
+            a = true;
+        }
     }
 }
