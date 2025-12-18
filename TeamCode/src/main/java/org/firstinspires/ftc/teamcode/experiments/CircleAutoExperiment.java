@@ -35,7 +35,16 @@ public class CircleAutoExperiment extends CommandRuntimeOpMode {
         limelight.goalPipeline();
         fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new DrivetrainState(0, 0, 0));
 
-        register(drivetrain, pinpoint, limelight, fusedLocalizer);
+        register(drivetrain, pinpoint, fusedLocalizer, limelight);
+    }
+
+    @Override
+    public void periodicInit() {
+        DrivetrainState pos = fusedLocalizer.getPosition();
+        telemetry.addData("Position:", pos);
+        if (gamepad1.leftBumperWasPressed()) {
+            pinpoint.setPosition(pos);
+        }
     }
 
     @Override
@@ -56,7 +65,7 @@ public class CircleAutoExperiment extends CommandRuntimeOpMode {
                                                 new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, 1, 6, 48, Constants.pidTauTheta, Constants.pidGammaTheta))
                                         )
                                 ),
-                                fusedLocalizer,
+                                pinpoint,
                                 drivetrain),
                         new Instant(() -> drivetrain.move(new DrivetrainState(0, 0, 0)))));
     }
