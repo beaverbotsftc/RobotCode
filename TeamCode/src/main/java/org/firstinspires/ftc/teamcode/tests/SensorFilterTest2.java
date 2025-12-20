@@ -5,14 +5,13 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
-import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
-import org.beaverbots.BeaverSensor.UnscentedKalmanFilter;
+import org.beaverbots.beaver.SensorFusion;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,13 +40,13 @@ public class SensorFilterTest2 extends LinearOpMode {
         RandomGenerator rng = new Well19937c();
 
         // State: [position, velocity]
-        UnscentedKalmanFilter.PredictorFunction predictor = (state, control, dt) -> {
+        SensorFusion.PredictorFunction predictor = (state, control, dt) -> {
             double pos = state.getEntry(0);
             double vel = state.getEntry(1);
             return new ArrayRealVector(new double[]{pos + vel * dt, vel});
         };
 
-        UnscentedKalmanFilter.MeasurementFunction measurementFunc = (state) ->
+        SensorFusion.MeasurementFunction measurementFunc = (state) ->
                 new ArrayRealVector(new double[]{state.getEntry(0)});
 
         // The filter's belief about sensor noise is configured to be extremely low (high trust)
@@ -60,7 +59,7 @@ public class SensorFilterTest2 extends LinearOpMode {
         RealVector initialMean = new ArrayRealVector(new double[]{0.0, TRUE_VELOCITY}); // Start with a good guess
         RealMatrix initialCovariance = MatrixUtils.createRealDiagonalMatrix(new double[]{1.0, 1.0});
 
-        UnscentedKalmanFilter ukf = new UnscentedKalmanFilter(
+        SensorFusion ukf = new SensorFusion(
                 2, initialMean, initialCovariance, 0.1, predictor, processNoise);
 
         // Data storage for plotting

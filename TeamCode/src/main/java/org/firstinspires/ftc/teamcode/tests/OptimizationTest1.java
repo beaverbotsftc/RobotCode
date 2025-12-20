@@ -8,8 +8,8 @@ import com.qualcomm.robotcore.util.RobotLog;
 
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
-import org.beaverbots.BeaverOptimize.BayesianOptimizer;
-import org.beaverbots.BeaverOptimize.util.RBFKernel;
+import org.beaverbots.beaver.optimize.BayesianOptimizer;
+import org.beaverbots.beaver.optimize.kernels.RBFKernel;
 
 import java.util.function.ToDoubleFunction;
 

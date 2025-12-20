@@ -6,9 +6,9 @@ import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
-import org.beaverbots.BeaverCommand.Subsystem;
-import org.beaverbots.BeaverCommand.util.Stopwatch;
-import org.beaverbots.BeaverSensor.UnscentedKalmanFilter;
+import org.beaverbots.beaver.command.Subsystem;
+import org.beaverbots.beaver.util.Stopwatch;
+import org.beaverbots.beaver.SensorFusion;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
 
@@ -19,7 +19,7 @@ public class FusedLocalizer implements Subsystem, Localizer {
     private Localizer localizer;
     private Limelight limelight;
 
-    private UnscentedKalmanFilter filter;
+    private SensorFusion filter;
 
     private RealVector lastTickPinpointState;
     private RealVector lastFilterPinpointState;
@@ -43,7 +43,7 @@ public class FusedLocalizer implements Subsystem, Localizer {
         lastFilterPinpointState = initialPoseVector;
         highFrequencyPose = initialPoseVector.copy();
 
-        this.filter = new UnscentedKalmanFilter(
+        this.filter = new SensorFusion(
                 3,
                 initialPoseVector,
                 new Array2DRowRealMatrix(new double[][]{{144 * 144, 0, 0}, {0, 144 * 144, 0}, {0, 0, Math.PI * Math.PI}}),

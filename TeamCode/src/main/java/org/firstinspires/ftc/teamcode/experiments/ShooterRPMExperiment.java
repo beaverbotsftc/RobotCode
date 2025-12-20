@@ -1,22 +1,9 @@
 package org.firstinspires.ftc.teamcode.experiments;
 
-import android.util.Pair;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.util.RobotLog;
 
-import org.apache.commons.math3.linear.ArrayRealVector;
-import org.apache.commons.math3.linear.RealVector;
-import org.beaverbots.BeaverCommand.CommandRuntimeOpMode;
-import org.beaverbots.BeaverCommand.util.Instant;
-import org.beaverbots.BeaverCommand.util.Repeat;
-import org.beaverbots.BeaverCommand.util.RunUntil;
-import org.beaverbots.BeaverCommand.util.Sequential;
-import org.beaverbots.BeaverCommand.util.Wait;
-import org.beaverbots.BeaverCommand.util.WaitUntil;
-import org.beaverbots.BeaverOptimize.BayesianOptimizer;
-import org.beaverbots.BeaverOptimize.util.RBFKernel;
-import org.firstinspires.ftc.teamcode.Constants;
+import org.beaverbots.beaver.command.CommandRuntimeOpMode;
+import org.beaverbots.beaver.command.premade.Repeat;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;

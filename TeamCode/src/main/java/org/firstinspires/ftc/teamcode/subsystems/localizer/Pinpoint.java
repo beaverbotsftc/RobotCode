@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems.localizer;
 
-import org.beaverbots.BeaverCommand.HardwareManager;
-import org.beaverbots.BeaverCommand.Subsystem;
+import org.beaverbots.beaver.command.HardwareManager;
+import org.beaverbots.beaver.command.Subsystem;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;

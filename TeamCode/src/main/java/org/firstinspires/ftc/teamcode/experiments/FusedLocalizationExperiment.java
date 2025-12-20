@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.experiments;
 
-import org.beaverbots.BeaverCommand.CommandRuntimeOpMode;
+import org.beaverbots.beaver.command.CommandRuntimeOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;

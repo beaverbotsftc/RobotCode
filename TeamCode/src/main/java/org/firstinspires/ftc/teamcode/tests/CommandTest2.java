@@ -3,14 +3,12 @@ package org.firstinspires.ftc.teamcode.tests;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.RobotLog;
 
-import org.beaverbots.BeaverCommand.CommandRuntimeOpMode;
-import org.beaverbots.BeaverCommand.util.Instant;
-import org.beaverbots.BeaverCommand.util.Sequential;
+import org.beaverbots.beaver.command.CommandRuntimeOpMode;
+import org.beaverbots.beaver.command.premade.Instant;
+import org.beaverbots.beaver.command.premade.Sequential;
 import org.firstinspires.ftc.teamcode.tests.utils.FakeCommand;
-import org.firstinspires.ftc.teamcode.tests.utils.FakeSubsystem;
 
 import java.util.HashSet;
-import java.util.Set;
 
 @Autonomous(group = "Tests")
 public final class CommandTest2 extends CommandRuntimeOpMode {

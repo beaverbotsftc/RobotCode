@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems.drivetrain;
 
-import org.beaverbots.beavertracking.Locomotion;
+import org.beaverbots.beaver.pathing.Locomotion;
 
 import java.util.List;
 

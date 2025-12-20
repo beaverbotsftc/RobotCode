@@ -1,10 +1,9 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.beaverbots.BeaverCommand.HardwareManager;
-import org.beaverbots.BeaverCommand.Subsystem;
+import org.beaverbots.beaver.command.HardwareManager;
+import org.beaverbots.beaver.command.Subsystem;
 
 public final class Led implements Subsystem {
     private Servo led;

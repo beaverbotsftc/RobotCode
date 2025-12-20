@@ -4,9 +4,10 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.robotcore.util.RobotLog;
 
-import org.beaverbots.BeaverCommand.HardwareManager;
-import org.beaverbots.BeaverCommand.Subsystem;
+import org.beaverbots.beaver.command.HardwareManager;
+import org.beaverbots.beaver.command.Subsystem;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
@@ -100,6 +101,11 @@ public class Limelight implements Subsystem {
         LLResult result = limelight.getLatestResult();
         if (result.getTimestamp() == lastPositionAttemptTime) return null;
         if (!result.isValid()) return null;
+
+        // Facing in the correct way is about -0.35rad, but it can jitter to like 0.12rad (i.e. facing almost directly towards the camera), so reject those.
+        for (int i = 0; i < result.getFiducialResults().size(); i++) {
+            if (result.getFiducialResults().get(i).getTargetPoseCameraSpace().getOrientation().getPitch(AngleUnit.RADIANS) > 0) return null;
+        }
 
         lastPositionAttemptTime = result.getTimestamp();
 

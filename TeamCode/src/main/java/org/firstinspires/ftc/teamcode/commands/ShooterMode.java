@@ -1,12 +1,12 @@
 package org.firstinspires.ftc.teamcode.commands;
 
-import org.beaverbots.BeaverCommand.Command;
-import org.beaverbots.BeaverCommand.Subsystem;
-import org.beaverbots.beavertracking.HolonomicFollowPath;
-import org.beaverbots.beavertracking.PIDF;
-import org.beaverbots.beavertracking.PIDFAxis;
-import org.beaverbots.beavertracking.Path;
-import org.beaverbots.beavertracking.PathAxis;
+import org.beaverbots.beaver.command.Command;
+import org.beaverbots.beaver.command.Subsystem;
+import org.beaverbots.beaver.pathing.commands.HolonomicFollowPath;
+import org.beaverbots.beaver.pathing.PIDF;
+import org.beaverbots.beaver.pathing.PIDFAxis;
+import org.beaverbots.beaver.pathing.Path;
+import org.beaverbots.beaver.pathing.PathAxis;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Side;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;

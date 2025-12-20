@@ -2,8 +2,8 @@ package org.firstinspires.ftc.teamcode.experiments;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.beaverbots.BeaverCommand.Command;
-import org.beaverbots.BeaverCommand.CommandRuntimeOpMode;
+import org.beaverbots.beaver.command.Command;
+import org.beaverbots.beaver.command.CommandRuntimeOpMode;
 import org.firstinspires.ftc.teamcode.Side;
 import org.firstinspires.ftc.teamcode.commands.DrivetrainControl;
 import org.firstinspires.ftc.teamcode.commands.ShooterMode;

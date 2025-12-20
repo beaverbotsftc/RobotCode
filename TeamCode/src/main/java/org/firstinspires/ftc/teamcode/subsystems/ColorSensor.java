@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
-import org.beaverbots.BeaverCommand.HardwareManager;
-import org.beaverbots.BeaverCommand.Subsystem;
+import org.beaverbots.beaver.command.HardwareManager;
+import org.beaverbots.beaver.command.Subsystem;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public final class ColorSensor implements Subsystem {

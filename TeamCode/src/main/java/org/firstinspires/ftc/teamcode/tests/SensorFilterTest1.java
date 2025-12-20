@@ -5,14 +5,13 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
-import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
-import org.beaverbots.BeaverSensor.UnscentedKalmanFilter;
+import org.beaverbots.beaver.SensorFusion;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +46,7 @@ public class SensorFilterTest1 extends LinearOpMode {
         RandomGenerator rng = new Well19937c();
 
         // State: [position, velocity]
-        UnscentedKalmanFilter.PredictorFunction predictor = (state, control, dt) -> {
+        SensorFusion.PredictorFunction predictor = (state, control, dt) -> {
             double pos = state.getEntry(0);
             double vel = state.getEntry(1);
             // x_new = x_old + v*dt
@@ -56,7 +55,7 @@ public class SensorFilterTest1 extends LinearOpMode {
         };
 
         // We only measure position
-        UnscentedKalmanFilter.MeasurementFunction measurementFunc = (state) ->
+        SensorFusion.MeasurementFunction measurementFunc = (state) ->
                 new ArrayRealVector(new double[]{state.getEntry(0)});
 
         // Define noise matrices
@@ -71,7 +70,7 @@ public class SensorFilterTest1 extends LinearOpMode {
         // High initial uncertainty
         RealMatrix initialCovariance = MatrixUtils.createRealDiagonalMatrix(new double[]{10.0, 10.0});
 
-        UnscentedKalmanFilter ukf = new UnscentedKalmanFilter(
+        SensorFusion ukf = new SensorFusion(
                 STATE_DIMENSIONALITY,
                 initialMean,
                 initialCovariance,

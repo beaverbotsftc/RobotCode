@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import org.beaverbots.BeaverCommand.HardwareManager;
-import org.beaverbots.BeaverCommand.Subsystem;
+import org.beaverbots.beaver.command.HardwareManager;
+import org.beaverbots.beaver.command.Subsystem;
 
 public class VoltageSensor implements Subsystem {
     private final com.qualcomm.robotcore.hardware.VoltageSensor sensor1;

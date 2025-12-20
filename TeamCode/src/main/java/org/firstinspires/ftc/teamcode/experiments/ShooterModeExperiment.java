@@ -2,15 +2,9 @@ package org.firstinspires.ftc.teamcode.experiments;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.beaverbots.BeaverCommand.CommandRuntimeOpMode;
-import org.beaverbots.BeaverCommand.util.router.Router;
-import org.beaverbots.BeaverCommand.util.router.Selector;
-import org.beaverbots.beavertracking.HolonomicFollowPath;
-import org.beaverbots.beavertracking.PIDF;
-import org.beaverbots.beavertracking.PIDFAxis;
-import org.beaverbots.beavertracking.Path;
-import org.beaverbots.beavertracking.PathAxis;
-import org.firstinspires.ftc.teamcode.Constants;
+import org.beaverbots.beaver.command.CommandRuntimeOpMode;
+import org.beaverbots.beaver.command.premade.router.Router;
+import org.beaverbots.beaver.command.premade.router.Selector;
 import org.firstinspires.ftc.teamcode.Side;
 import org.firstinspires.ftc.teamcode.commands.DrivetrainControl;
 import org.firstinspires.ftc.teamcode.commands.ShooterMode;
@@ -21,8 +15,6 @@ import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
-
-import java.util.List;
 
 @Autonomous(group = "Experiments")
 public class ShooterModeExperiment extends CommandRuntimeOpMode {

@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode.commands;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-
-import org.beaverbots.BeaverCommand.Command;
-import org.beaverbots.BeaverCommand.Subsystem;
+import org.beaverbots.beaver.command.Command;
+import org.beaverbots.beaver.command.Subsystem;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;

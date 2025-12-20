@@ -2,8 +2,8 @@ package org.firstinspires.ftc.teamcode.tests.utils;
 
 import com.qualcomm.robotcore.util.RobotLog;
 
-import org.beaverbots.beavertracking.Localizer;
-import org.beaverbots.beavertracking.Locomotion;
+import org.beaverbots.beaver.pathing.Localizer;
+import org.beaverbots.beaver.pathing.Locomotion;
 
 import java.util.List;
 

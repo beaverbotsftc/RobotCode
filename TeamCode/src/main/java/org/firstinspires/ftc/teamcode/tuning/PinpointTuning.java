@@ -2,17 +2,16 @@ package org.firstinspires.ftc.teamcode.tuning;
 
 import android.util.Pair;
 
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
-import org.beaverbots.BeaverCommand.CommandRuntimeOpMode;
-import org.beaverbots.BeaverCommand.util.Instant;
-import org.beaverbots.BeaverCommand.util.Sequential;
-import org.beaverbots.BeaverCommand.util.WaitUntil;
-import org.beaverbots.BeaverOptimize.BayesianOptimizer;
-import org.beaverbots.BeaverOptimize.util.RBFKernel;
+import org.beaverbots.beaver.command.CommandRuntimeOpMode;
+import org.beaverbots.beaver.command.premade.Instant;
+import org.beaverbots.beaver.command.premade.Sequential;
+import org.beaverbots.beaver.command.premade.WaitUntil;
+import org.beaverbots.beaver.optimize.BayesianOptimizer;
+import org.beaverbots.beaver.optimize.kernels.RBFKernel;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;

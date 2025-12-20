@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.tests.utils;
 
 import com.qualcomm.robotcore.util.RobotLog;
 
-import org.beaverbots.BeaverCommand.Subsystem;
+import org.beaverbots.beaver.command.Subsystem;
 
 import java.util.Set;
 

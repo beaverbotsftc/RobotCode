@@ -7,32 +7,19 @@ import com.qualcomm.robotcore.util.RobotLog;
 
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
-import org.beaverbots.BeaverCommand.Command;
-import org.beaverbots.BeaverCommand.CommandRuntimeOpMode;
-import org.beaverbots.BeaverCommand.util.Instant;
-import org.beaverbots.BeaverCommand.util.Repeat;
-import org.beaverbots.BeaverCommand.util.RunUntil;
-import org.beaverbots.BeaverCommand.util.Sequential;
-import org.beaverbots.BeaverCommand.util.Wait;
-import org.beaverbots.BeaverCommand.util.WaitUntil;
-import org.beaverbots.BeaverOptimize.BayesianOptimizer;
-import org.beaverbots.BeaverOptimize.util.RBFKernel;
-import org.beaverbots.beavertracking.HolonomicFollowPath;
-import org.beaverbots.beavertracking.PIDF;
-import org.beaverbots.beavertracking.PIDFAxis;
-import org.beaverbots.beavertracking.Path;
-import org.beaverbots.beavertracking.PathAxis;
+import org.beaverbots.beaver.command.CommandRuntimeOpMode;
+import org.beaverbots.beaver.command.premade.Instant;
+import org.beaverbots.beaver.command.premade.Repeat;
+import org.beaverbots.beaver.command.premade.RunUntil;
+import org.beaverbots.beaver.command.premade.Sequential;
+import org.beaverbots.beaver.command.premade.Wait;
+import org.beaverbots.beaver.command.premade.WaitUntil;
+import org.beaverbots.beaver.optimize.BayesianOptimizer;
+import org.beaverbots.beaver.optimize.kernels.RBFKernel;
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.commands.SimpleControl;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
-import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
-
-import java.util.List;
 
 @Autonomous
 public class ShooterConversionFactor extends CommandRuntimeOpMode {

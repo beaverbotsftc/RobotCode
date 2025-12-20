@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.tests;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.RobotLog;
 
-import org.beaverbots.BeaverCommand.CommandRuntimeOpMode;
+import org.beaverbots.beaver.command.CommandRuntimeOpMode;
 import org.firstinspires.ftc.teamcode.tests.utils.FakeCommand;
 import org.firstinspires.ftc.teamcode.tests.utils.FakeSubsystem;
 

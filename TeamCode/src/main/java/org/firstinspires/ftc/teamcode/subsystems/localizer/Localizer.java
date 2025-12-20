@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems.localizer;
 
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
 
-public interface Localizer extends org.beaverbots.beavertracking.Localizer {
+public interface Localizer extends org.beaverbots.beaver.pathing.Localizer {
     DrivetrainState getPosition();
     DrivetrainState getVelocity();
 

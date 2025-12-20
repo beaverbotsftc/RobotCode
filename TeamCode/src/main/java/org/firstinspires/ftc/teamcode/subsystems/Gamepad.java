@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import org.beaverbots.BeaverCommand.Subsystem;
+import org.beaverbots.beaver.command.Subsystem;
 
 public class Gamepad implements Subsystem {
 

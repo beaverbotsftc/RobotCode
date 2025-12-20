@@ -5,10 +5,10 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.RobotLog;
 
-import org.beaverbots.BeaverCommand.HardwareManager;
-import org.beaverbots.BeaverCommand.Subsystem;
-import org.beaverbots.BeaverCommand.util.Stopwatch;
-import org.beaverbots.beavertracking.PIDFAxis;
+import org.beaverbots.beaver.command.HardwareManager;
+import org.beaverbots.beaver.command.Subsystem;
+import org.beaverbots.beaver.util.Stopwatch;
+import org.beaverbots.beaver.pathing.PIDFAxis;
 import org.firstinspires.ftc.teamcode.Constants;
 
 public final class Shooter implements Subsystem {

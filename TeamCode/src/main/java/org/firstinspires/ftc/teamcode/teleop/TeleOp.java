@@ -1,11 +1,8 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
-import com.qualcomm.robotcore.util.RobotLog;
-
-import org.beaverbots.BeaverCommand.CommandRuntimeOpMode;
-import org.beaverbots.BeaverCommand.util.Repeat;
-import org.beaverbots.BeaverCommand.util.router.Router;
-import org.beaverbots.BeaverCommand.util.router.Selector;
+import org.beaverbots.beaver.command.CommandRuntimeOpMode;
+import org.beaverbots.beaver.command.premade.router.Router;
+import org.beaverbots.beaver.command.premade.router.Selector;
 import org.firstinspires.ftc.teamcode.Side;
 import org.firstinspires.ftc.teamcode.autonomous.CrossModeStorage;
 import org.firstinspires.ftc.teamcode.commands.DrivetrainControl;

@@ -11,7 +11,7 @@ import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
-import org.beaverbots.BeaverSensor.UnscentedKalmanFilter;
+import org.beaverbots.beaver.SensorFusion;
 
 import java.util.Locale;
 
@@ -90,13 +90,13 @@ public class SensorFilterTest3 extends LinearOpMode {
         RobotLog.i("Running: %s", testName);
 
         // State: [position, velocity]
-        UnscentedKalmanFilter.PredictorFunction predictor = (state, control, dt) ->
+        SensorFusion.PredictorFunction predictor = (state, control, dt) ->
                 new ArrayRealVector(new double[]{state.getEntry(0) + state.getEntry(1) * dt, state.getEntry(1)});
 
-        UnscentedKalmanFilter.MeasurementFunction measurementFunc = (state) ->
+        SensorFusion.MeasurementFunction measurementFunc = (state) ->
                 new ArrayRealVector(new double[]{state.getEntry(0)});
 
-        UnscentedKalmanFilter ukf = new UnscentedKalmanFilter(2, initialGuess, initialCovariance, UKF_ALPHA, predictor, processNoise);
+        SensorFusion ukf = new SensorFusion(2, initialGuess, initialCovariance, UKF_ALPHA, predictor, processNoise);
 
         RealVector trueState = trueInitialState.copy();
         double sumPosSquaredError = 0;
@@ -132,7 +132,7 @@ public class SensorFilterTest3 extends LinearOpMode {
         RobotLog.i("Running: Test 4: Non-Linear Motion");
 
         // State: [x, y, theta]. Control: [v, omega]
-        UnscentedKalmanFilter.PredictorFunction predictor = (state, control, dt) -> {
+        SensorFusion.PredictorFunction predictor = (state, control, dt) -> {
             double x = state.getEntry(0);
             double y = state.getEntry(1);
             double theta = state.getEntry(2);
@@ -146,7 +146,7 @@ public class SensorFilterTest3 extends LinearOpMode {
         };
 
         // We only measure x and y position
-        UnscentedKalmanFilter.MeasurementFunction measurementFunc = (state) ->
+        SensorFusion.MeasurementFunction measurementFunc = (state) ->
                 new ArrayRealVector(new double[]{state.getEntry(0), state.getEntry(1)});
 
         RealMatrix processNoise = MatrixUtils.createRealDiagonalMatrix(new double[]{0.01, 0.01, 0.001});
@@ -154,7 +154,7 @@ public class SensorFilterTest3 extends LinearOpMode {
         RealMatrix initialCovariance = MatrixUtils.createRealDiagonalMatrix(new double[]{1.0, 1.0, 0.1});
         RealVector initialGuess = new ArrayRealVector(new double[]{0, 0, 0});
 
-        UnscentedKalmanFilter ukf = new UnscentedKalmanFilter(3, initialGuess, initialCovariance, UKF_ALPHA, predictor, processNoise);
+        SensorFusion ukf = new SensorFusion(3, initialGuess, initialCovariance, UKF_ALPHA, predictor, processNoise);
 
         RealVector trueState = new ArrayRealVector(new double[]{0, 0, 0});
         RealVector controlInput = new ArrayRealVector(new double[]{1.0, Math.PI / 4}); // 1 m/s, 45 deg/s turn
