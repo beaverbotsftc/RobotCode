@@ -66,12 +66,12 @@ public final class Constants {
     // Forward of center is positive, behind center is negative
     public static double pinpointYOffset = -2.5;
 
-    public static final double redGoalX = 144 - 5;
-    public static final double redGoalY = 0 + 5;
-    public static final double blueGoalX = 144 - 5;
-    public static final double blueGoalY = 144 - 5;
+    public static final double redGoalX = 144;
+    public static final double redGoalY = 0;
+    public static final double blueGoalX = 144;
+    public static final double blueGoalY = 144;
 
-    public static final double shooterBias = -0.04;
+    public static final double shooterBias = 0.00;
 
     public static double shooterFrictionConversionFactor = 0.00258; // rpm -> proportion of max RPM at 1V
     public static double pidPShooter = 0.003;

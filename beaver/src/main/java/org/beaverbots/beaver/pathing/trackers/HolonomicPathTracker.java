@@ -1,4 +1,7 @@
-package org.beaverbots.beaver.pathing;
+package org.beaverbots.beaver.pathing.trackers;
+
+import org.beaverbots.beaver.pathing.path.Path;
+import org.beaverbots.beaver.pathing.pidf.PIDF;
 
 import java.util.List;
 import java.util.stream.Collectors;

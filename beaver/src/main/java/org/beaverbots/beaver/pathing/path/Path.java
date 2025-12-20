@@ -1,4 +1,4 @@
-package org.beaverbots.beaver.pathing;
+package org.beaverbots.beaver.pathing.path;
 
 import java.util.List;
 import java.util.function.DoublePredicate;

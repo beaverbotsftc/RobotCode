@@ -5,17 +5,15 @@ import android.util.Pair;
 import org.beaverbots.beaver.command.Command;
 import org.beaverbots.beaver.command.CommandRuntimeOpMode;
 import org.beaverbots.beaver.command.premade.Instant;
-import org.beaverbots.beaver.command.premade.Parallel;
 import org.beaverbots.beaver.command.premade.RunUntil;
 import org.beaverbots.beaver.command.premade.Sequential;
-import org.beaverbots.beaver.util.Stopwatch;
 import org.beaverbots.beaver.command.premade.Wait;
 import org.beaverbots.beaver.command.premade.WaitUntil;
 import org.beaverbots.beaver.pathing.commands.HolonomicFollowPath;
-import org.beaverbots.beaver.pathing.PIDF;
-import org.beaverbots.beaver.pathing.PIDFAxis;
-import org.beaverbots.beaver.pathing.Path;
-import org.beaverbots.beaver.pathing.PathBuilder;
+import org.beaverbots.beaver.pathing.path.Path;
+import org.beaverbots.beaver.pathing.path.pathbuilder.PathBuilder;
+import org.beaverbots.beaver.pathing.pidf.PIDF;
+import org.beaverbots.beaver.pathing.pidf.PIDFAxis;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Motif;
 import org.firstinspires.ftc.teamcode.Side;
@@ -24,18 +22,17 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.Stopper;
+import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
-import org.firstinspires.ftc.teamcode.subsystems.localizer.Localizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 
 import java.util.List;
-import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous
-public class AutonomousStaticRedFarPreloadLeave extends CommandRuntimeOpMode {
+public class AutonomousRedNearStaticV3 extends CommandRuntimeOpMode {
     private VoltageSensor voltageSensor;
     private Gamepad gamepad;
     private Drivetrain drivetrain;
@@ -44,20 +41,19 @@ public class AutonomousStaticRedFarPreloadLeave extends CommandRuntimeOpMode {
     private Stopper stopper;
     private Pinpoint pinpoint;
     private Limelight limelight;
-    private Localizer fusedLocalizer;
+    private FusedLocalizer fusedLocalizer;
 
     private final Side side = Side.RED;
     private Motif motif;
 
     private boolean motifScanning = false;
 
-    private Stopwatch stopwatch = new Stopwatch();
-
     @Override
     public void onInit() {
         voltageSensor = new VoltageSensor();
         gamepad = new Gamepad(gamepad1);
         drivetrain = new MecanumDrivetrain();
+        drivetrain.toggleBrake();
         intake = new Intake();
         shooter = new Shooter(voltageSensor);
         stopper = new Stopper();
@@ -82,56 +78,45 @@ public class AutonomousStaticRedFarPreloadLeave extends CommandRuntimeOpMode {
             unregister(fusedLocalizer);
             limelight.obeliskPipeline();
             motifScanning = true;
+            intake.spin(0);
+            stopper.spin(0);
         }
 
         if (!motifScanning) {
             telemetry.addData("Position:", fusedLocalizer.getPosition().toString());
+            telemetry.addData("Covariance:", fusedLocalizer.getCovariance().getData()[0][0]);
+            telemetry.addData("Covariance:", fusedLocalizer.getCovariance().getData()[1][1]);
+            telemetry.addData("Covariance:", fusedLocalizer.getCovariance().getData()[2][2]);
         }
     }
 
     @Override
     public void onStart() {
-        Pair<Path, Path> autoPart1 = new PathBuilder(List.of(pinpoint.getPositionAsList().get(0), pinpoint.getPositionAsList().get(1), pinpoint.getPositionAsList().get(2)))
-                .linearTo(new DrivetrainState(18, 144 - 84, -Constants.shooterBias - 0.45).toList(), 0.3, 0.5)
-                .stop(0.3, 0.5)
+        Pair<Path, Path> autoPart1 = new PathBuilder(pinpoint.getPositionAsList())
+                .bezierTo(new DrivetrainState(127.985046, 24.426167, 1.047198).toList(), new DrivetrainState(85.928970, 49.928970, 0.872665).toList(), new DrivetrainState(85.928970, 49.928970, 0.872665).toList(), 1.000000)
                 .build();
 
-        Pair<Path, Path> autoPart6 = new PathBuilder(List.of(autoPart1.second.position(0).get(0), autoPart1.second.position(0).get(1), autoPart1.second.position(0).get(2)))
-                .linearTo(new DrivetrainState(10, 144 - 108, 0).toList(), 0.2, 0.5)
-                .build();
-
-        schedule(new Sequential(
-                followPathTemplate(autoPart1.first),
-                new Wait(10),
+        schedule(
                 new Sequential(
+                        new Instant(() -> shooter.spin(2300)),
+                        new Instant(() -> shooter.setHood(0.27)),
+                        followPathTemplate(autoPart1.first),
                         new RunUntil(
                                 new Sequential(
-                                        new Instant(() -> shooter.spin(3000)),
-                                        new WaitUntil(() -> Math.abs(shooter.getVelocity() - 3000) < 30),
-                                        new Parallel(
-                                                new Instant(() -> intake.spin(1)),
-                                                new Instant(() -> stopper.spinForward())
-                                        ),
-                                        new Wait(2),
-                                        new Instant(() -> shooter.spin(0))
+                                        new WaitUntil(() -> Math.abs(shooter.getError()) < 50),
+                                        new Instant(() -> intake.spin(1)),
+                                        new Instant(() -> stopper.spinForward()),
+                                        new Wait(2)
                                 ),
                                 followPathTemplate(autoPart1.second)
-                        ),
-                        new Wait(5),
-                        followPathTemplate(autoPart6.first),
-                        followPathTemplate(autoPart6.second)
-                )));
-        stopwatch.reset();
+                        )
+                )
+        );
     }
 
     @Override
     public void periodic() {
         telemetry.addData("Position:", pinpoint.getPosition().toString());
-        CrossModeStorage.position = pinpoint.getPosition();
-    }
-
-
-    public void onStop() {
         CrossModeStorage.position = pinpoint.getPosition();
     }
 

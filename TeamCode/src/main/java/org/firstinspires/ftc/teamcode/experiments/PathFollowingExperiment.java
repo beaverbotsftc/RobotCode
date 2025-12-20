@@ -4,10 +4,10 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.beaverbots.beaver.command.CommandRuntimeOpMode;
 import org.beaverbots.beaver.pathing.commands.HolonomicFollowPath;
-import org.beaverbots.beaver.pathing.PIDF;
-import org.beaverbots.beaver.pathing.PIDFAxis;
-import org.beaverbots.beaver.pathing.Path;
-import org.beaverbots.beaver.pathing.PathAxis;
+import org.beaverbots.beaver.pathing.pidf.PIDF;
+import org.beaverbots.beaver.pathing.pidf.PIDFAxis;
+import org.beaverbots.beaver.pathing.path.Path;
+import org.beaverbots.beaver.pathing.path.PathAxis;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;

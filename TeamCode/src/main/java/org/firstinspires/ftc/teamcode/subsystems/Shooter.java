@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.util.RobotLog;
 import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.command.Subsystem;
 import org.beaverbots.beaver.util.Stopwatch;
-import org.beaverbots.beaver.pathing.PIDFAxis;
+import org.beaverbots.beaver.pathing.pidf.PIDFAxis;
 import org.firstinspires.ftc.teamcode.Constants;
 
 public final class Shooter implements Subsystem {
@@ -42,7 +42,7 @@ public final class Shooter implements Subsystem {
 
 
     public void periodic() {
-        double control = pidf.update(rpm - getVelocity() , rpm * Constants.shooterFrictionConversionFactor / voltageSensor.getVoltage(),  stopwatch.getDt());
+        double control = pidf.update(getError() , rpm * Constants.shooterFrictionConversionFactor / voltageSensor.getVoltage(),  stopwatch.getDt());
         shooterLeft.setPower(control);
         shooterRight.setPower(control);
         RobotLog.i(String.valueOf(getVelocity()));
@@ -62,5 +62,9 @@ public final class Shooter implements Subsystem {
         double rpm1 = shooterLeft.getVelocity() / 28.0 * 60.0;
         double rpm2 = shooterRight.getVelocity() / 28.0 * 60.0;
         return (rpm1 + rpm2) / 2.0;
+    }
+
+    public double getError() {
+        return rpm - getVelocity();
     }
 }

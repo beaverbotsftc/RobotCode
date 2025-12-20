@@ -6,8 +6,8 @@ import org.beaverbots.beaver.command.Command;
 import org.beaverbots.beaver.command.Subsystem;
 import org.beaverbots.beaver.pathing.Localizer;
 import org.beaverbots.beaver.pathing.Locomotion;
-import org.beaverbots.beaver.pathing.Path;
-import org.beaverbots.beaver.pathing.RamsetePathTracker;
+import org.beaverbots.beaver.pathing.path.Path;
+import org.beaverbots.beaver.pathing.trackers.RamsetePathTracker;
 
 import java.util.Collections;
 import java.util.HashSet;

@@ -4,11 +4,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.beaverbots.beaver.command.Command;
 import org.beaverbots.beaver.command.Subsystem;
-import org.beaverbots.beaver.pathing.HolonomicPathTracker;
+import org.beaverbots.beaver.pathing.trackers.HolonomicPathTracker;
 import org.beaverbots.beaver.pathing.Localizer;
 import org.beaverbots.beaver.pathing.Locomotion;
-import org.beaverbots.beaver.pathing.PIDF;
-import org.beaverbots.beaver.pathing.Path;
+import org.beaverbots.beaver.pathing.pidf.PIDF;
+import org.beaverbots.beaver.pathing.path.Path;
 
 import java.util.Collections;
 import java.util.HashSet;

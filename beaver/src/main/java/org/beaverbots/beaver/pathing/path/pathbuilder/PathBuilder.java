@@ -1,6 +1,9 @@
-package org.beaverbots.beaver.pathing;
+package org.beaverbots.beaver.pathing.path.pathbuilder;
 
 import android.util.Pair;
+
+import org.beaverbots.beaver.pathing.path.Path;
+import org.beaverbots.beaver.pathing.path.PathAxis;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,10 +14,20 @@ public class PathBuilder {
 
     protected double clock;
     protected List<DoubleUnaryOperator> f = new ArrayList<>();
+    protected List<DoubleUnaryOperator> mirror = null;
 
     public PathBuilder(List<Double> startingPosition) {
         for (int i = 0; i < startingPosition.size(); i++) {
             final double captured = startingPosition.get(i);
+            f.add(t -> captured);
+        }
+    }
+
+    /// Transform must be a mirror, i.e. f(f(x)) = x
+    public PathBuilder(List<Double> startingPosition, List<DoubleUnaryOperator> mirror, boolean doubleTransformStart) {
+        this.mirror = mirror;
+        for (int i = 0; i < startingPosition.size(); i++) {
+            final double captured = doubleTransformStart ? mirror.get(i).applyAsDouble(startingPosition.get(i)) : startingPosition.get(i);
             f.add(t -> captured);
         }
     }
@@ -136,17 +149,6 @@ public class PathBuilder {
         return this.bezierTo(control1, control2, target, 0, time);
     }
 
-    public PathBuilder transform(List<DoubleUnaryOperator> transformers) {
-        for (int i = 0; i < f.size(); i++) {
-            final DoubleUnaryOperator original = f.get(i);
-            final DoubleUnaryOperator transform = transformers.get(i);
-
-            f.set(i, t -> transform.applyAsDouble(original.applyAsDouble(t)));
-        }
-
-        return this;
-    }
-
     private DoubleUnaryOperator easeTransition(
             DoubleUnaryOperator f0,
             DoubleUnaryOperator f1,
@@ -185,8 +187,11 @@ public class PathBuilder {
         List<PathAxis> paths = new ArrayList<>();
         List<PathAxis> holdPaths = new ArrayList<>();
         for (int i = 0; i < f.size(); i++) {
-            paths.add(new PathAxis(f.get(i), 0, clock));
-            final double endpoint = f.get(i).applyAsDouble(clock);
+            final DoubleUnaryOperator fAxis = f.get(i);
+            final DoubleUnaryOperator mirrorAxis = mirror == null ? null : mirror.get(i);
+            final DoubleUnaryOperator fAxisMirrored = mirrorAxis == null ? fAxis : t -> mirrorAxis.applyAsDouble(fAxis.applyAsDouble(t));
+            paths.add(new PathAxis(fAxisMirrored, 0, clock));
+            final double endpoint = fAxisMirrored.applyAsDouble(clock);
             holdPaths.add(new PathAxis(t -> endpoint, 0, Double.POSITIVE_INFINITY));
         }
 

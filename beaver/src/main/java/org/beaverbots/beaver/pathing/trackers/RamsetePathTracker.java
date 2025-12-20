@@ -1,4 +1,6 @@
-package org.beaverbots.beaver.pathing;
+package org.beaverbots.beaver.pathing.trackers;
+
+import org.beaverbots.beaver.pathing.path.Path;
 
 import java.util.Arrays;
 import java.util.List;

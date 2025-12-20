@@ -104,6 +104,7 @@ public class Limelight implements Subsystem {
 
         // Facing in the correct way is about -0.35rad, but it can jitter to like 0.12rad (i.e. facing almost directly towards the camera), so reject those.
         for (int i = 0; i < result.getFiducialResults().size(); i++) {
+            // TODO: > or <, I have no clue.
             if (result.getFiducialResults().get(i).getTargetPoseCameraSpace().getOrientation().getPitch(AngleUnit.RADIANS) > 0) return null;
         }
 

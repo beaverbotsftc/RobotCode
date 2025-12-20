@@ -1,4 +1,4 @@
-package org.beaverbots.beaver.pathing;
+package org.beaverbots.beaver.pathing.pidf;
 
 import org.beaverbots.beaver.util.LowPassFilter;
 
