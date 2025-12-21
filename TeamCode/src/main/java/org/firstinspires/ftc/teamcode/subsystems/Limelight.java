@@ -104,7 +104,6 @@ public class Limelight implements Subsystem {
 
         // Facing in the correct way is about -0.35rad, but it can jitter to like 0.12rad (i.e. facing almost directly towards the camera), so reject those.
         for (int i = 0; i < result.getFiducialResults().size(); i++) {
-            // TODO: > or <, I have no clue.
             if (result.getFiducialResults().get(i).getTargetPoseCameraSpace().getOrientation().getPitch(AngleUnit.RADIANS) > 0) return null;
         }
 
@@ -113,8 +112,8 @@ public class Limelight implements Subsystem {
         Position position = result.getBotpose().getPosition();
         YawPitchRollAngles orientation = result.getBotpose().getOrientation();
 
-        double x = -DistanceUnit.INCH.fromUnit(position.unit, position.x) + 72;
-        double y = -DistanceUnit.INCH.fromUnit(position.unit, position.y) + 72;
+        double x = -DistanceUnit.INCH.fromUnit(position.unit, position.x) + 70.281250;
+        double y = -DistanceUnit.INCH.fromUnit(position.unit, position.y) + 70.281250;
         double theta = orientation.getYaw(AngleUnit.RADIANS) + Math.PI;
 
         return new DrivetrainState(x, y, theta);

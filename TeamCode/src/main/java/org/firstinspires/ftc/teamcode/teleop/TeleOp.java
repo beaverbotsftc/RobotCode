@@ -60,7 +60,7 @@ public class TeleOp extends CommandRuntimeOpMode {
         schedule(new Router(
                         new Selector(() -> gamepad.getLeftStickPressed()),
                         new DrivetrainControl(drivetrain, gamepad),
-                        new ShooterMode(pinpoint, drivetrain, Side.RED, false)),
+                        new ShooterMode(pinpoint, drivetrain, CrossModeStorage.side, false)),
                 new IntakeControl(intake, stopper, colorSensor, led, gamepad), shooterControl);
     }
 
@@ -71,9 +71,11 @@ public class TeleOp extends CommandRuntimeOpMode {
         telemetry.addData("Shoot RPM:", shooterControl.getShootRpm());
         telemetry.addData("Current RPM:", shooter.getVelocity());
         telemetry.addData("Fused position:", fusedLocalizer.getPosition());
+        /*
         if (gamepad.getDpadUpJustPressed() && !a) {
             pinpoint.setPosition(fusedLocalizer.getPosition());
             a = true;
         }
+         */
     }
 }

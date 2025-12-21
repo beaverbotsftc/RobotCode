@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems.drivetrain;
 
 import androidx.annotation.NonNull;
 
+import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -76,6 +77,10 @@ public final class DrivetrainState {
         return List.of(x, y, theta);
     }
 
+    public RealVector toVector() {
+        return new ArrayRealVector(toArray());
+    }
+
     public DrivetrainState toLocal(DrivetrainState reference) {
         double deltaX = this.x - reference.getX();
         double deltaY = this.y - reference.getY();
@@ -106,5 +111,13 @@ public final class DrivetrainState {
     @NonNull
     public String toString() {
         return String.format("x=%.2f, y=%.2f, theta=%.2f", x, y, theta);
+    }
+
+    public double lateralDistance(DrivetrainState other) {
+        return Math.sqrt(Math.pow(x - other.getX(), 2) + Math.pow(y - other.getY(), 2));
+    }
+
+    public double angularDistance(DrivetrainState other) {
+        return theta - other.getTheta();
     }
 }

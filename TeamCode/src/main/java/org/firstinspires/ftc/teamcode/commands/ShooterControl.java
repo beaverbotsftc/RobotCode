@@ -10,7 +10,7 @@ public class ShooterControl implements Command {
 
     double shootRpm = 2200.0;
     int shootPos = 1;
-    boolean shooterToggle = false;
+    boolean shooterToggle = true;
 
     public ShooterControl(Shooter shooter, Gamepad gamepad) {
         this.shooter = shooter;

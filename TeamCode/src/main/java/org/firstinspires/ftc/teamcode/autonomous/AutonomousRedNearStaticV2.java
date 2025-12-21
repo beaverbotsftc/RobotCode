@@ -100,7 +100,7 @@ public class AutonomousRedNearStaticV2 extends CommandRuntimeOpMode {
         Pair<Path, Path> autoPart2 = new PathBuilder(autoPart1.second)
                 .linearTo(new DrivetrainState(83.85, 55.95, -Math.PI / 2).toList(), 0.3, 1)
                 .stop(0.3, 0.5)
-                .linearTo(new DrivetrainState(83.85, 25, -Math.PI / 2).toList(), 0.3, 3)
+                .linearTo(new DrivetrainState(83.85, 25, -Math.PI / 2).toList(), 0.3, 1.5)
                 .stop(0.3, 0.5)
                 .build();
 
@@ -112,7 +112,7 @@ public class AutonomousRedNearStaticV2 extends CommandRuntimeOpMode {
         Pair<Path, Path> autoPart4 = new PathBuilder(autoPart3.second)
                 .linearTo(new DrivetrainState(59.85, 55.95, -Math.PI / 2).toList(), 0.3, 1)
                 .stop(0.3, 0.5)
-                .linearTo(new DrivetrainState(59.85, 25, -Math.PI / 2).toList(), 0.3, 3)
+                .linearTo(new DrivetrainState(59.85, 25, -Math.PI / 2).toList(), 0.3, 1.5)
                 .stop(0.3, 0.5)
                 .build();
 

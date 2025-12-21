@@ -21,6 +21,8 @@ public final class Shooter implements Subsystem {
 
     private Stopwatch stopwatch;
 
+    private boolean released = false;
+
     public Shooter(VoltageSensor voltageSensor) {
         shooterLeft = HardwareManager.claim(DcMotorEx.class, "shoot");
         shooterLeft.setDirection(DcMotor.Direction.REVERSE);
@@ -42,6 +44,12 @@ public final class Shooter implements Subsystem {
 
 
     public void periodic() {
+        if (released) {
+            shooterLeft.setPower(0);
+            shooterRight.setPower(0);
+            return;
+        }
+
         double control = pidf.update(getError() , rpm * Constants.shooterFrictionConversionFactor / voltageSensor.getVoltage(),  stopwatch.getDt());
         shooterLeft.setPower(control);
         shooterRight.setPower(control);
@@ -62,6 +70,10 @@ public final class Shooter implements Subsystem {
         double rpm1 = shooterLeft.getVelocity() / 28.0 * 60.0;
         double rpm2 = shooterRight.getVelocity() / 28.0 * 60.0;
         return (rpm1 + rpm2) / 2.0;
+    }
+
+    public void release() {
+        released = true;
     }
 
     public double getError() {

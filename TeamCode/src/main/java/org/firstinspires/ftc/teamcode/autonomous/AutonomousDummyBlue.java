@@ -12,13 +12,13 @@ import org.firstinspires.ftc.teamcode.subsystems.localizer.Localizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous
-public class AutonomousDummy extends CommandRuntimeOpMode {
+public class AutonomousDummyBlue extends CommandRuntimeOpMode {
     private Gamepad gamepad;
     private Pinpoint pinpoint;
     private Limelight limelight;
     private Localizer fusedLocalizer;
 
-    private final Side side = Side.RED;
+    private final Side side = Side.BLUE;
     private Motif motif;
 
     private boolean motifScanning = false;
@@ -34,6 +34,8 @@ public class AutonomousDummy extends CommandRuntimeOpMode {
 
         register(gamepad, pinpoint, limelight, fusedLocalizer);
         limelight.goalPipeline();
+
+        CrossModeStorage.side = side;
     }
 
     @Override

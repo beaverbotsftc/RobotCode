@@ -24,10 +24,10 @@ public class PathBuilder {
     }
 
     /// Transform must be a mirror, i.e. f(f(x)) = x
-    public PathBuilder(List<Double> startingPosition, List<DoubleUnaryOperator> mirror, boolean doubleTransformStart) {
+    public PathBuilder(List<Double> startingPosition, List<DoubleUnaryOperator> mirror, boolean doubleMirrorStart) {
         this.mirror = mirror;
         for (int i = 0; i < startingPosition.size(); i++) {
-            final double captured = doubleTransformStart ? mirror.get(i).applyAsDouble(startingPosition.get(i)) : startingPosition.get(i);
+            final double captured = doubleMirrorStart ? mirror.get(i).applyAsDouble(startingPosition.get(i)) : startingPosition.get(i);
             f.add(t -> captured);
         }
     }
@@ -35,6 +35,11 @@ public class PathBuilder {
     public PathBuilder(Path path) {
         this(path.position(0));
     }
+
+    public PathBuilder(Path path, List<DoubleUnaryOperator> mirror, boolean doubleMirrorStart) {
+        this(path.position(0), mirror, doubleMirrorStart);
+    }
+
 
     public PathBuilder waitFor(double time) {
         clock += time;

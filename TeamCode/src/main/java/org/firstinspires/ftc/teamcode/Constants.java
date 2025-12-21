@@ -5,6 +5,14 @@ public final class Constants {
     public static double drivetrainPowerConversionFactorY = 0.0142546161; // 0.01072290598019666; // in/s -> proportion of max rpm
     public static double drivetrainPowerConversionFactorTheta = 0.1603526706; // 0.1319953842421724; // rad/s -> proportion of max rpm
 
+    public static double getMaxLateralVelocity() {
+        return Math.min(1 / drivetrainPowerConversionFactorX, 1 / drivetrainPowerConversionFactorY);
+    }
+
+    public static double getMaxAngularVelocity() {
+        return 1 / drivetrainPowerConversionFactorTheta;
+    }
+
     /*
     // Ziegler–Nichols method
     // K_p = 0.2 * K_u
@@ -66,10 +74,10 @@ public final class Constants {
     // Forward of center is positive, behind center is negative
     public static double pinpointYOffset = -2.5;
 
-    public static final double redGoalX = 144;
-    public static final double redGoalY = 0;
-    public static final double blueGoalX = 144;
-    public static final double blueGoalY = 144;
+    public static final double redGoalX = 144 - 5;
+    public static final double redGoalY = 0 + 5;
+    public static final double blueGoalX = 144 - 5;
+    public static final double blueGoalY = 144 - 5;
 
     public static final double shooterBias = 0.00;
 
