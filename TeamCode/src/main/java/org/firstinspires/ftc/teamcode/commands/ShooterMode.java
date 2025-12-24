@@ -41,8 +41,8 @@ public class ShooterMode implements Command {
 
         double desiredAngle = Double.NaN;
         switch (side) {
-            case RED: desiredAngle = localizer.wind(Math.atan2(Constants.redGoalY - localizer.getPosition().getY(), Constants.redGoalX - localizer.getPosition().getX())); break;
-            case BLUE: desiredAngle = localizer.wind(Math.atan2(Constants.blueGoalY - localizer.getPosition().getY(), Constants.blueGoalX - localizer.getPosition().getX())); break;
+            case RED: desiredAngle = localizer.wind(Math.atan2(Constants.GOAL_Y - localizer.getPosition().getY(), Constants.GOAL_X - localizer.getPosition().getX())); break;
+            case BLUE: desiredAngle = localizer.wind(Math.atan2(-Constants.GOAL_Y - localizer.getPosition().getY(), Constants.GOAL_X- localizer.getPosition().getX())); break;
         }
         desiredAngle -= Constants.shooterBias; // TODO: Correction
 

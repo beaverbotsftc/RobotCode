@@ -1,10 +1,11 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import android.util.Pair;
+
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
-import com.qualcomm.robotcore.util.RobotLog;
 
 import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.command.Subsystem;
@@ -28,15 +29,14 @@ public class Limelight implements Subsystem {
     private static int PIPELINE_GOAL = 9;
     private Pipeline currentPipeline;
 
-    private double lastPositionAttemptTime = Double.NaN;
+    private double lastPositionResultTime = Double.NaN;
 
     private Limelight3A limelight;
 
     public Limelight() {
         limelight = HardwareManager.claim(Limelight3A.class, "limelight");
         obeliskPipeline();
-        limelight.start();
-    }
+        limelight.start(); }
 
     @Override
     public void periodic() {
@@ -95,27 +95,32 @@ public class Limelight implements Subsystem {
         return null;
     }
 
-    public DrivetrainState getEstimatedPosition() {
+    public Pair<DrivetrainState, Double> getEstimatedPosition() {
         if (currentPipeline != Pipeline.GOAL) throw new IllegalStateException("Invalid pipeline currently selected");
 
+        // TODO: It isn't synced with Pinpoint yet, so the dt will always be a bit late (compared to what the UKF has, i.e. pinpoint), but whatever.
+        long time = System.nanoTime();
+
         LLResult result = limelight.getLatestResult();
-        if (result.getTimestamp() == lastPositionAttemptTime) return null;
+        if (result.getTimestamp() == lastPositionResultTime) return null;
         if (!result.isValid()) return null;
 
         // Facing in the correct way is about -0.35rad, but it can jitter to like 0.12rad (i.e. facing almost directly towards the camera), so reject those.
-        for (int i = 0; i < result.getFiducialResults().size(); i++) {
-            if (result.getFiducialResults().get(i).getTargetPoseCameraSpace().getOrientation().getPitch(AngleUnit.RADIANS) > 0) return null;
+        for (LLResultTypes.FiducialResult fiducial : result.getFiducialResults()) {
+            if (Math.abs(fiducial.getTargetPoseRobotSpace().getOrientation().getPitch(AngleUnit.RADIANS)) > 0.1) return null; // The pitch is always 0 (normal parallel to floor)
+            if (Math.abs(fiducial.getTargetPoseRobotSpace().getOrientation().getRoll(AngleUnit.RADIANS)) > 0.1) return null; // The roll is always 0 (no tipping robots I hope)
         }
 
-        lastPositionAttemptTime = result.getTimestamp();
+        lastPositionResultTime = result.getTimestamp();
 
         Position position = result.getBotpose().getPosition();
         YawPitchRollAngles orientation = result.getBotpose().getOrientation();
 
-        double x = -DistanceUnit.INCH.fromUnit(position.unit, position.x) + 70.281250;
-        double y = -DistanceUnit.INCH.fromUnit(position.unit, position.y) + 70.281250;
+        double x = DistanceUnit.INCH.fromUnit(position.unit, position.x);
+        double y = -DistanceUnit.INCH.fromUnit(position.unit, position.y);
         double theta = orientation.getYaw(AngleUnit.RADIANS) + Math.PI;
 
-        return new DrivetrainState(x, y, theta);
+        // Ignores parse latency to avoid double counting it
+        return new Pair<>(new DrivetrainState(x, y, theta), (double) (time - result.getControlHubTimeStampNanos()) / 1e9 + result.getCaptureLatency() / 1000 + result.getTargetingLatency() / 1000);
     }
 }

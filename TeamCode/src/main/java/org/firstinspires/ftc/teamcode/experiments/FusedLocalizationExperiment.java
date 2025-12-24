@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.experiments;
 
+import android.util.Pair;
+
 import org.beaverbots.beaver.command.CommandRuntimeOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
@@ -49,8 +51,8 @@ public class FusedLocalizationExperiment extends CommandRuntimeOpMode {
     @Override
     public void periodic() {
         telemetry.addLine("Pinpoint pos: " + pinpoint.getPosition().toString());
-        DrivetrainState now = limelight.getEstimatedPosition();
-        if (now != null) lastGood = now;
+        Pair<DrivetrainState, Double> now = limelight.getEstimatedPosition();
+        if (now != null) lastGood = now.first;
         telemetry.addLine("Limelight pos: " + lastGood);
         telemetry.addLine("Fused pos: " + fusedLocalizer.getPosition().toString());
         telemetry.addLine("Vel: " + pinpoint.getVelocity().toString());

@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
 public final class Constants {
+    public static final double GOAL_X = -70.160065;
+    public static final double GOAL_Y = 70.191315;
+
     public static double drivetrainPowerConversionFactorX = 0.0128674126; // 0.01072290598019666; // in/s -> proportion of max rpm
     public static double drivetrainPowerConversionFactorY = 0.0142546161; // 0.01072290598019666; // in/s -> proportion of max rpm
     public static double drivetrainPowerConversionFactorTheta = 0.1603526706; // 0.1319953842421724; // rad/s -> proportion of max rpm
@@ -74,10 +77,6 @@ public final class Constants {
     // Forward of center is positive, behind center is negative
     public static double pinpointYOffset = -2.5;
 
-    public static final double redGoalX = 144 - 5;
-    public static final double redGoalY = 0 + 5;
-    public static final double blueGoalX = 144 - 5;
-    public static final double blueGoalY = 144 - 5;
 
     public static final double shooterBias = 0.00;
 

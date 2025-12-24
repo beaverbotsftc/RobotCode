@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems.localizer;
 
+import android.util.Pair;
+
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
@@ -21,7 +23,6 @@ public class FusedLocalizer implements Subsystem, Localizer {
 
     private SensorFusion filter;
 
-    private RealVector lastTickPinpointState;
     private RealVector lastFilterPinpointState;
     private RealVector highFrequencyPose;
 
@@ -39,7 +40,6 @@ public class FusedLocalizer implements Subsystem, Localizer {
 
         RealVector initialPoseVector = new ArrayRealVector(initialPose.toArray());
 
-        lastTickPinpointState = initialPoseVector;
         lastFilterPinpointState = initialPoseVector;
         highFrequencyPose = initialPoseVector.copy();
 
@@ -65,7 +65,7 @@ public class FusedLocalizer implements Subsystem, Localizer {
         double dThetaPinpoint = controlInput.getEntry(2);
         double thetaPinpoint = controlInput.getEntry(3); // The raw bad heading
 
-        // Calculate how far off the Pinpoint frame is from our Trusted frame
+        // Calculate how far off the Pinpoint frame is from the trusted frame
         double thetaCorrection = theta - thetaPinpoint;
 
         // "Un-rotate" the Pinpoint delta and "Re-rotate" into Trusted frame
@@ -95,14 +95,14 @@ public class FusedLocalizer implements Subsystem, Localizer {
 
         lastFilterPinpointState = currentRawPinpointState;
 
-        DrivetrainState limelightEstimation = limelight.getEstimatedPosition();
+        Pair<DrivetrainState, Double> limelightEstimation = limelight.getEstimatedPosition();
 
         if (limelightEstimation != null) {
             RealVector measurement = new ArrayRealVector(new double[] {
-                    limelightEstimation.getX(),
-                    limelightEstimation.getY(),
-                    wind(limelightEstimation.getTheta())
-            });
+                    limelightEstimation.first.getX(),
+                    limelightEstimation.first.getY(),
+                    wind(limelightEstimation.first.getTheta())
+            }).add(getVelocity().toVector().mapMultiply(limelightEstimation.second));
 
             RealMatrix sensorCovariance = new Array2DRowRealMatrix(new double[][]{
                     {3.875, 0, 0},

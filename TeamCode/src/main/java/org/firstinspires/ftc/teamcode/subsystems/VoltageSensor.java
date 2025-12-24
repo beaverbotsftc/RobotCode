@@ -15,7 +15,7 @@ public class VoltageSensor implements Subsystem {
     }
 
     public void periodic() {
-        voltage = Math.min(sensor1.getVoltage(), sensor2.getVoltage());
+        voltage = Math.max(Math.min(sensor1.getVoltage(), sensor2.getVoltage()), 8); // Just to prevent division by zero errors
     }
 
     public double getVoltage() {

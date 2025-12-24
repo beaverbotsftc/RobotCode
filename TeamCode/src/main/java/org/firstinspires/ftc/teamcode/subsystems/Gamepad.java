@@ -87,9 +87,9 @@ public class Gamepad implements Subsystem {
 
     public Gamepad(com.qualcomm.robotcore.hardware.Gamepad gamepad) {
         gamepad.setLedColor(
-                1 / 256.0,
+                1.0 / 256.0,
                 0.0,
-                64 / 256.0,
+                64.0 / 256.0,
                 com.qualcomm.robotcore.hardware.Gamepad.LED_DURATION_CONTINUOUS);
         this.gamepad = gamepad;
     }

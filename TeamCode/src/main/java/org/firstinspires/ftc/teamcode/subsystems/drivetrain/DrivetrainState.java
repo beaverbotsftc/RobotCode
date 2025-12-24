@@ -118,6 +118,6 @@ public final class DrivetrainState {
     }
 
     public double angularDistance(DrivetrainState other) {
-        return theta - other.getTheta();
+        return Math.abs(theta - other.getTheta());
     }
 }

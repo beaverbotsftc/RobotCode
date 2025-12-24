@@ -13,6 +13,7 @@ import org.beaverbots.beaver.command.premade.Wait;
 import org.beaverbots.beaver.command.premade.WaitUntil;
 import org.beaverbots.beaver.pathing.commands.HolonomicFollowPath;
 import org.beaverbots.beaver.pathing.path.Path;
+import org.beaverbots.beaver.pathing.path.pathbuilder.MaxSpeed;
 import org.beaverbots.beaver.pathing.path.pathbuilder.PathBuilder;
 import org.beaverbots.beaver.pathing.pidf.PIDF;
 import org.beaverbots.beaver.pathing.pidf.PIDFAxis;
@@ -29,6 +30,7 @@ import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
+import org.firstinspires.ftc.teamcode.subsystems.localizer.Localizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 
 import java.util.List;
@@ -36,10 +38,6 @@ import java.util.function.DoubleUnaryOperator;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous
 public class Autonomous extends CommandRuntimeOpMode {
-    private static final double SPIKE_1_X = 82.25;
-    private static final double SPIKE_2_X = 58.625;
-    private static final double SPIKE_3_X = 35;
-
     private Gamepad gamepad;
     private Drivetrain drivetrain;
     private Pinpoint pinpoint;
@@ -62,7 +60,7 @@ public class Autonomous extends CommandRuntimeOpMode {
         mirror =
                 side == Side.RED
                         ? List.of(x -> x, y -> y, theta -> theta)
-                        : List.of(x -> x, y -> 144 - y, theta -> -theta);
+                        : List.of(x -> x, y -> -y, theta -> -theta);
 
         gamepad = new Gamepad(gamepad1);
         drivetrain = new MecanumDrivetrain();
@@ -143,35 +141,47 @@ public class Autonomous extends CommandRuntimeOpMode {
     }
 
     private Command shootNear() {
-        DrivetrainState position = new DrivetrainState(93.67, 51.38, -0.74);
+        final double X;
+        final double Y;
+        final double SHOOTER_RPM = 2200;
+        final double MAX_ERROR = 50;
+        final double HOOD_ANGLE = 0.1;
+        final double EASING = 1.8;
+
+        DrivetrainState position = new DrivetrainState(
+                X,
+                Y,
+                Localizer.wind(
+                        Math.atan2(
+                                Constants.GOAL_Y - Y,
+                                Constants.GOAL_X - X
+                        ), currentPosition.getTheta()
+                )
+        );
         double lateralDistance = currentPosition.lateralDistance(position);
         double angularDistance = currentPosition.angularDistance(position);
-        double easing = 1.8;
 
-        double shooterRpm = 2200;
-        double error = 50;
-        double hood = 0.1;
 
         Pair<Path, Path> path = newPathBuilder()
-                .linearTo(position.toList(), easing, Math.max(
+                .linearTo(position.toList(), EASING, Math.max(
                         lateralDistance / Constants.getMaxLateralVelocity(),
                         angularDistance / Constants.getMaxAngularVelocity()
-                ) + easing)
-                .stop(easing)
+                ) + EASING)
+                .stop(EASING)
                 .build();
 
         updateCurrentPosition(path.second);
 
         return new Sequential(
                 new Instant(() -> {
-                    shooter.spin(shooterRpm);
-                    shooter.setHood(hood);
+                    shooter.spin(SHOOTER_RPM);
+                    shooter.setHood(HOOD_ANGLE);
                 }),
                 followPathTemplate(path.first),
                 new RunUntil(
                         new Sequential(
                                 new First(
-                                        new WaitUntil(() -> shooter.getError() < error),
+                                        new WaitUntil(() -> shooter.getError() < MAX_ERROR),
                                         new Wait(10)
                                 ),
                                 new Instant(() -> {
@@ -180,16 +190,26 @@ public class Autonomous extends CommandRuntimeOpMode {
                                 }),
                                 new Wait(2)
                         ),
-                        new Instant(() -> {
-                            intake.spin(0);
-                            stopper.spin(0);
-                        }),
                         followPathTemplate(path.second)
-                )
+                ),
+                new Instant(() -> {
+                    intake.spin(0);
+                    stopper.spin(0);
+                })
         );
     }
 
     private Command intakeSpike(int spike) {
+        final double SPIKE_1_X = 82.25;
+        final double SPIKE_2_X = 58.625;
+        final double SPIKE_3_X = 35;
+
+        final double BEZIER_1_Y = 47;
+        final double BEZIER_2_Y = 37.5;
+        final double BEZIER_3_Y = 28;
+
+        final double EASING = 0.2;
+
         double spikeX;
         switch (spike) {
             case 1:
@@ -205,34 +225,56 @@ public class Autonomous extends CommandRuntimeOpMode {
                 throw new IllegalArgumentException("Spike must be 1, 2, or 3");
         }
 
-        DrivetrainState position1 = new DrivetrainState(spikeX, 47, -Math.PI / 2);
-        DrivetrainState position2 = new DrivetrainState(spikeX, 37.5, -Math.PI / 2);
-        DrivetrainState position3 = new DrivetrainState(spikeX, 28, -Math.PI / 2);
+        DrivetrainState position1 = new DrivetrainState(spikeX, BEZIER_1_Y, -Math.PI / 2);
+        DrivetrainState position2 = new DrivetrainState(spikeX, BEZIER_2_Y, -Math.PI / 2);
+        DrivetrainState position3 = new DrivetrainState(spikeX, BEZIER_3_Y, -Math.PI / 2);
         DrivetrainState position0 = new DrivetrainState(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
-        double lateralDistance1 = currentPosition.lateralDistance(position0);
-        double angularDistance1 = currentPosition.angularDistance(position0);
-        double lateralDistance2 = position0.lateralDistance(position1);
-        double angularDistance2 = position0.angularDistance(position1);
-        double lateralDistance3 = position1.lateralDistance(position2);
-        double angularDistance3 = position1.angularDistance(position2);
-        double lateralDistance4 = position2.lateralDistance(position3);
-        double angularDistance4 = position2.angularDistance(position3);
 
-        // "Convex hull" property; source: AI
-        double maxLateralSpeed = 3 * Math.max(lateralDistance1, Math.max(lateralDistance2, Math.max(lateralDistance3, lateralDistance4)));
+        double maxLateralSpeed = Math.max(
+                MaxSpeed.cubicBezier(
+                        currentPosition.toVector().getSubVector(0, 2),
+                        currentPosition.toVector().getSubVector(0, 2),
+                        position0.toVector().getSubVector(0, 2),
+                        position1.toVector().getSubVector(0, 2)
+                ),
+                MaxSpeed.cubicBezier(
+                        position1.toVector().getSubVector(0, 2),
+                        position2.toVector().getSubVector(0, 2),
+                        position3.toVector().getSubVector(0, 2),
+                        position3.toVector().getSubVector(0, 2)
+                )
+        );
 
-        double maxAngularSpeed = 3 * Math.max(angularDistance1, Math.max(angularDistance2, Math.max(angularDistance3, angularDistance4)));
+        double maxAngularSpeed = Math.max(
+                MaxSpeed.cubicBezier(
+                        currentPosition.toVector().getSubVector(2, 1),
+                        currentPosition.toVector().getSubVector(2, 1),
+                        position0.toVector().getSubVector(2, 1),
+                        position1.toVector().getSubVector(2, 1)
+                ),
+                MaxSpeed.cubicBezier(
+                        position1.toVector().getSubVector(2, 1),
+                        position2.toVector().getSubVector(2, 1),
+                        position3.toVector().getSubVector(2, 1),
+                        position3.toVector().getSubVector(2, 1)
+                )
+        );
 
-        double easing = 0.2;
 
         Pair<Path, Path> path = newPathBuilder()
-                .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), easing,
-                        3
+                .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), EASING,
+                        Math.max(
+                                maxLateralSpeed / Constants.getMaxLateralVelocity(),
+                                maxAngularSpeed / Constants.getMaxAngularVelocity()
+                        ) + EASING
                 )
-                .bezierTo(position2.toList(), position3.toList(), position3.toList(), easing,
-                        3
+                .bezierTo(position2.toList(), position3.toList(), position3.toList(), EASING,
+                        Math.max(
+                                maxLateralSpeed / Constants.getMaxLateralVelocity(),
+                                maxAngularSpeed / Constants.getMaxAngularVelocity()
+                        ) + EASING
                 )
-                .stop(easing)
+                .stop(EASING)
                 .build();
 
         updateCurrentPosition(path.second);
@@ -251,13 +293,16 @@ public class Autonomous extends CommandRuntimeOpMode {
     }
 
     private Command leaveNear() {
-        DrivetrainState position = new DrivetrainState(120, 50, currentPosition.getTheta());
+        final double X;
+        final double Y;
+        final double EASING = 0.6;
+
+        DrivetrainState position = new DrivetrainState(X, Y, currentPosition.getTheta());
         double distance = currentPosition.lateralDistance(position);
-        double easing = 0.6;
 
         Pair<Path, Path> path = newPathBuilder()
-                .linearTo(position.toList(), easing, distance / Constants.getMaxLateralVelocity() + easing)
-                .stop(easing, easing)
+                .linearTo(position.toList(), EASING, distance / Constants.getMaxLateralVelocity() + EASING)
+                .stop(EASING, EASING)
                 .build();
 
         updateCurrentPosition(path.second);
@@ -269,13 +314,16 @@ public class Autonomous extends CommandRuntimeOpMode {
     }
 
     private Command leaveFar() {
-        DrivetrainState position = new DrivetrainState(50, 50, currentPosition.getTheta());
+        final double X;
+        final double Y;
+        final double EASING = 0.6;
+
+        DrivetrainState position = new DrivetrainState(X, Y, currentPosition.getTheta());
         double distance = currentPosition.lateralDistance(position);
-        double easing = 0.6;
 
         Pair<Path, Path> path = newPathBuilder()
-                .linearTo(position.toList(), easing, distance / Constants.getMaxLateralVelocity() + easing)
-                .stop(easing, easing)
+                .linearTo(position.toList(), EASING, distance / Constants.getMaxLateralVelocity() + EASING)
+                .stop(EASING, EASING)
                 .build();
 
         updateCurrentPosition(path.second);

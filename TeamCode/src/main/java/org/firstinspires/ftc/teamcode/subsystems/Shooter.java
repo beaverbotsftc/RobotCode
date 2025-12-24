@@ -53,9 +53,6 @@ public final class Shooter implements Subsystem {
         double control = pidf.update(getError() , rpm * Constants.shooterFrictionConversionFactor / voltageSensor.getVoltage(),  stopwatch.getDt());
         shooterLeft.setPower(control);
         shooterRight.setPower(control);
-        RobotLog.i(String.valueOf(getVelocity()));
-        RobotLog.i(String.valueOf(control));
-        RobotLog.i("");
     }
 
     public void spin(double rpm) {

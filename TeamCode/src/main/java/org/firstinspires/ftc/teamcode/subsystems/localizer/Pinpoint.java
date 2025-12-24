@@ -12,6 +12,8 @@ import org.firstinspires.ftc.teamcode.drivers.GoBildaPinpointDriver;
 import java.util.List;
 
 public final class Pinpoint implements Localizer, Subsystem {
+    private static final double IN_TO_MM = 25.4;
+
     private GoBildaPinpointDriver pinpoint;
     private DrivetrainState currentPose = null;
     private DrivetrainState currentVelocity = null;
@@ -20,7 +22,7 @@ public final class Pinpoint implements Localizer, Subsystem {
         pinpoint = HardwareManager.claim(GoBildaPinpointDriver.class, "pinpoint");
         pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        pinpoint.setOffsets(Constants.pinpointXOffset, Constants.pinpointYOffset);
+        pinpoint.setOffsets(Constants.pinpointXOffset * IN_TO_MM, Constants.pinpointYOffset * IN_TO_MM);
         pinpoint.recalibrateIMU();
         setPosition(pose);
     }
