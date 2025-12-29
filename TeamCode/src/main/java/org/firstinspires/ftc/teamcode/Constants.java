@@ -73,9 +73,9 @@ public final class Constants {
      */
 
     // Left of center is positive, right of center is negative
-    public static double pinpointXOffset = -4;
+    public static double pinpointXOffset = -3.75;
     // Forward of center is positive, behind center is negative
-    public static double pinpointYOffset = -2.5;
+    public static double pinpointYOffset = -4;
 
 
     public static final double shooterBias = 0.00;

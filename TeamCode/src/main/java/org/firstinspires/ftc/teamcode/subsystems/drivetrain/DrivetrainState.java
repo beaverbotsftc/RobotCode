@@ -81,31 +81,32 @@ public final class DrivetrainState {
         return new ArrayRealVector(toArray());
     }
 
+    public DrivetrainState rotate(double angle) {
+        double cos = Math.cos(angle);
+        double sin = Math.sin(angle);
+
+        double newX = this.x * cos - this.y * sin;
+        double newY = this.x * sin + this.y * cos;
+
+        return new DrivetrainState(newX, newY, this.theta);
+    }
+
     public DrivetrainState toLocal(DrivetrainState reference) {
+        // 1. Translation
         double deltaX = this.x - reference.getX();
         double deltaY = this.y - reference.getY();
 
-        double sinTheta = Math.sin(reference.getTheta());
-        double cosTheta = Math.cos(reference.getTheta());
+        // 2. Rotation
+        // We rotate by negative reference theta to convert Global -> Local
+        DrivetrainState rotated = new DrivetrainState(deltaX, deltaY, 0).rotate(-reference.getTheta());
 
-        // Equivalent to a rotation matrix multiplication
-        double localX = deltaX * cosTheta + deltaY * sinTheta;
-        double localY = -deltaX * sinTheta + deltaY * cosTheta;
-
-        double localTheta = this.theta - reference.getTheta();
-
-        return new DrivetrainState(localX, localY, localTheta);
+        // 3. Heading Delta
+        return new DrivetrainState(rotated.getX(), rotated.getY(), this.theta - reference.getTheta());
     }
 
-    public DrivetrainState toLocalVelocity(DrivetrainState position) {
-        double sinTheta = Math.sin(position.getTheta());
-        double cosTheta = Math.cos(position.getTheta());
-
-        // Equivalent to a rotation matrix multiplication
-        double localX = this.x * cosTheta + this.y * sinTheta;
-        double localY = -this.x * sinTheta + this.y * cosTheta;
-
-        return new DrivetrainState(localX, localY, this.theta);
+    public DrivetrainState toLocalVelocity(DrivetrainState reference) {
+        // We simply rotate the current vector by negative reference theta
+        return this.rotate(-reference.getTheta());
     }
 
     @NonNull

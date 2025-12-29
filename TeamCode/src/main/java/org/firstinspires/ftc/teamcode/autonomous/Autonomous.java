@@ -141,8 +141,8 @@ public class Autonomous extends CommandRuntimeOpMode {
     }
 
     private Command shootNear() {
-        final double X;
-        final double Y;
+        final double X = -14;
+        final double Y = 24;
         final double SHOOTER_RPM = 2200;
         final double MAX_ERROR = 50;
         final double HOOD_ANGLE = 0.1;
@@ -200,13 +200,14 @@ public class Autonomous extends CommandRuntimeOpMode {
     }
 
     private Command intakeSpike(int spike) {
-        final double SPIKE_1_X = 82.25;
-        final double SPIKE_2_X = 58.625;
-        final double SPIKE_3_X = 35;
+        // Using setup manual dimensions (middle of shark fin), rather than CAD.
+        final double SPIKE_1_X = -11.78125;
+        final double SPIKE_2_X = 11.78125;
+        final double SPIKE_3_X = 35.34375;
 
-        final double BEZIER_1_Y = 47;
-        final double BEZIER_2_Y = 37.5;
-        final double BEZIER_3_Y = 28;
+        final double BEZIER_1_Y = 32;
+        final double BEZIER_2_Y = 40;
+        final double BEZIER_3_Y = 54;
 
         final double EASING = 0.2;
 
@@ -293,8 +294,8 @@ public class Autonomous extends CommandRuntimeOpMode {
     }
 
     private Command leaveNear() {
-        final double X;
-        final double Y;
+        final double X = -47.675857;
+        final double Y = 23.531253;
         final double EASING = 0.6;
 
         DrivetrainState position = new DrivetrainState(X, Y, currentPosition.getTheta());
@@ -314,8 +315,8 @@ public class Autonomous extends CommandRuntimeOpMode {
     }
 
     private Command leaveFar() {
-        final double X;
-        final double Y;
+        final double X = 60;
+        final double Y = 34;
         final double EASING = 0.6;
 
         DrivetrainState position = new DrivetrainState(X, Y, currentPosition.getTheta());

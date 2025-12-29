@@ -60,23 +60,16 @@ public class FusedLocalizer implements Subsystem, Localizer {
     private RealVector applyPinpointDelta(RealVector currentState, RealVector controlInput) {
         double theta = currentState.getEntry(2);
 
-        double dXPinpoint = controlInput.getEntry(0);
-        double dYPinpoint = controlInput.getEntry(1);
-        double dThetaPinpoint = controlInput.getEntry(2);
-        double thetaPinpoint = controlInput.getEntry(3); // The raw bad heading
+        DrivetrainState deltaPinpoint = new DrivetrainState(
+                controlInput.getEntry(0),
+                controlInput.getEntry(1),
+                controlInput.getEntry(2)
+        );
+        double thetaPinpoint = controlInput.getEntry(3);
 
-        // Calculate how far off the Pinpoint frame is from the trusted frame
-        double thetaCorrection = theta - thetaPinpoint;
+        DrivetrainState deltaTrusted = deltaPinpoint.rotate(theta - thetaPinpoint);
 
-        // "Un-rotate" the Pinpoint delta and "Re-rotate" into Trusted frame
-        double cos = Math.cos(thetaCorrection);
-        double sin = Math.sin(thetaCorrection);
-
-        double dXGlobal = dXPinpoint * cos - dYPinpoint * sin;
-        double dYGlobal = dXPinpoint * sin + dYPinpoint * cos;
-
-        // Return new state (adding the deltas)
-        return currentState.add(new ArrayRealVector(new double[]{dXGlobal, dYGlobal, dThetaPinpoint}));
+        return currentState.add(deltaTrusted.toVector());
     }
 
     public void periodic() {
@@ -84,7 +77,7 @@ public class FusedLocalizer implements Subsystem, Localizer {
         double dt = stopwatch.getDt();
 
         RealVector cumulativeDelta = currentRawPinpointState.subtract(lastFilterPinpointState);
-        RealVector totalControl = new ArrayRealVector(new double[] {
+        RealVector totalControl = new ArrayRealVector(new double[]{
                 cumulativeDelta.getEntry(0),
                 cumulativeDelta.getEntry(1),
                 cumulativeDelta.getEntry(2),
@@ -98,7 +91,7 @@ public class FusedLocalizer implements Subsystem, Localizer {
         Pair<DrivetrainState, Double> limelightEstimation = limelight.getEstimatedPosition();
 
         if (limelightEstimation != null) {
-            RealVector measurement = new ArrayRealVector(new double[] {
+            RealVector measurement = new ArrayRealVector(new double[]{
                     limelightEstimation.first.getX(),
                     limelightEstimation.first.getY(),
                     wind(limelightEstimation.first.getTheta())
@@ -125,17 +118,17 @@ public class FusedLocalizer implements Subsystem, Localizer {
         return new DrivetrainState(highFrequencyPose);
     }
 
-    public DrivetrainState getVelocity() {
-        return localizer.getVelocity();
-    }
-
     public List<Double> getPositionAsList() {
         double[] meanArray = highFrequencyPose.toArray();
         return List.of(meanArray[0], meanArray[1], meanArray[2]);
     }
 
+    public DrivetrainState getVelocity() {
+        return localizer.getVelocity().rotate(highFrequencyPose.getEntry(2) - localizer.getPosition().getTheta());
+    }
+
     public List<Double> getVelocityAsList() {
-        return localizer.getVelocityAsList();
+        return getVelocity().toList();
     }
 
     public RealMatrix getCovariance() {
