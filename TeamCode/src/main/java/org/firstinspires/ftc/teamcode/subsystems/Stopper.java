@@ -24,6 +24,8 @@ public final class Stopper implements Subsystem {
 
     public void spinReverse(){ this.power = -maxPower;}
 
+    public void setMaxPower(double powa){maxPower = powa;}
+
     public void spinForward(){ this.power = maxPower;}
 
     public void stop() { this.power = 0; }

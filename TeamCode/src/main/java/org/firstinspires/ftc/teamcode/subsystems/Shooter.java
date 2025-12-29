@@ -18,9 +18,7 @@ public final class Shooter implements Subsystem {
     private double rpm;
     private PIDFAxis pidf = new PIDFAxis(new PIDFAxis.K(Constants.pidPShooter, Constants.pidIShooter, 0, 1, 0.01, 1, 1, Constants.pidGammaShooter));
     private VoltageSensor voltageSensor;
-
     private Stopwatch stopwatch;
-
     private boolean released = false;
 
     public Shooter(VoltageSensor voltageSensor) {
@@ -62,6 +60,8 @@ public final class Shooter implements Subsystem {
     public void setHood(double pos){
         hood.setPosition(pos);
     }
+
+    public double getHood(){ return hood.getPosition(); }
 
     public double getVelocity(){
         double rpm1 = shooterLeft.getVelocity() / 28.0 * 60.0;

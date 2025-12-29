@@ -12,34 +12,34 @@ public class IntakeControl implements Command {
     private Stopper stopper;
     private ColorSensor colorSensor;
     private Gamepad gamepad;
-    private Led led;
 
-    public IntakeControl(Intake intake, Stopper stopper, ColorSensor colorSensor, Led led, Gamepad gamepad) {
+    public IntakeControl(Intake intake, Stopper stopper, ColorSensor colorSensor, Gamepad gamepad) {
         this.intake = intake;
         this.stopper = stopper;
         this.colorSensor = colorSensor;
         this.gamepad = gamepad;
-        this.led = led;
     }
 
     public boolean periodic() {
         double intakeSpeed = gamepad.getRightTrigger() - gamepad.getLeftTrigger();
 
-        if(gamepad.getCircle()){
-            stopper.spinForward();
+        if(gamepad.getCircle()){ //balls go into shooter
+            intake.setMaxPower(0.95);
+            stopper.setMaxPower(0.95);
+            if(ShooterControl.percentError < 7.0 && ShooterControl.percentError >= 0.0){
+                intakeSpeed = 1.0;
+                stopper.spinForward();
+            }else{
+                intakeSpeed = 0.0;
+                stopper.stop();
+            }
+        }else if(intakeSpeed != 0){ //when intaking balls
             intake.setMaxPower(1);
-            intakeSpeed = 1.0;
-        }else if(intakeSpeed != 0){
-            intake.setMaxPower(0.8);
+            stopper.setMaxPower(0.5);
+
             stopper.spinReverse();
         }else{
             stopper.stop();
-        }
-
-        if(colorSensor.checkBack() && colorSensor.checkFront()){
-            led.setPurple();
-        }else{
-            led.turnOff();
         }
 
         intake.spin(intakeSpeed);

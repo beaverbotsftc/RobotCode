@@ -2,18 +2,26 @@ package org.firstinspires.ftc.teamcode.commands;
 
 import org.beaverbots.beaver.command.Command;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
+import org.firstinspires.ftc.teamcode.subsystems.Led;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
 public class ShooterControl implements Command {
     Gamepad gamepad;
     Shooter shooter;
-
+    private Led led;
     double shootRpm = 2200.0;
     int shootPos = 1;
-    boolean shooterToggle = true;
+    boolean shooterToggle = false;
+    public static double percentError = 0.0;
 
     public ShooterControl(Shooter shooter, Gamepad gamepad) {
         this.shooter = shooter;
+        this.gamepad = gamepad;
+    }
+
+    public ShooterControl(Shooter shooter, Led led, Gamepad gamepad) {
+        this.shooter = shooter;
+        this.led = led;
         this.gamepad = gamepad;
     }
 
@@ -25,13 +33,13 @@ public class ShooterControl implements Command {
         }
 
         if(shootPos == 1){
-            shooter.setHood(0.27);
+            shooter.setHood(0.30);
             shootRpm = 2200.0;
         } else if (shootPos == 2) {
-            shooter.setHood(0.35);
-            shootRpm = 2500.0;
+            shooter.setHood(0.525);
+            shootRpm = 2550.0;
         }else if (shootPos == 3){
-            shooter.setHood(0.53);
+            shooter.setHood(0.72);
             shootRpm = 3000.0;
         }
 
@@ -41,17 +49,17 @@ public class ShooterControl implements Command {
 
         if (shooterToggle) {
             shooter.spin(shootRpm);
+            led.setProximity(shootRpm,getCurrentRPM());
         } else {
             shooter.spin(0);
+            led.turnOff();
         }
 
-        /*
-        if(gamepad.getDpadLeft()){
-            shooter.brakesOn();
-        }else{
-            shooter.brakesOff();
+        if (shootRpm > 0) {
+            percentError = Math.abs(shootRpm - getCurrentRPM()) * 100.0 / shootRpm;
+        } else {
+            percentError = -1.0;
         }
-         */
 
         return false;
     }
@@ -63,6 +71,4 @@ public class ShooterControl implements Command {
     public double getCurrentRPM(){
         return shooter.getVelocity();
     }
-
-
 }

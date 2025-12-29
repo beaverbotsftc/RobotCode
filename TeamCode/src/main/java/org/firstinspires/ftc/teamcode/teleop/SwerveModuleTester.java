@@ -17,8 +17,8 @@ public class SwerveModuleTester extends LinearOpMode {
     public void runOpMode() {
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
-        motor  = hardwareMap.get(DcMotor.class, "Motor");
-        servo  = hardwareMap.get(Servo.class, "servo");                                                                                      
+        motor  = hardwareMap.get(DcMotor.class, "intake");
+        servo  = hardwareMap.get(Servo.class, "led");
 
         // Wait for the game to start (driver presses START)
         telemetry.addData("Status", "Initialized");
@@ -29,11 +29,10 @@ public class SwerveModuleTester extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-            double speed = gamepad1.right_bumper ? 1 : slowSpeed;
             double pos = servo.getPosition();
 
             // Send calculated power to wheels
-            motor.setPower(speed * -gamepad1.left_stick_y);
+            motor.setPower(-gamepad1.left_stick_y);
             servo.setPosition(gamepad1.triangle ? (pos + 0.003) : (gamepad1.cross ? (pos - 0.003) : pos));
 
             // Show the elapsed game time and wheel power.
