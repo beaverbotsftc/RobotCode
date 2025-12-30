@@ -117,8 +117,8 @@ public class Limelight implements Subsystem {
         YawPitchRollAngles orientation = result.getBotpose().getOrientation();
 
         double x = DistanceUnit.INCH.fromUnit(position.unit, position.x);
-        double y = -DistanceUnit.INCH.fromUnit(position.unit, position.y);
-        double theta = orientation.getYaw(AngleUnit.RADIANS) + Math.PI;
+        double y = DistanceUnit.INCH.fromUnit(position.unit, position.y);
+        double theta = orientation.getYaw(AngleUnit.RADIANS);
 
         // Ignores parse latency to avoid double counting it
         return new Pair<>(new DrivetrainState(x, y, theta), (double) (time - result.getControlHubTimeStampNanos()) / 1e9 + result.getCaptureLatency() / 1000 + result.getTargetingLatency() / 1000);

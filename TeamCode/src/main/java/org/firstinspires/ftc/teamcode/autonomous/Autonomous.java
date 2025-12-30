@@ -72,7 +72,7 @@ public class Autonomous extends CommandRuntimeOpMode {
         intake = new Intake();
         stopper = new Stopper();
 
-        register(gamepad, pinpoint, limelight, fusedLocalizer, voltageSensor, shooter, intake, stopper, drivetrain);
+        register(gamepad, pinpoint, limelight, fusedLocalizer, voltageSensor, drivetrain);//shooter, intake, stopper);
         limelight.goalPipeline();
 
         schedule(
@@ -141,7 +141,7 @@ public class Autonomous extends CommandRuntimeOpMode {
     }
 
     private Command shootNear() {
-        final double X = -14;
+        final double X = -16;
         final double Y = 24;
         final double SHOOTER_RPM = 2200;
         final double MAX_ERROR = 50;
@@ -163,10 +163,10 @@ public class Autonomous extends CommandRuntimeOpMode {
 
 
         Pair<Path, Path> path = newPathBuilder()
-                .linearTo(position.toList(), EASING, Math.max(
-                        lateralDistance / Constants.getMaxLateralVelocity(),
-                        angularDistance / Constants.getMaxAngularVelocity()
-                ) + EASING)
+                .linearTo(position.toList(), EASING,
+                        lateralDistance / Constants.getMaxLateralVelocity() +
+                                angularDistance / Constants.getMaxAngularVelocity()
+                                + EASING)
                 .stop(EASING)
                 .build();
 
@@ -185,10 +185,10 @@ public class Autonomous extends CommandRuntimeOpMode {
                                         new Wait(10)
                                 ),
                                 new Instant(() -> {
-                                    intake.spin(1);
+                                    intake.spin(0.5);
                                     stopper.spin(1);
                                 }),
-                                new Wait(2)
+                                new Wait(5)
                         ),
                         followPathTemplate(path.second)
                 ),
@@ -205,11 +205,11 @@ public class Autonomous extends CommandRuntimeOpMode {
         final double SPIKE_2_X = 11.78125;
         final double SPIKE_3_X = 35.34375;
 
-        final double BEZIER_1_Y = 32;
+        final double BEZIER_1_Y = 15;
         final double BEZIER_2_Y = 40;
-        final double BEZIER_3_Y = 54;
+        final double BEZIER_3_Y = 50;
 
-        final double EASING = 0.2;
+        final double EASING = 2;
 
         double spikeX;
         switch (spike) {
@@ -226,9 +226,9 @@ public class Autonomous extends CommandRuntimeOpMode {
                 throw new IllegalArgumentException("Spike must be 1, 2, or 3");
         }
 
-        DrivetrainState position1 = new DrivetrainState(spikeX, BEZIER_1_Y, -Math.PI / 2);
-        DrivetrainState position2 = new DrivetrainState(spikeX, BEZIER_2_Y, -Math.PI / 2);
-        DrivetrainState position3 = new DrivetrainState(spikeX, BEZIER_3_Y, -Math.PI / 2);
+        DrivetrainState position1 = new DrivetrainState(spikeX, BEZIER_1_Y, Math.PI / 2);
+        DrivetrainState position2 = new DrivetrainState(spikeX, BEZIER_2_Y, Math.PI / 2);
+        DrivetrainState position3 = new DrivetrainState(spikeX, BEZIER_3_Y, Math.PI / 2);
         DrivetrainState position0 = new DrivetrainState(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
 
         double maxLateralSpeed = Math.max(
@@ -264,19 +264,18 @@ public class Autonomous extends CommandRuntimeOpMode {
 
         Pair<Path, Path> path = newPathBuilder()
                 .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), EASING,
-                        Math.max(
-                                maxLateralSpeed / Constants.getMaxLateralVelocity(),
+
+                        maxLateralSpeed / Constants.getMaxLateralVelocity() +
                                 maxAngularSpeed / Constants.getMaxAngularVelocity()
-                        ) + EASING
+                                + EASING
                 )
                 .bezierTo(position2.toList(), position3.toList(), position3.toList(), EASING,
-                        Math.max(
-                                maxLateralSpeed / Constants.getMaxLateralVelocity(),
+
+                        maxLateralSpeed / Constants.getMaxLateralVelocity() +
                                 maxAngularSpeed / Constants.getMaxAngularVelocity()
-                        ) + EASING
+                                + EASING
                 )
-                .stop(EASING)
-                .build();
+                .stop(EASING).build();
 
         updateCurrentPosition(path.second);
 
