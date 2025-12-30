@@ -36,7 +36,8 @@ public class Limelight implements Subsystem {
     public Limelight() {
         limelight = HardwareManager.claim(Limelight3A.class, "limelight");
         obeliskPipeline();
-        limelight.start(); }
+        limelight.start();
+    }
 
     @Override
     public void periodic() {
@@ -105,9 +106,9 @@ public class Limelight implements Subsystem {
         if (result.getTimestamp() == lastPositionResultTime) return null;
         if (!result.isValid()) return null;
 
-        // Facing in the correct way is about -0.35rad, but it can jitter to like 0.12rad (i.e. facing almost directly towards the camera), so reject those.
         for (LLResultTypes.FiducialResult fiducial : result.getFiducialResults()) {
-            if (Math.abs(fiducial.getTargetPoseRobotSpace().getOrientation().getPitch(AngleUnit.RADIANS)) > 0.1) return null; // The pitch is always 0 (normal parallel to floor)
+            // TODO: Somehow limelight (or the FTC SDK) thinks that pitch is yaw and yaw is pitch!!! Potential bug in the SDK, idk though.
+            if (Math.abs(fiducial.getTargetPoseRobotSpace().getOrientation().getYaw(AngleUnit.RADIANS)) > 0.2) return null; // The pitch is always 0 (normal parallel to floor), but because it is mounted like it is, a higher tolerance is required
             if (Math.abs(fiducial.getTargetPoseRobotSpace().getOrientation().getRoll(AngleUnit.RADIANS)) > 0.1) return null; // The roll is always 0 (no tipping robots I hope)
         }
 

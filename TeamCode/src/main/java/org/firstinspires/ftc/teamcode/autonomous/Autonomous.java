@@ -119,7 +119,7 @@ public class Autonomous extends CommandRuntimeOpMode {
                         intakeSpike(3),
                         shootNear(),
                         new Instant(() -> {
-                            shooter.release();
+                            shooter.spin(0);
                         }),
                         leaveNear()
                 )
@@ -141,6 +141,65 @@ public class Autonomous extends CommandRuntimeOpMode {
     }
 
     private Command shootNear() {
+        final double X = -16;
+        final double Y = 24;
+        final double SHOOTER_RPM = 2200;
+        final double MAX_ERROR = 50;
+        final double HOOD_ANGLE = 0.1;
+        final double EASING = 1.8;
+
+        DrivetrainState position = new DrivetrainState(
+                X,
+                Y,
+                Localizer.wind(
+                        Math.atan2(
+                                Constants.GOAL_Y - Y,
+                                Constants.GOAL_X - X
+                        ), currentPosition.getTheta()
+                )
+        );
+        double lateralDistance = currentPosition.lateralDistance(position);
+        double angularDistance = currentPosition.angularDistance(position);
+
+
+        Pair<Path, Path> path = newPathBuilder()
+                .linearTo(position.toList(), EASING,
+                        lateralDistance / Constants.getMaxLateralVelocity() +
+                                angularDistance / Constants.getMaxAngularVelocity()
+                                + EASING)
+                .stop(EASING)
+                .build();
+
+        updateCurrentPosition(path.second);
+
+        return new Sequential(
+                new Instant(() -> {
+                    shooter.spin(SHOOTER_RPM);
+                    shooter.setHood(HOOD_ANGLE);
+                }),
+                followPathTemplate(path.first),
+                new RunUntil(
+                        new Sequential(
+                                new First(
+                                        new WaitUntil(() -> shooter.getError() < MAX_ERROR),
+                                        new Wait(10)
+                                ),
+                                new Instant(() -> {
+                                    intake.spin(0.5);
+                                    stopper.spin(1);
+                                }),
+                                new Wait(5)
+                        ),
+                        followPathTemplate(path.second)
+                ),
+                new Instant(() -> {
+                    intake.spin(0);
+                    stopper.spin(0);
+                })
+        );
+    }
+
+    private Command shootFar() {
         final double X = -16;
         final double Y = 24;
         final double SHOOTER_RPM = 2200;

@@ -42,7 +42,7 @@ public final class Shooter implements Subsystem {
 
 
     public void periodic() {
-        if (released) {
+        if (rpm == 0) {
             shooterLeft.setPower(0);
             shooterRight.setPower(0);
             return;
@@ -67,10 +67,6 @@ public final class Shooter implements Subsystem {
         double rpm1 = shooterLeft.getVelocity() / 28.0 * 60.0;
         double rpm2 = shooterRight.getVelocity() / 28.0 * 60.0;
         return (rpm1 + rpm2) / 2.0;
-    }
-
-    public void release() {
-        released = true;
     }
 
     public double getError() {
