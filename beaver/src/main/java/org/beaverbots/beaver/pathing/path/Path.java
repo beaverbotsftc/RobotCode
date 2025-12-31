@@ -1,7 +1,10 @@
 package org.beaverbots.beaver.pathing.path;
 
+import android.util.Pair;
+
 import java.util.List;
 import java.util.function.DoublePredicate;
+import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 
 public final class Path {
@@ -31,5 +34,10 @@ public final class Path {
 
     public List<Double> acceleration(double t) {
         return path.stream().map(x -> x.acceleration(t)).collect(Collectors.toList());
+    }
+
+    ///  Please don't mutate the result
+    public List<PathAxis> getAxes() {
+        return path;
     }
 }

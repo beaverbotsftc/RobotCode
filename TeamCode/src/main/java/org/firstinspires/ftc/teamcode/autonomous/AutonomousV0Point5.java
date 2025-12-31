@@ -13,6 +13,7 @@ import org.beaverbots.beaver.command.premade.Wait;
 import org.beaverbots.beaver.command.premade.WaitUntil;
 import org.beaverbots.beaver.pathing.commands.HolonomicFollowPath;
 import org.beaverbots.beaver.pathing.path.Path;
+import org.beaverbots.beaver.pathing.path.pathbuilder.MaxSpeed;
 import org.beaverbots.beaver.pathing.path.pathbuilder.PathBuilder;
 import org.beaverbots.beaver.pathing.pidf.PIDF;
 import org.beaverbots.beaver.pathing.pidf.PIDFAxis;
@@ -32,13 +33,12 @@ import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Localizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.ToDoubleFunction;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous
-public class Autonomous extends CommandRuntimeOpMode {
+public class AutonomousV0Point5 extends CommandRuntimeOpMode {
     private Gamepad gamepad;
     private Drivetrain drivetrain;
     private Pinpoint pinpoint;
@@ -53,10 +53,7 @@ public class Autonomous extends CommandRuntimeOpMode {
     private Motif motif;
 
     private List<DoubleUnaryOperator> mirror;
-
     private DrivetrainState currentPosition;
-    private List<Path> paths = new ArrayList<>();
-    private List<Path> pathsHold = new ArrayList<>();
 
     private ToDoubleFunction<Pair<List<Double>, List<Double>>> usageRatio;
 
@@ -119,13 +116,13 @@ public class Autonomous extends CommandRuntimeOpMode {
 
         schedule(
                 new Sequential(
-                        shootNear(driveToShootNear()),
-                        intakeSpike(driveThroughSpike3()),
-                        shootNear(newPathBuilderFromPath(getPreviousPath(1)).reverse().retime(usageRatio, 1, 50).build()),
-                        intakeSpike(driveThroughSpike1()),
-                        shootNear(newPathBuilderFromPath(getPreviousPath(1)).reverse().retime(usageRatio, 1, 50).build()),
-                        intakeSpike(driveThroughSpike2()),
-                        shootNear(newPathBuilderFromPath(getPreviousPath(1)).reverse().retime(usageRatio, 1, 50).build()),
+                        shootNear(),
+                        intakeSpike(2),
+                        shootNear(),
+                        intakeSpike(2),
+                        shootNear(),
+                        intakeSpike(2),
+                        shootNear(),
                         new Instant(() -> {
                             shooter.spin(0);
                         }),
@@ -144,117 +141,41 @@ public class Autonomous extends CommandRuntimeOpMode {
         return new PathBuilder(currentPosition.toList(), mirror, true);
     }
 
-    private PathBuilder newPathBuilderFromPath(Path path) {
-        return new PathBuilder(path, mirror, true);
+    private void updateCurrentPosition(Path holdPath) {
+        currentPosition = new DrivetrainState(holdPath.position(0));
     }
 
-    private void update(Pair<Path, Path> path) {
-        currentPosition = new DrivetrainState(path.second.position(0));
-        paths.add(path.first);
-        pathsHold.add(path.second);
-    }
-
-    private Path getPreviousPath(int i) {
-        return paths.get(paths.size() - i);
-    }
-
-    private Pair<Path, Path> driveToShootNear() {
-        final double X = -24;//-16;
+    private Command shootNear() {
+        final double X = -16;
         final double Y = 24;
+        final double SHOOTER_RPM = 2200;
+        final double MAX_ERROR = 50;
+        final double HOOD_ANGLE = 0.3;
+        final double EASING = 1.8;
 
-        final double EASING_FRACTION = 1;
-
-        final DrivetrainState position = new DrivetrainState(
+        DrivetrainState position = new DrivetrainState(
                 X,
                 Y,
                 Localizer.wind(
                         Math.atan2(
                                 Constants.GOAL_Y - Y,
                                 Constants.GOAL_X - X
-                        ), mirror.get(2).applyAsDouble(currentPosition.getTheta())
+                        ), currentPosition.getTheta()
                 )
         );
-
-        return newPathBuilder().linearTo(position.toList(), EASING_FRACTION, 1).retime(usageRatio, 0.7, 50).build();
-    }
-
-    private Pair<Path, Path> driveThroughSpike1() {
-        // Using setup manual dimensions (middle of shark fin), rather than CAD.
-        final double X = -11.78125;
-
-        final double BEZIER_1_Y = 25;
-        final double BEZIER_2_Y = 40;
-        final double BEZIER_3_Y = 50;
-
-        final double EASING_FRACTION = 1;
-
-        DrivetrainState position1 = new DrivetrainState(X, BEZIER_1_Y, Math.PI / 2);
-        DrivetrainState position2 = new DrivetrainState(X, BEZIER_2_Y, Math.PI / 2);
-        DrivetrainState position3 = new DrivetrainState(X, BEZIER_3_Y, Math.PI / 2);
-        DrivetrainState position0 = new DrivetrainState(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
+        double lateralDistance = currentPosition.lateralDistance(position);
+        double angularDistance = currentPosition.angularDistance(position);
 
 
-        return newPathBuilder()
-                .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), EASING_FRACTION, 1)
-                .bezierTo(position2.toList(), position3.toList(), position3.toList(), EASING_FRACTION, 1)
-                .retime(usageRatio, 0.7, 50)
+        Pair<Path, Path> path = newPathBuilder()
+                .linearTo(position.toList(), EASING,
+                        lateralDistance / Constants.getMaxLateralVelocity() +
+                                angularDistance / Constants.getMaxAngularVelocity()
+                                + EASING)
+                .stop(EASING)
                 .build();
-    }
 
-    private Pair<Path, Path> driveThroughSpike2() {
-        // Using setup manual dimensions (middle of shark fin), rather than CAD.
-        final double X = 11.78125;
-        //final double X = 7;
-
-        final double BEZIER_1_Y = 25;
-        final double BEZIER_2_Y = 40;
-        final double BEZIER_3_Y = 56;
-
-        final double EASING_FRACTION = 1;
-
-
-        DrivetrainState position1 = new DrivetrainState(X, BEZIER_1_Y, Math.PI / 2);
-        DrivetrainState position2 = new DrivetrainState(X, BEZIER_2_Y, Math.PI / 2);
-        DrivetrainState position3 = new DrivetrainState(X, BEZIER_3_Y, Math.PI / 2);
-        DrivetrainState position0 = new DrivetrainState(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
-
-
-        return newPathBuilder()
-                .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), EASING_FRACTION, 1)
-                .bezierTo(position2.toList(), position3.toList(), position3.toList(), EASING_FRACTION, 1)
-                .retime(usageRatio, 0.7, 50)
-                .build();
-    }
-
-    private Pair<Path, Path> driveThroughSpike3() {
-        // Using setup manual dimensions (middle of shark fin), rather than CAD.
-        final double X = 35.34375;
-
-        final double BEZIER_1_Y = 25;
-        final double BEZIER_2_Y = 40;
-        final double BEZIER_3_Y = 56;
-
-        final double EASING_FRACTION = 1;
-
-        DrivetrainState position1 = new DrivetrainState(X, BEZIER_1_Y, Math.PI / 2);
-        DrivetrainState position2 = new DrivetrainState(X, BEZIER_2_Y, Math.PI / 2);
-        DrivetrainState position3 = new DrivetrainState(X, BEZIER_3_Y, Math.PI / 2);
-        DrivetrainState position0 = new DrivetrainState(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
-
-
-        return newPathBuilder()
-                .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), EASING_FRACTION, 1)
-                .bezierTo(position2.toList(), position3.toList(), position3.toList(), EASING_FRACTION, 1)
-                .retime(usageRatio, 0.7, 50)
-                .build();
-    }
-
-    private Command shootNear(Pair<Path, Path> path) {
-        final double SHOOTER_RPM = 2200;
-        final double MAX_ERROR = 50;
-        final double HOOD_ANGLE = 0.3;
-
-        update(path);
+        updateCurrentPosition(path.second);
 
         return new Sequential(
                 new Instant(() -> {
@@ -264,16 +185,15 @@ public class Autonomous extends CommandRuntimeOpMode {
                 followPathTemplate(path.first),
                 new RunUntil(
                         new Sequential(
-                                new Wait(0.5),
                                 new First(
                                         new WaitUntil(() -> shooter.getError() < MAX_ERROR),
                                         new Wait(10)
                                 ),
                                 new Instant(() -> {
-                                    intake.spin(0.8);
+                                    intake.spin(1);
                                     stopper.spin(1);
                                 }),
-                                new Wait(1)
+                                new Wait(5)
                         ),
                         followPathTemplate(path.second)
                 ),
@@ -284,8 +204,145 @@ public class Autonomous extends CommandRuntimeOpMode {
         );
     }
 
-    private Command intakeSpike(Pair<Path, Path> path) {
-        update(path);
+    private Command shootFar() {
+        final double X = -16;
+        final double Y = 24;
+        final double SHOOTER_RPM = 3000;
+        final double MAX_ERROR = 50;
+        final double HOOD_ANGLE = 0.72;
+        final double EASING = 1.8;
+
+        DrivetrainState position = new DrivetrainState(
+                X,
+                Y,
+                Localizer.wind(
+                        Math.atan2(
+                                Constants.GOAL_Y - Y,
+                                Constants.GOAL_X - X
+                        ), currentPosition.getTheta()
+                )
+        );
+        double lateralDistance = currentPosition.lateralDistance(position);
+        double angularDistance = currentPosition.angularDistance(position);
+
+
+        Pair<Path, Path> path = newPathBuilder()
+                .linearTo(position.toList(), EASING,
+                        lateralDistance / Constants.getMaxLateralVelocity() +
+                                angularDistance / Constants.getMaxAngularVelocity()
+                                + EASING)
+                .stop(EASING)
+                .build();
+
+        updateCurrentPosition(path.second);
+
+        return new Sequential(
+                new Instant(() -> {
+                    shooter.spin(SHOOTER_RPM);
+                    shooter.setHood(HOOD_ANGLE);
+                }),
+                followPathTemplate(path.first),
+                new RunUntil(
+                        new Sequential(
+                                new First(
+                                        new WaitUntil(() -> shooter.getError() < MAX_ERROR),
+                                        new Wait(10)
+                                ),
+                                new Instant(() -> {
+                                    intake.spin(0.5);
+                                    stopper.spin(1);
+                                }),
+                                new Wait(5)
+                        ),
+                        followPathTemplate(path.second)
+                ),
+                new Instant(() -> {
+                    intake.spin(0);
+                    stopper.spin(0);
+                })
+        );
+    }
+
+    private Command intakeSpike(int spike) {
+        // Using setup manual dimensions (middle of shark fin), rather than CAD.
+        final double SPIKE_1_X = -11.78125;
+        //final double SPIKE_2_X = 11.78125;
+        final double SPIKE_2_X = 7;
+        final double SPIKE_3_X = 35.34375;
+
+        final double BEZIER_1_Y = 20;
+        final double BEZIER_2_Y = 40;
+        final double BEZIER_3_Y = 50;
+
+        final double EASING = 2;
+
+        double spikeX;
+        switch (spike) {
+            case 1:
+                spikeX = SPIKE_1_X;
+                break;
+            case 2:
+                spikeX = SPIKE_2_X;
+                break;
+            case 3:
+                spikeX = SPIKE_3_X;
+                break;
+            default:
+                throw new IllegalArgumentException("Spike must be 1, 2, or 3");
+        }
+
+        DrivetrainState position1 = new DrivetrainState(spikeX, BEZIER_1_Y, Math.PI / 2);
+        DrivetrainState position2 = new DrivetrainState(spikeX, BEZIER_2_Y, Math.PI / 2);
+        DrivetrainState position3 = new DrivetrainState(spikeX, BEZIER_3_Y, Math.PI / 2);
+        DrivetrainState position0 = new DrivetrainState(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
+
+        double maxLateralSpeed = Math.max(
+                MaxSpeed.cubicBezier(
+                        currentPosition.toVector().getSubVector(0, 2),
+                        currentPosition.toVector().getSubVector(0, 2),
+                        position0.toVector().getSubVector(0, 2),
+                        position1.toVector().getSubVector(0, 2)
+                ),
+                MaxSpeed.cubicBezier(
+                        position1.toVector().getSubVector(0, 2),
+                        position2.toVector().getSubVector(0, 2),
+                        position3.toVector().getSubVector(0, 2),
+                        position3.toVector().getSubVector(0, 2)
+                )
+        );
+
+        double maxAngularSpeed = Math.max(
+                MaxSpeed.cubicBezier(
+                        currentPosition.toVector().getSubVector(2, 1),
+                        currentPosition.toVector().getSubVector(2, 1),
+                        position0.toVector().getSubVector(2, 1),
+                        position1.toVector().getSubVector(2, 1)
+                ),
+                MaxSpeed.cubicBezier(
+                        position1.toVector().getSubVector(2, 1),
+                        position2.toVector().getSubVector(2, 1),
+                        position3.toVector().getSubVector(2, 1),
+                        position3.toVector().getSubVector(2, 1)
+                )
+        );
+
+
+        Pair<Path, Path> path = newPathBuilder()
+                .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), EASING,
+
+                        maxLateralSpeed / Constants.getMaxLateralVelocity() +
+                                maxAngularSpeed / Constants.getMaxAngularVelocity()
+                                + EASING
+                )
+                .bezierTo(position2.toList(), position3.toList(), position3.toList(), EASING,
+
+                        maxLateralSpeed / Constants.getMaxLateralVelocity() +
+                                maxAngularSpeed / Constants.getMaxAngularVelocity()
+                                + EASING
+                )
+                .stop(EASING).build();
+
+        updateCurrentPosition(path.second);
 
         return new Sequential(
                 new Instant(() -> {
@@ -293,7 +350,6 @@ public class Autonomous extends CommandRuntimeOpMode {
                     stopper.spin(-1);
                 }),
                 followPathTemplate(path.first),
-                new Wait(0.3),
                 new Instant(() -> {
                     intake.spin(0);
                     stopper.spin(0);
@@ -314,7 +370,28 @@ public class Autonomous extends CommandRuntimeOpMode {
                 .stop(EASING, EASING)
                 .build();
 
-        update(path);
+        updateCurrentPosition(path.second);
+
+        return new Sequential(
+                followPathTemplate(path.first),
+                followPathTemplate(path.second)
+        );
+    }
+
+    private Command leaveFar() {
+        final double X = 60;
+        final double Y = 34;
+        final double EASING = 0.6;
+
+        DrivetrainState position = new DrivetrainState(X, Y, currentPosition.getTheta());
+        double distance = currentPosition.lateralDistance(position);
+
+        Pair<Path, Path> path = newPathBuilder()
+                .linearTo(position.toList(), EASING, distance / Constants.getMaxLateralVelocity() + EASING)
+                .stop(EASING, EASING)
+                .build();
+
+        updateCurrentPosition(path.second);
 
         return new Sequential(
                 followPathTemplate(path.first),

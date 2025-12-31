@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.beaverbots.beaver.command.HardwareManager;
@@ -17,6 +18,7 @@ public final class Intake implements Subsystem {
         this.maxPower = maxPower;
 
         this.intake = HardwareManager.claim("intake");
+        this.intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     public Intake() {

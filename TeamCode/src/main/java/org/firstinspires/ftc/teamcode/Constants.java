@@ -46,17 +46,17 @@ public final class Constants {
 
     public static double pidPX = 3;
     public static double pidIX = 0;
-    public static double pidDX = 1;
+    public static double pidDX = 1 / 2.;
     public static double pidTauX = 0.1;
     public static double pidGammaX = 0;
     public static double pidPY = 3.4;
     public static double pidIY = 0;
-    public static double pidDY = 1.2;
+    public static double pidDY = 1.2 / 2.;
     public static double pidTauY = 0.1;
     public static double pidGammaY = 0;
     public static double pidPTheta = 4;
     public static double pidITheta = 0;
-    public static double pidDTheta = 0.3;
+    public static double pidDTheta = 0.3 / 2.;
     public static double pidTauTheta = 0.1;
     public static double pidGammaTheta = 0;
 

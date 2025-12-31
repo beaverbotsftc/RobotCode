@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.beaverbots.beaver.command.HardwareManager;
@@ -12,6 +13,7 @@ public final class Stopper implements Subsystem {
 
     public Stopper() {
         this.stopper = HardwareManager.claim("stopper");
+        this.stopper.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     public void periodic() {
