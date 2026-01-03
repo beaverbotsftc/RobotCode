@@ -4,6 +4,9 @@ public final class Constants {
     public static final double GOAL_X = -70.160065;
     public static final double GOAL_Y = 70.191315;
 
+    public static final double BASE_X = 37.71875;
+    public static final double BASE_Y = 32.96875;
+
     public static double drivetrainPowerConversionFactorX = 0.0128674126; // 0.01072290598019666; // in/s -> proportion of max rpm
     public static double drivetrainPowerConversionFactorY = 0.0142546161; // 0.01072290598019666; // in/s -> proportion of max rpm
     public static double drivetrainPowerConversionFactorTheta = 0.1603526706; // 0.1319953842421724; // rad/s -> proportion of max rpm

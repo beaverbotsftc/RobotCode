@@ -23,6 +23,7 @@ public class Gamepad implements Subsystem {
     private boolean cross = false;
     private boolean square = false;
     private boolean triangle = false;
+    private boolean guide = false;
 
     private boolean dpadUp = false;
     private boolean dpadDown = false;
@@ -42,6 +43,7 @@ public class Gamepad implements Subsystem {
     private boolean lastCross = false;
     private boolean lastSquare = false;
     private boolean lastTriangle = false;
+    private boolean lastGuide = false;
 
     private boolean lastDpadUp = false;
     private boolean lastDpadDown = false;
@@ -70,6 +72,8 @@ public class Gamepad implements Subsystem {
     private boolean squareJustReleased = false;
     private boolean triangleJustPressed = false;
     private boolean triangleJustReleased = false;
+    private boolean guideJustPressed = false;
+    private boolean guideJustReleased = false;
 
     private boolean dpadUpJustPressed = false;
     private boolean dpadUpJustReleased = false;
@@ -117,6 +121,7 @@ public class Gamepad implements Subsystem {
         cross = gamepad.cross;
         square = gamepad.square;
         triangle = gamepad.triangle;
+        guide = gamepad.guide;
 
         // --- D-Pad ---
         dpadUp = gamepad.dpad_up;
@@ -168,6 +173,10 @@ public class Gamepad implements Subsystem {
         triangleJustPressed = triangle && !lastTriangle;
         triangleJustReleased = !triangle && lastTriangle;
         lastTriangle = triangle;
+
+        guideJustPressed = guide && !lastGuide;
+        guideJustReleased = !guide && lastGuide;
+        lastGuide = guide;
 
         // --- D-Pad ---
         dpadUpJustPressed = dpadUp && !lastDpadUp;
@@ -249,6 +258,7 @@ public class Gamepad implements Subsystem {
     public boolean getCross() { return cross; }
     public boolean getSquare() { return square; }
     public boolean getTriangle() { return triangle; }
+    public boolean getGuide() { return guide; }
 
     public boolean getDpadUp() { return dpadUp; }
     public boolean getDpadDown() { return dpadDown; }
@@ -272,6 +282,7 @@ public class Gamepad implements Subsystem {
     public boolean getCrossJustPressed() { return crossJustPressed; }
     public boolean getSquareJustPressed() { return squareJustPressed; }
     public boolean getTriangleJustPressed() { return triangleJustPressed; }
+    public boolean getGuideJustPressed() { return guideJustPressed; }
 
     public boolean getDpadUpJustPressed() { return dpadUpJustPressed; }
     public boolean getDpadDownJustPressed() { return dpadDownJustPressed; }
@@ -295,6 +306,7 @@ public class Gamepad implements Subsystem {
     public boolean getCrossJustReleased() { return crossJustReleased; }
     public boolean getSquareJustReleased() { return squareJustReleased; }
     public boolean getTriangleJustReleased() { return triangleJustReleased; }
+    public boolean getGuideJustReleased() { return guideJustReleased; }
 
     public boolean getDpadUpJustReleased() { return dpadUpJustReleased; }
     public boolean getDpadDownJustReleased() { return dpadDownJustReleased; }
