@@ -93,13 +93,7 @@ public class ScrimmageTeleOpV2 extends LinearOpMode {
             Color.colorToHSV(colors.toColor(), hsvValues);
             double dist = ((DistanceSensor) colorSensor).getDistance(DistanceUnit.CM);
 
-            if(gamepad1.right_bumper) {
-                stopper.setPower(0.85);
-            }else if (gamepad1.left_bumper){
-                stopper.setPower(-0.85);
-            }else{
-                stopper.setPower(0);
-            }
+            stopper.setPower(-gamepad2.left_stick_y);
 
             //Intake
             if(gamepad1.right_trigger >= 0.05){
@@ -116,16 +110,14 @@ public class ScrimmageTeleOpV2 extends LinearOpMode {
 
 
             //Hood Servo
-            /*
-            if(gamepad1.leftBumperWasPressed()){
-                shootrpm = 2500;
-                hoodServo.setPosition(0.0);
-            }else if(gamepad1.rightBumperWasPressed()){
-                shootrpm = 3500;
-                hoodServo.setPosition(0.51);
+
+            if(gamepad2.left_bumper){
+                hoodServo.setPosition(hoodServo.getPosition() + 0.001);
+            }else if(gamepad2.right_bumper){
+                hoodServo.setPosition(hoodServo.getPosition() - 0.001);
             }
 
-             */
+
 
             //Controls for shooter power
             if (gamepad1.triangle && shootrpm < 5000) {
