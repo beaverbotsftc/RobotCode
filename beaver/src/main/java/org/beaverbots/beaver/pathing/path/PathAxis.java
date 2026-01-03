@@ -68,4 +68,17 @@ public final class PathAxis {
         else
             return (velocity(t + epsilon) - velocity(t - epsilon)) / (2 * epsilon);
     }
+
+    ///  Please don't mutate the result
+    public DoubleUnaryOperator getPath() {
+        return path;
+    }
+
+    public double getStartTime() {
+        return startTime;
+    }
+
+    public double getEndTime() {
+        return endTime;
+    }
 }

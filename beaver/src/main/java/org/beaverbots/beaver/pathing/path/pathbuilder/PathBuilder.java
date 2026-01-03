@@ -8,6 +8,7 @@ import org.beaverbots.beaver.pathing.path.PathAxis;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.DoubleUnaryOperator;
+import java.util.function.ToDoubleFunction;
 
 public class PathBuilder {
     private static final double EPSILON = 1e-3;
@@ -38,15 +39,74 @@ public class PathBuilder {
     }
 
     public PathBuilder(Path path) {
-        this(path.position(0));
+        this.f = new ArrayList<>();
+        this.clock = 0.0;
+
+        for (int i = 0; i < path.getAxes().size(); i++) {
+            f.add(t -> 0.0);
+        }
+
+        appendPath(path);
     }
 
-    public PathBuilder(Path path, List<DoubleUnaryOperator> mirror, boolean doubleMirrorStart) {
-        this(path.position(0), mirror, doubleMirrorStart);
+    public PathBuilder(Path path,
+                       List<DoubleUnaryOperator> mirror,
+                       boolean doubleMirrorStart) {
+        this.mirror = mirror;
+        this.f = new ArrayList<>();
+        this.clock = 0.0;
+
+        for (int i = 0; i < path.getAxes().size(); i++) {
+            f.add(t -> 0.0);
+        }
+
+        if (doubleMirrorStart) {
+            List<PathAxis> mirrored = new ArrayList<>();
+
+            for (int i = 0; i < path.getAxes().size(); i++) {
+                PathAxis axis = path.getAxes().get(i);
+                DoubleUnaryOperator mirrorAxis = mirror.get(i);
+
+                mirrored.add(new PathAxis(
+                        t -> mirrorAxis.applyAsDouble(axis.getPath().applyAsDouble(t)),
+                        axis.getStartTime(),
+                        axis.getEndTime()
+                ));
+            }
+
+            appendPath(new Path(mirrored, path::isFinished));
+        } else {
+            appendPath(path);
+        }
     }
 
     public PathBuilder waitFor(double time) {
         clock += time;
+        return this;
+    }
+
+    public PathBuilder appendPath(Path path) {
+        double startTime = this.clock;
+        double maxEndTime = 0.0;
+
+        for (int i = 0; i < path.getAxes().size(); i++) {
+            final PathAxis axis = path.getAxes().get(i);
+            final DoubleUnaryOperator axisPath = axis.getPath();
+            final DoubleUnaryOperator previous = f.get(i);
+            final double axisStart = startTime;
+
+            f.set(i, t -> {
+                if (t < axisStart) {
+                    return previous.applyAsDouble(t);
+                }
+                return axisPath.applyAsDouble(t - axisStart);
+            });
+
+            maxEndTime = Math.max(maxEndTime, axis.getEndTime());
+        }
+
+        this.clock += maxEndTime;
+
         return this;
     }
 
@@ -189,21 +249,23 @@ public class PathBuilder {
             double c,
             double easingTime
     ) {
+        final DoubleUnaryOperator f0Safe = t -> f0.applyAsDouble(Math.max(0.0, t));
+
         final double b = c + easingTime;
 
         return t -> {
             // Before the transition window
             if (t <= c) {
-                return f0.applyAsDouble(t);
+                return f0Safe.applyAsDouble(t);
             }
 
             // Inside the transition window
             if (t < b) {
                 double u = (t - c) / easingTime;
-                double s = quinticSmoothstep(u);
+                double s = cubicSmoothstep(u);
 
                 // Smooth continuation from the left (using Taylor series of f0)
-                double yTaylor = taylor(f0, c, t);
+                double yTaylor = taylor(f0Safe, c, t);
 
                 // Future (target) path
                 double y1 = f1.applyAsDouble(t);
@@ -216,6 +278,92 @@ public class PathBuilder {
             return f1.applyAsDouble(t);
         };
     }
+
+    public PathBuilder reverse() {
+        final double clockCaptured = this.clock;
+
+        for (int i = 0; i < f.size(); i++) {
+            final DoubleUnaryOperator fOriginal = f.get(i);
+            f.set(i, t -> fOriginal.applyAsDouble(clockCaptured - t));
+        }
+
+        return this;
+    }
+
+    ///  Takes in a pair of the current position and the current velocity (both field centric)
+    public PathBuilder retime(ToDoubleFunction<Pair<List<Double>, List<Double>>> usageRatio, double fraction, int samples) {
+        final List<DoubleUnaryOperator> fOriginal = new ArrayList<>(this.f);
+        final int dimensions = fOriginal.size();
+        final double dtOriginal = this.clock / samples;
+
+        List<Double> state = new ArrayList<>(dimensions);
+        List<Double> velocity = new ArrayList<>(dimensions);
+        for (int k = 0; k < dimensions; k++) {
+            state.add(0.0);
+            velocity.add(0.0);
+        }
+
+        double maxOriginalUsage = 0.0;
+
+        for (int i = 1; i <= samples; i++) {
+            double tNow = i * dtOriginal;
+            double tPrevious = tNow - EPSILON;
+
+            for (int k = 0; k < dimensions; k++) {
+                double valueNow = fOriginal.get(k).applyAsDouble(tNow);
+                double valuePrevious = fOriginal.get(k).applyAsDouble(tPrevious);
+
+                state.set(k, valueNow);
+                velocity.set(k, (valueNow - valuePrevious) / EPSILON);
+            }
+
+            double currentUsage = usageRatio.applyAsDouble(new Pair<>(state, velocity));
+
+            if (currentUsage > maxOriginalUsage) {
+                maxOriginalUsage = currentUsage;
+            }
+        }
+
+        double scalingFactor = (maxOriginalUsage < EPSILON) ? 1.0 : (maxOriginalUsage / fraction);
+
+        final double feasibleDuration = this.clock * scalingFactor;
+
+        for (int i = 0; i < f.size(); i++) {
+            final int iFinal = i;
+            f.set(i, t -> fOriginal.get(iFinal).applyAsDouble(t / scalingFactor));
+        }
+
+        this.clock = feasibleDuration;
+
+        return this;
+    }
+
+
+    public static ToDoubleFunction<Pair<List<Double>, List<Double>>> createHolonomicUsage(double maxVelX, double maxVelY, double maxVelTheta) {
+        return pair -> {
+            List<Double> s = pair.first;  // State
+            List<Double> d = pair.second; // Derivative
+
+            double vxField = d.get(0);
+            double vyField = d.get(1);
+            double vTheta = Math.abs(d.get(2));
+            double heading = s.get(2);
+
+            // Rotate Field-Centric velocities to Robot-Centric
+            double cosH = Math.cos(heading);
+            double sinH = Math.sin(heading);
+            double vxRobot = vxField * cosH + vyField * sinH;
+            double vyRobot = -vxField * sinH + vyField * cosH;
+
+            // Find the bottleneck
+            double ratioX = Math.abs(vxRobot) / maxVelX;
+            double ratioY = Math.abs(vyRobot) / maxVelY;
+            double ratioTheta = vTheta / maxVelTheta;
+
+            return Math.max(Math.max(ratioX, ratioY), ratioTheta);
+        };
+    }
+
 
     public Pair<Path, Path> build() {
         List<PathAxis> paths = new ArrayList<>();
@@ -232,14 +380,14 @@ public class PathBuilder {
         return new Pair<>(new Path(paths, t -> t >= clock), new Path(holdPaths, t -> false));
     }
 
-    private double quinticSmoothstep(double t) {
+    private double cubicSmoothstep(double t) {
         if (t <= 0) return 0.0;
         if (t >= 1) return 1.0;
-        // 6t^5 − 15t^4 + 10t^3
-        return t * t * t * (t * (6 * t - 15) + 10);
+        // 3x^2 - 2x^3
+        return 3 * t * t - 2 * t * t * t;
     }
 
-    /// 2nd order
+    /// 1st order
     private double taylor(DoubleUnaryOperator f, double c, double t) {
         double fc = f.applyAsDouble(c);
         double fc1 = f.applyAsDouble(c - EPSILON);
@@ -249,6 +397,6 @@ public class PathBuilder {
         double fpp = (fc - 2 * fc1 + fc2) / (EPSILON * EPSILON);
 
         double dx = t - c;
-        return fc + fp * dx + 0.5 * fpp * dx * dx;
+        return fc + fp * dx;
     }
 }
