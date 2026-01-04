@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.commands;
 
+import android.util.Pair;
+
 import org.beaverbots.beaver.command.Command;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Side;
@@ -38,13 +40,12 @@ public class ShooterControl implements Command {
 
     public boolean periodic() {
         double distToTarget = localizer.getPosition().lateralDistance(new DrivetrainState(Constants.GOAL_X, side == Side.RED ? Constants.GOAL_Y : -Constants.GOAL_Y, 0));
-
+/*
         if (gamepad.getLeftBumperJustPressed()) {
             shootPos = Math.max(1, shootPos-1);
         } else if (gamepad.getRightBumperJustPressed()) {
             shootPos = Math.min(3, shootPos+1);
         }
-
         if(shootPos == 1){
             shooter.setHood(0.30);
             shootRpm = 2200.0;
@@ -55,6 +56,11 @@ public class ShooterControl implements Command {
             shooter.setHood(0.72);
             shootRpm = 3000.0;
         }
+ */
+        Pair<Double, Double> values = shooter.getSettingsAtDistance(distToTarget);
+        shootRpm = values.first;
+        shooter.setHood(values.second);
+
 
         if(gamepad.getSquareJustPressed()){
             shooterToggle = !shooterToggle;
@@ -83,5 +89,9 @@ public class ShooterControl implements Command {
 
     public double getCurrentRPM(){
         return shooter.getVelocity();
+    }
+
+    public double getDistanceToTag(){
+        return localizer.getPosition().lateralDistance(new DrivetrainState(Constants.GOAL_X, side == Side.RED ? Constants.GOAL_Y : -Constants.GOAL_Y, 0));
     }
 }

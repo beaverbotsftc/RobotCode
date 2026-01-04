@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import android.util.Pair;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -41,6 +43,7 @@ public final class Shooter implements Subsystem {
     }
 
 
+
     public void periodic() {
         if (rpm == 0) {
             shooterLeft.setPower(0);
@@ -71,5 +74,12 @@ public final class Shooter implements Subsystem {
 
     public double getError() {
         return rpm - getVelocity();
+    }
+
+    public Pair<Double, Double> getSettingsAtDistance(double d) { //First value is rpm, second value is hood angle
+        return new Pair<>(
+                -0.0437804 * d * d + 17.93685 * d + 1225.09339,
+                0.00455148 * d + 0.0552841
+        );
     }
 }

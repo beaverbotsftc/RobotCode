@@ -43,6 +43,12 @@ public class ShooterControlPrecise implements Command {
             shooter.spin(0);
         }
 
+        if (shootRpm > 0) {
+            ShooterControl.percentError = Math.abs(shootRpm - getCurrentRPM()) * 100.0 / shootRpm;
+        } else {
+            ShooterControl.percentError = -1.0;
+        }
+
         return false;
     }
 
