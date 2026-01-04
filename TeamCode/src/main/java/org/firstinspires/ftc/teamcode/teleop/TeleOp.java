@@ -104,6 +104,7 @@ public class TeleOp extends CommandRuntimeOpMode {
         telemetry.addData("Shoot RPM:", shooterControl.getShootRpm());
         telemetry.addData("Current RPM:", shooter.getVelocity());
         telemetry.addData("Fused position:", fusedLocalizer.getPosition());
+        telemetry.addData("Distance to Goal:", shooterControl.getDistanceToTag());
         /*
         if (gamepad.getDpadUpJustPressed() && !a) {
             pinpoint.setPosition(fusedLocalizer.getPosition());
