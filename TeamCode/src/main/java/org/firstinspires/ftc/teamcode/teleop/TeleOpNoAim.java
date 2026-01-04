@@ -54,7 +54,7 @@ public class TeleOpNoAim extends CommandRuntimeOpMode {
                         new Selector(() -> gamepad.getLeftStickPressed()),
                         new DrivetrainControl(drivetrain, gamepad),
                         new ShooterMode(pinpoint, drivetrain, Side.RED, true)),
-                new IntakeControl(intake, stopper, colorSensor, gamepad), shooterControl);
+                new IntakeControl(intake, stopper, colorSensor, led, gamepad), shooterControl);
     }
 
     @Override

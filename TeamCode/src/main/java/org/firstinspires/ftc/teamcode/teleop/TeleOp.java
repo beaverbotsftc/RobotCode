@@ -61,7 +61,7 @@ public class TeleOp extends CommandRuntimeOpMode {
                         new Selector(() -> gamepad.getLeftStickPressed()),
                         new DrivetrainControl(drivetrain, gamepad),
                         new ShooterMode(pinpoint, drivetrain, CrossModeStorage.side, false)),
-                new IntakeControl(intake, stopper, colorSensor, gamepad), shooterControl);
+                new IntakeControl(intake, stopper, colorSensor, led, gamepad), shooterControl);
     }
 
     private boolean a = false;

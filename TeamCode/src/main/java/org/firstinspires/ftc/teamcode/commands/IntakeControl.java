@@ -11,12 +11,14 @@ public class IntakeControl implements Command {
     private Intake intake;
     private Stopper stopper;
     private ColorSensor colorSensor;
+    private Led led;
     private Gamepad gamepad;
 
-    public IntakeControl(Intake intake, Stopper stopper, ColorSensor colorSensor, Gamepad gamepad) {
+    public IntakeControl(Intake intake, Stopper stopper, ColorSensor colorSensor, Led led, Gamepad gamepad) {
         this.intake = intake;
         this.stopper = stopper;
         this.colorSensor = colorSensor;
+        this.led = led;
         this.gamepad = gamepad;
     }
 
@@ -40,6 +42,12 @@ public class IntakeControl implements Command {
             stopper.spinReverse();
         }else{
             stopper.stop();
+        }
+
+        if(colorSensor.hasThreeBalls()){
+            led.setBallLedPurple();
+        }else{
+            led.turnOffBallLed();
         }
 
         intake.spin(intakeSpeed);
