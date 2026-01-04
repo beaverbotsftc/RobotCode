@@ -9,6 +9,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 import java.util.List;
+import java.util.function.DoubleUnaryOperator;
 
 public final class DrivetrainState {
     private double x;
@@ -120,5 +121,9 @@ public final class DrivetrainState {
 
     public double angularDistance(DrivetrainState other) {
         return Math.abs(theta - other.getTheta());
+    }
+
+    public DrivetrainState transform(List<DoubleUnaryOperator> f) {
+        return new DrivetrainState(f.get(0).applyAsDouble(x), f.get(1).applyAsDouble(y), f.get(2).applyAsDouble(theta));
     }
 }

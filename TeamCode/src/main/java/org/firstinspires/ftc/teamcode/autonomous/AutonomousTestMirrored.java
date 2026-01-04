@@ -38,7 +38,7 @@ import java.util.function.DoubleUnaryOperator;
 import java.util.function.ToDoubleFunction;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous
-public class Autonomous extends CommandRuntimeOpMode {
+public class AutonomousTestMirrored extends CommandRuntimeOpMode {
     private Gamepad gamepad;
     private Drivetrain drivetrain;
     private Pinpoint pinpoint;
@@ -49,13 +49,12 @@ public class Autonomous extends CommandRuntimeOpMode {
     private Intake intake;
     private Stopper stopper;
 
-    private final Side side = Side.BLUE;
+    private final Side side = Side.RED;
     private Motif motif;
 
     private List<DoubleUnaryOperator> mirror;
 
     private DrivetrainState currentPosition;
-
     private List<Path> paths = new ArrayList<>();
     private List<Path> pathsHold = new ArrayList<>();
 
@@ -116,7 +115,7 @@ public class Autonomous extends CommandRuntimeOpMode {
     @Override
     public void onStart() {
         cancelAll();
-        currentPosition = pinpoint.getPosition().transform(mirror);
+        currentPosition = pinpoint.getPosition();
 
         schedule(
                 new Sequential(
@@ -142,7 +141,7 @@ public class Autonomous extends CommandRuntimeOpMode {
     }
 
     private PathBuilder newPathBuilder() {
-        return new PathBuilder(currentPosition.toList(), mirror, false);
+        return new PathBuilder(currentPosition.toList(), mirror, true);
     }
 
     private PathBuilder newPathBuilderFromPath(Path path) {
@@ -150,7 +149,7 @@ public class Autonomous extends CommandRuntimeOpMode {
     }
 
     private void update(Pair<Path, Path> path) {
-        currentPosition = new DrivetrainState(path.second.position(0)).transform(mirror);
+        currentPosition = new DrivetrainState(path.second.position(0));
         paths.add(path.first);
         pathsHold.add(path.second);
     }
@@ -167,12 +166,12 @@ public class Autonomous extends CommandRuntimeOpMode {
 
         final DrivetrainState position = new DrivetrainState(
                 X,
-                Y,
+                -Y,
                 Localizer.wind(
-                        Math.atan2(
+                        -Math.atan2(
                                 Constants.GOAL_Y - Y,
                                 Constants.GOAL_X - X
-                        ), currentPosition.getTheta()
+                        ), mirror.get(2).applyAsDouble(currentPosition.getTheta())
                 )
         );
 
@@ -189,9 +188,9 @@ public class Autonomous extends CommandRuntimeOpMode {
 
         final double EASING_FRACTION = 1;
 
-        DrivetrainState position1 = new DrivetrainState(X, BEZIER_1_Y, Math.PI / 2);
-        DrivetrainState position2 = new DrivetrainState(X, BEZIER_2_Y, Math.PI / 2);
-        DrivetrainState position3 = new DrivetrainState(X, BEZIER_3_Y, Math.PI / 2);
+        DrivetrainState position1 = new DrivetrainState(X, -BEZIER_1_Y, -Math.PI / 2);
+        DrivetrainState position2 = new DrivetrainState(X, -BEZIER_2_Y, -Math.PI / 2);
+        DrivetrainState position3 = new DrivetrainState(X, -BEZIER_3_Y, -Math.PI / 2);
         DrivetrainState position0 = new DrivetrainState(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
 
 
@@ -214,9 +213,9 @@ public class Autonomous extends CommandRuntimeOpMode {
         final double EASING_FRACTION = 1;
 
 
-        DrivetrainState position1 = new DrivetrainState(X, BEZIER_1_Y, Math.PI / 2);
-        DrivetrainState position2 = new DrivetrainState(X, BEZIER_2_Y, Math.PI / 2);
-        DrivetrainState position3 = new DrivetrainState(X, BEZIER_3_Y, Math.PI / 2);
+        DrivetrainState position1 = new DrivetrainState(X, -BEZIER_1_Y, -Math.PI / 2);
+        DrivetrainState position2 = new DrivetrainState(X, -BEZIER_2_Y, -Math.PI / 2);
+        DrivetrainState position3 = new DrivetrainState(X, -BEZIER_3_Y, -Math.PI / 2);
         DrivetrainState position0 = new DrivetrainState(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
 
 
@@ -237,9 +236,9 @@ public class Autonomous extends CommandRuntimeOpMode {
 
         final double EASING_FRACTION = 1;
 
-        DrivetrainState position1 = new DrivetrainState(X, BEZIER_1_Y, Math.PI / 2);
-        DrivetrainState position2 = new DrivetrainState(X, BEZIER_2_Y, Math.PI / 2);
-        DrivetrainState position3 = new DrivetrainState(X, BEZIER_3_Y, Math.PI / 2);
+        DrivetrainState position1 = new DrivetrainState(X, -BEZIER_1_Y, -Math.PI / 2);
+        DrivetrainState position2 = new DrivetrainState(X, -BEZIER_2_Y, -Math.PI / 2);
+        DrivetrainState position3 = new DrivetrainState(X, -BEZIER_3_Y, -Math.PI / 2);
         DrivetrainState position0 = new DrivetrainState(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
 
 

@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
 import org.beaverbots.beaver.command.CommandRuntimeOpMode;
+import org.beaverbots.beaver.command.premade.Sequential;
+import org.beaverbots.beaver.command.premade.WaitUntil;
 import org.beaverbots.beaver.command.premade.router.Router;
 import org.beaverbots.beaver.command.premade.router.Selector;
 import org.firstinspires.ftc.teamcode.Side;
 import org.firstinspires.ftc.teamcode.autonomous.CrossModeStorage;
 import org.firstinspires.ftc.teamcode.commands.DrivetrainControl;
+import org.firstinspires.ftc.teamcode.commands.GoToBase;
 import org.firstinspires.ftc.teamcode.commands.IntakeControl;
 import org.firstinspires.ftc.teamcode.commands.ShooterMode;
 import org.firstinspires.ftc.teamcode.commands.ShooterControl;
@@ -57,10 +60,19 @@ public class TeleOp extends CommandRuntimeOpMode {
     @Override
     public void onStart() {
         shooterControl = new ShooterControl(shooter, led, gamepad);
-        schedule(new Router(
+        schedule(
+                /*new Router(
                         new Selector(() -> gamepad.getLeftStickPressed()),
                         new DrivetrainControl(drivetrain, gamepad),
                         new ShooterMode(pinpoint, drivetrain, CrossModeStorage.side, false)),
+                new IntakeControl(intake, stopper, colorSensor, led, gamepad), shooterControl);
+                        new ShooterMode(pinpoint, drivetrain, CrossModeStorage.side, false)
+                ),*/
+                new Router(
+                        new Selector(() -> gamepad.getGuide()),
+                        new DrivetrainControl(drivetrain, gamepad),
+                        new GoToBase(pinpoint, drivetrain, CrossModeStorage.side)
+                ),
                 new IntakeControl(intake, stopper, colorSensor, led, gamepad), shooterControl);
     }
 
