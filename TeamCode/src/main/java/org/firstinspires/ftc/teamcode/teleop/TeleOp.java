@@ -62,7 +62,7 @@ public class TeleOp extends CommandRuntimeOpMode {
 
     @Override
     public void onStart() {
-        shooterControl = new ShooterControl(shooter, led, gamepad);
+        shooterControl = new ShooterControl(shooter, pinpoint, CrossModeStorage.side, led, gamepad);
         schedule(
                 /*new Router(
                         new Selector(() -> gamepad.getLeftStickPressed()),

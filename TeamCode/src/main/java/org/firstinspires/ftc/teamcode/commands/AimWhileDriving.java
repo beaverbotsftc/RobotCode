@@ -46,7 +46,7 @@ public class AimWhileDriving implements Command {
         aimTracker = new HolonomicPathTracker(
                 new Path(
                         List.of(
-                                new PathAxis(t -> Localizer.wind(localizer.getPosition().angleTo(goalPosition), localizer.getPosition().getTheta()), 0, Double.POSITIVE_INFINITY)
+                                new PathAxis(t -> Localizer.wind(localizer.getPosition().angleTo(goalPosition) - Constants.shooterBias, localizer.getPosition().getTheta()), 0, Double.POSITIVE_INFINITY)
                         ),
                         t -> false
                 ),

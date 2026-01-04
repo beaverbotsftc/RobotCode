@@ -121,17 +121,15 @@ public class Autonomous extends CommandRuntimeOpMode {
         schedule(
                 new Sequential(
                         shootFar(driveToShootFar()),
-                        intakeSpike(driveThroughSpike1()),
-                        openGateNoPickup(driveToGateSide()),
-                        shootNear(driveToShootNear()),
-                        intakeSpike(driveThroughSpike2()),
-                        shootNear(newPathBuilderFromPath(getPreviousPath(1)).reverse().retime(usageRatio, 1, 50).build()),
                         intakeSpike(driveThroughSpike3()),
-                        shootNear(driveToShootNear()),
+                        shootFar(driveToShootFar()),
+                        intakeSpike(driveThroughSpike2()),
+                        shootFar(driveToShootFar()),
                         new Instant(() -> {
                             shooter.spin(0);
-                        }),
-                        leaveNear()
+                        })
+                        //leaveNear()
+                        //shootFar(newPathBuilderFromPath(getPreviousPath(1)).reverse().retime(usageRatio, 1, 50).build()),
                 )
         );
     }
@@ -173,7 +171,7 @@ public class Autonomous extends CommandRuntimeOpMode {
                         Math.atan2(
                                 Constants.GOAL_Y - Y,
                                 Constants.GOAL_X - X
-                        ), currentPosition.getTheta()
+                        ) - Constants.shooterBias, currentPosition.getTheta()
                 )
         );
 
@@ -193,7 +191,7 @@ public class Autonomous extends CommandRuntimeOpMode {
                         Math.atan2(
                                 Constants.GOAL_Y - Y,
                                 Constants.GOAL_X - X
-                        ), currentPosition.getTheta()
+                        ) - Constants.shooterBias, currentPosition.getTheta()
                 )
         );
 

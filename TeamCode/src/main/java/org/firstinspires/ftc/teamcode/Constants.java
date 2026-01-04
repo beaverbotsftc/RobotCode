@@ -81,7 +81,7 @@ public final class Constants {
     public static double pinpointYOffset = -4;
 
 
-    public static final double shooterBias = 0.00;
+    public static final double shooterBias = -0.05;
 
     public static double shooterFrictionConversionFactor = 0.00258; // rpm -> proportion of max RPM at 1V
     public static double pidPShooter = 0.003;
