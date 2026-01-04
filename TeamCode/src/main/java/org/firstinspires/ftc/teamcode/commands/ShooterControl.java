@@ -65,7 +65,7 @@ public class ShooterControl implements Command {
             led.setProximity(shootRpm,getCurrentRPM());
         } else {
             shooter.spin(0);
-            led.turnOff();
+            led.turnOffRPMLed();
         }
 
         if (shootRpm > 0) {

@@ -67,6 +67,8 @@ public class TeleOp extends CommandRuntimeOpMode {
                 /*new Router(
                         new Selector(() -> gamepad.getLeftStickPressed()),
                         new DrivetrainControl(drivetrain, gamepad),
+                        new ShooterMode(pinpoint, drivetrain, CrossModeStorage.side, false)),
+                new IntakeControl(intake, stopper, colorSensor, led, gamepad), shooterControl);
                         new ShooterMode(pinpoint, drivetrain, CrossModeStorage.side, false)
                 ),*/
                 new Router(
@@ -84,7 +86,7 @@ public class TeleOp extends CommandRuntimeOpMode {
                         new AimWhileDriving(pinpoint, drivetrain, CrossModeStorage.side, gamepad),
                         new GoToBase(pinpoint, drivetrain, CrossModeStorage.side)
                 ),
-                new IntakeControl(intake, stopper, colorSensor, gamepad), shooterControl);
+                new IntakeControl(intake, stopper, colorSensor, led, gamepad), shooterControl);
     }
 
     @Override
