@@ -104,7 +104,7 @@ public class RamsetePathTracker implements PathTracker {
     }
 
     private void validatePath(Path path) {
-        if (path.dimensions() != 3) throw new IllegalArgumentException("Path has too many dimensions");
+        if (path.getDimensions() != 3) throw new IllegalArgumentException("Path has too many dimensions");
     }
 
     private HolonomicPose globalToLocal(double theta, HolonomicPose position) {

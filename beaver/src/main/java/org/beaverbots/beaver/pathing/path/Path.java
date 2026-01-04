@@ -1,10 +1,9 @@
 package org.beaverbots.beaver.pathing.path;
 
-import android.util.Pair;
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.DoublePredicate;
-import java.util.function.ToDoubleFunction;
+import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Collectors;
 
 public final class Path {
@@ -16,7 +15,7 @@ public final class Path {
         this.isFinishedPredicate = isFinishedPredicate;
     }
 
-    public int dimensions() {
+    public int getDimensions() {
         return path.size();
     }
 
@@ -36,8 +35,16 @@ public final class Path {
         return path.stream().map(x -> x.acceleration(t)).collect(Collectors.toList());
     }
 
-    ///  Please don't mutate the result
+    ///  Please don't mutate the result!
     public List<PathAxis> getAxes() {
         return path;
+    }
+
+    public Path transform(List<DoubleUnaryOperator> f) {
+        List<PathAxis> newPath = new ArrayList<>();
+        for (int i = 0; i < getDimensions(); i++) {
+            newPath.add(path.get(i).transform(f.get(i)));
+        }
+        return new Path(newPath, isFinishedPredicate);
     }
 }

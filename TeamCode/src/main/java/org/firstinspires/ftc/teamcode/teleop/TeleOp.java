@@ -8,6 +8,7 @@ import org.beaverbots.beaver.command.premade.router.Selector;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Side;
 import org.firstinspires.ftc.teamcode.autonomous.CrossModeStorage;
+import org.firstinspires.ftc.teamcode.commands.AimAndResist;
 import org.firstinspires.ftc.teamcode.commands.AimWhileDriving;
 import org.firstinspires.ftc.teamcode.commands.DrivetrainControl;
 import org.firstinspires.ftc.teamcode.commands.GoToBase;
@@ -73,16 +74,24 @@ public class TeleOp extends CommandRuntimeOpMode {
                 ),*/
                 new Router(
                         new Selector(() -> {
-                                if (gamepad.getRightStickPressed()) {
+                                if (gamepad.getRightStickPressedToggle() && gamepad.getLeftStickPressed()) {
                                     return 1;
                                 }
-                                if (gamepad.getGuide()) {
+                                if (gamepad.getLeftStickPressed()) {
                                     return 2;
+                                }
+                                if (gamepad.getRightStickPressedToggle()) {
+                                    return 3;
+                                }
+                                if (gamepad.getGuide()) {
+                                    return 4;
                                 }
                                 return 0;
                             }
                         ),
                         new DrivetrainControl(drivetrain, gamepad),
+                        new AimAndResist(pinpoint, drivetrain, CrossModeStorage.side, true),
+                        new AimAndResist(pinpoint, drivetrain, CrossModeStorage.side, false),
                         new AimWhileDriving(pinpoint, drivetrain, CrossModeStorage.side, gamepad),
                         new GoToBase(pinpoint, drivetrain, CrossModeStorage.side)
                 ),

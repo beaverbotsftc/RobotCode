@@ -19,9 +19,9 @@ public final class HolonomicPathTracker implements PathTracker {
         this.path = path;
         this.pidf = pidf;
 
-        if (path.dimensions() != pidf.dimensions()) throw new IllegalArgumentException("Path and PIDF must be of the same dimensions");
+        if (path.getDimensions() != pidf.dimensions()) throw new IllegalArgumentException("Path and PIDF must be of the same dimensions");
 
-        this.dimensions = path.dimensions();
+        this.dimensions = path.getDimensions();
     }
 
     public List<Double> update(List<Double> position, double dt) {

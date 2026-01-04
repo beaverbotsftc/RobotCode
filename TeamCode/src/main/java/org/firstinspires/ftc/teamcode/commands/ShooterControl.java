@@ -53,7 +53,7 @@ public class ShooterControl implements Command {
             shootRpm = 2550.0;
         }else if (shootPos == 3){
             shooter.setHood(0.72);
-            shootRpm = 3000.0;
+            shootRpm = 2950.0;
         }
 
         if(gamepad.getSquareJustPressed()){

@@ -2,15 +2,13 @@ package org.firstinspires.ftc.teamcode.commands;
 
 import org.beaverbots.beaver.command.Command;
 import org.beaverbots.beaver.command.Subsystem;
+import org.beaverbots.beaver.pathing.commands.HolonomicFollowPath;
 import org.beaverbots.beaver.pathing.path.Path;
 import org.beaverbots.beaver.pathing.path.PathAxis;
 import org.beaverbots.beaver.pathing.pidf.PIDF;
 import org.beaverbots.beaver.pathing.pidf.PIDFAxis;
-import org.beaverbots.beaver.pathing.trackers.HolonomicPathTracker;
-import org.beaverbots.beaver.util.Stopwatch;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Side;
-import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Localizer;
@@ -18,22 +16,20 @@ import org.firstinspires.ftc.teamcode.subsystems.localizer.Localizer;
 import java.util.List;
 import java.util.Set;
 
-public class AimWhileDriving implements Command {
+public class AimAndResist implements Command {
     private Localizer localizer;
     private Drivetrain drivetrain;
-    private Gamepad gamepad;
-
-    private Stopwatch stopwatch;
 
     private Side side;
-    private HolonomicPathTracker aimTracker;
+    private Command command;
 
-    public AimWhileDriving(Localizer localization, Drivetrain drivetrain, Side side, Gamepad gamepad) {
+    private boolean aim;
+
+    public AimAndResist(Localizer localization, Drivetrain drivetrain, Side side, boolean aim) {
         this.localizer = localization;
         this.drivetrain = drivetrain;
         this.side = side;
-        this.gamepad = gamepad;
-        this.stopwatch = new Stopwatch();
+        this.aim = aim;
     }
 
     public Set<Subsystem> getDependencies() {
@@ -42,28 +38,37 @@ public class AimWhileDriving implements Command {
 
     public void start() {
         DrivetrainState goalPosition = new DrivetrainState(Constants.GOAL_X, side == Side.RED ? Constants.GOAL_Y : -Constants.GOAL_Y, 0);
+        DrivetrainState position = localizer.getPosition();
 
-        aimTracker = new HolonomicPathTracker(
+        command = new HolonomicFollowPath(
                 new Path(
                         List.of(
-                                new PathAxis(t -> Localizer.wind(localizer.getPosition().angleTo(goalPosition) - Constants.shooterBias, localizer.getPosition().getTheta()), 0, Double.POSITIVE_INFINITY)
+                                new PathAxis(t -> position.getX(), 0, Double.POSITIVE_INFINITY),
+                                new PathAxis(t -> position.getY(), 0, Double.POSITIVE_INFINITY),
+                                new PathAxis(t ->
+                                        aim
+                                                ? Localizer.wind(localizer.getPosition().angleTo(goalPosition) - Constants.shooterBias, localizer.getPosition().getTheta())
+                                                : position.getTheta(), 0, Double.POSITIVE_INFINITY)
                         ),
                         t -> false
                 ),
                 new PIDF(List.of(
+                        new PIDFAxis(new PIDFAxis.K(Constants.pidPX, Constants.pidIX, Constants.pidDX, 0, 6, 48, Constants.pidTauX, Constants.pidGammaX)),
+                        new PIDFAxis(new PIDFAxis.K(Constants.pidPY, Constants.pidIY, Constants.pidDY, 0, 6, 48, Constants.pidTauY, Constants.pidGammaY)),
                         new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, 0, 6, 48, Constants.pidTauTheta, Constants.pidGammaTheta))
-                ))
+                )),
+                localizer, drivetrain
         );
 
-        stopwatch.reset();
+        command.start();
     }
 
     public boolean periodic() {
-        double headingCorrection = aimTracker.update(List.of(localizer.getPosition().getTheta()), stopwatch.getDt()).get(0);
-        double reverse = side == Side.RED ? 1 : -1;
-        drivetrain.move(new DrivetrainState(reverse * gamepad.getLeftX() / Constants.drivetrainPowerConversionFactorX, reverse * gamepad.getLeftY() / Constants.drivetrainPowerConversionFactorY, headingCorrection), localizer.getPosition());
+        command.periodic();
         return false;
     }
 
-    public void stop() {}
+    public void stop() {
+        command.stop();
+    }
 }

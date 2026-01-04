@@ -120,8 +120,8 @@ public class Autonomous extends CommandRuntimeOpMode {
 
         schedule(
                 new Sequential(
-                        shootFar(driveToShootFar()),
-                        intakeSpike(driveThroughSpike3()),
+                        shootNear(driveToShootNear()),
+                        intakeSpike(driveThroughSpike1()),
                         shootFar(driveToShootFar()),
                         intakeSpike(driveThroughSpike2()),
                         shootFar(driveToShootFar()),
@@ -145,13 +145,13 @@ public class Autonomous extends CommandRuntimeOpMode {
     }
 
     private PathBuilder newPathBuilderFromPath(Path path) {
-        return new PathBuilder(path, mirror, true);
+        return new PathBuilder(path, mirror, false);
     }
 
     private void update(Pair<Path, Path> path) {
         currentPosition = new DrivetrainState(path.second.position(0)).transform(mirror);
-        paths.add(path.first);
-        pathsHold.add(path.second);
+        paths.add(path.first.transform(mirror));
+        pathsHold.add(path.second.transform(mirror));
     }
 
     private Path getPreviousPath(int i) {
