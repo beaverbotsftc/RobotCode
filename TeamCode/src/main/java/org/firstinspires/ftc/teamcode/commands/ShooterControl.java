@@ -1,31 +1,44 @@
 package org.firstinspires.ftc.teamcode.commands;
 
 import org.beaverbots.beaver.command.Command;
+import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.Side;
+import org.firstinspires.ftc.teamcode.autonomous.CrossModeStorage;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.Led;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
+import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.subsystems.localizer.Localizer;
 
 public class ShooterControl implements Command {
-    Gamepad gamepad;
-    Shooter shooter;
+    private Gamepad gamepad;
+    private Shooter shooter;
+    private Localizer localizer;
     private Led led;
+    private Side side;
     double shootRpm = 2200.0;
     int shootPos = 1;
     boolean shooterToggle = false;
     public static double percentError = 0.0;
 
-    public ShooterControl(Shooter shooter, Gamepad gamepad) {
+    public ShooterControl(Shooter shooter, Localizer localizer, Side side, Gamepad gamepad) {
         this.shooter = shooter;
+        this.localizer = localizer;
         this.gamepad = gamepad;
+        this.side = side;
     }
 
-    public ShooterControl(Shooter shooter, Led led, Gamepad gamepad) {
+    public ShooterControl(Shooter shooter, Localizer localizer, Side side, Led led, Gamepad gamepad) {
         this.shooter = shooter;
+        this.localizer = localizer;
         this.led = led;
         this.gamepad = gamepad;
+        this.side = side;
     }
 
     public boolean periodic() {
+        double distToTarget = localizer.getPosition().lateralDistance(new DrivetrainState(Constants.GOAL_X, side == Side.RED ? Constants.GOAL_Y : -Constants.GOAL_Y, 0));
+
         if (gamepad.getLeftBumperJustPressed()) {
             shootPos = Math.max(1, shootPos-1);
         } else if (gamepad.getRightBumperJustPressed()) {

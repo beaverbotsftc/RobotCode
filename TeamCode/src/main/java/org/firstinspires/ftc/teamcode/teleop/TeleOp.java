@@ -5,8 +5,10 @@ import org.beaverbots.beaver.command.premade.Sequential;
 import org.beaverbots.beaver.command.premade.WaitUntil;
 import org.beaverbots.beaver.command.premade.router.Router;
 import org.beaverbots.beaver.command.premade.router.Selector;
+import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Side;
 import org.firstinspires.ftc.teamcode.autonomous.CrossModeStorage;
+import org.firstinspires.ftc.teamcode.commands.AimWhileDriving;
 import org.firstinspires.ftc.teamcode.commands.DrivetrainControl;
 import org.firstinspires.ftc.teamcode.commands.GoToBase;
 import org.firstinspires.ftc.teamcode.commands.IntakeControl;
@@ -18,6 +20,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Led;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.Stopper;
+import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
@@ -67,17 +70,26 @@ public class TeleOp extends CommandRuntimeOpMode {
                         new ShooterMode(pinpoint, drivetrain, CrossModeStorage.side, false)
                 ),*/
                 new Router(
-                        new Selector(() -> gamepad.getGuide()),
+                        new Selector(() -> {
+                                if (gamepad.getRightStickPressed()) {
+                                    return 1;
+                                }
+                                if (gamepad.getGuide()) {
+                                    return 2;
+                                }
+                                return 0;
+                            }
+                        ),
                         new DrivetrainControl(drivetrain, gamepad),
+                        new AimWhileDriving(pinpoint, drivetrain, CrossModeStorage.side, gamepad),
                         new GoToBase(pinpoint, drivetrain, CrossModeStorage.side)
                 ),
                 new IntakeControl(intake, stopper, colorSensor, gamepad), shooterControl);
     }
 
-    private boolean a = false;
-
     @Override
     public void periodic() {
+
         telemetry.addData("Shoot RPM:", shooterControl.getShootRpm());
         telemetry.addData("Current RPM:", shooter.getVelocity());
         telemetry.addData("Fused position:", fusedLocalizer.getPosition());

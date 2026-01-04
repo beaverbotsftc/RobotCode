@@ -110,6 +110,12 @@ public final class DrivetrainState {
         return this.rotate(-reference.getTheta());
     }
 
+    public double angleTo(DrivetrainState other) {
+        double dx = other.getX() - this.x;
+        double dy = other.getY() - this.y;
+        return Math.atan2(dy, dx);
+    }
+
     @NonNull
     public String toString() {
         return String.format("x=%.2f, y=%.2f, theta=%.2f", x, y, theta);

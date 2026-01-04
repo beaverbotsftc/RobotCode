@@ -120,13 +120,14 @@ public class Autonomous extends CommandRuntimeOpMode {
 
         schedule(
                 new Sequential(
-                        shootNear(driveToShootNear()),
-                        intakeSpike(driveThroughSpike3()),
-                        shootNear(newPathBuilderFromPath(getPreviousPath(1)).reverse().retime(usageRatio, 1, 50).build()),
+                        shootFar(driveToShootFar()),
                         intakeSpike(driveThroughSpike1()),
-                        shootNear(newPathBuilderFromPath(getPreviousPath(1)).reverse().retime(usageRatio, 1, 50).build()),
+                        openGateNoPickup(driveToGateSide()),
+                        shootNear(driveToShootNear()),
                         intakeSpike(driveThroughSpike2()),
                         shootNear(newPathBuilderFromPath(getPreviousPath(1)).reverse().retime(usageRatio, 1, 50).build()),
+                        intakeSpike(driveThroughSpike3()),
+                        shootNear(driveToShootNear()),
                         new Instant(() -> {
                             shooter.spin(0);
                         }),
@@ -163,6 +164,26 @@ public class Autonomous extends CommandRuntimeOpMode {
         final double X = -24;//-16;
         final double Y = 24;
 
+        final double EASING_FRACTION = 0.5;
+
+        final DrivetrainState position = new DrivetrainState(
+                X,
+                Y,
+                Localizer.wind(
+                        Math.atan2(
+                                Constants.GOAL_Y - Y,
+                                Constants.GOAL_X - X
+                        ), currentPosition.getTheta()
+                )
+        );
+
+        return newPathBuilder().linearTo(position.toList(), EASING_FRACTION, 1).retime(usageRatio, 0.7, 50).build();
+    }
+
+    private Pair<Path, Path> driveToShootFar() {
+        final double X = 60;
+        final double Y = 14;
+
         final double EASING_FRACTION = 1;
 
         final DrivetrainState position = new DrivetrainState(
@@ -179,11 +200,30 @@ public class Autonomous extends CommandRuntimeOpMode {
         return newPathBuilder().linearTo(position.toList(), EASING_FRACTION, 1).retime(usageRatio, 0.7, 50).build();
     }
 
+    private Pair<Path, Path> driveToGateSide() {
+        final double X = 0;
+        final double Y = 54;
+
+        final double EASING_FRACTION = 1;
+
+        final DrivetrainState position = new DrivetrainState(
+                X,
+                Y,
+                Math.PI
+        );
+
+        return newPathBuilder()
+                .linearTo(position.toList(), EASING_FRACTION, 1)
+                .retime(usageRatio, 0.7, 50)
+                .stop(1, 2)
+                .build();
+    }
+
     private Pair<Path, Path> driveThroughSpike1() {
         // Using setup manual dimensions (middle of shark fin), rather than CAD.
         final double X = -11.78125;
 
-        final double BEZIER_1_Y = 25;
+        final double BEZIER_1_Y = 28;
         final double BEZIER_2_Y = 40;
         final double BEZIER_3_Y = 50;
 
@@ -207,7 +247,7 @@ public class Autonomous extends CommandRuntimeOpMode {
         final double X = 11.78125;
         //final double X = 7;
 
-        final double BEZIER_1_Y = 25;
+        final double BEZIER_1_Y = 28;
         final double BEZIER_2_Y = 40;
         final double BEZIER_3_Y = 56;
 
@@ -231,7 +271,7 @@ public class Autonomous extends CommandRuntimeOpMode {
         // Using setup manual dimensions (middle of shark fin), rather than CAD.
         final double X = 35.34375;
 
-        final double BEZIER_1_Y = 25;
+        final double BEZIER_1_Y = 28;
         final double BEZIER_2_Y = 40;
         final double BEZIER_3_Y = 56;
 
@@ -283,6 +323,47 @@ public class Autonomous extends CommandRuntimeOpMode {
                     stopper.spin(0);
                 })
         );
+    }
+
+    private Command shootFar(Pair<Path, Path> path) {
+        final double SHOOTER_RPM = 3000;
+        final double MAX_ERROR = 50;
+        final double HOOD_ANGLE = 0.72;
+
+        update(path);
+
+        return new Sequential(
+                new Instant(() -> {
+                    shooter.spin(SHOOTER_RPM);
+                    shooter.setHood(HOOD_ANGLE);
+                }),
+                followPathTemplate(path.first),
+                new RunUntil(
+                        new Sequential(
+                                new Wait(0.5),
+                                new First(
+                                        new WaitUntil(() -> shooter.getError() < MAX_ERROR),
+                                        new Wait(10)
+                                ),
+                                new Instant(() -> {
+                                    intake.spin(0.8);
+                                    stopper.spin(1);
+                                }),
+                                new Wait(1)
+                        ),
+                        followPathTemplate(path.second)
+                ),
+                new Instant(() -> {
+                    intake.spin(0);
+                    stopper.spin(0);
+                })
+        );
+    }
+
+    private Command openGateNoPickup(Pair<Path, Path> path) {
+        update(path);
+
+        return followPathTemplate(path.first);
     }
 
     private Command intakeSpike(Pair<Path, Path> path) {
