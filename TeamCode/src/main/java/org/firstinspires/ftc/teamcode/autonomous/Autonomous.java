@@ -180,7 +180,7 @@ public class Autonomous extends CommandRuntimeOpMode {
 
     private Pair<Path, Path> driveToShootFar() {
         final double X = 60;
-        final double Y = 14;
+        final double Y = 18;
 
         final double EASING_FRACTION = 1;
 
@@ -272,6 +272,28 @@ public class Autonomous extends CommandRuntimeOpMode {
         final double BEZIER_1_Y = 28;
         final double BEZIER_2_Y = 40;
         final double BEZIER_3_Y = 56;
+
+        final double EASING_FRACTION = 1;
+
+        DrivetrainState position1 = new DrivetrainState(X, BEZIER_1_Y, Math.PI / 2);
+        DrivetrainState position2 = new DrivetrainState(X, BEZIER_2_Y, Math.PI / 2);
+        DrivetrainState position3 = new DrivetrainState(X, BEZIER_3_Y, Math.PI / 2);
+        DrivetrainState position0 = new DrivetrainState(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
+
+
+        return newPathBuilder()
+                .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), EASING_FRACTION, 1)
+                .bezierTo(position2.toList(), position3.toList(), position3.toList(), EASING_FRACTION, 1)
+                .retime(usageRatio, 0.7, 50)
+                .build();
+    }
+
+    private Pair<Path, Path> driveThroughHumanPlayer() {
+        final double X = 50 /* idk */;
+
+        final double BEZIER_1_Y = 28;
+        final double BEZIER_2_Y = 40;
+        final double BEZIER_3_Y = 50 /* idk */;
 
         final double EASING_FRACTION = 1;
 

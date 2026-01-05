@@ -91,11 +91,11 @@ public class TeleOp extends CommandRuntimeOpMode {
                         ),
                         new DrivetrainControl(drivetrain, gamepad),
                         new AimAndResist(pinpoint, drivetrain, CrossModeStorage.side, true),
-                        new AimAndResist(pinpoint, drivetrain, CrossModeStorage.side, false),
+                        new AimAndResist(pinpoint, drivetrain, CrossModeStorage.side, true), // This only happens if not in shooting mode, but when do you ever just need to lock in place...
                         new AimWhileDriving(pinpoint, drivetrain, CrossModeStorage.side, gamepad),
                         new GoToBase(pinpoint, drivetrain, CrossModeStorage.side)
                 ),
-                new IntakeControl(intake, stopper, colorSensor, led, gamepad), shooterControl);
+                new IntakeControl(intake, stopper, pinpoint, true, colorSensor, led, gamepad), shooterControl);
     }
 
     @Override

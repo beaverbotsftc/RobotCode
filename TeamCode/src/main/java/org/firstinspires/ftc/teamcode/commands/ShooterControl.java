@@ -62,7 +62,7 @@ public class ShooterControl implements Command {
         shooter.setHood(values.second);
 
 
-        if(gamepad.getSquareJustPressed()){
+        if(gamepad.getLeftBumperJustPressed()){
             shooterToggle = !shooterToggle;
         }
 

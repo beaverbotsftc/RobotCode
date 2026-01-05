@@ -53,9 +53,9 @@ public class AimAndResist implements Command {
                         t -> false
                 ),
                 new PIDF(List.of(
-                        new PIDFAxis(new PIDFAxis.K(Constants.pidPX, Constants.pidIX, Constants.pidDX, 0, 6, 48, Constants.pidTauX, Constants.pidGammaX)),
-                        new PIDFAxis(new PIDFAxis.K(Constants.pidPY, Constants.pidIY, Constants.pidDY, 0, 6, 48, Constants.pidTauY, Constants.pidGammaY)),
-                        new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, 0, 6, 48, Constants.pidTauTheta, Constants.pidGammaTheta))
+                        new PIDFAxis(new PIDFAxis.K(1.5 * Constants.pidPX, Constants.pidIX, Constants.pidDX, 0, 6, 48, Constants.pidTauX, Constants.pidGammaX)),
+                        new PIDFAxis(new PIDFAxis.K(1.5 * Constants.pidPY, Constants.pidIY, Constants.pidDY, 0, 6, 48, Constants.pidTauY, Constants.pidGammaY)),
+                        new PIDFAxis(new PIDFAxis.K(2 * Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, 0, 6, 48, Constants.pidTauTheta, Constants.pidGammaTheta))
                 )),
                 localizer, drivetrain
         );
