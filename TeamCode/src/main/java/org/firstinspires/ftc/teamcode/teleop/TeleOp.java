@@ -95,7 +95,7 @@ public class TeleOp extends CommandRuntimeOpMode {
                         new AimWhileDriving(pinpoint, drivetrain, CrossModeStorage.side, gamepad),
                         new GoToBase(pinpoint, drivetrain, CrossModeStorage.side)
                 ),
-                new IntakeControl(intake, stopper, pinpoint, true, colorSensor, led, gamepad), shooterControl);
+                new IntakeControl(intake, stopper, pinpoint, false, colorSensor, led, gamepad), shooterControl);
     }
 
     @Override

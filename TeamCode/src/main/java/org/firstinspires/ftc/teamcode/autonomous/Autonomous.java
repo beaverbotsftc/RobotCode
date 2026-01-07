@@ -49,7 +49,7 @@ public class Autonomous extends CommandRuntimeOpMode {
     private Intake intake;
     private Stopper stopper;
 
-    private final Side side = Side.BLUE;
+    private final Side side = Side.RED;
     private Motif motif;
 
     private List<DoubleUnaryOperator> mirror;
@@ -121,15 +121,33 @@ public class Autonomous extends CommandRuntimeOpMode {
         schedule(
                 new Sequential(
                         shootNear(driveToShootNear()),
-                        intakeSpike(driveThroughSpike1()),
-                        shootFar(driveToShootFar()),
-                        intakeSpike(driveThroughSpike2()),
-                        shootFar(driveToShootFar()),
+                        intakeFrom(driveThroughSpike2()),
+                        shootNear(driveSplineToShootNear()),
+                        openGateNoPickup(driveToGateFront()),
+                        intakeFrom(driveToIntakeGate()),
+                        shootNear(driveSplineToShootNear()),
+                        intakeFrom(driveThroughSpike1()),
+                        shootNear(driveToShootNear()),
+                        intakeFrom(driveThroughSpike3()),
+                        shootNear(driveToShootNear()),
                         new Instant(() -> {
                             shooter.spin(0);
-                        })
-                        //leaveNear()
-                        //shootFar(newPathBuilderFromPath(getPreviousPath(1)).reverse().retime(usageRatio, 1, 50).build()),
+                        }),
+                        leaveNear()
+                        /*
+                        shootNear(driveToShootNear()),
+                        intakeSpike(driveThroughSpike1()),
+                        openGateNoPickup(driveToGateSide()),
+                        shootNear(driveToShootNear()),
+                        intakeSpike(driveThroughSpike2()),
+                        shootNear(newPathBuilderFromPath(getPreviousPath(1)).reverse().retime(usageRatio, 1, 50).build()),
+                        intakeSpike(driveThroughSpike3()),
+                        shootNear(driveToShootNear()),
+                        new Instant(() -> {
+                            shooter.spin(0);
+                        }),
+                        leaveNear()
+                         */
                 )
         );
     }
@@ -162,7 +180,7 @@ public class Autonomous extends CommandRuntimeOpMode {
         final double X = -24;//-16;
         final double Y = 24;
 
-        final double EASING_FRACTION = 0.5;
+        final double EASING_FRACTION = 0.4;
 
         final DrivetrainState position = new DrivetrainState(
                 X,
@@ -175,7 +193,36 @@ public class Autonomous extends CommandRuntimeOpMode {
                 )
         );
 
-        return newPathBuilder().linearTo(position.toList(), EASING_FRACTION, 1).retime(usageRatio, 0.7, 50).build();
+        return newPathBuilder().linearTo(position.toList(), EASING_FRACTION, 1).stop(0.2, 0.2).retime(usageRatio, 1, 50).build();
+    }
+
+    private Pair<Path, Path> driveSplineToShootNear() {
+        // Using setup manual dimensions (middle of shark fin), rather than CAD.
+        final double X = -24;
+
+        final double BEZIER_1_Y = 40;
+        final double BEZIER_2_Y = 28;
+        final double BEZIER_3_Y = 24;
+
+        final double EASING_FRACTION = 0.4;
+
+        DrivetrainState position1 = new DrivetrainState(currentPosition.getX(), BEZIER_1_Y, currentPosition.getTheta());
+        DrivetrainState position2 = new DrivetrainState(currentPosition.getX(), BEZIER_2_Y, currentPosition.getTheta());
+        DrivetrainState position3 = new DrivetrainState(X, BEZIER_3_Y, Localizer.wind(
+                Math.atan2(
+                        Constants.GOAL_Y - BEZIER_3_Y,
+                        Constants.GOAL_X - X
+                ) - Constants.shooterBias, currentPosition.getTheta()
+        ));
+        DrivetrainState position0 = new DrivetrainState(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
+
+
+        return newPathBuilder()
+                .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), EASING_FRACTION, 1)
+                .bezierTo(position2.toList(), position3.toList(), position3.toList(), EASING_FRACTION, 1)
+                .stop(0.2, 0.2)
+                .retime(usageRatio, 1, 50)
+                .build();
     }
 
     private Pair<Path, Path> driveToShootFar() {
@@ -217,15 +264,58 @@ public class Autonomous extends CommandRuntimeOpMode {
                 .build();
     }
 
+    private Pair<Path, Path> driveToGateFront() {
+        final double X = 6;
+
+        final double BEZIER_1_Y = 28;
+        final double BEZIER_2_Y = 40;
+        final double BEZIER_3_Y = 52;
+
+        final double EASING_FRACTION = 0.2;
+
+
+        DrivetrainState position1 = new DrivetrainState(X, BEZIER_1_Y, Math.PI / 2);
+        DrivetrainState position2 = new DrivetrainState(X, BEZIER_2_Y, Math.PI / 2);
+        DrivetrainState position3 = new DrivetrainState(X, BEZIER_3_Y, Math.PI / 2);
+        DrivetrainState position0 = new DrivetrainState(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
+
+
+        return newPathBuilder()
+                .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), EASING_FRACTION, 1)
+                .bezierTo(position2.toList(), position3.toList(), position3.toList(), EASING_FRACTION, 1)
+                .retime(usageRatio, 1, 50)
+                .build();
+    }
+
+    private Pair<Path, Path> driveToIntakeGate() {
+        final double X = 18;
+        final double Y = 58;
+        final double THETA = 2.3;
+
+        final double EASING_FRACTION = 1;
+
+        final DrivetrainState position = new DrivetrainState(
+                X,
+                Y,
+                THETA
+        );
+
+        return newPathBuilder()
+                .linearTo(position.toList(), EASING_FRACTION, 1)
+                .retime(usageRatio, 0.3, 50)
+                .stop(0.6, 1)
+                .build();
+    }
+
     private Pair<Path, Path> driveThroughSpike1() {
         // Using setup manual dimensions (middle of shark fin), rather than CAD.
         final double X = -11.78125;
 
         final double BEZIER_1_Y = 28;
         final double BEZIER_2_Y = 40;
-        final double BEZIER_3_Y = 50;
+        final double BEZIER_3_Y = 56;
 
-        final double EASING_FRACTION = 1;
+        final double EASING_FRACTION = 0.3;
 
         DrivetrainState position1 = new DrivetrainState(X, BEZIER_1_Y, Math.PI / 2);
         DrivetrainState position2 = new DrivetrainState(X, BEZIER_2_Y, Math.PI / 2);
@@ -242,14 +332,14 @@ public class Autonomous extends CommandRuntimeOpMode {
 
     private Pair<Path, Path> driveThroughSpike2() {
         // Using setup manual dimensions (middle of shark fin), rather than CAD.
-        final double X = 11.78125;
+        final double X = 11.78125 + 1;
         //final double X = 7;
 
         final double BEZIER_1_Y = 28;
         final double BEZIER_2_Y = 40;
-        final double BEZIER_3_Y = 56;
+        final double BEZIER_3_Y = 58;
 
-        final double EASING_FRACTION = 1;
+        final double EASING_FRACTION = 0.3;
 
 
         DrivetrainState position1 = new DrivetrainState(X, BEZIER_1_Y, Math.PI / 2);
@@ -273,7 +363,7 @@ public class Autonomous extends CommandRuntimeOpMode {
         final double BEZIER_2_Y = 40;
         final double BEZIER_3_Y = 56;
 
-        final double EASING_FRACTION = 1;
+        final double EASING_FRACTION = 0.2; // It's longer time, so easing fraction will be larger proportional to the fraction
 
         DrivetrainState position1 = new DrivetrainState(X, BEZIER_1_Y, Math.PI / 2);
         DrivetrainState position2 = new DrivetrainState(X, BEZIER_2_Y, Math.PI / 2);
@@ -331,7 +421,7 @@ public class Autonomous extends CommandRuntimeOpMode {
                                         new Wait(10)
                                 ),
                                 new Instant(() -> {
-                                    intake.spin(0.8);
+                                    intake.spin(1);
                                     stopper.spin(1);
                                 }),
                                 new Wait(1)
@@ -386,7 +476,7 @@ public class Autonomous extends CommandRuntimeOpMode {
         return followPathTemplate(path.first);
     }
 
-    private Command intakeSpike(Pair<Path, Path> path) {
+    private Command intakeFrom(Pair<Path, Path> path) {
         update(path);
 
         return new Sequential(
@@ -404,16 +494,15 @@ public class Autonomous extends CommandRuntimeOpMode {
     }
 
     private Command leaveNear() {
-        final double X = -47.675857;
-        final double Y = 23.531253;
-        final double EASING = 0.6;
+        final double X = 0;
+        final double Y = 40;
+        final double EASING_FRACTION = 0.2;
 
-        DrivetrainState position = new DrivetrainState(X, Y, currentPosition.getTheta());
-        double distance = currentPosition.lateralDistance(position);
+        DrivetrainState position = new DrivetrainState(X, Y, Math.PI / 2);
 
         Pair<Path, Path> path = newPathBuilder()
-                .linearTo(position.toList(), EASING, distance / Constants.getMaxLateralVelocity() + EASING)
-                .stop(EASING, EASING)
+                .linearTo(position.toList(), EASING_FRACTION, 1)
+                .stop(1, 1)
                 .build();
 
         update(path);
