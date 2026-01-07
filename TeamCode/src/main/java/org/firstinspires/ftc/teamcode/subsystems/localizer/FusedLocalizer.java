@@ -46,7 +46,7 @@ public class FusedLocalizer implements Subsystem, Localizer {
         this.filter = new SensorFusion(
                 3,
                 initialPoseVector,
-                new Array2DRowRealMatrix(new double[][]{{144 * 144, 0, 0}, {0, 144 * 144, 0}, {0, 0, Math.PI * Math.PI}}),
+                new Array2DRowRealMatrix(new double[][]{{144 * 144, 0, 0}, {0, 144 * 144, 0}, {0, 0, Math.PI * Math.PI * 100}}),
                 0.01,
                 // Now we just reference the helper method here
                 (RealVector state, RealVector control, double dt) -> applyPinpointDelta(state, control),

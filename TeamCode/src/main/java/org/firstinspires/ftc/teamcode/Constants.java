@@ -1,11 +1,22 @@
 package org.firstinspires.ftc.teamcode;
 
+import java.util.List;
+
 public final class Constants {
-    public static final double GOAL_X = -70.160065;
-    public static final double GOAL_Y = 70.191315;
+    public static final double ROBOT_LENGTH = 15;
+    public static final double ROBOT_WIDTH = 15;
+
+    public static final double GOAL_X = -70.160065 + 2.5;
+    public static final double GOAL_Y = 70.191315 - 2.5;
 
     public static final double BASE_X = 37.71875;
     public static final double BASE_Y = 32.96875;
+
+    public static final List<Double> SHOOTING_ZONE_NEAR_X = List.of(-70.468750, 0.0, -70.478750);
+    public static final List<Double> SHOOTING_ZONE_NEAR_Y = List.of(-69.949143, 0.0, 69.499143);
+
+    public static final List<Double> SHOOTING_ZONE_FAR_X = List.of(69.636643, 46.386643, 69.636643);
+    public static final List<Double> SHOOTING_ZONE_FAR_Y = List.of(-23.218750, 0.0, 23.218750);
 
     public static double drivetrainPowerConversionFactorX = 0.0128674126; // 0.01072290598019666; // in/s -> proportion of max rpm
     public static double drivetrainPowerConversionFactorY = 0.0142546161; // 0.01072290598019666; // in/s -> proportion of max rpm
@@ -81,7 +92,7 @@ public final class Constants {
     public static double pinpointYOffset = -4;
 
 
-    public static final double shooterBias = -0.05;
+    public static final double shooterBias = -0.05 + 0.05;
 
     public static double shooterFrictionConversionFactor = 0.00258; // rpm -> proportion of max RPM at 1V
     public static double pidPShooter = 0.003;

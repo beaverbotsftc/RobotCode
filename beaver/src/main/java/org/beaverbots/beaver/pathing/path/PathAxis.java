@@ -69,7 +69,7 @@ public final class PathAxis {
             return (velocity(t + epsilon) - velocity(t - epsilon)) / (2 * epsilon);
     }
 
-    ///  Please don't mutate the result
+    ///  Please don't mutate the result!
     public DoubleUnaryOperator getPath() {
         return path;
     }
@@ -80,5 +80,9 @@ public final class PathAxis {
 
     public double getEndTime() {
         return endTime;
+    }
+
+    public PathAxis transform(DoubleUnaryOperator f) {
+        return new PathAxis(path.compose(f), startTime, endTime);
     }
 }

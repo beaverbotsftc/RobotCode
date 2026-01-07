@@ -60,7 +60,8 @@ public class AimWhileDriving implements Command {
 
     public boolean periodic() {
         double headingCorrection = aimTracker.update(List.of(localizer.getPosition().getTheta()), stopwatch.getDt()).get(0);
-        drivetrain.move(new DrivetrainState(gamepad.getLeftX() / Constants.drivetrainPowerConversionFactorX, gamepad.getLeftY() / Constants.drivetrainPowerConversionFactorY, headingCorrection), localizer.getPosition());
+        double reverse = side == Side.RED ? 1 : -1;
+        drivetrain.move(new DrivetrainState(reverse * gamepad.getLeftX() / Constants.drivetrainPowerConversionFactorX, reverse * gamepad.getLeftY() / Constants.drivetrainPowerConversionFactorY, headingCorrection), localizer.getPosition());
         return false;
     }
 
