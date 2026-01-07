@@ -112,9 +112,11 @@ public class ScrimmageTeleOpV2 extends LinearOpMode {
             //Hood Servo
 
             if(gamepad2.left_bumper){
-                hoodServo.setPosition(hoodServo.getPosition() + 0.001);
+                //hoodServo.setPosition(hoodServo.getPosition() + 0.001);
+                hoodServo.setPosition(0.4256);
             }else if(gamepad2.right_bumper){
-                hoodServo.setPosition(hoodServo.getPosition() - 0.001);
+                //hoodServo.setPosition(hoodServo.getPosition() - 0.001);
+                hoodServo.setPosition(0.3928);
             }
 
 
