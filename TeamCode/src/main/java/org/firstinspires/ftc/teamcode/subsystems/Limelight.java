@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 public class Limelight implements Subsystem {
-    private enum Pipeline {
+    public enum Pipeline {
         OBELISK,
         GOAL,
     }
@@ -56,6 +56,10 @@ public class Limelight implements Subsystem {
 
     public LLStatus getStatus() {
         return limelight.getStatus();
+    }
+
+    public Pipeline getCurrentPipeline() {
+        return currentPipeline;
     }
 
     public Motif getMotif(Side side) {
@@ -106,6 +110,10 @@ public class Limelight implements Subsystem {
         if (result.getTimestamp() == lastPositionResultTime) return null;
         if (!result.isValid()) return null;
 
+        /*
+        if (result.getStddevMt1()[0] + result.getStddevMt1()[1] + result.getStddevMt1()[2] > 0.5)
+            return null;
+         */
         for (LLResultTypes.FiducialResult fiducial : result.getFiducialResults()) {
             // TODO: Somehow limelight (or the FTC SDK) thinks that pitch is yaw and yaw is pitch!!! Potential bug in the SDK, idk though.
             if (Math.abs(fiducial.getTargetPoseRobotSpace().getOrientation().getYaw(AngleUnit.RADIANS)) > 0.4) return null; // The pitch is always 0 (normal parallel to floor), but because it is mounted like it is, a higher tolerance is required

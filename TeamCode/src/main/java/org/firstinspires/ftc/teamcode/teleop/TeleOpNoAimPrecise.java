@@ -55,7 +55,7 @@ public class TeleOpNoAimPrecise extends CommandRuntimeOpMode {
                         new Selector(() -> gamepad.getLeftStickPressed()),
                         new DrivetrainControl(drivetrain, gamepad),
                         new ShooterMode(pinpoint, drivetrain, Side.RED, true)),
-                new IntakeControl(intake, stopper, null, false, colorSensor, led, gamepad), shooterControl);
+                new IntakeControl(intake, stopper, null, false, CrossModeStorage.side, colorSensor, led, gamepad), shooterControl);
     }
 
     @Override

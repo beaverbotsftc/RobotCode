@@ -11,8 +11,8 @@ import org.apache.commons.math3.random.Well19937c;
 
 import java.util.function.ToDoubleFunction;
 
-public final class IteratedLocalSearch {
-    private IteratedLocalSearch() {}
+public final class IteratedGradientDescent {
+    private IteratedGradientDescent() {}
     public static Pair<RealVector, Double> optimize(
             RealVector initialParams,
             ToDoubleFunction<RealVector> lossFunction,

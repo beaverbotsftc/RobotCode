@@ -49,12 +49,12 @@ public class TeleOpNoAim extends CommandRuntimeOpMode {
 
     @Override
     public void onStart() {
-        shooterControl = new ShooterControl(shooter, pinpoint, CrossModeStorage.side, led, gamepad);
+        shooterControl = new ShooterControl(shooter, pinpoint, false, CrossModeStorage.side, led, gamepad);
         schedule(new Router(
                         new Selector(() -> gamepad.getLeftStickPressed()),
                         new DrivetrainControl(drivetrain, gamepad),
                         new ShooterMode(pinpoint, drivetrain, Side.RED, true)),
-                new IntakeControl(intake, stopper, null, false, colorSensor, led, gamepad), shooterControl);
+                new IntakeControl(intake, stopper, null, false, CrossModeStorage.side, colorSensor, led, gamepad), shooterControl);
     }
 
     @Override

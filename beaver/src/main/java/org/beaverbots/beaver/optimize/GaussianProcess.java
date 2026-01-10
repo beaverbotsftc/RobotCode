@@ -100,7 +100,7 @@ public class GaussianProcess {
     public void optimizeHyperparameters(double learningRate, int steps, int iterations, RealVector variance, double exponent, double maxLossGradient) {
         ToDoubleFunction<RealVector> nlml = createNlmlLossFunction();
 
-        Pair<RealVector, Double> result = IteratedLocalSearch.optimize(
+        Pair<RealVector, Double> result = IteratedGradientDescent.optimize(
                 this.hyperparameters,
                 nlml,
                 learningRate,

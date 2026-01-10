@@ -95,7 +95,7 @@ public class Autonomous extends CommandRuntimeOpMode {
                                     telemetry.addData("Variance Theta:", fusedLocalizer.getCovariance().getEntry(2, 2));
                                     telemetry.addLine("NOT READY TO START!!!");
                                 })
-                        ),
+                        )/*,
                         new Instant(() -> {
                             pinpoint.setPosition(fusedLocalizer.getPosition());
                             unregister(fusedLocalizer);
@@ -108,7 +108,7 @@ public class Autonomous extends CommandRuntimeOpMode {
                             telemetry.addData("Motif:", motif);
                             telemetry.addLine(limelight.getStatus().toString());
                             telemetry.addLine("Good to start");
-                        })
+                        })*/
                 )
         );
     }
@@ -116,7 +116,7 @@ public class Autonomous extends CommandRuntimeOpMode {
     @Override
     public void onStart() {
         cancelAll();
-        currentPosition = pinpoint.getPosition().transform(mirror);
+        currentPosition = fusedLocalizer.getPosition().transform(mirror);
 
         schedule(
                 new Sequential(
@@ -154,8 +154,8 @@ public class Autonomous extends CommandRuntimeOpMode {
 
     @Override
     public void periodic() {
-        telemetry.addData("Position:", pinpoint.getPosition().toString());
-        CrossModeStorage.position = pinpoint.getPosition();
+        telemetry.addData("Position:", fusedLocalizer.getPosition().toString());
+        CrossModeStorage.position = fusedLocalizer.getPosition();
     }
 
     private PathBuilder newPathBuilder() {
@@ -521,7 +521,7 @@ public class Autonomous extends CommandRuntimeOpMode {
                                 new PIDFAxis(new PIDFAxis.K(Constants.pidPX, Constants.pidIX, Constants.pidDX, 1, 6, 48, Constants.pidTauX, Constants.pidGammaX)),
                                 new PIDFAxis(new PIDFAxis.K(Constants.pidPY, Constants.pidIY, Constants.pidDY, 1, 6, 48, Constants.pidTauY, Constants.pidGammaY)),
                                 new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, 1, 6, 48, Constants.pidTauTheta, Constants.pidGammaTheta)))),
-                        pinpoint, drivetrain),
+                        fusedLocalizer, drivetrain),
                 new Instant(() -> drivetrain.move(new DrivetrainState(0, 0, 0))));
     }
 }

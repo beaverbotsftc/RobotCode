@@ -28,6 +28,8 @@ public class FusedLocalizer implements Subsystem, Localizer {
 
     private Stopwatch stopwatch;
 
+    private boolean allowLimelight = true;
+
     public Set<Subsystem> getDependencies() {
         return Set.of(limelight);
     }
@@ -46,7 +48,7 @@ public class FusedLocalizer implements Subsystem, Localizer {
         this.filter = new SensorFusion(
                 3,
                 initialPoseVector,
-                new Array2DRowRealMatrix(new double[][]{{144 * 144, 0, 0}, {0, 144 * 144, 0}, {0, 0, Math.PI * Math.PI * 100}}),
+                new Array2DRowRealMatrix(new double[][]{{144 * 144 * 100, 0, 0}, {0, 144 * 144 * 100, 0}, {0, 0, 1.5}}),//Math.PI * Math.PI * 100}}),
                 0.01,
                 // Now we just reference the helper method here
                 (RealVector state, RealVector control, double dt) -> applyPinpointDelta(state, control),
@@ -54,6 +56,14 @@ public class FusedLocalizer implements Subsystem, Localizer {
         );
 
         stopwatch = new Stopwatch();
+    }
+
+    public void enableLimelight() {
+        allowLimelight = true;
+    }
+
+    public void disableLimelight() {
+        allowLimelight = false;
     }
 
     ///  Correct for potential pinpoint reference frame drift
@@ -88,26 +98,31 @@ public class FusedLocalizer implements Subsystem, Localizer {
 
         lastFilterPinpointState = currentRawPinpointState;
 
-        Pair<DrivetrainState, Double> limelightEstimation = limelight.getEstimatedPosition();
+        if (allowLimelight && limelight.getCurrentPipeline() != Limelight.Pipeline.GOAL) {
+            Pair<DrivetrainState, Double> limelightEstimation = limelight.getEstimatedPosition();
 
-        if (limelightEstimation != null) {
-            RealVector measurement = new ArrayRealVector(new double[]{
-                    limelightEstimation.first.getX(),
-                    limelightEstimation.first.getY(),
-                    wind(limelightEstimation.first.getTheta())
-            }).add(getVelocity().toVector().mapMultiply(limelightEstimation.second));
+            if (limelightEstimation != null &&
+                    Math.abs(getVelocity().lateralDistance(new DrivetrainState(0, 0, 0))) < 0.5 &&
+                    Math.abs(getVelocity().angularDistance(new DrivetrainState(0, 0, 0))) < 0.05
+            ) {
+                RealVector measurement = new ArrayRealVector(new double[]{
+                        limelightEstimation.first.getX(),
+                        limelightEstimation.first.getY(),
+                        wind(limelightEstimation.first.getTheta())
+                }).add(getVelocity().toVector().mapMultiply(limelightEstimation.second));
 
-            RealMatrix sensorCovariance = new Array2DRowRealMatrix(new double[][]{
-                    {3.875, 0, 0},
-                    {0, 3.875, 0},
-                    {0, 0, 20}
-            }).scalarMultiply(3);
+                RealMatrix sensorCovariance = new Array2DRowRealMatrix(new double[][]{
+                        {3.875, 0, 0},
+                        {0, 3.875, 0},
+                        {0, 0, 20}
+                }).scalarMultiply(3);
 
-            if (filter.isMeasurementInlier(measurement, sensorCovariance, x -> x, 0.05)) {
-                filter.update(measurement, sensorCovariance, x -> x);
-                RobotLog.i("Measurement accepted");
-            } else {
-                RobotLog.w("Measurement rejected");
+                if (filter.isMeasurementInlier(measurement, sensorCovariance, x -> x, 0.2)) {
+                    filter.update(measurement, sensorCovariance, x -> x);
+                    RobotLog.i("Measurement accepted");
+                } else {
+                    RobotLog.w("Measurement rejected");
+                }
             }
         }
 

@@ -51,7 +51,7 @@ public class AimWhileDriving implements Command {
                         t -> false
                 ),
                 new PIDF(List.of(
-                        new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, 0, 6, 48, Constants.pidTauTheta, Constants.pidGammaTheta))
+                        new PIDFAxis(new PIDFAxis.K(2 * Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, 0, 6, 48, Constants.pidTauTheta, Constants.pidGammaTheta))
                 ))
         );
 

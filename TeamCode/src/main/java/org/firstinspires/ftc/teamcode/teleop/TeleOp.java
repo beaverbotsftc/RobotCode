@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
 import org.beaverbots.beaver.command.CommandRuntimeOpMode;
+import org.beaverbots.beaver.command.premade.Parallel;
 import org.beaverbots.beaver.command.premade.Sequential;
 import org.beaverbots.beaver.command.premade.WaitUntil;
 import org.beaverbots.beaver.command.premade.router.Router;
@@ -38,7 +39,6 @@ public class TeleOp extends CommandRuntimeOpMode {
     private Stopper stopper;
     private Shooter shooter;
     private Pinpoint pinpoint;
-    private ShooterControl shooterControl;
     private ColorSensor colorSensor;
     private FusedLocalizer fusedLocalizer;
     private Limelight limelight;
@@ -63,7 +63,6 @@ public class TeleOp extends CommandRuntimeOpMode {
 
     @Override
     public void onStart() {
-        shooterControl = new ShooterControl(shooter, pinpoint, CrossModeStorage.side, led, gamepad);
         schedule(
                 /*new Router(
                         new Selector(() -> gamepad.getLeftStickPressed()),
@@ -74,37 +73,45 @@ public class TeleOp extends CommandRuntimeOpMode {
                 ),*/
                 new Router(
                         new Selector(() -> {
-                                if (gamepad.getRightStickPressedToggle() && gamepad.getLeftStickPressed()) {
-                                    return 1;
-                                }
-                                if (gamepad.getLeftStickPressed()) {
-                                    return 2;
-                                }
-                                if (gamepad.getRightStickPressedToggle()) {
-                                    return 3;
-                                }
-                                if (gamepad.getGuide()) {
-                                    return 4;
-                                }
-                                return 0;
+                            if (gamepad.getRightStickPressedToggle() && gamepad.getLeftStickPressed()) {
+                                return 1;
                             }
+                            if (gamepad.getLeftStickPressed()) {
+                                return 2;
+                            }
+                            if (gamepad.getRightStickPressedToggle()) {
+                                return 3;
+                            }
+                            if (gamepad.getGuide()) {
+                                return 4;
+                            }
+                            return 0;
+                        }
                         ),
                         new DrivetrainControl(drivetrain, gamepad),
                         new AimAndResist(pinpoint, drivetrain, CrossModeStorage.side, true),
-                        new AimAndResist(pinpoint, drivetrain, CrossModeStorage.side, true), // This only happens if not in shooting mode, but when do you ever just need to lock in place...
+                        new AimAndResist(pinpoint, drivetrain, CrossModeStorage.side, false),
                         new AimWhileDriving(pinpoint, drivetrain, CrossModeStorage.side, gamepad),
                         new GoToBase(pinpoint, drivetrain, CrossModeStorage.side)
                 ),
-                new IntakeControl(intake, stopper, pinpoint, false, colorSensor, led, gamepad), shooterControl);
+                new Router(new Selector(() -> gamepad.getRightStickPressedToggle()),
+                        new Parallel(
+                                new ShooterControl(shooter, pinpoint, false, CrossModeStorage.side, led, gamepad),
+                                new IntakeControl(intake, stopper, pinpoint, false, CrossModeStorage.side, colorSensor, led, gamepad)
+                        ),
+                        new Parallel(
+                                new ShooterControl(shooter, pinpoint, true, CrossModeStorage.side, led, gamepad),
+                                new IntakeControl(intake, stopper, pinpoint, true, CrossModeStorage.side, colorSensor, led, gamepad)
+                        )
+                )
+        );
     }
 
     @Override
     public void periodic() {
 
-        telemetry.addData("Shoot RPM:", shooterControl.getShootRpm());
         telemetry.addData("Current RPM:", shooter.getVelocity());
         telemetry.addData("Fused position:", fusedLocalizer.getPosition());
-        telemetry.addData("Distance to Goal:", shooterControl.getDistanceToTag());
         /*
         if (gamepad.getDpadUpJustPressed() && !a) {
             pinpoint.setPosition(fusedLocalizer.getPosition());

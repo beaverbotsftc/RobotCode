@@ -19,8 +19,8 @@ public class ShooterControl implements Command {
     private Led led;
     private Side side;
     double shootRpm = 2200.0;
-    int shootPos = 1;
-    boolean shooterToggle = false;
+    boolean shooterToggle = true;
+    private boolean adjustRpm;
     public static double percentError = 0.0;
 
     public ShooterControl(Shooter shooter, Localizer localizer, Side side, Gamepad gamepad) {
@@ -30,12 +30,13 @@ public class ShooterControl implements Command {
         this.side = side;
     }
 
-    public ShooterControl(Shooter shooter, Localizer localizer, Side side, Led led, Gamepad gamepad) {
+    public ShooterControl(Shooter shooter, Localizer localizer, boolean adjustRpm, Side side, Led led, Gamepad gamepad) {
         this.shooter = shooter;
         this.localizer = localizer;
         this.led = led;
         this.gamepad = gamepad;
         this.side = side;
+        this.adjustRpm = adjustRpm;
     }
 
     public boolean periodic() {
@@ -59,6 +60,7 @@ public class ShooterControl implements Command {
  */
         Pair<Double, Double> values = shooter.getSettingsAtDistance(distToTarget);
         shootRpm = values.first;
+
         shooter.setHood(values.second);
 
 
@@ -67,7 +69,8 @@ public class ShooterControl implements Command {
         }
 
         if (shooterToggle) {
-            shooter.spin(shootRpm);
+            if (adjustRpm)
+                shooter.spin(shootRpm);
             led.setProximity(shootRpm,getCurrentRPM());
         } else {
             shooter.spin(0);

@@ -133,7 +133,7 @@ public class BayesianOptimizer {
         // search space size.
         RealVector variance = bounds.second.subtract(bounds.first).mapMultiply(PERTURBATION_SCALE);
 
-        Pair<RealVector, Double> result = IteratedLocalSearch.optimize(
+        Pair<RealVector, Double> result = IteratedGradientDescent.optimize(
                 initialGuess, lcb, LEARNING_RATE, LOCAL_STEPS, GLOBAL_ITERATIONS,
                 variance, EXPONENT, MAX_LOSS_GRADIENT);
 
