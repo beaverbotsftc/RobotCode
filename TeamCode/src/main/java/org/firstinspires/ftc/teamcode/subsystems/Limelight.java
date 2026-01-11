@@ -6,6 +6,7 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.robotcore.util.RobotLog;
 
 import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.command.Subsystem;
@@ -108,6 +109,7 @@ public class Limelight implements Subsystem {
 
         LLResult result = limelight.getLatestResult();
         if (result.getTimestamp() == lastPositionResultTime) return null;
+        RobotLog.w(String.valueOf(result.isValid()));
         if (!result.isValid()) return null;
 
         /*

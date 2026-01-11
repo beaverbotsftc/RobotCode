@@ -23,6 +23,8 @@ public final class Shooter implements Subsystem {
     private Stopwatch stopwatch;
     private boolean released = false;
 
+    public boolean hardStopSetting = false;
+
     public Shooter(VoltageSensor voltageSensor) {
         shooterLeft = HardwareManager.claim(DcMotorEx.class, "shoot");
         shooterLeft.setDirection(DcMotor.Direction.REVERSE);
@@ -45,11 +47,13 @@ public final class Shooter implements Subsystem {
 
 
     public void periodic() {
-        if (rpm == 0) {
+        if (rpm == 0 && !hardStopSetting) {
             shooterLeft.setPower(0);
             shooterRight.setPower(0);
             return;
         }
+
+        if (hardStopSetting) rpm = 0;
 
         double control = pidf.update(getError() , rpm * Constants.shooterFrictionConversionFactor / voltageSensor.getVoltage(),  stopwatch.getDt());
         shooterLeft.setPower(control);
@@ -75,7 +79,7 @@ public final class Shooter implements Subsystem {
     public double getError() {
         return rpm - getVelocity();
     }
-
+    
     public Pair<Double, Double> getSettingsAtDistance(double d) { //First value is rpm, second value is hood angle
         return new Pair<>(
                 -0.0437804 * d * d + 17.93685 * d + 1225.09339,

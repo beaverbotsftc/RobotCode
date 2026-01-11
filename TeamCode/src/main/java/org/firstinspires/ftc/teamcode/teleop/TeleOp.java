@@ -56,9 +56,9 @@ public class TeleOp extends CommandRuntimeOpMode {
         colorSensor = new ColorSensor();
         limelight = new Limelight();
         limelight.goalPipeline();
-        fusedLocalizer = new FusedLocalizer(pinpoint, limelight, CrossModeStorage.position);
+        //fusedLocalizer = new FusedLocalizer(pinpoint, limelight, CrossModeStorage.position);
         led = new Led();
-        register(voltageSensor, gamepad, drivetrain, intake, stopper, shooter, pinpoint, colorSensor, led, limelight, fusedLocalizer);
+        register(voltageSensor, gamepad, drivetrain, intake, stopper, shooter, pinpoint, colorSensor, led, limelight);//, fusedLocalizer);
     }
 
     @Override
@@ -107,16 +107,47 @@ public class TeleOp extends CommandRuntimeOpMode {
         );
     }
 
+    private FusedLocalizer relocalizer;
+
     @Override
     public void periodic() {
 
         telemetry.addData("Current RPM:", shooter.getVelocity());
-        telemetry.addData("Fused position:", fusedLocalizer.getPosition());
         /*
         if (gamepad.getDpadUpJustPressed() && !a) {
             pinpoint.setPosition(fusedLocalizer.getPosition());
             a = true;
         }
          */
+
+        if (gamepad.getDpadUpJustPressed()) {
+            if (relocalizer == null) {
+                limelight.goalPipeline();
+                relocalizer = new FusedLocalizer(pinpoint, limelight, pinpoint.getPosition());
+                register(relocalizer);
+            } else {
+                pinpoint.setPosition(relocalizer.getPosition());
+                unregister(relocalizer);
+                relocalizer = null;
+                shooter.hardStopSetting = false;
+            }
+        }
+        if (gamepad.getDpadUpPressedToggle()) {
+            telemetry.addData("X", relocalizer.getPosition().getX());
+            telemetry.addData("Y", relocalizer.getPosition().getY());
+            telemetry.addData("Theta", relocalizer.getPosition().getTheta());
+
+            telemetry.addData("X Var", relocalizer.getCovariance().getEntry(0, 0));
+            telemetry.addData("Y Var", relocalizer.getCovariance().getEntry(1, 1));
+            telemetry.addData("Theta Var", relocalizer.getCovariance().getEntry(2, 2));
+            
+            shooter.hardStopSetting = true;
+        }
+        if (gamepad.getDpadRightJustPressed() && relocalizer != null) {
+            unregister(relocalizer);
+            relocalizer = null;
+            gamepad.setDpadUpPressedToggle(false);
+            shooter.hardStopSetting = false;
+        }
     }
 }

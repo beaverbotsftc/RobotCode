@@ -6,8 +6,8 @@ public final class Constants {
     public static final double ROBOT_LENGTH = 15;
     public static final double ROBOT_WIDTH = 15;
 
-    public static final double GOAL_X = -70.160065 + 8;
-    public static final double GOAL_Y = 70.191315 - 8;
+    public static final double GOAL_X = -70.160065 + 5;
+    public static final double GOAL_Y = 70.191315 - 5;
 
     public static final double BASE_X = 37.71875;
     public static final double BASE_Y = 32.96875;
