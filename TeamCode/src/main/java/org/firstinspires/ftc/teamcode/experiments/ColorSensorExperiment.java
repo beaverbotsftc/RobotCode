@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.experiments;
 
 import android.graphics.Color;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -10,7 +11,7 @@ import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-@TeleOp(name = "Color Sensor Experiment", group = "Sensor")
+@Autonomous(name = "Color Sensor Experiment", group = "Sensor")
 public class ColorSensorExperiment extends LinearOpMode {
 
   NormalizedColorSensor colorSensor;

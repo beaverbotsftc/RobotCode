@@ -1,11 +1,12 @@
 package org.firstinspires.ftc.teamcode.experiments;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 
-@TeleOp(group = "Sensor")
+@Autonomous(group = "Sensor")
 public class SimpleAxonWireReadExperiment extends LinearOpMode {
 
   AnalogInput encoder0;

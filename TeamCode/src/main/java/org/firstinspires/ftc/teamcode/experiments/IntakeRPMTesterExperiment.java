@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.experiments;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -8,7 +9,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
-@TeleOp(name="IntakeRPMTesterExperiment", group="Examples")
+@Autonomous(name="IntakeRPMTesterExperiment", group="Examples")
 public class IntakeRPMTesterExperiment extends LinearOpMode {
 
     private DcMotorEx motor;

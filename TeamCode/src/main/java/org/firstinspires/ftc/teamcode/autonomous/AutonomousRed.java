@@ -38,7 +38,7 @@ import java.util.function.DoubleUnaryOperator;
 import java.util.function.ToDoubleFunction;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous
-public class Autonomous extends CommandRuntimeOpMode {
+public class AutonomousRed extends CommandRuntimeOpMode {
     private Gamepad gamepad;
     private Drivetrain drivetrain;
     private Pinpoint pinpoint;

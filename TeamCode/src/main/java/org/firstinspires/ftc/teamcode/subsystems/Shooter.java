@@ -47,7 +47,6 @@ public final class Shooter implements Subsystem {
     }
 
 
-
     public void periodic() {
         if (rpm == 0 && !hardStopSetting) {
             shooterLeft.setPower(0);
@@ -57,22 +56,27 @@ public final class Shooter implements Subsystem {
 
         if (hardStopSetting) rpm = 0;
 
-        double control = pidf.update(getError() , rpm * Constants.shooterFrictionConversionFactor / voltageSensor.getVoltage(),  stopwatch.getDt());
-        shooterLeft.setPower(control);
-        shooterRight.setPower(control);
+        double control = pidf.update(getError(), rpm * Constants.shooterFrictionConversionFactor / voltageSensor.getVoltage(), stopwatch.getDt());
+        if (Double.isFinite(control)) {
+            shooterLeft.setPower(control);
+            shooterRight.setPower(control);
+        }
     }
 
     public void spin(double rpm) {
         this.rpm = rpm;
     }
 
-    public void setHood(double pos){
-        hood.setPosition(pos);
+    public void setHood(double pos) {
+        if (Double.isFinite(pos))
+            hood.setPosition(pos);
     }
 
-    public double getHood(){ return hood.getPosition(); }
+    public double getHood() {
+        return hood.getPosition();
+    }
 
-    public double getVelocity(){
+    public double getVelocity() {
         double rpm1 = shooterLeft.getVelocity() / 28.0 * 60.0;
         double rpm2 = shooterRight.getVelocity() / 28.0 * 60.0;
         return (rpm1 + rpm2) / 2.0;
@@ -84,6 +88,7 @@ public final class Shooter implements Subsystem {
 
 
     public Pair<Double, Double> getSettingsAtDistance(double d) { //First value is rpm, second value is hood angle
+        /*
         double rpm = new PiecewiseLinearFunction(List.of(
                 new Pair<>(65.3, 2200.0),
                 new Pair<>(79.5, 2375.0),
@@ -100,6 +105,49 @@ public final class Shooter implements Subsystem {
                 new Pair<>(111.4, 0.565),
                 new Pair<>(120.1, 0.62),
                 new Pair<>(152.6, 0.72)
+        )).evaluate(d);
+         */
+        /*
+
+        double rpm = new PiecewiseLinearFunction(List.of(
+                new Pair<>(48.58, 2150.0),
+                new Pair<>(62.51, 2450.0),
+                new Pair<>(76.46, 2475.0),
+                new Pair<>(90.68, 2600.0),
+                new Pair<>(101.04, 2675.0),
+                new Pair<>(123.07, 2800.0),
+                new Pair<>(147.34, 3200.0)
+        )).evaluate(d);
+
+        double hood = new PiecewiseLinearFunction(List.of(
+                new Pair<>(48.58, 0.32),
+                new Pair<>(62.51, 0.56),
+                new Pair<>(76.46, 0.61),
+                new Pair<>(90.68, 0.62),
+                new Pair<>(101.04, 0.66),
+                new Pair<>(123.07, 0.675),
+                new Pair<>(147.34, 0.9)
+        )).evaluate(d);
+         */
+
+        double rpm = new PiecewiseLinearFunction(List.of(
+                new Pair<>(48.58, 2150.0),
+                new Pair<>(62.51, 2450.0),
+                new Pair<>(76.46, 2475.0),
+                new Pair<>(90.68, 2600.0),
+                new Pair<>(101.04, 2675.0),
+                new Pair<>(123.07, 2800.0),
+                new Pair<>(147.34, 3200.0)
+        )).evaluate(d);
+
+        double hood = new PiecewiseLinearFunction(List.of(
+                new Pair<>(48.58, 0.32 + 0.05),
+                new Pair<>(62.51, 0.56 + 0.05),
+                new Pair<>(76.46, 0.61 + 0.05),
+                new Pair<>(90.68, 0.62 + 0.05),
+                new Pair<>(101.04, 0.66 + 0.05),
+                new Pair<>(123.07, 0.675 + 0.05),
+                new Pair<>(147.34, 0.9 + 0.05)
         )).evaluate(d);
 
         return new Pair<>(rpm, hood);

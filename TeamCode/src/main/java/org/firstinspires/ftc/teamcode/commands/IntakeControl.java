@@ -47,7 +47,7 @@ public class IntakeControl implements Command {
         DrivetrainState goalPosition = new DrivetrainState(Constants.GOAL_X, side == Side.RED ? Constants.GOAL_Y : -Constants.GOAL_Y, 0);
         DrivetrainState position = !restrict ? null : localizer.getPosition();
         double distanceToGoal = !restrict ? Double.NaN : goalPosition.lateralDistance(position);
-        double allowedError = !restrict ? Double.NaN : distanceToGoal > 117.0 ? 4.0 : 7.0;
+        double allowedError = !restrict ? Double.NaN : distanceToGoal > 117.0 ? 1.5 : 5.0;
 
         double angularError = !restrict ? Double.NaN : Math.abs(Localizer.wind(position.angleTo(goalPosition), localizer.getPosition().getTheta()) - Constants.shooterBias - localizer.getPosition().getTheta());
 
@@ -58,7 +58,7 @@ public class IntakeControl implements Command {
 
 
         if (gamepad.getRightBumper()
-                && (!restrict ||
+                && (!restrict || true ||
                 Geometry.polygonPolygonIntersects(Constants.SHOOTING_ZONE_NEAR_X, Constants.SHOOTING_ZONE_NEAR_Y, robot.first, robot.second)
                 || Geometry.polygonPolygonIntersects(Constants.SHOOTING_ZONE_FAR_X, Constants.SHOOTING_ZONE_FAR_Y, robot.first, robot.second))
         ) { // If in the shooting zone

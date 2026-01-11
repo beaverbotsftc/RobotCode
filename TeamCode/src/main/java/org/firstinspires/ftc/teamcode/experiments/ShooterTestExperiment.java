@@ -1,12 +1,12 @@
 package org.firstinspires.ftc.teamcode.experiments;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.subsystems.ShooterAdi;
 
-@TeleOp(name = "Shooter Test", group = "Test")
-@Disabled
+@Autonomous(name = "Shooter Test", group = "Test")
 public class ShooterTestExperiment extends LinearOpMode {
 
     @Override
