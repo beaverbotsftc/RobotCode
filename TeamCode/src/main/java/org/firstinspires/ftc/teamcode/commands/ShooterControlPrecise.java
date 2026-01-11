@@ -8,7 +8,7 @@ public class ShooterControlPrecise implements Command {
     Gamepad gamepad;
     Shooter shooter;
 
-    double shootRpm = 3000.0;
+    double shootRpm = 2400;
     double hoodPos = 0.5;
     boolean shooterToggle = false;
 
@@ -18,10 +18,10 @@ public class ShooterControlPrecise implements Command {
     }
 
     public boolean periodic() {
-        if (gamepad.getLeftBumperJustPressed()) {
-            shootRpm -= 25;
-        } else if (gamepad.getRightBumperJustPressed()) {
+        if (gamepad.getTriangleJustPressed()) {
             shootRpm += 25;
+        } else if (gamepad.getCrossJustPressed()) {
+            shootRpm -= 25;
         }
 
         if (gamepad.getDpadUp()) {

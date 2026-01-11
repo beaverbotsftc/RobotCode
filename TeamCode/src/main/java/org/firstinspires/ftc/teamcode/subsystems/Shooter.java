@@ -6,9 +6,11 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.RobotLog;
+import com.sun.tools.javac.util.List;
 
 import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.command.Subsystem;
+import org.beaverbots.beaver.util.PiecewiseLinearFunction;
 import org.beaverbots.beaver.util.Stopwatch;
 import org.beaverbots.beaver.pathing.pidf.PIDFAxis;
 import org.firstinspires.ftc.teamcode.Constants;
@@ -79,11 +81,27 @@ public final class Shooter implements Subsystem {
     public double getError() {
         return rpm - getVelocity();
     }
-    
+
+
     public Pair<Double, Double> getSettingsAtDistance(double d) { //First value is rpm, second value is hood angle
-        return new Pair<>(
-                -0.0437804 * d * d + 17.93685 * d + 1225.09339,
-                0.00455148 * d + 0.0552841
-        );
+        double rpm = new PiecewiseLinearFunction(List.of(
+                new Pair<>(65.3, 2200.0),
+                new Pair<>(79.5, 2375.0),
+                new Pair<>(93.6, 2550.0),
+                new Pair<>(111.4, 2675.0),
+                new Pair<>(120.1, 2725.0),
+                new Pair<>(152.6, 2950.0)
+        )).evaluate(d);
+
+        double hood = new PiecewiseLinearFunction(List.of(
+                new Pair<>(65.3, 0.3),
+                new Pair<>(79.5, 0.435),
+                new Pair<>(93.6, 0.525),
+                new Pair<>(111.4, 0.565),
+                new Pair<>(120.1, 0.62),
+                new Pair<>(152.6, 0.72)
+        )).evaluate(d);
+
+        return new Pair<>(rpm, hood);
     }
 }

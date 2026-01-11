@@ -113,6 +113,8 @@ public class TeleOp extends CommandRuntimeOpMode {
     public void periodic() {
 
         telemetry.addData("Current RPM:", shooter.getVelocity());
+        telemetry.addData("Distance to goal:", pinpoint.getPosition().lateralDistance(new DrivetrainState(Constants.GOAL_X, CrossModeStorage.side == Side.RED ? Constants.GOAL_Y : -Constants.GOAL_Y, 0)));
+        CrossModeStorage.position = pinpoint.getPosition();
         /*
         if (gamepad.getDpadUpJustPressed() && !a) {
             pinpoint.setPosition(fusedLocalizer.getPosition());
