@@ -29,6 +29,7 @@ public final class HolonomicPathTracker implements PathTracker {
 
         final List<Double> expectedPosition = path.position(time);
         final List<Double> expectedVelocity = path.velocity(time);
+        // No acceleration needed because we expect no slippage and encoder usage, so exactly the RPM desired is the RPM we get
 
         final List<Double> error = IntStream.range(0, dimensions).mapToDouble(i -> expectedPosition.get(i) - position.get(i)).boxed().collect(Collectors.toList());
 
