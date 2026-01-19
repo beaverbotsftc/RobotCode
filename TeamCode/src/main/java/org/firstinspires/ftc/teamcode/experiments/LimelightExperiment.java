@@ -31,7 +31,10 @@ public class LimelightExperiment extends CommandRuntimeOpMode {
             telemetry.addLine(String.valueOf(result.getFiducialResults().size()));
             if (result.getFiducialResults().isEmpty()) return;
 
-            telemetry.addData("", result.getFiducialResults().get(0).getTargetPoseRobotSpace().getOrientation());
+            telemetry.addData("Robot pose", result.getBotpose().toString());
+            telemetry.addData("Yaw", result.getFiducialResults().get(0).getTargetPoseRobotSpace().getOrientation().getYaw(AngleUnit.RADIANS));
+            telemetry.addData("Pitch", result.getFiducialResults().get(0).getTargetPoseRobotSpace().getOrientation().getPitch(AngleUnit.RADIANS));
+            telemetry.addData("Roll", result.getFiducialResults().get(0).getTargetPoseRobotSpace().getOrientation().getRoll(AngleUnit.RADIANS));
         }));
     }
 }

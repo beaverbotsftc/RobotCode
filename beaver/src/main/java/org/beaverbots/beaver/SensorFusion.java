@@ -87,7 +87,7 @@ public final class SensorFusion {
             predictedCovariance = predictedCovariance.add(deviation.outerProduct(deviation).scalarMultiply(w));
         }
 
-        predictedCovariance = predictedCovariance.add(processNoise);
+        predictedCovariance = predictedCovariance.add(processNoise.scalarMultiply(dt));
 
         if (isValidVector(predictedMean) && isValidMatrix(predictedCovariance)) {
             this.mean = predictedMean;

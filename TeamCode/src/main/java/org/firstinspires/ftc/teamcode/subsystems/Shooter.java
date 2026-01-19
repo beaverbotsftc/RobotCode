@@ -141,11 +141,11 @@ public final class Shooter implements Subsystem {
         )).evaluate(d);
 
         double hood = new PiecewiseLinearFunction(List.of(
-                new Pair<>(48.58, 0.32 + 0.05),
-                new Pair<>(62.51, 0.56 + 0.05),
-                new Pair<>(76.46, 0.61 + 0.05),
-                new Pair<>(90.68, 0.62 + 0.05),
-                new Pair<>(101.04, 0.66 + 0.05),
+                new Pair<>(48.58, 0.32),
+                new Pair<>(62.51, 0.56),
+                new Pair<>(76.46, 0.61),
+                new Pair<>(90.68, 0.62),
+                new Pair<>(101.04, 0.66),
                 new Pair<>(123.07, 0.675 + 0.05),
                 new Pair<>(147.34, 0.9 + 0.05)
         )).evaluate(d);

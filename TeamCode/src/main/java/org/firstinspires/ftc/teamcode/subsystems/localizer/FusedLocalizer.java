@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode.subsystems.localizer;
 
 import android.util.Pair;
 
-import com.qualcomm.robotcore.util.RobotLog;
-
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealMatrix;
@@ -11,6 +9,7 @@ import org.apache.commons.math3.linear.RealVector;
 import org.beaverbots.beaver.command.Subsystem;
 import org.beaverbots.beaver.util.Stopwatch;
 import org.beaverbots.beaver.SensorFusion;
+import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
 
@@ -38,7 +37,7 @@ public class FusedLocalizer implements Subsystem, Localizer {
         this.localizer = localizer;
         this.limelight = limelight;
 
-        limelight.goalPipeline();
+        limelight.localizationPipeline();
 
         RealVector initialPoseVector = new ArrayRealVector(initialPose.toArray());
 
@@ -48,11 +47,15 @@ public class FusedLocalizer implements Subsystem, Localizer {
         this.filter = new SensorFusion(
                 3,
                 initialPoseVector,
-                new Array2DRowRealMatrix(new double[][]{{144 * 144 * 100, 0, 0}, {0, 144 * 144 * 100, 0}, {0, 0, 5}}),//Math.PI * Math.PI * 100}}),
-                0.01,
+                new Array2DRowRealMatrix(new double[][]{{144 * 144 * 100, 0, 0}, {0, 144 * 144 * 100, 0}, {0, 0, 5}}),
+                0.05,
                 // Now we just reference the helper method here
                 (RealVector state, RealVector control, double dt) -> applyPinpointDelta(state, control),
-                new Array2DRowRealMatrix(new double[][]{{0.001, 0, 0}, {0, 0.001, 0}, {0, 0, 0.0000005}})
+                new Array2DRowRealMatrix(new double[][]{
+                        {Constants.lateralVariancePinpoint, 0, 0},
+                        {0, Constants.lateralVariancePinpoint, 0},
+                        {0, 0, Constants.thetaVariancePinpoint}
+                })
         );
 
         stopwatch = new Stopwatch();
@@ -98,31 +101,34 @@ public class FusedLocalizer implements Subsystem, Localizer {
 
         lastFilterPinpointState = currentRawPinpointState;
 
-        if (allowLimelight && limelight.getCurrentPipeline() == Limelight.Pipeline.GOAL) {
-            Pair<DrivetrainState, Double> limelightEstimation = limelight.getEstimatedPosition();
+        if (allowLimelight && limelight.getCurrentPipeline() == Limelight.Pipeline.LOCALIZATION_GOAL) {
+            Pair<Limelight.LimelightLocalization, Double> limelightEstimation = limelight.getEstimatedPosition();
 
-            if (limelightEstimation != null /*&&
-                    Math.abs(getVelocity().lateralDistance(new DrivetrainState(0, 0, 0))) < 0.5 &&
-                    Math.abs(getVelocity().angularDistance(new DrivetrainState(0, 0, 0))) < 0.05*/
+            if (limelightEstimation != null /* &&
+                    getVelocity().lateralDistance(new DrivetrainState(0, 0, 0)) < 0.5 &&
+                    Math.abs(getVelocity().getTheta()) < 0.05
+                    */
             ) {
                 RealVector measurement = new ArrayRealVector(new double[]{
-                        limelightEstimation.first.getX(),
-                        limelightEstimation.first.getY(),
-                        wind(limelightEstimation.first.getTheta())
+                        limelightEstimation.first.getState().getX(),
+                        limelightEstimation.first.getState().getY(),
+                        wind(limelightEstimation.first.getState().getTheta())
                 }).add(getVelocity().toVector().mapMultiply(limelightEstimation.second));
 
                 RealMatrix sensorCovariance = new Array2DRowRealMatrix(new double[][]{
-                        {3.875, 0, 0},
-                        {0, 3.875, 0},
-                        {0, 0, Math.PI}
+                        {limelightEstimation.first.getVariance().getX(), 0, 0},
+                        {0, limelightEstimation.first.getVariance().getY(), 0},
+                        {0, 0, limelightEstimation.first.getVariance().getTheta()}
                 }).scalarMultiply(3);
 
-                if (filter.isMeasurementInlier(measurement, sensorCovariance, x -> x, 0.05)) {
+                //if (filter.isMeasurementInlier(measurement, sensorCovariance, x -> x, 0.05)) {
                     filter.update(measurement, sensorCovariance, x -> x);
+                    /*
                     RobotLog.i("Measurement accepted");
                 } else {
                     RobotLog.w("Measurement rejected");
                 }
+                     */
             }
         }
 

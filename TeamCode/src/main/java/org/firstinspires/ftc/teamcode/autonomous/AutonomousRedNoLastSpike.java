@@ -38,7 +38,7 @@ import java.util.function.DoubleUnaryOperator;
 import java.util.function.ToDoubleFunction;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous
-public class AutonomousBlue extends CommandRuntimeOpMode {
+public class AutonomousRedNoLastSpike extends CommandRuntimeOpMode {
     private Gamepad gamepad;
     private Drivetrain drivetrain;
     private Pinpoint pinpoint;
@@ -49,7 +49,7 @@ public class AutonomousBlue extends CommandRuntimeOpMode {
     private Intake intake;
     private Stopper stopper;
 
-    private final Side side = Side.BLUE;
+    private final Side side = Side.RED;
     private Motif motif;
 
     private List<DoubleUnaryOperator> mirror;
@@ -128,8 +128,8 @@ public class AutonomousBlue extends CommandRuntimeOpMode {
                         shootNear(driveSplineToShootNear()),
                         intakeFrom(driveThroughSpike1()),
                         shootNear(driveToShootNear()),
-                        intakeFrom(driveThroughSpike3()),
-                        shootNear(driveToShootNear()),
+                        //intakeFrom(driveThroughSpike3()),
+                        //shootNear(driveToShootNear()),
                         new Instant(() -> {
                             shooter.spin(0);
                         }),

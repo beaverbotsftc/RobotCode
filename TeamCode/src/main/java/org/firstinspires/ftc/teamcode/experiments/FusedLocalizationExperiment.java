@@ -51,10 +51,13 @@ public class FusedLocalizationExperiment extends CommandRuntimeOpMode {
     @Override
     public void periodic() {
         telemetry.addLine("Pinpoint pos: " + pinpoint.getPosition().toString());
-        Pair<DrivetrainState, Double> now = limelight.getEstimatedPosition();
-        if (now != null) lastGood = now.first;
+        Pair<Limelight.LimelightLocalization, Double> now = limelight.getEstimatedPosition();
+        if (now != null) lastGood = now.first.getState();
         telemetry.addLine("Limelight pos: " + lastGood);
         telemetry.addLine("Fused pos: " + fusedLocalizer.getPosition().toString());
+        telemetry.addLine("Fused var x: " + fusedLocalizer.getCovariance().getEntry(0, 0));
+        telemetry.addLine("Fused var y: " + fusedLocalizer.getCovariance().getEntry(1, 1));
+        telemetry.addLine("Fused var theta: " + fusedLocalizer.getCovariance().getEntry(2, 2));
         telemetry.addLine("Vel: " + pinpoint.getVelocity().toString());
         if (gamepad.getDpadUpJustPressed())
             pinpoint.setPosition(fusedLocalizer.getPosition());

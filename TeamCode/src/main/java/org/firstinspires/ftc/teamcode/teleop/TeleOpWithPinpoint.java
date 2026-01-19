@@ -18,17 +18,17 @@ import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Led;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
+import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.Stopper;
+import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
+import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
-import org.firstinspires.ftc.teamcode.subsystems.Shooter;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
-import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp
-public class TeleOp extends CommandRuntimeOpMode {
+public class TeleOpWithPinpoint extends CommandRuntimeOpMode {
     private VoltageSensor voltageSensor;
     private Gamepad gamepad;
     private Drivetrain drivetrain;
@@ -119,7 +119,11 @@ public class TeleOp extends CommandRuntimeOpMode {
         telemetry.addData("X Var", fusedLocalizer.getCovariance().getEntry(0, 0));
         telemetry.addData("Y Var", fusedLocalizer.getCovariance().getEntry(1, 1));
         telemetry.addData("Theta Var", fusedLocalizer.getCovariance().getEntry(2, 2));
-        CrossModeStorage.position = pinpoint.getPosition();
+
+        telemetry.addData("X Pinpoint", pinpoint.getPosition().getX());
+        telemetry.addData("Y Pinpoint", pinpoint.getPosition().getY());
+        telemetry.addData("Theta Pinpoint", pinpoint.getPosition().getTheta());
+        //CrossModeStorage.position = pinpoint.getPosition();
         /*
         if (gamepad.getDpadUpJustPressed() && !a) {
             pinpoint.setPosition(fusedLocalizer.getPosition());

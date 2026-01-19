@@ -63,9 +63,10 @@ public class IntakeControl implements Command {
                 || Geometry.polygonPolygonIntersects(Constants.SHOOTING_ZONE_FAR_X, Constants.SHOOTING_ZONE_FAR_Y, robot.first, robot.second))
         ) { // If in the shooting zone
             if (!restrict || angularError <
-                    Math.toRadians(300) / distanceToGoal
+                    Math.toRadians(150) / distanceToGoal
             ) {
-                intake.setMaxPower(0.95);
+                //intake.setMaxPower(0.95);
+                intake.setMaxPower(1);
                 stopper.setMaxPower(0.95);
                 if (!restrict || (ShooterControl.percentError < allowedError && ShooterControl.percentError >= 0.0)) {
                     intakeSpeed = 1.0;

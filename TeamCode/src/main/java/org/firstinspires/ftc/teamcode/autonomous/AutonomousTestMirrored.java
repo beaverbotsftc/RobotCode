@@ -81,7 +81,7 @@ public class AutonomousTestMirrored extends CommandRuntimeOpMode {
         usageRatio = PathBuilder.createHolonomicUsage(1 / Constants.drivetrainPowerConversionFactorX, 1 / Constants.drivetrainPowerConversionFactorY, 1 / Constants.drivetrainPowerConversionFactorTheta);
 
         register(gamepad, pinpoint, limelight, fusedLocalizer, voltageSensor, shooter, intake, stopper, drivetrain);
-        limelight.goalPipeline();
+        limelight.localizationPipeline();
 
         schedule(
                 new Sequential(

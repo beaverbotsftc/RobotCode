@@ -32,7 +32,7 @@ public class CircleAutoExperiment extends CommandRuntimeOpMode {
         drivetrain = new MecanumDrivetrain(1);
         pinpoint = new Pinpoint(new DrivetrainState(0, 0, 0));
         limelight = new Limelight();
-        limelight.goalPipeline();
+        limelight.localizationPipeline();
         fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new DrivetrainState(0, 0, 0));
 
         register(drivetrain, pinpoint, fusedLocalizer, limelight);

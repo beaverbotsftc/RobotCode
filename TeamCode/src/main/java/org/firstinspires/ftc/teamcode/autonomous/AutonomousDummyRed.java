@@ -33,7 +33,7 @@ public class AutonomousDummyRed extends CommandRuntimeOpMode {
         fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new DrivetrainState(0, 0, 0));
 
         register(gamepad, pinpoint, limelight, fusedLocalizer);
-        limelight.goalPipeline();
+        limelight.localizationPipeline();
 
         CrossModeStorage.side = side;
     }

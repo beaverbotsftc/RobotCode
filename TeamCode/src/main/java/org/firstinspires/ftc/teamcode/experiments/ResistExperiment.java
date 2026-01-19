@@ -30,7 +30,7 @@ public class ResistExperiment extends CommandRuntimeOpMode {
         drivetrain = new MecanumDrivetrain(1);
         pinpoint = new Pinpoint(new DrivetrainState(0, 0, 0));
         limelight = new Limelight();
-        limelight.goalPipeline();
+        limelight.localizationPipeline();
         localizer = new FusedLocalizer(pinpoint, limelight, new DrivetrainState(0, 0, 0));
     }
 

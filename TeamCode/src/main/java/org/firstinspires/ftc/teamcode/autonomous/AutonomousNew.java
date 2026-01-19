@@ -38,7 +38,7 @@ import java.util.function.DoubleUnaryOperator;
 import java.util.function.ToDoubleFunction;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous
-public class AutonomousBlue extends CommandRuntimeOpMode {
+public class AutonomousNew extends CommandRuntimeOpMode {
     private Gamepad gamepad;
     private Drivetrain drivetrain;
     private Pinpoint pinpoint;
@@ -85,31 +85,12 @@ public class AutonomousBlue extends CommandRuntimeOpMode {
         limelight.localizationPipeline();
 
         schedule(
-                new Sequential(
-                        new RunUntil(
-                                new WaitUntil(() -> gamepad.getDpadUpJustPressed()),
-                                new Repeat(() -> {
-                                    telemetry.addData("Position:", fusedLocalizer.getPosition().toString());
-                                    telemetry.addData("Variance X:", fusedLocalizer.getCovariance().getEntry(0, 0));
-                                    telemetry.addData("Variance Y:", fusedLocalizer.getCovariance().getEntry(1, 1));
-                                    telemetry.addData("Variance Theta:", fusedLocalizer.getCovariance().getEntry(2, 2));
-                                    telemetry.addLine("NOT READY TO START!!!");
-                                })
-                        ),
-                        new Instant(() -> {
-                            pinpoint.setPosition(fusedLocalizer.getPosition());
-                            unregister(fusedLocalizer);
-                            limelight.obeliskPipeline();
-                        }),
-                        new Repeat(() -> {
-                            Motif result = limelight.getMotif(side);
-                            if (result != null) motif = result;
-                            telemetry.addData("Limelight now:", result);
-                            telemetry.addData("Motif:", motif);
-                            telemetry.addLine(limelight.getStatus().toString());
-                            telemetry.addLine("Good to start");
-                        })
-                )
+                new Repeat(() -> {
+                    telemetry.addData("Position:", fusedLocalizer.getPosition().toString());
+                    telemetry.addData("Variance X:", fusedLocalizer.getCovariance().getEntry(0, 0));
+                    telemetry.addData("Variance Y:", fusedLocalizer.getCovariance().getEntry(1, 1));
+                    telemetry.addData("Variance Theta:", fusedLocalizer.getCovariance().getEntry(2, 2));
+                })
         );
     }
 
@@ -120,34 +101,9 @@ public class AutonomousBlue extends CommandRuntimeOpMode {
 
         schedule(
                 new Sequential(
-                        shootNear(driveToShootNear()),
-                        intakeFrom(driveThroughSpike2()),
-                        shootNear(driveSplineToShootNear()),
-                        openGateNoPickup(driveToGateFront()),
-                        intakeFrom(driveToIntakeGate()),
-                        shootNear(driveSplineToShootNear()),
-                        intakeFrom(driveThroughSpike1()),
-                        shootNear(driveToShootNear()),
-                        intakeFrom(driveThroughSpike3()),
-                        shootNear(driveToShootNear()),
                         new Instant(() -> {
                             shooter.spin(0);
-                        }),
-                        leaveNear()
-                        /*
-                        shootNear(driveToShootNear()),
-                        intakeSpike(driveThroughSpike1()),
-                        openGateNoPickup(driveToGateSide()),
-                        shootNear(driveToShootNear()),
-                        intakeSpike(driveThroughSpike2()),
-                        shootNear(newPathBuilderFromPath(getPreviousPath(1)).reverse().retime(usageRatio, 1, 50).build()),
-                        intakeSpike(driveThroughSpike3()),
-                        shootNear(driveToShootNear()),
-                        new Instant(() -> {
-                            shooter.spin(0);
-                        }),
-                        leaveNear()
-                         */
+                        })
                 )
         );
     }

@@ -22,12 +22,37 @@ import java.util.List;
 import java.util.Set;
 
 public class Limelight implements Subsystem {
+    private static final double M_TO_IN = 39.37007874;
+
     public enum Pipeline {
         OBELISK,
-        GOAL,
+        LOCALIZATION_GOAL,
     }
+
+    public static class LimelightLocalization {
+        private DrivetrainState state;
+        private DrivetrainState variance;
+
+        public LimelightLocalization(DrivetrainState state, DrivetrainState variance) {
+            this.state = state;
+            this.variance = variance;
+        }
+
+        public DrivetrainState getState() {
+            return state;
+        }
+
+        public DrivetrainState getVariance() {
+            return variance;
+        }
+
+        public String toString() {
+            return "State: " + state + "; Stddev: " + variance;
+        }
+    }
+
     private static int PIPELINE_OBELISK = 0;
-    private static int PIPELINE_GOAL = 9;
+    private static int PIPELINE_LOCALIZATION_GOAL = 9;
     private Pipeline currentPipeline;
 
     private double lastPositionResultTime = Double.NaN;
@@ -50,9 +75,9 @@ public class Limelight implements Subsystem {
         currentPipeline = Pipeline.OBELISK;
     }
 
-    public void goalPipeline() {
-        limelight.pipelineSwitch(PIPELINE_GOAL);
-        currentPipeline = Pipeline.GOAL;
+    public void localizationPipeline() {
+        limelight.pipelineSwitch(PIPELINE_LOCALIZATION_GOAL);
+        currentPipeline = Pipeline.LOCALIZATION_GOAL;
     }
 
     public LLStatus getStatus() {
@@ -64,7 +89,8 @@ public class Limelight implements Subsystem {
     }
 
     public Motif getMotif(Side side) {
-        if (currentPipeline != Pipeline.OBELISK) throw new IllegalStateException("Invalid pipeline currently selected");
+        if (currentPipeline != Pipeline.OBELISK)
+            throw new IllegalStateException("Invalid pipeline currently selected");
 
         LLResult results = limelight.getLatestResult();
         if (!results.isValid()) return null;
@@ -101,25 +127,24 @@ public class Limelight implements Subsystem {
         return null;
     }
 
-    public Pair<DrivetrainState, Double> getEstimatedPosition() {
-        if (currentPipeline != Pipeline.GOAL) throw new IllegalStateException("Invalid pipeline currently selected");
+    public Pair<LimelightLocalization, Double> getEstimatedPosition() {
+        if (currentPipeline != Pipeline.LOCALIZATION_GOAL)
+            throw new IllegalStateException("Invalid pipeline currently selected");
 
-        // TODO: It isn't synced with Pinpoint yet, so the dt will always be a bit late (compared to what the UKF has, i.e. pinpoint), but whatever.
-        long time = System.nanoTime();
+        // TODO: It isn't synced with Pinpoint yet, so the dt will always be a bit too long (compared to what the UKF has, i.e. pinpoint), but whatever.
+        // TODO: The timestamp returned by limelight for Control Hub time in nanoseconds is wrong, so I'll use milliseconds.
+        long time = System.currentTimeMillis();
 
         LLResult result = limelight.getLatestResult();
         if (result.getTimestamp() == lastPositionResultTime) return null;
-        RobotLog.w(String.valueOf(result.isValid()));
         if (!result.isValid()) return null;
 
-        /*
-        if (result.getStddevMt1()[0] + result.getStddevMt1()[1] + result.getStddevMt1()[2] > 0.5)
-            return null;
-         */
         for (LLResultTypes.FiducialResult fiducial : result.getFiducialResults()) {
             // TODO: Somehow limelight (or the FTC SDK) thinks that pitch is yaw and yaw is pitch!!! Potential bug in the SDK, idk though.
-            if (Math.abs(fiducial.getTargetPoseRobotSpace().getOrientation().getYaw(AngleUnit.RADIANS)) > 0.4) return null; // The pitch is always 0 (normal parallel to floor), but because it is mounted like it is, a higher tolerance is required
-            if (Math.abs(fiducial.getTargetPoseRobotSpace().getOrientation().getRoll(AngleUnit.RADIANS)) > 0.2) return null; // The roll is always 0 (no tipping robots I hope)
+            if (Math.abs(fiducial.getTargetPoseRobotSpace().getOrientation().getYaw(AngleUnit.RADIANS)) > 0.4)
+                return null; // The pitch is always 0 (normal parallel to floor), but because it is mounted like it is, a higher tolerance is required
+            if (Math.abs(fiducial.getTargetPoseRobotSpace().getOrientation().getRoll(AngleUnit.RADIANS)) > 0.2)
+                return null; // The roll is always 0 (no tipping robots I hope)
         }
 
         lastPositionResultTime = result.getTimestamp();
@@ -131,7 +156,15 @@ public class Limelight implements Subsystem {
         double y = DistanceUnit.INCH.fromUnit(position.unit, position.y);
         double theta = orientation.getYaw(AngleUnit.RADIANS);
 
+        double xVariance = Math.pow(result.getStddevMt1()[0] * M_TO_IN, 2);
+        double yVariance = Math.pow(result.getStddevMt1()[1] * M_TO_IN, 2);
+        double thetaVariance = Math.pow(result.getStddevMt1()[5], 2);
+        RobotLog.d(String.valueOf(thetaVariance));
+
         // Ignores parse latency to avoid double counting it
-        return new Pair<>(new DrivetrainState(x, y, theta), (double) (time - result.getControlHubTimeStampNanos()) / 1e9 + result.getCaptureLatency() / 1000 + result.getTargetingLatency() / 1000);
+        return new Pair<>(new LimelightLocalization(
+                new DrivetrainState(x, y, theta),
+                new DrivetrainState(xVariance, yVariance, thetaVariance)
+        ), (double) (time - result.getControlHubTimeStamp()) / 1000 + result.getCaptureLatency() / 1000 * 0 + result.getTargetingLatency() / 1000 * 0);
     }
 }

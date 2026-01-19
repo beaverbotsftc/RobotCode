@@ -6,8 +6,8 @@ public final class Constants {
     public static final double ROBOT_LENGTH = 15;
     public static final double ROBOT_WIDTH = 15;
 
-    public static final double GOAL_X = -70.160065 + 8;
-    public static final double GOAL_Y = 70.191315 - 8;
+    public static final double GOAL_X = -70.160065 + 5;
+    public static final double GOAL_Y = 70.191315 - 5;
 
     public static final double BASE_X = 37.71875;
     public static final double BASE_Y = 32.96875;
@@ -87,9 +87,9 @@ public final class Constants {
      */
 
     // Left of center is positive, right of center is negative
-    public static double pinpointXOffset = -3.75;
+    public static double pinpointXOffset = -3.652766;
     // Forward of center is positive, behind center is negative
-    public static double pinpointYOffset = -4;
+    public static double pinpointYOffset = -3.775394;
 
 
     public static final double shooterBias = 0.03-0.03;
@@ -98,4 +98,7 @@ public final class Constants {
     public static double pidPShooter = 0.003;
     public static double pidIShooter = 0.003;
     public static double pidGammaShooter = 0.0004;
+
+    public static double lateralVariancePinpoint = 0.000683634022087;
+    public static double thetaVariancePinpoint = 0.0000000268388027135;
 }
