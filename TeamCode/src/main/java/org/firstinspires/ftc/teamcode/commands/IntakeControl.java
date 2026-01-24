@@ -44,7 +44,7 @@ public class IntakeControl implements Command {
 
         if (gamepad.getRightBumper()) {
             intake.spin(1.0);
-            stopper.spinForward();
+            stopper.spin(1);
             intake.empty();
         } else {
             intake.spin(intakeSpeed);
