@@ -124,7 +124,7 @@ public class FusedLocalizer implements Subsystem, Localizer {
                         {limelightEstimation.first.getVariance().getX(), 0, 0},
                         {0, limelightEstimation.first.getVariance().getY(), 0},
                         {0, 0, limelightEstimation.first.getVariance().getTheta()}
-                }).scalarMultiply(3);
+                }).scalarMultiply(30);
 
                 //if (filter.isMeasurementInlier(measurement, sensorCovariance, x -> x, 0.05)) {
                 filter.update(measurement, sensorCovariance, x -> x);
