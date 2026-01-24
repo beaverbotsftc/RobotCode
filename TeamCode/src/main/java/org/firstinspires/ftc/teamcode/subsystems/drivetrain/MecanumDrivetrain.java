@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.command.Subsystem;
+import org.firstinspires.ftc.robotcore.internal.network.NetworkConnectionHandler;
 import org.firstinspires.ftc.teamcode.Constants;
 
 import java.util.List;
@@ -48,6 +49,15 @@ public final class MecanumDrivetrain implements Drivetrain, Subsystem {
     }
 
     public void periodic() {
+        // TODO: stuff
+        if (!NetworkConnectionHandler.getInstance().isNetworkConnected()) {
+            frontLeft.setPower(0);
+            frontRight.setPower(0);
+            backLeft.setPower(0);
+            backRight.setPower(0);
+            return;
+        }
+
         double frontLeftPower = (velocity.getX() * Constants.drivetrainPowerConversionFactorX - velocity.getY() * Constants.drivetrainPowerConversionFactorY - velocity.getTheta() * Constants.drivetrainPowerConversionFactorTheta);
         double frontRightPower = (velocity.getX() * Constants.drivetrainPowerConversionFactorX + velocity.getY() * Constants.drivetrainPowerConversionFactorY + velocity.getTheta() * Constants.drivetrainPowerConversionFactorTheta);
         double backLeftPower = (velocity.getX() * Constants.drivetrainPowerConversionFactorX + velocity.getY() * Constants.drivetrainPowerConversionFactorY - velocity.getTheta() * Constants.drivetrainPowerConversionFactorTheta);

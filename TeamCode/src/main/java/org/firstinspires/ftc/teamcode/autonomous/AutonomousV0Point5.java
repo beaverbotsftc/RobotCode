@@ -18,6 +18,7 @@ import org.beaverbots.beaver.pathing.path.pathbuilder.PathBuilder;
 import org.beaverbots.beaver.pathing.pidf.PIDF;
 import org.beaverbots.beaver.pathing.pidf.PIDFAxis;
 import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.CrossModeStorage;
 import org.firstinspires.ftc.teamcode.Motif;
 import org.firstinspires.ftc.teamcode.Side;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
@@ -72,7 +73,7 @@ public class AutonomousV0Point5 extends CommandRuntimeOpMode {
         fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new DrivetrainState(0, 0, 0));
         voltageSensor = new VoltageSensor();
         shooter = new Shooter(voltageSensor);
-        intake = new Intake();
+        intake = new Intake(voltageSensor);
         stopper = new Stopper();
 
         usageRatio = PathBuilder.createHolonomicUsage(1 / Constants.drivetrainPowerConversionFactorX, 1 / Constants.drivetrainPowerConversionFactorY, 1 / Constants.drivetrainPowerConversionFactorTheta);

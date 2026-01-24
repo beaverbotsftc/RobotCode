@@ -3,6 +3,8 @@ package org.beaverbots.beaver.command;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.RobotLog;
 
+import org.firstinspires.ftc.robotcore.internal.network.NetworkConnectionHandler;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;

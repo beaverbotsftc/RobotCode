@@ -33,7 +33,12 @@ public class FusedLocalizer implements Subsystem, Localizer {
         return Set.of(limelight);
     }
 
+
     public FusedLocalizer(Localizer localizer, Limelight limelight, DrivetrainState initialPose) {
+        this(localizer, limelight, initialPose, new Array2DRowRealMatrix(new double[][]{{144 * 144, 0, 0}, {0, 144 * 144, 0}, {0, 0, 5}}));
+    }
+
+    public FusedLocalizer(Localizer localizer, Limelight limelight, DrivetrainState initialPose, RealMatrix covariance) {
         this.localizer = localizer;
         this.limelight = limelight;
 
@@ -47,7 +52,7 @@ public class FusedLocalizer implements Subsystem, Localizer {
         this.filter = new SensorFusion(
                 3,
                 initialPoseVector,
-                new Array2DRowRealMatrix(new double[][]{{144 * 144 * 100, 0, 0}, {0, 144 * 144 * 100, 0}, {0, 0, 5}}),
+                covariance,
                 0.05,
                 // Now we just reference the helper method here
                 (RealVector state, RealVector control, double dt) -> applyPinpointDelta(state, control),
@@ -122,7 +127,7 @@ public class FusedLocalizer implements Subsystem, Localizer {
                 }).scalarMultiply(3);
 
                 //if (filter.isMeasurementInlier(measurement, sensorCovariance, x -> x, 0.05)) {
-                    filter.update(measurement, sensorCovariance, x -> x);
+                filter.update(measurement, sensorCovariance, x -> x);
                     /*
                     RobotLog.i("Measurement accepted");
                 } else {

@@ -33,7 +33,7 @@ public class FusedLocalizationExperiment extends CommandRuntimeOpMode {
         voltageSensor = new VoltageSensor();
         gamepad = new Gamepad(gamepad1);
         drivetrain = new MecanumDrivetrain();
-        intake = new Intake();
+        intake = new Intake(voltageSensor);
         shooter = new Shooter(voltageSensor);
         pinpoint = new Pinpoint(new DrivetrainState(8, 8, 0));
         limelight = new Limelight();

@@ -27,7 +27,7 @@ public class Debug extends CommandRuntimeOpMode {
         voltageSensor = new VoltageSensor();
         gamepad = new Gamepad(gamepad1);
         drivetrain = new MecanumDrivetrain();
-        intake = new Intake();
+        intake = new Intake(voltageSensor);
         shooter = new Shooter(voltageSensor);
         pinpoint = new Pinpoint(new DrivetrainState(0, 0, 0));
 

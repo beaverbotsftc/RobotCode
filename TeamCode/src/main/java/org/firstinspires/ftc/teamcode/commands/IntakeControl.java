@@ -71,6 +71,7 @@ public class IntakeControl implements Command {
                 if (!restrict || (ShooterControl.percentError < allowedError && ShooterControl.percentError >= 0.0)) {
                     intakeSpeed = 1.0;
                     stopper.spinForward();
+                    intake.empty();
                 } else {
                     intakeSpeed = 0.0;
                     stopper.stop();
@@ -83,9 +84,16 @@ public class IntakeControl implements Command {
             stopper.spinReverse();
         } else {
             stopper.stop();
+            intake.spin(0);
         }
 
-        intake.spin(intakeSpeed);
+        if (intakeSpeed > 0) {
+            if (!intake.full())
+                intake.spin(intakeSpeed);
+            else
+                intake.spin(0);
+        } else
+            intake.empty();
 
         return false;
     }

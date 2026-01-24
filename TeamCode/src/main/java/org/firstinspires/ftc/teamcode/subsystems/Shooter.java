@@ -23,7 +23,6 @@ public final class Shooter implements Subsystem {
     private PIDFAxis pidf = new PIDFAxis(new PIDFAxis.K(Constants.pidPShooter, Constants.pidIShooter, 0, 1, 0.01, 1, 1, Constants.pidGammaShooter));
     private VoltageSensor voltageSensor;
     private Stopwatch stopwatch;
-    private boolean released = false;
 
     public boolean hardStopSetting = false;
 
@@ -87,7 +86,7 @@ public final class Shooter implements Subsystem {
     }
 
 
-    public Pair<Double, Double> getSettingsAtDistance(double d) { //First value is rpm, second value is hood angle
+    public static Pair<Double, Double> getSettingsAtDistance(double d) { //First value is rpm, second value is hood angle
         /*
         double rpm = new PiecewiseLinearFunction(List.of(
                 new Pair<>(65.3, 2200.0),

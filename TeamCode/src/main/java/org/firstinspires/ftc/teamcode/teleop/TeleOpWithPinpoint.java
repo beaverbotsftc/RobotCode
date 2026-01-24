@@ -6,7 +6,7 @@ import org.beaverbots.beaver.command.premade.router.Router;
 import org.beaverbots.beaver.command.premade.router.Selector;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Side;
-import org.firstinspires.ftc.teamcode.autonomous.CrossModeStorage;
+import org.firstinspires.ftc.teamcode.CrossModeStorage;
 import org.firstinspires.ftc.teamcode.commands.AimAndResist;
 import org.firstinspires.ftc.teamcode.commands.AimWhileDriving;
 import org.firstinspires.ftc.teamcode.commands.DrivetrainControl;
@@ -46,7 +46,7 @@ public class TeleOpWithPinpoint extends CommandRuntimeOpMode {
         voltageSensor = new VoltageSensor();
         gamepad = new Gamepad(gamepad1);
         drivetrain = new MecanumDrivetrain();
-        intake = new Intake();
+        intake = new Intake(voltageSensor);
         stopper = new Stopper();
         shooter = new Shooter(voltageSensor);
         pinpoint = new Pinpoint(CrossModeStorage.position);

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.autonomous;
 
 import org.beaverbots.beaver.command.CommandRuntimeOpMode;
 import org.beaverbots.beaver.util.Stopwatch;
+import org.firstinspires.ftc.teamcode.CrossModeStorage;
 import org.firstinspires.ftc.teamcode.Motif;
 import org.firstinspires.ftc.teamcode.Side;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
@@ -16,7 +17,7 @@ public class AutonomousDummyBlue extends CommandRuntimeOpMode {
     private Gamepad gamepad;
     private Pinpoint pinpoint;
     private Limelight limelight;
-    private Localizer fusedLocalizer;
+    private FusedLocalizer fusedLocalizer;
 
     private final Side side = Side.BLUE;
     private Motif motif;
@@ -47,6 +48,7 @@ public class AutonomousDummyBlue extends CommandRuntimeOpMode {
             telemetry.addData("Motif:", motif);
             telemetry.addLine(limelight.getStatus().toString());
         } else if (gamepad.getDpadUpJustPressed()) {
+            CrossModeStorage.covariance = fusedLocalizer.getCovariance();
             pinpoint.setPosition(fusedLocalizer.getPosition());
             unregister(fusedLocalizer);
             limelight.obeliskPipeline();

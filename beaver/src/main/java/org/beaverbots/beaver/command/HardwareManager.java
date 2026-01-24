@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public final class HardwareManager {
     private static final Set<String> claimedHardwareIds = new HashSet<>();

@@ -6,7 +6,7 @@ import org.beaverbots.beaver.command.premade.router.Router;
 import org.beaverbots.beaver.command.premade.router.Selector;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Side;
-import org.firstinspires.ftc.teamcode.autonomous.CrossModeStorage;
+import org.firstinspires.ftc.teamcode.CrossModeStorage;
 import org.firstinspires.ftc.teamcode.commands.AimAndResist;
 import org.firstinspires.ftc.teamcode.commands.AimWhileDriving;
 import org.firstinspires.ftc.teamcode.commands.DrivetrainControl;
@@ -46,16 +46,23 @@ public class TeleOp extends CommandRuntimeOpMode {
         voltageSensor = new VoltageSensor();
         gamepad = new Gamepad(gamepad1);
         drivetrain = new MecanumDrivetrain();
-        intake = new Intake();
+        intake = new Intake(voltageSensor);
         stopper = new Stopper();
         shooter = new Shooter(voltageSensor);
         pinpoint = new Pinpoint(CrossModeStorage.position);
         colorSensor = new ColorSensor();
         limelight = new Limelight();
         limelight.localizationPipeline();
-        fusedLocalizer = new FusedLocalizer(pinpoint, limelight, CrossModeStorage.position);
+        fusedLocalizer = new FusedLocalizer(pinpoint, limelight, CrossModeStorage.position, CrossModeStorage.covariance);
         led = new Led();
         register(voltageSensor, gamepad, drivetrain, intake, stopper, shooter, pinpoint, colorSensor, led, limelight, fusedLocalizer);
+    }
+
+    public void periodicInit() {
+        if (gamepad.getCrossJustPressed()) {
+            CrossModeStorage.side = CrossModeStorage.side == Side.RED ? Side.BLUE : Side.RED;
+        }
+        telemetry.addData("Side", CrossModeStorage.side);
     }
 
     @Override
@@ -109,6 +116,7 @@ public class TeleOp extends CommandRuntimeOpMode {
     @Override
     public void periodic() {
 
+
         telemetry.addData("Current RPM:", shooter.getVelocity());
         telemetry.addData("Distance to goal:", pinpoint.getPosition().lateralDistance(new DrivetrainState(Constants.GOAL_X, CrossModeStorage.side == Side.RED ? Constants.GOAL_Y : -Constants.GOAL_Y, 0)));
 
@@ -119,7 +127,11 @@ public class TeleOp extends CommandRuntimeOpMode {
         telemetry.addData("X Var", fusedLocalizer.getCovariance().getEntry(0, 0));
         telemetry.addData("Y Var", fusedLocalizer.getCovariance().getEntry(1, 1));
         telemetry.addData("Theta Var", fusedLocalizer.getCovariance().getEntry(2, 2));
+
         CrossModeStorage.position = pinpoint.getPosition();
+
+        telemetry.addData("Intake full", intake.full());
+        telemetry.addData("Right trigger", gamepad.getRightTrigger());
         /*
         if (gamepad.getDpadUpJustPressed() && !a) {
             pinpoint.setPosition(fusedLocalizer.getPosition());
@@ -127,6 +139,7 @@ public class TeleOp extends CommandRuntimeOpMode {
         }
          */
 
+        /*
         if (gamepad.getDpadUpJustPressed()) {
             if (relocalizer == null) {
                 limelight.localizationPipeline();
@@ -139,6 +152,16 @@ public class TeleOp extends CommandRuntimeOpMode {
                 shooter.hardStopSetting = false;
             }
         }
+
+         */
+
+        if (gamepad.getDpadRightPressedToggle()) {
+            telemetry.addLine("Limelight DISABLED.");
+            fusedLocalizer.disableLimelight();
+        } else {
+            fusedLocalizer.enableLimelight();
+        }
+        /*
         if (gamepad.getDpadUpPressedToggle()) {
             telemetry.addData("X", relocalizer.getPosition().getX());
             telemetry.addData("Y", relocalizer.getPosition().getY());
@@ -156,5 +179,6 @@ public class TeleOp extends CommandRuntimeOpMode {
             gamepad.setDpadUpPressedToggle(false);
             shooter.hardStopSetting = false;
         }
+         */
     }
 }

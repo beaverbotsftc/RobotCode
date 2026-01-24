@@ -67,7 +67,7 @@ public class DrivetrainConversionsTuningTheta extends CommandRuntimeOpMode {
 
         gamepad = new Gamepad(gamepad1);
 
-        intake = new Intake();
+        intake = new Intake(voltageSensor);
         shooter = new Shooter(voltageSensor);
     }
 
