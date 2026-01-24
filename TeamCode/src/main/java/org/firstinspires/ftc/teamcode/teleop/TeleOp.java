@@ -78,18 +78,18 @@ public class TeleOp extends CommandRuntimeOpMode {
                 new Router(
                         new Selector(() -> {
                             if (gamepad.getRightStickPressedToggle() && gamepad.getLeftStickPressed()) {
-                                return 1;
+                                return 1;  //hood + rpm auto adjusts, driver can only shoot if flywheel rpm is right and if driver is aiming toward the goal
                             }
                             if (gamepad.getLeftStickPressed()) {
-                                return 2;
+                                return 2; //lock the driver in place with no shooting restrictions other than flywheel rpm
                             }
                             if (gamepad.getRightStickPressedToggle()) {
-                                return 3;
+                                return 3; //auto aims while driving and no restrictions other than flywheel rpm
                             }
                             if (gamepad.getGuide()) {
-                                return 4;
+                                return 4; //idk
                             }
-                            return 0;
+                            return 0; //no automatic flywheel rpm or shooter, it will be controlled with presets, only restriction i
                         }
                         ),
                         new DrivetrainControl(drivetrain, gamepad),
