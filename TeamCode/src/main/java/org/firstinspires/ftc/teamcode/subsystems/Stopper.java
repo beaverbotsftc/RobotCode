@@ -7,7 +7,6 @@ import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.command.Subsystem;
 
 public final class Stopper implements Subsystem {
-    private double maxPower = 0.85;
     private DcMotorEx stopper;
     private double power;
 
@@ -17,18 +16,12 @@ public final class Stopper implements Subsystem {
     }
 
     public void periodic() {
-        stopper.setPower(maxPower * power);
+        stopper.setPower(power);
     }
 
     public void spin(double power) {
         this.power = power;
     }
-
-    public void spinReverse(){ this.power = -maxPower;}
-
-    public void setMaxPower(double power){maxPower = power;}
-
-    public void spinForward(){ this.power = maxPower;}
 
     public void stop() { this.power = 0; }
 
