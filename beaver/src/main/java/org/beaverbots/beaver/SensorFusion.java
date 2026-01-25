@@ -2,12 +2,14 @@ package org.beaverbots.beaver;
 
 import com.qualcomm.robotcore.util.RobotLog;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.CholeskyDecomposition;
+import org.apache.commons.math3.linear.EigenDecomposition;
 import org.apache.commons.math3.linear.MatrixUtils;
 import org.apache.commons.math3.linear.NonPositiveDefiniteMatrixException;
 import org.apache.commons.math3.linear.RealMatrix;
@@ -293,6 +295,10 @@ public final class SensorFusion {
         // Force throw if NaN, so we can't accidentally succeed with a NaN L-matrix
         if (!isValidMatrix(matrix)) {
             throw new NonPositiveDefiniteMatrixException(0, 0, 0);
+        }
+
+        if (Math.abs(Arrays.stream(new EigenDecomposition(matrix).getRealEigenvalues()).min().getAsDouble()) < 1e-6) {
+            throw new NonPositiveDefiniteMatrixException(9999, 9999, 9999);
         }
 
         try {

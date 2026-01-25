@@ -19,7 +19,7 @@ public final class Intake implements Subsystem {
     private VoltageSensor voltageSensor;
 
     private static final int POWER_QUEUE_SIZE= 15;
-    private static final double POWER_CUTOFF_FULL = 45;
+    private static final double POWER_CUTOFF_FULL = 42;
 
     private Queue<Double> powerQueue = new LinkedList<>(Collections.nCopies(POWER_QUEUE_SIZE, 0.0));
     private boolean isFull = false;

@@ -5,8 +5,8 @@ import org.beaverbots.beaver.command.premade.Parallel;
 import org.beaverbots.beaver.command.premade.router.Router;
 import org.beaverbots.beaver.command.premade.router.Selector;
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.Side;
 import org.firstinspires.ftc.teamcode.CrossModeStorage;
+import org.firstinspires.ftc.teamcode.Side;
 import org.firstinspires.ftc.teamcode.commands.AimAndResist;
 import org.firstinspires.ftc.teamcode.commands.AimWhileDriving;
 import org.firstinspires.ftc.teamcode.commands.DrivetrainControl;
@@ -18,17 +18,17 @@ import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Led;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
+import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.Stopper;
+import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
+import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
-import org.firstinspires.ftc.teamcode.subsystems.Shooter;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
-import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp
-public class TeleOp extends CommandRuntimeOpMode {
+public class TeleOpPinpointOnly extends CommandRuntimeOpMode {
     private VoltageSensor voltageSensor;
     private Gamepad gamepad;
     private Drivetrain drivetrain;
@@ -93,25 +93,23 @@ public class TeleOp extends CommandRuntimeOpMode {
                         }
                         ),
                         new DrivetrainControl(drivetrain, gamepad),
-                        new AimAndResist(fusedLocalizer, drivetrain, CrossModeStorage.side, true),
-                        new AimAndResist(fusedLocalizer, drivetrain, CrossModeStorage.side, false),
-                        new AimWhileDriving(fusedLocalizer, drivetrain, CrossModeStorage.side, gamepad),
-                        new GoToBase(fusedLocalizer, drivetrain, CrossModeStorage.side)
+                        new AimAndResist(pinpoint, drivetrain, CrossModeStorage.side, true),
+                        new AimAndResist(pinpoint, drivetrain, CrossModeStorage.side, false),
+                        new AimWhileDriving(pinpoint, drivetrain, CrossModeStorage.side, gamepad),
+                        new GoToBase(pinpoint, drivetrain, CrossModeStorage.side)
                 ),
                 new Router(new Selector(() -> gamepad.getRightStickPressedToggle()),
                         new Parallel(
-                                new ShooterControl(shooter, fusedLocalizer, false, CrossModeStorage.side, led, gamepad),
-                                new IntakeControl(intake, stopper, fusedLocalizer, false, CrossModeStorage.side, colorSensor, led, gamepad)
+                                new ShooterControl(shooter, pinpoint, false, CrossModeStorage.side, led, gamepad),
+                                new IntakeControl(intake, stopper, pinpoint, false, CrossModeStorage.side, colorSensor, led, gamepad)
                         ),
                         new Parallel(
-                                new ShooterControl(shooter, fusedLocalizer, true, CrossModeStorage.side, led, gamepad),
-                                new IntakeControl(intake, stopper, fusedLocalizer, true, CrossModeStorage.side, colorSensor, led, gamepad)
+                                new ShooterControl(shooter, pinpoint, true, CrossModeStorage.side, led, gamepad),
+                                new IntakeControl(intake, stopper, pinpoint, true, CrossModeStorage.side, colorSensor, led, gamepad)
                         )
                 )
         );
     }
-
-    private FusedLocalizer relocalizer;
 
     @Override
     public void periodic() {
@@ -159,11 +157,10 @@ public class TeleOp extends CommandRuntimeOpMode {
 
          */
 
-        if (gamepad.getDpadRightPressedToggle()) {
-            telemetry.addLine("Limelight DISABLED.");
-            fusedLocalizer.disableLimelight();
-        } else {
-            fusedLocalizer.enableLimelight();
+        telemetry.addLine("Press dpad up to save ll data to pinpoint");
+
+        if (gamepad1.dpadUpWasPressed()) {
+            pinpoint.setPosition(fusedLocalizer.getPosition());
         }
         /*
         if (gamepad.getDpadUpPressedToggle()) {

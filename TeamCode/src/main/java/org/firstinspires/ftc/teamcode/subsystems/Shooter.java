@@ -63,12 +63,12 @@ public final class Shooter implements Subsystem {
     }
 
     public void spin(double rpm) {
-        this.rpm = rpm;
+        this.rpm = Math.min(rpm, 3200);
     }
 
     public void setHood(double pos) {
         if (Double.isFinite(pos))
-            hood.setPosition(pos);
+            hood.setPosition(Math.min(pos, 1));
     }
 
     public double getHood() {

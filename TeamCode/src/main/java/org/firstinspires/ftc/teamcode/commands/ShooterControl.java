@@ -38,8 +38,23 @@ public class ShooterControl implements Command {
         this.adjustRpm = adjustRpm;
     }
 
+
+    int preset = 0;
     public boolean periodic() {
         double distToTarget = localizer.getPosition().lateralDistance(new DrivetrainState(Constants.GOAL_X, side == Side.RED ? Constants.GOAL_Y : -Constants.GOAL_Y, 0));
+        /*
+        if (gamepad.getTriangleJustPressed()) {
+            preset = Math.min(preset + 1, 2);
+        }
+
+        if (gamepad.getCrossJustPressed()) {
+            preset = Math.max(preset - 1, 0);
+        }
+
+        if (preset == 0) distToTarget = 45;
+        if (preset == 1) distToTarget = 95;
+        if (preset == 2) distToTarget = 115;
+         */
 /*
         if (gamepad.getLeftBumperJustPressed()) {
             shootPos = Math.max(1, shootPos-1);
