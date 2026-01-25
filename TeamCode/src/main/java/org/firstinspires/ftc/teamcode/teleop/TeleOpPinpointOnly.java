@@ -113,8 +113,6 @@ public class TeleOpPinpointOnly extends CommandRuntimeOpMode {
 
     @Override
     public void periodic() {
-
-
         telemetry.addData("Current RPM:", shooter.getVelocity());
         telemetry.addData("Distance to goal:", pinpoint.getPosition().lateralDistance(new DrivetrainState(Constants.GOAL_X, CrossModeStorage.side == Side.RED ? Constants.GOAL_Y : -Constants.GOAL_Y, 0)));
 
