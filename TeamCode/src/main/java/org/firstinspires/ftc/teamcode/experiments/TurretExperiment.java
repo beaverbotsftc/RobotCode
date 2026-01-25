@@ -83,8 +83,8 @@ public class TurretExperiment extends LinearOpMode {
             motor.setPower(outputPower);
             motor2.setPower(outputPower);
 
-            intake.setPower(gamepad1.right_stick_y);
-            stopper.setPower(gamepad1.right_stick_x);
+            intake.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+            stopper.setPower(gamepad1.right_stick_y);
 
             // Calculate RPMs
             double rpm1 = ticksPerSecondToRPM(motor.getVelocity());
