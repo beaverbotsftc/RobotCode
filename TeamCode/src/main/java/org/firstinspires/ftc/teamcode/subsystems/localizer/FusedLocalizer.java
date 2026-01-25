@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.subsystems.localizer;
 
 import android.util.Pair;
 
+import com.qualcomm.robotcore.util.RobotLog;
+
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealMatrix;
@@ -35,8 +37,10 @@ public class FusedLocalizer implements Subsystem, Localizer {
 
 
     public FusedLocalizer(Localizer localizer, Limelight limelight, DrivetrainState initialPose) {
-        this(localizer, limelight, initialPose, new Array2DRowRealMatrix(new double[][]{{144 * 144, 0, 0}, {0, 144 * 144, 0}, {0, 0, 5}}));
+        this(localizer, limelight, initialPose, new Array2DRowRealMatrix(new double[][]{{1e9, 0, 0}, {0, 1e9, 0}, {0, 0, 1e6}}));
     }
+
+    double maxDt = 0;
 
     public FusedLocalizer(Localizer localizer, Limelight limelight, DrivetrainState initialPose, RealMatrix covariance) {
         this.localizer = localizer;
@@ -93,6 +97,10 @@ public class FusedLocalizer implements Subsystem, Localizer {
     public void periodic() {
         RealVector currentRawPinpointState = new ArrayRealVector(localizer.getPosition().toArray());
         double dt = stopwatch.getDt();
+        if (dt > maxDt) {
+            maxDt = dt;
+        }
+        RobotLog.dd("FusedLocalizer", "maxDt=%.6f", maxDt);
 
         RealVector cumulativeDelta = currentRawPinpointState.subtract(lastFilterPinpointState);
         RealVector totalControl = new ArrayRealVector(new double[]{
@@ -109,10 +117,9 @@ public class FusedLocalizer implements Subsystem, Localizer {
         if (allowLimelight && limelight.getCurrentPipeline() == Limelight.Pipeline.LOCALIZATION_GOAL) {
             Pair<Limelight.LimelightLocalization, Double> limelightEstimation = limelight.getEstimatedPosition();
 
-            if (limelightEstimation != null /* &&
+            if (limelightEstimation != null &&
                     getVelocity().lateralDistance(new DrivetrainState(0, 0, 0)) < 0.5 &&
                     Math.abs(getVelocity().getTheta()) < 0.05
-                    */
             ) {
                 RealVector measurement = new ArrayRealVector(new double[]{
                         limelightEstimation.first.getState().getX(),
@@ -123,17 +130,12 @@ public class FusedLocalizer implements Subsystem, Localizer {
                 RealMatrix sensorCovariance = new Array2DRowRealMatrix(new double[][]{
                         {limelightEstimation.first.getVariance().getX(), 0, 0},
                         {0, limelightEstimation.first.getVariance().getY(), 0},
-                        {0, 0, limelightEstimation.first.getVariance().getTheta()}
+                        {0, 0, 1000 * limelightEstimation.first.getVariance().getTheta()}
                 }).scalarMultiply(3);
 
                 //if (filter.isMeasurementInlier(measurement, sensorCovariance, x -> x, 0.05)) {
                 filter.update(measurement, sensorCovariance, x -> x);
-                    /*
-                    RobotLog.i("Measurement accepted");
-                } else {
-                    RobotLog.w("Measurement rejected");
-                }
-                     */
+                //}
             }
         }
 
