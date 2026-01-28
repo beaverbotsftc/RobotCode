@@ -111,8 +111,6 @@ public class TeleOp extends CommandRuntimeOpMode {
         );
     }
 
-    private FusedLocalizer relocalizer;
-
     @Override
     public void periodic() {
 
@@ -128,7 +126,7 @@ public class TeleOp extends CommandRuntimeOpMode {
         telemetry.addData("Y Var", fusedLocalizer.getCovariance().getEntry(1, 1));
         telemetry.addData("Theta Var", fusedLocalizer.getCovariance().getEntry(2, 2));
 
-        CrossModeStorage.position = pinpoint.getPosition();
+        CrossModeStorage.position = fusedLocalizer.getPosition();
 
         telemetry.addData("Intake full", intake.full());
         telemetry.addData("Right trigger", gamepad.getRightTrigger());
@@ -184,5 +182,8 @@ public class TeleOp extends CommandRuntimeOpMode {
             shooter.hardStopSetting = false;
         }
          */
+
+        telemetry.addData("10% High drivetrain usage", ((MecanumDrivetrain) drivetrain).getTop10PercentPowerPercentage());
+        telemetry.addData("1% High drivetrain usage", ((MecanumDrivetrain) drivetrain).getTop1PercentPowerPercentage());
     }
 }

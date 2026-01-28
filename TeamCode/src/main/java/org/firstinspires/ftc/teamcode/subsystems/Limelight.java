@@ -131,10 +131,6 @@ public class Limelight implements Subsystem {
         if (currentPipeline != Pipeline.LOCALIZATION_GOAL)
             throw new IllegalStateException("Invalid pipeline currently selected");
 
-        // TODO: It isn't synced with Pinpoint yet, so the dt will always be a bit too long (compared to what the UKF has, i.e. pinpoint), but whatever.
-        // TODO: The timestamp returned by limelight for Control Hub time in nanoseconds is wrong, so I'll use milliseconds.
-        long time = System.currentTimeMillis();
-
         LLResult result = limelight.getLatestResult();
         if (result.getTimestamp() == lastPositionResultTime) return null;
         if (!result.isValid()) return null;
@@ -161,10 +157,9 @@ public class Limelight implements Subsystem {
         double thetaVariance = Math.pow(Math.toRadians(result.getStddevMt1()[5]), 2);
         RobotLog.d(String.valueOf(thetaVariance));
 
-        // Ignores parse latency to avoid double counting it
         return new Pair<>(new LimelightLocalization(
                 new DrivetrainState(x, y, theta),
                 new DrivetrainState(xVariance, yVariance, thetaVariance)
-        ), (double) (time - result.getControlHubTimeStamp()) / 1000 + result.getCaptureLatency() / 1000 * 0 + result.getTargetingLatency() / 1000 * 0);
+        ), (double) result.getStaleness() / 1000);
     }
 }

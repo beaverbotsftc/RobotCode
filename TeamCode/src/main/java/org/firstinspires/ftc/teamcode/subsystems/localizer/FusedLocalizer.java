@@ -63,7 +63,7 @@ public class FusedLocalizer implements Subsystem, Localizer {
                 new Array2DRowRealMatrix(new double[][]{
                         {Constants.lateralVariancePinpoint, 0, 0},
                         {0, Constants.lateralVariancePinpoint, 0},
-                        {0, 0, Constants.thetaVariancePinpoint}
+                        {0, 0, Constants.angularVariancePinpoint}
                 })
         );
 
@@ -107,7 +107,8 @@ public class FusedLocalizer implements Subsystem, Localizer {
                 cumulativeDelta.getEntry(0),
                 cumulativeDelta.getEntry(1),
                 cumulativeDelta.getEntry(2),
-                currentRawPinpointState.getEntry(2)
+                lastFilterPinpointState.getEntry(2)
+                //currentRawPinpointState.getEntry(2)
         });
 
         filter.predict(totalControl, dt);
@@ -117,9 +118,10 @@ public class FusedLocalizer implements Subsystem, Localizer {
         if (allowLimelight && limelight.getCurrentPipeline() == Limelight.Pipeline.LOCALIZATION_GOAL) {
             Pair<Limelight.LimelightLocalization, Double> limelightEstimation = limelight.getEstimatedPosition();
 
-            if (limelightEstimation != null &&
+            if (limelightEstimation != null && (true ||
                     getVelocity().lateralDistance(new DrivetrainState(0, 0, 0)) < 0.5 &&
                     Math.abs(getVelocity().getTheta()) < 0.05
+            )
             ) {
                 RealVector measurement = new ArrayRealVector(new double[]{
                         limelightEstimation.first.getState().getX(),
@@ -130,11 +132,11 @@ public class FusedLocalizer implements Subsystem, Localizer {
                 RealMatrix sensorCovariance = new Array2DRowRealMatrix(new double[][]{
                         {limelightEstimation.first.getVariance().getX(), 0, 0},
                         {0, limelightEstimation.first.getVariance().getY(), 0},
-                        {0, 0, 1000 * limelightEstimation.first.getVariance().getTheta()}
+                        {0, 0, limelightEstimation.first.getVariance().getTheta()}
                 }).scalarMultiply(3);
 
                 //if (filter.isMeasurementInlier(measurement, sensorCovariance, x -> x, 0.05)) {
-                filter.update(measurement, sensorCovariance, x -> x);
+                filter.update(measurement, sensorCovariance, new ArrayRealVector(new double[] { Constants.minLateralVarianceLimelight, Constants.minLateralVarianceLimelight, Constants.minAngularVariancePinpoint }), x -> x);
                 //}
             }
         }

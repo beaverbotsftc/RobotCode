@@ -6,9 +6,11 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.command.Subsystem;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.internal.network.NetworkConnectionHandler;
 import org.firstinspires.ftc.teamcode.Constants;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class MecanumDrivetrain implements Drivetrain, Subsystem {
@@ -48,8 +50,11 @@ public final class MecanumDrivetrain implements Drivetrain, Subsystem {
         this(1);
     }
 
+    List<Double> powerPercentages = new ArrayList<>(List.of(0.0));
+
     public void periodic() {
         // TODO: stuff
+        // TODO: Doesn't work. ?
         if (!NetworkConnectionHandler.getInstance().isNetworkConnected()) {
             frontLeft.setPower(0);
             frontRight.setPower(0);
@@ -83,6 +88,28 @@ public final class MecanumDrivetrain implements Drivetrain, Subsystem {
         frontRight.setPower(frontRightPower);
         backLeft.setPower(backLeftPower);
         backRight.setPower(backRightPower);
+
+        powerPercentages.add(
+                Math.max(
+                        Math.abs(frontLeft.getVelocity() / 384.5 * 60),
+                        Math.max(
+                                Math.abs(frontRight.getVelocity() / 384.5 * 60),
+                                Math.max(
+                                        Math.abs(backLeft.getVelocity() / 384.5 * 60),
+                                        Math.abs(backRight.getVelocity() / 384.5 * 60)
+                                ))
+                ) / 435.0 * 100
+        );
+    }
+
+    public double getTop10PercentPowerPercentage() {
+        powerPercentages.sort(Double::compare);
+        return powerPercentages.get((int) (powerPercentages.size() * 0.9));
+    }
+
+    public double getTop1PercentPowerPercentage() {
+        powerPercentages.sort(Double::compare);
+        return powerPercentages.get((int) (powerPercentages.size() * 0.99));
     }
 
     public void move(DrivetrainState velocity) {

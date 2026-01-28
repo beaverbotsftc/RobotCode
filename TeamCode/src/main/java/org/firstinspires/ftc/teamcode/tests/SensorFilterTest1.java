@@ -12,6 +12,7 @@ import org.apache.commons.math3.linear.RealVector;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.random.Well19937c;
 import org.beaverbots.beaver.SensorFusion;
+import org.firstinspires.ftc.teamcode.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -113,7 +114,12 @@ public class SensorFilterTest1 extends LinearOpMode {
             RealVector measurement = new ArrayRealVector(new double[]{measuredPosition});
 
             // UPDATE: Correct the UKF state with the new measurement
-            ukf.update(measurement, sensorCovariance, measurementFunc);
+            ukf.update(measurement, sensorCovariance,
+                    new ArrayRealVector(new double[] {
+                            0, 0, 0
+                    }),
+                    measurementFunc
+            );
 
             // LOG DATA: Store results for plotting
             timeData.add(timer.seconds());

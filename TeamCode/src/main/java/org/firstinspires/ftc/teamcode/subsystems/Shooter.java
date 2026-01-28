@@ -6,14 +6,16 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.RobotLog;
-import com.sun.tools.javac.util.List;
 
 import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.command.Subsystem;
 import org.beaverbots.beaver.util.PiecewiseLinearFunction;
 import org.beaverbots.beaver.util.Stopwatch;
 import org.beaverbots.beaver.pathing.pidf.PIDFAxis;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Constants;
+
+import java.util.List;
 
 public final class Shooter implements Subsystem {
     private DcMotorEx shooterLeft;

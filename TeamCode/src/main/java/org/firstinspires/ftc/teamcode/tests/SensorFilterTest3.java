@@ -114,7 +114,9 @@ public class SensorFilterTest3 extends LinearOpMode {
             RealVector measurement = new ArrayRealVector(new double[]{trueState.getEntry(0) + measurementNoise});
 
             // Update
-            ukf.update(measurement, sensorCovariance, measurementFunc);
+            ukf.update(measurement, sensorCovariance,
+                    new ArrayRealVector(new double[] {0, 0, 0}),
+                    measurementFunc);
 
             // Accumulate error
             sumPosSquaredError += Math.pow(trueState.getEntry(0) - ukf.getMean().getEntry(0), 2);
@@ -175,7 +177,9 @@ public class SensorFilterTest3 extends LinearOpMode {
             RealVector measurement = new ArrayRealVector(new double[]{trueState.getEntry(0) + xNoise, trueState.getEntry(1) + yNoise});
 
             // Update
-            ukf.update(measurement, sensorCovariance, measurementFunc);
+            ukf.update(measurement, sensorCovariance,
+                    new ArrayRealVector(new double[] {0, 0, 0}),
+                    measurementFunc);
 
             // Accumulate error
             double dx = trueState.getEntry(0) - ukf.getMean().getEntry(0);
