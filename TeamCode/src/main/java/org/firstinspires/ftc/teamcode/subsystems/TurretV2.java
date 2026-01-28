@@ -56,7 +56,7 @@ public final class TurretV2 implements Subsystem {
         }
 
         // https://www.desmos.com/calculator/ptr68yaqmv
-        hood.setPosition(2.26957 * hoodAngle - 1.05299);
+        hood.setPosition(2.26957 * (hoodAngle - 0.463961));
         turret1.setPosition(turretAngle / (2 * Math.PI));
         turret2.setPosition(turretAngle / (2 * Math.PI));
     }
