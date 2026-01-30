@@ -132,7 +132,7 @@ public class FusedLocalizer implements Subsystem, Localizer {
                 RealMatrix sensorCovariance = new Array2DRowRealMatrix(new double[][]{
                         {limelightEstimation.first.getVariance().getX(), 0, 0},
                         {0, limelightEstimation.first.getVariance().getY(), 0},
-                        {0, 0, limelightEstimation.first.getVariance().getTheta()}
+                        {0, 0, 30 * limelightEstimation.first.getVariance().getTheta()}
                 }).scalarMultiply(3);
 
                 //if (filter.isMeasurementInlier(measurement, sensorCovariance, x -> x, 0.05)) {

@@ -46,7 +46,7 @@ public class TeleOpPinpointOnly extends CommandRuntimeOpMode {
         voltageSensor = new VoltageSensor();
         gamepad = new Gamepad(gamepad1);
         drivetrain = new MecanumDrivetrain();
-        intake = new Intake(voltageSensor);
+        intake = new Intake();
         stopper = new Stopper();
         shooter = new Shooter(voltageSensor);
         pinpoint = new Pinpoint(CrossModeStorage.position);

@@ -92,6 +92,8 @@ public final class SensorFusion {
 
         predictedCovariance = predictedCovariance.add(processNoise.scalarMultiply(dt));
 
+        // TODO: Really slow, like 10% of loop time slow
+        /*
         RobotLog.dd("UKF", Arrays.deepToString(predictedCovariance.getData()));
         RobotLog.dd("UKF", String.valueOf(predictedMean.getEntry(0)));
         RobotLog.dd("UKF", String.valueOf(predictedMean.getEntry(1)));
@@ -104,6 +106,7 @@ public final class SensorFusion {
         RobotLog.dd("UKF", "");
         RobotLog.dd("UKF", "");
         RobotLog.dd("UKF", "");
+         */
 
         if (isValidVector(predictedMean) && isValidMatrix(predictedCovariance)) {
             this.mean = predictedMean;

@@ -31,7 +31,7 @@ public class TurretTuningExperiment extends CommandRuntimeOpMode {
         double dt = stopwatch.getDt();
 
         turret.setTurretAngle(0.4 * dt * gamepad.getRightX() + turret.getTurretAngle());
-        turret.setHoodAngle(0.2 * dt * gamepad.getLeftX() + turret.getHoodAngle());
+        turret.setHoodAngle(0.1 * dt * gamepad.getLeftX() + turret.getHoodAngle());
         turret.spin(100 * dt * gamepad.getRightY() + turret.getDesiredRpm());
 
         telemetry.addData("Turret Angle", turret.getTurretAngle());

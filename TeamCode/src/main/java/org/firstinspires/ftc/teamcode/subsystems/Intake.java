@@ -16,37 +16,37 @@ public final class Intake implements Subsystem {
 
     private DcMotorEx intake;
 
-    private VoltageSensor voltageSensor;
+    // Prioritize high battery autonomous. Also, false negative > false positive.
+    private static final int CURRENT_QUEUE_SIZE = 8;
+    private static final double CURRENT_CUTOFF_FULL = 3;
 
-    private static final int POWER_QUEUE_SIZE= 15;
-    private static final double POWER_CUTOFF_FULL = 42;
-
-    private Queue<Double> powerQueue = new LinkedList<>(Collections.nCopies(POWER_QUEUE_SIZE, 0.0));
+    private Queue<Double> currentQueue = new LinkedList<>(Collections.nCopies(CURRENT_QUEUE_SIZE, 0.0));
     private boolean isFull = false;
 
 
     private double power;
 
-    public Intake(double maxPower, VoltageSensor voltageSensor) {
+    public Intake(double maxPower) {
         this.maxPower = maxPower;
 
         this.intake = HardwareManager.claim("intake");
         this.intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        this.voltageSensor = voltageSensor;
     }
 
-    public Intake(VoltageSensor voltageSensor) {
-        this(1, voltageSensor);
+    public Intake() {
+        this(1);
     }
 
 
     public void periodic() {
         intake.setPower(maxPower * power);
 
-        powerQueue.add(intake.getCurrent(CurrentUnit.AMPS) * voltageSensor.getVoltage());
-        if (powerQueue.size() > POWER_QUEUE_SIZE) {
-            powerQueue.remove();
+        currentQueue.add(intake.getCurrent(CurrentUnit.AMPS));
+        if (currentQueue.size() > CURRENT_QUEUE_SIZE) {
+            currentQueue.remove();
         }
+
+        if (power < 0) empty();
     }
 
     public void spin(double power) {
@@ -60,8 +60,8 @@ public final class Intake implements Subsystem {
     public boolean full() {
         if (isFull) return true;
 
-        for (double power : powerQueue) {
-            if (power < POWER_CUTOFF_FULL) {
+        for (double current : currentQueue) {
+            if (current < CURRENT_CUTOFF_FULL) {
                 return false;
             }
         }

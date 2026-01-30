@@ -67,7 +67,7 @@ public class DrivetrainConversionsTuningY extends CommandRuntimeOpMode {
 
         gamepad = new Gamepad(gamepad1);
 
-        intake = new Intake(voltageSensor);
+        intake = new Intake();
         shooter = new Shooter(voltageSensor);
     }
 

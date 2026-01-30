@@ -7,7 +7,6 @@ import org.beaverbots.beaver.command.CommandRuntimeOpMode;
 import org.beaverbots.beaver.command.premade.First;
 import org.beaverbots.beaver.command.premade.Instant;
 import org.beaverbots.beaver.command.premade.Repeat;
-import org.beaverbots.beaver.command.premade.RunUntil;
 import org.beaverbots.beaver.command.premade.Sequential;
 import org.beaverbots.beaver.command.premade.Wait;
 import org.beaverbots.beaver.command.premade.WaitUntil;
@@ -77,7 +76,7 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
         fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new DrivetrainState(0, 0, 0));
         voltageSensor = new VoltageSensor();
         shooter = new Shooter(voltageSensor);
-        intake = new Intake(0, voltageSensor );
+        intake = new Intake(1);
         stopper = new Stopper();
 
         usageRatio = PathBuilder.createHolonomicUsage(1 / Constants.drivetrainPowerConversionFactorX, 1 / Constants.drivetrainPowerConversionFactorY, 1 / Constants.drivetrainPowerConversionFactorTheta);
@@ -103,15 +102,17 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
         schedule(
                 new Sequential(
                         shoot(lineToShootNear()),
-                        intake(splineThroughSpike1()),
-                        shoot(lineToShootNear()),
-                        intake(splineThroughSpike2()),
-                        shoot(lineToShootNear()),
-                        intake(splineThroughSpike3()),
-                        shoot(lineToShootNear()),
-                        intake(splineThroughSpike2()),
-                        driveAndStop(newPathBuilder().linearTo(new DrivetrainState(13.5, 57, 2 * Math.PI / 3).toList(), 3, 5).build())
+                        //intake(splineThroughSpike1()),
+                        //shoot(lineToShootNear()),
+                        //intake(splineThroughSpike2()),
+                        //shoot(lineToShootNear()),
+                        //intake(splineThroughSpike3()),
+                        //shoot(lineToShootNear()),
+                        //intake(splineThroughSpike2()),
+                        //driveAndStop(newPathBuilder().linearTo(new DrivetrainState(12, 59, 1.9168 + 0 * 2 * Math.PI / 3).toList(), 3, 5).build())
+                        intakeFromGate(splineToOpenGate(), 5),
                         //driveAndStop(lineToBehindGate())
+                        new Instant(this::requestOpModeStop)
                 )
         );
     }
@@ -122,6 +123,7 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
         telemetry.addData("Variance X:", fusedLocalizer.getCovariance().getEntry(0, 0));
         telemetry.addData("Variance Y:", fusedLocalizer.getCovariance().getEntry(1, 1));
         telemetry.addData("Variance Theta:", fusedLocalizer.getCovariance().getEntry(2, 2));
+        telemetry.addData("Intake full", intake.full());
         CrossModeStorage.position = fusedLocalizer.getPosition();
     }
 
@@ -188,7 +190,6 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
                 new Instant(() -> intake.spin(1)),
                 new Instant(() -> stopper.spin(-1)),
                 followPathTemplate(path.first),
-                followPathTemplate(path.second),
                 new First(
                         new WaitUntil(() -> intake.full()),
                         new Wait(timeout)
@@ -219,7 +220,7 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
         final double X = -25;
         final double Y = 25;
 
-        final double EASING_FRACTION = 0.2;
+        final double EASING_FRACTION = 0.5;
 
         final DrivetrainState position = new DrivetrainState(
                 X,
@@ -232,6 +233,30 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
         return newPathBuilder().linearTo(position.toList(), EASING_FRACTION, 1).retime(usageRatio, 0.2, 50).build();
     }
 
+    private Pair<Path, Path> splineToOpenGate() {
+        final double X = 13.25;//12.5;
+        final double THETA = Localizer.wind(
+                1.9168, currentPosition.getTheta()
+        );
+
+        final double BEZIER_1_Y = 30;
+        final double BEZIER_2_Y = 48;
+        final double BEZIER_3_Y = 57;//57;
+
+        final double EASING_FRACTION = 0.3;
+
+        DrivetrainState position1 = new DrivetrainState(X, BEZIER_1_Y, THETA);
+        DrivetrainState position2 = new DrivetrainState(X, BEZIER_2_Y, THETA);
+        DrivetrainState position3 = new DrivetrainState(X, BEZIER_3_Y, THETA);
+        DrivetrainState position0 = new DrivetrainState(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
+
+
+        return newPathBuilder()
+                .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), EASING_FRACTION, 1)
+                .bezierTo(position2.toList(), position3.toList(), position3.toList(), EASING_FRACTION, 1)
+                .retime(usageRatio, 0.2, 50)
+                .build();
+    }
 
     private Pair<Path, Path> splineThroughSpike1() {
         // Using setup manual dimensions (middle of shark fin), rather than CAD.
@@ -241,7 +266,7 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
         final double BEZIER_2_Y = 40;
         final double BEZIER_3_Y = 52;
 
-        final double EASING_FRACTION = 0.3;
+        final double EASING_FRACTION = 0.2;
 
         DrivetrainState position1 = new DrivetrainState(X, BEZIER_1_Y,
                 Localizer.wind(
@@ -264,7 +289,7 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
         return newPathBuilder()
                 .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), EASING_FRACTION, 1)
                 .bezierTo(position2.toList(), position3.toList(), position3.toList(), EASING_FRACTION, 1)
-                .retime(usageRatio, 0.2, 50)
+                .retime(usageRatio, 0.5, 50)
                 .build();
     }
 

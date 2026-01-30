@@ -2,8 +2,10 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import org.beaverbots.beaver.command.CommandRuntimeOpMode;
 import org.beaverbots.beaver.command.premade.Parallel;
+import org.beaverbots.beaver.command.premade.Repeat;
 import org.beaverbots.beaver.command.premade.router.Router;
 import org.beaverbots.beaver.command.premade.router.Selector;
+import org.beaverbots.beaver.util.Stopwatch;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Side;
 import org.firstinspires.ftc.teamcode.CrossModeStorage;
@@ -46,7 +48,7 @@ public class TeleOp extends CommandRuntimeOpMode {
         voltageSensor = new VoltageSensor();
         gamepad = new Gamepad(gamepad1);
         drivetrain = new MecanumDrivetrain();
-        intake = new Intake(voltageSensor);
+        intake = new Intake();
         stopper = new Stopper();
         shooter = new Shooter(voltageSensor);
         pinpoint = new Pinpoint(CrossModeStorage.position);
@@ -65,9 +67,13 @@ public class TeleOp extends CommandRuntimeOpMode {
         telemetry.addData("Side", CrossModeStorage.side);
     }
 
+    Stopwatch s;
+
     @Override
     public void onStart() {
+        s = new Stopwatch();
         schedule(
+                new Repeat(() -> telemetry.addData("dt", s.getDt())),
                 /*new Router(
                         new Selector(() -> gamepad.getLeftStickPressed()),
                         new DrivetrainControl(drivetrain, gamepad),

@@ -55,6 +55,7 @@ public final class MecanumDrivetrain implements Drivetrain, Subsystem {
     public void periodic() {
         // TODO: stuff
         // TODO: Doesn't work. ?
+        /*
         if (!NetworkConnectionHandler.getInstance().isNetworkConnected()) {
             frontLeft.setPower(0);
             frontRight.setPower(0);
@@ -62,6 +63,7 @@ public final class MecanumDrivetrain implements Drivetrain, Subsystem {
             backRight.setPower(0);
             return;
         }
+         */
 
         double frontLeftPower = (velocity.getX() * Constants.drivetrainPowerConversionFactorX - velocity.getY() * Constants.drivetrainPowerConversionFactorY - velocity.getTheta() * Constants.drivetrainPowerConversionFactorTheta);
         double frontRightPower = (velocity.getX() * Constants.drivetrainPowerConversionFactorX + velocity.getY() * Constants.drivetrainPowerConversionFactorY + velocity.getTheta() * Constants.drivetrainPowerConversionFactorTheta);
@@ -89,6 +91,8 @@ public final class MecanumDrivetrain implements Drivetrain, Subsystem {
         backLeft.setPower(backLeftPower);
         backRight.setPower(backRightPower);
 
+        // TODO: Profiling says really slow, like 10% of the loop times slow.
+        /*
         powerPercentages.add(
                 Math.max(
                         Math.abs(frontLeft.getVelocity() / 384.5 * 60),
@@ -100,6 +104,7 @@ public final class MecanumDrivetrain implements Drivetrain, Subsystem {
                                 ))
                 ) / 435.0 * 100
         );
+         */
     }
 
     public double getTop10PercentPowerPercentage() {

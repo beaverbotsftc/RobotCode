@@ -11,8 +11,8 @@ import java.util.Set;
 
 
 public class DrivetrainControl implements Command {
-    private Drivetrain drivetrain;
-    private Gamepad gamepad;
+    private final Drivetrain drivetrain;
+    private final Gamepad gamepad;
 
     public DrivetrainControl(Drivetrain drivetrain, Gamepad gamepad) {
         this.drivetrain = drivetrain;
