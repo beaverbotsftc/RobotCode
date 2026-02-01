@@ -21,7 +21,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Led;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.Stopper;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
@@ -122,7 +122,7 @@ public class TeleOp extends CommandRuntimeOpMode {
 
 
         telemetry.addData("Current RPM:", shooter.getVelocity());
-        telemetry.addData("Distance to goal:", pinpoint.getPosition().lateralDistance(new DrivetrainState(Constants.GOAL_X, CrossModeStorage.side == Side.RED ? Constants.GOAL_Y : -Constants.GOAL_Y, 0)));
+        telemetry.addData("Distance to goal:", pinpoint.getPosition().lateralDistance(new Transform(Constants.GOAL_X, CrossModeStorage.side == Side.RED ? Constants.GOAL_Y : -Constants.GOAL_Y, 0)));
 
         telemetry.addData("X", fusedLocalizer.getPosition().getX());
         telemetry.addData("Y", fusedLocalizer.getPosition().getY());
@@ -134,7 +134,7 @@ public class TeleOp extends CommandRuntimeOpMode {
 
         CrossModeStorage.position = fusedLocalizer.getPosition();
 
-        telemetry.addData("Intake full", intake.full());
+        telemetry.addData("Intake full", intake.isFull());
         telemetry.addData("Right trigger", gamepad.getRightTrigger());
 
         telemetry.addData("Pinpoint X", pinpoint.getPosition().getX());
@@ -168,6 +168,10 @@ public class TeleOp extends CommandRuntimeOpMode {
             fusedLocalizer.disableLimelight();
         } else {
             fusedLocalizer.enableLimelight();
+        }
+
+        if (gamepad.getDpadUpJustPressed()) {
+            fusedLocalizer.resetCovariance();
         }
         /*
         if (gamepad.getDpadUpPressedToggle()) {

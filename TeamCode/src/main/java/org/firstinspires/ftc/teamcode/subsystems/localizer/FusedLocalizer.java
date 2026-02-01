@@ -13,7 +13,7 @@ import org.beaverbots.beaver.util.Stopwatch;
 import org.beaverbots.beaver.SensorFusion;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.Transform;
 
 import java.util.List;
 import java.util.Set;
@@ -29,6 +29,8 @@ public class FusedLocalizer implements Subsystem, Localizer {
 
     private Stopwatch stopwatch;
 
+    private RealMatrix initialCovariance;
+
     private boolean allowLimelight = true;
 
     public Set<Subsystem> getDependencies() {
@@ -36,13 +38,18 @@ public class FusedLocalizer implements Subsystem, Localizer {
     }
 
 
-    public FusedLocalizer(Localizer localizer, Limelight limelight, DrivetrainState initialPose) {
+    public FusedLocalizer(Localizer localizer, Limelight limelight, Transform initialPose) {
         this(localizer, limelight, initialPose, new Array2DRowRealMatrix(new double[][]{{1e9, 0, 0}, {0, 1e9, 0}, {0, 0, 1e6}}));
+    }
+
+    public void resetCovariance() {
+        filter.setCovariance(initialCovariance);
     }
 
     double maxDt = 0;
 
-    public FusedLocalizer(Localizer localizer, Limelight limelight, DrivetrainState initialPose, RealMatrix covariance) {
+    public FusedLocalizer(Localizer localizer, Limelight limelight, Transform initialPose, RealMatrix covariance) {
+        this.initialCovariance = covariance.copy();
         this.localizer = localizer;
         this.limelight = limelight;
 
@@ -82,14 +89,14 @@ public class FusedLocalizer implements Subsystem, Localizer {
     private RealVector applyPinpointDelta(RealVector currentState, RealVector controlInput) {
         double theta = currentState.getEntry(2);
 
-        DrivetrainState deltaPinpoint = new DrivetrainState(
+        Transform deltaPinpoint = new Transform(
                 controlInput.getEntry(0),
                 controlInput.getEntry(1),
                 controlInput.getEntry(2)
         );
         double thetaPinpoint = controlInput.getEntry(3);
 
-        DrivetrainState deltaTrusted = deltaPinpoint.rotate(theta - thetaPinpoint);
+        Transform deltaTrusted = deltaPinpoint.rotate(theta - thetaPinpoint);
 
         return currentState.add(deltaTrusted.toVector());
     }
@@ -119,7 +126,7 @@ public class FusedLocalizer implements Subsystem, Localizer {
             Pair<Limelight.LimelightLocalization, Double> limelightEstimation = limelight.getEstimatedPosition();
 
             if (limelightEstimation != null && (true ||
-                    getVelocity().lateralDistance(new DrivetrainState(0, 0, 0)) < 0.5 &&
+                    getVelocity().lateralDistance(new Transform(0, 0, 0)) < 0.5 &&
                     Math.abs(getVelocity().getTheta()) < 0.05
             )
             ) {
@@ -144,8 +151,8 @@ public class FusedLocalizer implements Subsystem, Localizer {
         highFrequencyPose = filter.getMean();
     }
 
-    public DrivetrainState getPosition() {
-        return new DrivetrainState(highFrequencyPose);
+    public Transform getPosition() {
+        return new Transform(highFrequencyPose);
     }
 
     public List<Double> getPositionAsList() {
@@ -153,7 +160,7 @@ public class FusedLocalizer implements Subsystem, Localizer {
         return List.of(meanArray[0], meanArray[1], meanArray[2]);
     }
 
-    public DrivetrainState getVelocity() {
+    public Transform getVelocity() {
         return localizer.getVelocity().rotate(highFrequencyPose.getEntry(2) - localizer.getPosition().getTheta());
     }
 

@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.commands.ShooterMode;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
@@ -27,10 +27,10 @@ public class ShooterModeExperiment extends CommandRuntimeOpMode {
     @Override
     public void onInit() {
         drivetrain = new MecanumDrivetrain(1);
-        pinpoint = new Pinpoint(new DrivetrainState(0, 0, 0));
+        pinpoint = new Pinpoint(new Transform(0, 0, 0));
         limelight = new Limelight();
         limelight.localizationPipeline();
-        localizer = new FusedLocalizer(pinpoint, limelight, new DrivetrainState(0, 0, 0));
+        localizer = new FusedLocalizer(pinpoint, limelight, new Transform(0, 0, 0));
         gamepad = new Gamepad(gamepad1);
     }
 

@@ -20,14 +20,15 @@ import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.CrossModeStorage;
 import org.firstinspires.ftc.teamcode.Motif;
 import org.firstinspires.ftc.teamcode.Side;
+import org.firstinspires.ftc.teamcode.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.Stopper;
+import org.firstinspires.ftc.teamcode.subsystems.TurretV2;
 import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
-import org.firstinspires.ftc.teamcode.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Localizer;
@@ -39,13 +40,13 @@ import java.util.function.DoubleUnaryOperator;
 import java.util.function.ToDoubleFunction;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous
-public class AutonomousTestMirrored extends CommandRuntimeOpMode {
+public class AutonomousV2 extends CommandRuntimeOpMode {
     private Gamepad gamepad;
     private Drivetrain drivetrain;
     private Pinpoint pinpoint;
     private Limelight limelight;
     private FusedLocalizer fusedLocalizer;
-    private Shooter shooter;
+    private TurretV2 turret;
     private VoltageSensor voltageSensor;
     private Intake intake;
     private Stopper stopper;
@@ -56,6 +57,7 @@ public class AutonomousTestMirrored extends CommandRuntimeOpMode {
     private List<DoubleUnaryOperator> mirror;
 
     private Transform currentPosition;
+
     private List<Path> paths = new ArrayList<>();
     private List<Path> pathsHold = new ArrayList<>();
 
@@ -75,13 +77,13 @@ public class AutonomousTestMirrored extends CommandRuntimeOpMode {
         limelight = new Limelight();
         fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new Transform(0, 0, 0));
         voltageSensor = new VoltageSensor();
-        shooter = new Shooter(voltageSensor);
+        turret = new TurretV2(voltageSensor);
         intake = new Intake();
         stopper = new Stopper();
 
         usageRatio = PathBuilder.createHolonomicUsage(1 / Constants.drivetrainPowerConversionFactorX, 1 / Constants.drivetrainPowerConversionFactorY, 1 / Constants.drivetrainPowerConversionFactorTheta);
 
-        register(gamepad, pinpoint, limelight, fusedLocalizer, voltageSensor, shooter, intake, stopper, drivetrain);
+        register(gamepad, pinpoint, limelight, fusedLocalizer, voltageSensor, turret, intake, stopper, drivetrain);
         limelight.localizationPipeline();
 
         schedule(
@@ -116,21 +118,31 @@ public class AutonomousTestMirrored extends CommandRuntimeOpMode {
     @Override
     public void onStart() {
         cancelAll();
-        currentPosition = pinpoint.getPosition();
+        currentPosition = pinpoint.getPosition().transform(mirror);
 
         schedule(
                 new Sequential(
                         shootNear(driveToShootNear()),
-                        intakeSpike(driveThroughSpike3()),
-                        shootNear(newPathBuilderFromPath(getPreviousPath(1)).reverse().retime(usageRatio, 1, 50).build()),
+                        intakeFrom(driveThroughSpike1()),
+                        shootNear(driveSplineToShootNear()),
+                        new Instant(() -> {
+                            turret.setFlywheelSpeed(0);
+                        }),
+                        leaveNear()
+                        /*
+                        shootNear(driveToShootNear()),
                         intakeSpike(driveThroughSpike1()),
-                        shootNear(newPathBuilderFromPath(getPreviousPath(1)).reverse().retime(usageRatio, 1, 50).build()),
+                        openGateNoPickup(driveToGateSide()),
+                        shootNear(driveToShootNear()),
                         intakeSpike(driveThroughSpike2()),
                         shootNear(newPathBuilderFromPath(getPreviousPath(1)).reverse().retime(usageRatio, 1, 50).build()),
+                        intakeSpike(driveThroughSpike3()),
+                        shootNear(driveToShootNear()),
                         new Instant(() -> {
                             shooter.spin(0);
                         }),
                         leaveNear()
+                         */
                 )
         );
     }
@@ -142,17 +154,17 @@ public class AutonomousTestMirrored extends CommandRuntimeOpMode {
     }
 
     private PathBuilder newPathBuilder() {
-        return new PathBuilder(currentPosition.toList(), mirror, true);
+        return new PathBuilder(currentPosition.toList(), mirror, false);
     }
 
     private PathBuilder newPathBuilderFromPath(Path path) {
-        return new PathBuilder(path, mirror, true);
+        return new PathBuilder(path, mirror, false);
     }
 
     private void update(Pair<Path, Path> path) {
-        currentPosition = new Transform(path.second.position(0));
-        paths.add(path.first);
-        pathsHold.add(path.second);
+        currentPosition = new Transform(path.second.position(0)).transform(mirror);
+        paths.add(path.first.transform(mirror));
+        pathsHold.add(path.second.transform(mirror));
     }
 
     private Path getPreviousPath(int i) {
@@ -163,35 +175,146 @@ public class AutonomousTestMirrored extends CommandRuntimeOpMode {
         final double X = -24;//-16;
         final double Y = 24;
 
+        final double EASING_FRACTION = 0.4;
+
+        final Transform position = new Transform(
+                X,
+                Y,
+                Localizer.wind(
+                        Math.atan2(
+                                Constants.GOAL_Y - Y,
+                                Constants.GOAL_X - X
+                        ), currentPosition.getTheta()
+                )
+        );
+
+        return newPathBuilder().linearTo(position.toList(), EASING_FRACTION, 1).stop(0.2, 0.2).retime(usageRatio, 0.3, 50).build();
+    }
+
+    private Pair<Path, Path> driveSplineToShootNear() {
+        // Using setup manual dimensions (middle of shark fin), rather than CAD.
+        final double X = -24;
+
+        final double BEZIER_1_Y = 40;
+        final double BEZIER_2_Y = 28;
+        final double BEZIER_3_Y = 24;
+
+        final double EASING_FRACTION = 0.4;
+
+        Transform position1 = new Transform(currentPosition.getX(), BEZIER_1_Y, currentPosition.getTheta());
+        Transform position2 = new Transform(currentPosition.getX(), BEZIER_2_Y, currentPosition.getTheta());
+        Transform position3 = new Transform(X, BEZIER_3_Y, Localizer.wind(
+                Math.atan2(
+                        Constants.GOAL_Y - BEZIER_3_Y,
+                        Constants.GOAL_X - X
+                ) - Constants.shooterBias, currentPosition.getTheta()
+        ));
+        Transform position0 = new Transform(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
+
+
+        return newPathBuilder()
+                .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), EASING_FRACTION, 1)
+                .bezierTo(position2.toList(), position3.toList(), position3.toList(), EASING_FRACTION, 1)
+                .stop(0.2, 0.2)
+                .retime(usageRatio, 1, 50)
+                .build();
+    }
+
+    private Pair<Path, Path> driveToShootFar() {
+        final double X = 60;
+        final double Y = 18;
+
         final double EASING_FRACTION = 1;
 
         final Transform position = new Transform(
                 X,
-                -Y,
+                Y,
                 Localizer.wind(
-                        -Math.atan2(
+                        Math.atan2(
                                 Constants.GOAL_Y - Y,
                                 Constants.GOAL_X - X
-                        ), mirror.get(2).applyAsDouble(currentPosition.getTheta())
+                        ) - Constants.shooterBias, currentPosition.getTheta()
                 )
         );
 
         return newPathBuilder().linearTo(position.toList(), EASING_FRACTION, 1).retime(usageRatio, 0.7, 50).build();
     }
 
+    private Pair<Path, Path> driveToGateSide() {
+        final double X = 0;
+        final double Y = 54;
+
+        final double EASING_FRACTION = 1;
+
+        final Transform position = new Transform(
+                X,
+                Y,
+                Math.PI
+        );
+
+        return newPathBuilder()
+                .linearTo(position.toList(), EASING_FRACTION, 1)
+                .retime(usageRatio, 0.7, 50)
+                .stop(1, 2)
+                .build();
+    }
+
+    private Pair<Path, Path> driveToGateFront() {
+        final double X = 6;
+
+        final double BEZIER_1_Y = 28;
+        final double BEZIER_2_Y = 40;
+        final double BEZIER_3_Y = 52;
+
+        final double EASING_FRACTION = 0.2;
+
+
+        Transform position1 = new Transform(X, BEZIER_1_Y, Math.PI / 2);
+        Transform position2 = new Transform(X, BEZIER_2_Y, Math.PI / 2);
+        Transform position3 = new Transform(X, BEZIER_3_Y, Math.PI / 2);
+        Transform position0 = new Transform(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
+
+
+        return newPathBuilder()
+                .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), EASING_FRACTION, 1)
+                .bezierTo(position2.toList(), position3.toList(), position3.toList(), EASING_FRACTION, 1)
+                .retime(usageRatio, 1, 50)
+                .build();
+    }
+
+    private Pair<Path, Path> driveToIntakeGate() {
+        final double X = 18;
+        final double Y = 58;
+        final double THETA = 2.3;
+
+        final double EASING_FRACTION = 1;
+
+        final Transform position = new Transform(
+                X,
+                Y,
+                THETA
+        );
+
+        return newPathBuilder()
+                .linearTo(position.toList(), EASING_FRACTION, 1)
+                .retime(usageRatio, 0.3, 50)
+                .stop(0.6, 1)
+                .build();
+    }
+
     private Pair<Path, Path> driveThroughSpike1() {
         // Using setup manual dimensions (middle of shark fin), rather than CAD.
         final double X = -11.78125;
 
-        final double BEZIER_1_Y = 25;
+        final double BEZIER_1_Y = 28;
         final double BEZIER_2_Y = 40;
-        final double BEZIER_3_Y = 50;
+        final double BEZIER_3_Y = 56;
 
-        final double EASING_FRACTION = 1;
+        final double EASING_FRACTION = 0.3;
 
-        Transform position1 = new Transform(X, -BEZIER_1_Y, -Math.PI / 2);
-        Transform position2 = new Transform(X, -BEZIER_2_Y, -Math.PI / 2);
-        Transform position3 = new Transform(X, -BEZIER_3_Y, -Math.PI / 2);
+        Transform position1 = new Transform(X, BEZIER_1_Y, Math.PI / 2);
+        Transform position2 = new Transform(X, BEZIER_2_Y, Math.PI / 2);
+        Transform position3 = new Transform(X, BEZIER_3_Y, Math.PI / 2);
         Transform position0 = new Transform(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
 
 
@@ -204,19 +327,42 @@ public class AutonomousTestMirrored extends CommandRuntimeOpMode {
 
     private Pair<Path, Path> driveThroughSpike2() {
         // Using setup manual dimensions (middle of shark fin), rather than CAD.
-        final double X = 11.78125;
+        final double X = 11.78125 + 1;
         //final double X = 7;
 
-        final double BEZIER_1_Y = 25;
+        final double BEZIER_1_Y = 28;
+        final double BEZIER_2_Y = 40;
+        final double BEZIER_3_Y = 58;
+
+        final double EASING_FRACTION = 0.3;
+
+
+        Transform position1 = new Transform(X, BEZIER_1_Y, Math.PI / 2);
+        Transform position2 = new Transform(X, BEZIER_2_Y, Math.PI / 2);
+        Transform position3 = new Transform(X, BEZIER_3_Y, Math.PI / 2);
+        Transform position0 = new Transform(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
+
+
+        return newPathBuilder()
+                .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), EASING_FRACTION, 1)
+                .bezierTo(position2.toList(), position3.toList(), position3.toList(), EASING_FRACTION, 1)
+                .retime(usageRatio, 0.3, 50)
+                .build();
+    }
+
+    private Pair<Path, Path> driveThroughSpike3() {
+        // Using setup manual dimensions (middle of shark fin), rather than CAD.
+        final double X = 35.34375;
+
+        final double BEZIER_1_Y = 28;
         final double BEZIER_2_Y = 40;
         final double BEZIER_3_Y = 56;
 
-        final double EASING_FRACTION = 1;
+        final double EASING_FRACTION = 0.2; // It's longer time, so easing fraction will be larger proportional to the fraction
 
-
-        Transform position1 = new Transform(X, -BEZIER_1_Y, -Math.PI / 2);
-        Transform position2 = new Transform(X, -BEZIER_2_Y, -Math.PI / 2);
-        Transform position3 = new Transform(X, -BEZIER_3_Y, -Math.PI / 2);
+        Transform position1 = new Transform(X, BEZIER_1_Y, Math.PI / 2);
+        Transform position2 = new Transform(X, BEZIER_2_Y, Math.PI / 2);
+        Transform position3 = new Transform(X, BEZIER_3_Y, Math.PI / 2);
         Transform position0 = new Transform(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
 
 
@@ -227,19 +373,18 @@ public class AutonomousTestMirrored extends CommandRuntimeOpMode {
                 .build();
     }
 
-    private Pair<Path, Path> driveThroughSpike3() {
-        // Using setup manual dimensions (middle of shark fin), rather than CAD.
-        final double X = 35.34375;
+    private Pair<Path, Path> driveThroughHumanPlayer() {
+        final double X = 50 /* idk */;
 
-        final double BEZIER_1_Y = 25;
+        final double BEZIER_1_Y = 28;
         final double BEZIER_2_Y = 40;
-        final double BEZIER_3_Y = 56;
+        final double BEZIER_3_Y = 50 /* idk */;
 
         final double EASING_FRACTION = 1;
 
-        Transform position1 = new Transform(X, -BEZIER_1_Y, -Math.PI / 2);
-        Transform position2 = new Transform(X, -BEZIER_2_Y, -Math.PI / 2);
-        Transform position3 = new Transform(X, -BEZIER_3_Y, -Math.PI / 2);
+        Transform position1 = new Transform(X, BEZIER_1_Y, Math.PI / 2);
+        Transform position2 = new Transform(X, BEZIER_2_Y, Math.PI / 2);
+        Transform position3 = new Transform(X, BEZIER_3_Y, Math.PI / 2);
         Transform position0 = new Transform(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
 
 
@@ -251,27 +396,26 @@ public class AutonomousTestMirrored extends CommandRuntimeOpMode {
     }
 
     private Command shootNear(Pair<Path, Path> path) {
-        final double SHOOTER_RPM = 2200;
+        final double SHOOTER_RPM = 2100;
         final double MAX_ERROR = 50;
-        final double HOOD_ANGLE = 0.3;
+        final double HOOD_ANGLE = 0.7;
 
         update(path);
 
         return new Sequential(
                 new Instant(() -> {
-                    shooter.spin(SHOOTER_RPM);
-                    shooter.setHood(HOOD_ANGLE);
+                    turret.setFlywheelSpeed(SHOOTER_RPM);
+                    turret.setHoodAngle(HOOD_ANGLE);
                 }),
                 followPathTemplate(path.first),
                 new RunUntil(
                         new Sequential(
                                 new Wait(0.5),
                                 new First(
-                                        new WaitUntil(() -> shooter.getError() < MAX_ERROR),
-                                        new Wait(10)
+                                        new Wait(5)
                                 ),
                                 new Instant(() -> {
-                                    intake.spin(0.8);
+                                    intake.spin(1);
                                     stopper.spin(1);
                                 }),
                                 new Wait(1)
@@ -285,7 +429,13 @@ public class AutonomousTestMirrored extends CommandRuntimeOpMode {
         );
     }
 
-    private Command intakeSpike(Pair<Path, Path> path) {
+    private Command openGateNoPickup(Pair<Path, Path> path) {
+        update(path);
+
+        return followPathTemplate(path.first);
+    }
+
+    private Command intakeFrom(Pair<Path, Path> path) {
         update(path);
 
         return new Sequential(
@@ -303,16 +453,15 @@ public class AutonomousTestMirrored extends CommandRuntimeOpMode {
     }
 
     private Command leaveNear() {
-        final double X = -47.675857;
-        final double Y = 23.531253;
-        final double EASING = 0.6;
+        final double X = 0;
+        final double Y = 40;
+        final double EASING_FRACTION = 0.2;
 
-        Transform position = new Transform(X, Y, currentPosition.getTheta());
-        double distance = currentPosition.lateralDistance(position);
+        Transform position = new Transform(X, Y, Math.PI / 2);
 
         Pair<Path, Path> path = newPathBuilder()
-                .linearTo(position.toList(), EASING, distance / Constants.getMaxLateralVelocity() + EASING)
-                .stop(EASING, EASING)
+                .linearTo(position.toList(), EASING_FRACTION, 3)
+                .stop(1, 1)
                 .build();
 
         update(path);

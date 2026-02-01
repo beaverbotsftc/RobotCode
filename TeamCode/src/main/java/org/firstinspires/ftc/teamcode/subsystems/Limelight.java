@@ -16,7 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.Motif;
 import org.firstinspires.ftc.teamcode.Side;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.Transform;
 
 import java.util.List;
 import java.util.Set;
@@ -30,19 +30,19 @@ public class Limelight implements Subsystem {
     }
 
     public static class LimelightLocalization {
-        private DrivetrainState state;
-        private DrivetrainState variance;
+        private Transform state;
+        private Transform variance;
 
-        public LimelightLocalization(DrivetrainState state, DrivetrainState variance) {
+        public LimelightLocalization(Transform state, Transform variance) {
             this.state = state;
             this.variance = variance;
         }
 
-        public DrivetrainState getState() {
+        public Transform getState() {
             return state;
         }
 
-        public DrivetrainState getVariance() {
+        public Transform getVariance() {
             return variance;
         }
 
@@ -137,9 +137,9 @@ public class Limelight implements Subsystem {
 
         for (LLResultTypes.FiducialResult fiducial : result.getFiducialResults()) {
             // TODO: Somehow limelight (or the FTC SDK) thinks that pitch is yaw and yaw is pitch!!! Potential bug in the SDK, idk though.
-            if (Math.abs(fiducial.getTargetPoseRobotSpace().getOrientation().getYaw(AngleUnit.RADIANS)) > 0.4)
+            if (Math.abs(fiducial.getTargetPoseRobotSpace().getOrientation().getYaw(AngleUnit.RADIANS) + Math.PI) > 0.2)
                 return null; // The pitch is always 0 (normal parallel to floor), but because it is mounted like it is, a higher tolerance is required
-            if (Math.abs(fiducial.getTargetPoseRobotSpace().getOrientation().getRoll(AngleUnit.RADIANS)) > 0.2)
+            if (Math.abs(fiducial.getTargetPoseRobotSpace().getOrientation().getRoll(AngleUnit.RADIANS) + Math.PI) > 0.2)
                 return null; // The roll is always 0 (no tipping robots I hope)
         }
 
@@ -158,8 +158,8 @@ public class Limelight implements Subsystem {
         RobotLog.d(String.valueOf(thetaVariance));
 
         return new Pair<>(new LimelightLocalization(
-                new DrivetrainState(x, y, theta),
-                new DrivetrainState(xVariance, yVariance, thetaVariance)
+                new Transform(x, y, theta),
+                new Transform(xVariance, yVariance, thetaVariance)
         ), (double) result.getStaleness() / 1000);
     }
 }

@@ -10,7 +10,7 @@ import org.beaverbots.beaver.pathing.path.PathAxis;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Side;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Localizer;
 
 import java.util.List;
@@ -22,7 +22,7 @@ public class ShooterMode implements Command {
 
     private Side side;
     private HolonomicFollowPath followPathCommand;
-    private DrivetrainState target;
+    private Transform target;
     private boolean resistOnly;
 
     public ShooterMode(Localizer localization, Drivetrain drivetrain, Side side, boolean resistOnly) {
@@ -37,7 +37,7 @@ public class ShooterMode implements Command {
     }
 
     public void start() {
-        DrivetrainState position = localizer.getPosition();
+        Transform position = localizer.getPosition();
 
         double desiredAngle = Double.NaN;
         switch (side) {

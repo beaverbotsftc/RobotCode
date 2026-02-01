@@ -7,7 +7,7 @@ import org.beaverbots.beaver.pathing.pidf.PIDF;
 import org.beaverbots.beaver.pathing.pidf.PIDFAxis;
 import org.beaverbots.beaver.pathing.path.Path;
 import org.beaverbots.beaver.pathing.path.PathAxis;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
@@ -31,7 +31,7 @@ public class PTuningY extends CommandRuntimeOpMode {
     @Override
     public void onInit() {
         drivetrain = new MecanumDrivetrain(1);
-        pinpoint = new Pinpoint(new DrivetrainState(0, 0, 0));
+        pinpoint = new Pinpoint(new Transform(0, 0, 0));
         gamepad = new Gamepad(gamepad1);
     }
 
@@ -49,7 +49,7 @@ public class PTuningY extends CommandRuntimeOpMode {
             updating = !updating;
             if (updating) {
                 cancel(movement);
-                drivetrain.move(new DrivetrainState(0, 0, 0));
+                drivetrain.move(new Transform(0, 0, 0));
             } else {
                 movement = new HolonomicFollowPath(
                         new Path(

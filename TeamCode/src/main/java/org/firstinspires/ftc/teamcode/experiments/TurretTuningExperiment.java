@@ -32,11 +32,12 @@ public class TurretTuningExperiment extends CommandRuntimeOpMode {
 
         turret.setTurretAngle(0.4 * dt * gamepad.getRightX() + turret.getTurretAngle());
         turret.setHoodAngle(0.1 * dt * gamepad.getLeftX() + turret.getHoodAngle());
-        turret.spin(100 * dt * gamepad.getRightY() + turret.getDesiredRpm());
+        turret.setFlywheelSpeed(100 * dt * gamepad.getRightY() + turret.getDesiredFlywheelSpeed());
 
         telemetry.addData("Turret Angle", turret.getTurretAngle());
         telemetry.addData("Hood Angle", turret.getHoodAngle());
-        telemetry.addData("RPM (Actual)", turret.getVelocity());
-        telemetry.addData("RPM (Desired)", turret.getDesiredRpm());
+        telemetry.addData("Hood Servo Angle", turret.getHoodPosition());
+        telemetry.addData("RPM (Actual)", turret.getFlywheelSpeed());
+        telemetry.addData("RPM (Desired)", turret.getDesiredFlywheelSpeed());
     }
 }

@@ -10,7 +10,7 @@ import org.beaverbots.beaver.pathing.path.Path;
 import org.beaverbots.beaver.pathing.path.PathAxis;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
@@ -28,10 +28,10 @@ public class ResistExperiment extends CommandRuntimeOpMode {
     @Override
     public void onInit() {
         drivetrain = new MecanumDrivetrain(1);
-        pinpoint = new Pinpoint(new DrivetrainState(0, 0, 0));
+        pinpoint = new Pinpoint(new Transform(0, 0, 0));
         limelight = new Limelight();
         limelight.localizationPipeline();
-        localizer = new FusedLocalizer(pinpoint, limelight, new DrivetrainState(0, 0, 0));
+        localizer = new FusedLocalizer(pinpoint, limelight, new Transform(0, 0, 0));
     }
 
     @Override

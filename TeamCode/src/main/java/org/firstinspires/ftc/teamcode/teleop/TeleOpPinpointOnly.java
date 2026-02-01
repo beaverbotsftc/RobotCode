@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.Stopper;
 import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
@@ -114,7 +114,7 @@ public class TeleOpPinpointOnly extends CommandRuntimeOpMode {
     @Override
     public void periodic() {
         telemetry.addData("Current RPM:", shooter.getVelocity());
-        telemetry.addData("Distance to goal:", pinpoint.getPosition().lateralDistance(new DrivetrainState(Constants.GOAL_X, CrossModeStorage.side == Side.RED ? Constants.GOAL_Y : -Constants.GOAL_Y, 0)));
+        telemetry.addData("Distance to goal:", pinpoint.getPosition().lateralDistance(new Transform(Constants.GOAL_X, CrossModeStorage.side == Side.RED ? Constants.GOAL_Y : -Constants.GOAL_Y, 0)));
 
         telemetry.addData("X", fusedLocalizer.getPosition().getX());
         telemetry.addData("Y", fusedLocalizer.getPosition().getY());
@@ -126,7 +126,7 @@ public class TeleOpPinpointOnly extends CommandRuntimeOpMode {
 
         CrossModeStorage.position = pinpoint.getPosition();
 
-        telemetry.addData("Intake full", intake.full());
+        telemetry.addData("Intake full", intake.isFull());
         telemetry.addData("Right trigger", gamepad.getRightTrigger());
 
         telemetry.addData("Pinpoint X", pinpoint.getPosition().getX());

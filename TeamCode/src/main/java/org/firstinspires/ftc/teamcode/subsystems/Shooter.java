@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.RobotLog;
 
+import org.beaverbots.beaver.cachedhardware.CachedMotor;
 import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.command.Subsystem;
 import org.beaverbots.beaver.util.PiecewiseLinearFunction;
@@ -18,8 +19,8 @@ import org.firstinspires.ftc.teamcode.Constants;
 import java.util.List;
 
 public final class Shooter implements Subsystem {
-    private DcMotorEx shooterLeft;
-    private DcMotorEx shooterRight;
+    private CachedMotor shooterLeft;
+    private CachedMotor shooterRight;
     private Servo hood;
     private double rpm;
     private PIDFAxis pidf = new PIDFAxis(new PIDFAxis.K(Constants.pidPShooter, Constants.pidIShooter, 0, 1, 0.01, 1, 1, Constants.pidGammaShooter));
@@ -29,9 +30,9 @@ public final class Shooter implements Subsystem {
     public boolean hardStopSetting = false;
 
     public Shooter(VoltageSensor voltageSensor) {
-        shooterLeft = HardwareManager.claim(DcMotorEx.class, "shoot");
+        shooterLeft = new CachedMotor(HardwareManager.claim("shoot"), 0.01);
         shooterLeft.setDirection(DcMotor.Direction.REVERSE);
-        shooterRight = HardwareManager.claim(DcMotorEx.class, "shoot2");
+        shooterRight = new CachedMotor(HardwareManager.claim("shoot2"), 0.01);
         shooterRight.setDirection(DcMotor.Direction.FORWARD);
 
         shooterLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -151,6 +152,6 @@ public final class Shooter implements Subsystem {
                 new Pair<>(147.34, 0.9 + 0.05)
         )).evaluate(d);
 
-        return new Pair<>(rpm, hood);
+        return new Pair<>(rpm, hood - 0.05);
     }
 }

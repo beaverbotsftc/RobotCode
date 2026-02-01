@@ -14,7 +14,7 @@ import org.beaverbots.beaver.command.premade.WaitUntil;
 import org.beaverbots.beaver.optimize.BayesianOptimizer;
 import org.beaverbots.beaver.optimize.kernels.RBFKernel;
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.Transform;
 import org.firstinspires.ftc.teamcode.commands.SimpleControl;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
@@ -62,7 +62,7 @@ public class DrivetrainConversionsTuningY extends CommandRuntimeOpMode {
             RobotLog.d(optimizer.getBestObservedPoint().toString());
         } catch (IllegalStateException ignored) {}
 
-        pinpoint = new Pinpoint(new DrivetrainState(0, 0, 0));
+        pinpoint = new Pinpoint(new Transform(0, 0, 0));
         drivetrain = new MecanumDrivetrain(1);
 
         gamepad = new Gamepad(gamepad1);
@@ -82,11 +82,11 @@ public class DrivetrainConversionsTuningY extends CommandRuntimeOpMode {
         schedule(new Sequential(
                     new WaitUntil(() -> gamepad.getCross()),
                     new Instant(() -> stopwatch.reset()),
-                    new Instant(() -> drivetrain.move(new DrivetrainState(0, 24, 0))),
+                    new Instant(() -> drivetrain.move(new Transform(0, 24, 0))),
                     new WaitUntil(() -> stopwatch.getElapsed() > 2),
                     new Instant(() -> RobotLog.d(String.format("Y: %f", pinpoint.getVelocity().getY()))),
                     new Instant(() -> loss = Math.pow((pinpoint.getVelocity().getY() - 24), 2)),
-                    new Instant(() -> drivetrain.move(new DrivetrainState(0, 0, 0))),
+                    new Instant(() -> drivetrain.move(new Transform(0, 0, 0))),
                     new Instant(() -> RobotLog.d(String.format("Loss: %f", loss))),
                     new WaitUntil(() -> gamepad.getCircle()),
                     new Instant(() -> optimizer.addObservedPoint(point, loss)),

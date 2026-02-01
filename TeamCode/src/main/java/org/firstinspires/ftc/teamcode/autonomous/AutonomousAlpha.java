@@ -26,7 +26,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.Stopper;
 import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Localizer;
@@ -54,7 +54,7 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
 
     private List<DoubleUnaryOperator> mirror;
 
-    private DrivetrainState currentPosition;
+    private Transform currentPosition;
 
     private List<Path> paths = new ArrayList<>();
     private List<Path> pathsHold = new ArrayList<>();
@@ -71,9 +71,9 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
 
         gamepad = new Gamepad(gamepad1);
         drivetrain = new MecanumDrivetrain();
-        pinpoint = new Pinpoint(new DrivetrainState(0, 0, 0));
+        pinpoint = new Pinpoint(new Transform(0, 0, 0));
         limelight = new Limelight();
-        fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new DrivetrainState(0, 0, 0));
+        fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new Transform(0, 0, 0));
         voltageSensor = new VoltageSensor();
         shooter = new Shooter(voltageSensor);
         intake = new Intake(1);
@@ -101,17 +101,16 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
 
         schedule(
                 new Sequential(
-                        shoot(lineToShootNear()),
-                        //intake(splineThroughSpike1()),
-                        //shoot(lineToShootNear()),
-                        //intake(splineThroughSpike2()),
-                        //shoot(lineToShootNear()),
-                        //intake(splineThroughSpike3()),
-                        //shoot(lineToShootNear()),
-                        //intake(splineThroughSpike2()),
-                        //driveAndStop(newPathBuilder().linearTo(new DrivetrainState(12, 59, 1.9168 + 0 * 2 * Math.PI / 3).toList(), 3, 5).build())
-                        intakeFromGate(splineToOpenGate(), 5),
-                        //driveAndStop(lineToBehindGate())
+                        drive(lineToShootNear()),
+                        drive(splineThroughSpike2()),
+                        drive(newPathBuilderFromPath(paths.get(paths.size() - 1)).reverse().build()),
+                        drive(splineToOpenGate()),
+                        drive(newPathBuilderFromPath(paths.get(paths.size() - 1)).reverse().build()),
+                        drive(splineThroughSpike1()),
+                        drive(newPathBuilderFromPath(paths.get(paths.size() - 1)).reverse().build()),
+                        drive(splineToOpenGate()),
+                        drive(newPathBuilderFromPath(paths.get(paths.size() - 1)).reverse().build()),
+                        driveAndStop(lineToBehindGate()),
                         new Instant(this::requestOpModeStop)
                 )
         );
@@ -123,7 +122,7 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
         telemetry.addData("Variance X:", fusedLocalizer.getCovariance().getEntry(0, 0));
         telemetry.addData("Variance Y:", fusedLocalizer.getCovariance().getEntry(1, 1));
         telemetry.addData("Variance Theta:", fusedLocalizer.getCovariance().getEntry(2, 2));
-        telemetry.addData("Intake full", intake.full());
+        telemetry.addData("Intake full", intake.isFull());
         CrossModeStorage.position = fusedLocalizer.getPosition();
     }
 
@@ -136,7 +135,7 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
     }
 
     private void update(Pair<Path, Path> path) {
-        currentPosition = new DrivetrainState(path.second.position(0)).transform(mirror);
+        currentPosition = new Transform(path.second.position(0)).transform(mirror);
         paths.add(path.first.transform(mirror));
         pathsHold.add(path.second.transform(mirror));
     }
@@ -165,7 +164,7 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
                 new Instant(() -> intake.spin(-1)),
                 new Instant(() -> stopper.spin(-1)),
                 new Instant(() -> intake.empty()),
-                //new Wait(5),
+                new Wait(2),
                 new Instant(() -> intake.spin(0)),
                 new Instant(() -> stopper.spin(0))
         );
@@ -191,7 +190,7 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
                 new Instant(() -> stopper.spin(-1)),
                 followPathTemplate(path.first),
                 new First(
-                        new WaitUntil(() -> intake.full()),
+                        new WaitUntil(() -> intake.isFull()),
                         new Wait(timeout)
                 ),
                 new Instant(() -> intake.spin(0)),
@@ -205,7 +204,7 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
 
         final double EASING_FRACTION = 0.0; // Max acceleration, just in case we're low on time. Stopping has easing though.
 
-        final DrivetrainState position = new DrivetrainState(
+        final Transform position = new Transform(
                 X,
                 Y,
                 Localizer.wind(
@@ -222,7 +221,7 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
 
         final double EASING_FRACTION = 0.5;
 
-        final DrivetrainState position = new DrivetrainState(
+        final Transform position = new Transform(
                 X,
                 Y,
                 Localizer.wind(
@@ -234,7 +233,7 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
     }
 
     private Pair<Path, Path> splineToOpenGate() {
-        final double X = 13.25;//12.5;
+        final double X = 13;//12.5;
         final double THETA = Localizer.wind(
                 1.9168, currentPosition.getTheta()
         );
@@ -245,16 +244,16 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
 
         final double EASING_FRACTION = 0.3;
 
-        DrivetrainState position1 = new DrivetrainState(X, BEZIER_1_Y, THETA);
-        DrivetrainState position2 = new DrivetrainState(X, BEZIER_2_Y, THETA);
-        DrivetrainState position3 = new DrivetrainState(X, BEZIER_3_Y, THETA);
-        DrivetrainState position0 = new DrivetrainState(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
+        Transform position1 = new Transform(X, BEZIER_1_Y, THETA);
+        Transform position2 = new Transform(X, BEZIER_2_Y, THETA);
+        Transform position3 = new Transform(X, BEZIER_3_Y, THETA);
+        Transform position0 = new Transform(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
 
 
         return newPathBuilder()
                 .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), EASING_FRACTION, 1)
                 .bezierTo(position2.toList(), position3.toList(), position3.toList(), EASING_FRACTION, 1)
-                .retime(usageRatio, 0.2, 50)
+                .retime(usageRatio, 0.4, 50)
                 .build();
     }
 
@@ -268,34 +267,34 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
 
         final double EASING_FRACTION = 0.2;
 
-        DrivetrainState position1 = new DrivetrainState(X, BEZIER_1_Y,
+        Transform position1 = new Transform(X, BEZIER_1_Y,
                 Localizer.wind(
                         Math.PI / 2, currentPosition.getTheta()
                 )
         );
-        DrivetrainState position2 = new DrivetrainState(X, BEZIER_2_Y,
+        Transform position2 = new Transform(X, BEZIER_2_Y,
                 Localizer.wind(
                         Math.PI / 2, currentPosition.getTheta()
                 )
         );
-        DrivetrainState position3 = new DrivetrainState(X, BEZIER_3_Y,
+        Transform position3 = new Transform(X, BEZIER_3_Y,
                 Localizer.wind(
                         Math.PI / 2, currentPosition.getTheta()
                 )
         );
-        DrivetrainState position0 = new DrivetrainState(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
+        Transform position0 = new Transform(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
 
 
         return newPathBuilder()
                 .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), EASING_FRACTION, 1)
                 .bezierTo(position2.toList(), position3.toList(), position3.toList(), EASING_FRACTION, 1)
-                .retime(usageRatio, 0.5, 50)
+                .retime(usageRatio, 0.2, 50)
                 .build();
     }
 
     private Pair<Path, Path> splineThroughSpike2() {
         // Using setup manual dimensions (middle of shark fin), rather than CAD.
-        final double X = 11.78125;
+        final double X = 11.78125 + 2; // Because our robot on that one side is so huge, we need 2in headroom.
 
         final double BEZIER_1_Y = 28;
         final double BEZIER_2_Y = 40;
@@ -303,22 +302,22 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
 
         final double EASING_FRACTION = 0.3;
 
-        DrivetrainState position1 = new DrivetrainState(X, BEZIER_1_Y,
+        Transform position1 = new Transform(X, BEZIER_1_Y,
                 Localizer.wind(
                         Math.PI / 2, currentPosition.getTheta()
                 )
         );
-        DrivetrainState position2 = new DrivetrainState(X, BEZIER_2_Y,
+        Transform position2 = new Transform(X, BEZIER_2_Y,
                 Localizer.wind(
                         Math.PI / 2, currentPosition.getTheta()
                 )
         );
-        DrivetrainState position3 = new DrivetrainState(X, BEZIER_3_Y,
+        Transform position3 = new Transform(X, BEZIER_3_Y,
                 Localizer.wind(
                         Math.PI / 2, currentPosition.getTheta()
                 )
         );
-        DrivetrainState position0 = new DrivetrainState(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
+        Transform position0 = new Transform(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
 
 
         return newPathBuilder()
@@ -338,22 +337,22 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
 
         final double EASING_FRACTION = 0.3;
 
-        DrivetrainState position1 = new DrivetrainState(X, BEZIER_1_Y,
+        Transform position1 = new Transform(X, BEZIER_1_Y,
                 Localizer.wind(
                         Math.PI / 2, currentPosition.getTheta()
                 )
         );
-        DrivetrainState position2 = new DrivetrainState(X, BEZIER_2_Y,
+        Transform position2 = new Transform(X, BEZIER_2_Y,
                 Localizer.wind(
                         Math.PI / 2, currentPosition.getTheta()
                 )
         );
-        DrivetrainState position3 = new DrivetrainState(X, BEZIER_3_Y,
+        Transform position3 = new Transform(X, BEZIER_3_Y,
                 Localizer.wind(
                         Math.PI / 2, currentPosition.getTheta()
                 )
         );
-        DrivetrainState position0 = new DrivetrainState(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
+        Transform position0 = new Transform(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
 
 
         return newPathBuilder()
@@ -372,6 +371,6 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
                                 new PIDFAxis(new PIDFAxis.K(Constants.pidPY, Constants.pidIY, Constants.pidDY, 1, 6, 48, Constants.pidTauY, Constants.pidGammaY)),
                                 new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, 1, 6, 48, Constants.pidTauTheta, Constants.pidGammaTheta)))),
                         fusedLocalizer, drivetrain),
-                new Instant(() -> drivetrain.move(new DrivetrainState(0, 0, 0))));
+                new Instant(() -> drivetrain.move(new Transform(0, 0, 0))));
     }
 }

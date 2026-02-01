@@ -12,9 +12,9 @@ public class VoltageSensor implements Subsystem {
     private double voltage;
 
     public VoltageSensor() {
-        sensor1 = HardwareManager.claim(com.qualcomm.robotcore.hardware.VoltageSensor.class, "Control Hub");
+        sensor1 = HardwareManager.get(com.qualcomm.robotcore.hardware.VoltageSensor.class, "Control Hub");
         try {
-            sensor2 = HardwareManager.claim(com.qualcomm.robotcore.hardware.VoltageSensor.class, "Expansion Hub 2");
+            sensor2 = HardwareManager.get(com.qualcomm.robotcore.hardware.VoltageSensor.class, "Expansion Hub 2");
         } catch (RuntimeException e) {
             sensor2 = null;
             RobotLog.ee("VoltageSensor", "Expansion Hub not found.");

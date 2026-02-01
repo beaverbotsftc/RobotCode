@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import org.beaverbots.beaver.cachedhardware.CachedMotor;
 import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.command.Subsystem;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
@@ -14,14 +16,14 @@ import java.util.Queue;
 public final class Intake implements Subsystem {
     private double maxPower;
 
-    private DcMotorEx intake;
+    private CachedMotor intake;
 
     // Prioritize high battery autonomous. Also, false negative > false positive.
     private static final int CURRENT_QUEUE_SIZE = 8;
-    private static final double CURRENT_CUTOFF_FULL = 3;
+    private static final double CURRENT_CUTOFF_FULL = 4.6;
 
     private Queue<Double> currentQueue = new LinkedList<>(Collections.nCopies(CURRENT_QUEUE_SIZE, 0.0));
-    private boolean isFull = false;
+    private boolean full = false;
 
 
     private double power;
@@ -29,8 +31,9 @@ public final class Intake implements Subsystem {
     public Intake(double maxPower) {
         this.maxPower = maxPower;
 
-        this.intake = HardwareManager.claim("intake");
+        this.intake = new CachedMotor(HardwareManager.claim("intake"), 0.01);
         this.intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        this.intake.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public Intake() {
@@ -41,12 +44,24 @@ public final class Intake implements Subsystem {
     public void periodic() {
         intake.setPower(maxPower * power);
 
-        currentQueue.add(intake.getCurrent(CurrentUnit.AMPS));
+        currentQueue.add(current());
         if (currentQueue.size() > CURRENT_QUEUE_SIZE) {
             currentQueue.remove();
         }
 
         if (power < 0) empty();
+
+        fullPeriodic();
+    }
+
+    public void fullPeriodic() {
+        for (double current : currentQueue) {
+            if (current < CURRENT_CUTOFF_FULL) {
+                return;
+            }
+        }
+
+        full = true;
     }
 
     public void spin(double power) {
@@ -57,22 +72,12 @@ public final class Intake implements Subsystem {
         this.maxPower = maxPower;
     }
 
-    public boolean full() {
-        if (isFull) return true;
-
-        for (double current : currentQueue) {
-            if (current < CURRENT_CUTOFF_FULL) {
-                return false;
-            }
-        }
-
-        isFull = true;
-
-        return true;
+    public boolean isFull() {
+        return full;
     }
 
     public void empty() {
-        isFull = false;
+        full = false;
     }
 
     public double current() {

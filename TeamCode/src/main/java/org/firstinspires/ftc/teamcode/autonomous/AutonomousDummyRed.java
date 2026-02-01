@@ -7,9 +7,8 @@ import org.firstinspires.ftc.teamcode.Motif;
 import org.firstinspires.ftc.teamcode.Side;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
-import org.firstinspires.ftc.teamcode.subsystems.localizer.Localizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous
@@ -29,9 +28,9 @@ public class AutonomousDummyRed extends CommandRuntimeOpMode {
     @Override
     public void onInit() {
         gamepad = new Gamepad(gamepad1);
-        pinpoint = new Pinpoint(new DrivetrainState(0, 0, 0));
+        pinpoint = new Pinpoint(new Transform(0, 0, 0));
         limelight = new Limelight();
-        fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new DrivetrainState(0, 0, 0));
+        fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new Transform(0, 0, 0));
 
         register(gamepad, pinpoint, limelight, fusedLocalizer);
         limelight.localizationPipeline();

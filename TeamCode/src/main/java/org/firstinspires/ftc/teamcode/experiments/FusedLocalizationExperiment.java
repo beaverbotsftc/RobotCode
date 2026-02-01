@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.Transform;
 import org.firstinspires.ftc.teamcode.commands.SimpleControl;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
@@ -35,9 +35,9 @@ public class FusedLocalizationExperiment extends CommandRuntimeOpMode {
         drivetrain = new MecanumDrivetrain();
         intake = new Intake();
         shooter = new Shooter(voltageSensor);
-        pinpoint = new Pinpoint(new DrivetrainState(8, 8, 0));
+        pinpoint = new Pinpoint(new Transform(8, 8, 0));
         limelight = new Limelight();
-        fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new DrivetrainState(8, 8, 0));
+        fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new Transform(8, 8, 0));
     }
 
     @Override
@@ -46,7 +46,7 @@ public class FusedLocalizationExperiment extends CommandRuntimeOpMode {
         schedule(new SimpleControl(gamepad, drivetrain, intake, shooter));
     }
 
-    private DrivetrainState lastGood;
+    private Transform lastGood;
 
     @Override
     public void periodic() {

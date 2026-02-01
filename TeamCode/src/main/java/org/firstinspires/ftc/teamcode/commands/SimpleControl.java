@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.commands;
 
 import org.beaverbots.beaver.command.Command;
 import org.beaverbots.beaver.command.Subsystem;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
@@ -36,7 +36,7 @@ public final class SimpleControl implements Command {
         double y = -changeInput(gamepad.getLeftX()) * 48;
         double theta = -changeTurn(gamepad.getRightX()) * Math.PI * 2;
 
-        drivetrain.move(new DrivetrainState(x, y, theta));
+        drivetrain.move(new Transform(x, y, theta));
 
         double intakeSpeed = gamepad.getRightTrigger() - gamepad.getLeftTrigger();
 

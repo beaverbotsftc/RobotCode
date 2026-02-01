@@ -13,7 +13,7 @@ import org.beaverbots.beaver.pathing.path.Path;
 import org.beaverbots.beaver.pathing.path.pathbuilder.PathBuilder;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 
@@ -28,7 +28,7 @@ public class AutonomousDemo extends CommandRuntimeOpMode {
 
     public void onInit() {
         drivetrain = new MecanumDrivetrain();
-        pinpoint = new Pinpoint(new DrivetrainState(0, 0, 0));
+        pinpoint = new Pinpoint(new Transform(0, 0, 0));
 
         register(drivetrain, pinpoint);
     }
@@ -72,6 +72,6 @@ public class AutonomousDemo extends CommandRuntimeOpMode {
                                 new PIDFAxis(new PIDFAxis.K(Constants.pidPY, Constants.pidIY, Constants.pidDY, 1, 6, 48, Constants.pidTauY, Constants.pidGammaY)),
                                 new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, 1, 6, 48, Constants.pidTauTheta, Constants.pidGammaTheta)))),
                         pinpoint, drivetrain),
-                new Instant(() -> drivetrain.move(new DrivetrainState(0, 0, 0))));
+                new Instant(() -> drivetrain.move(new Transform(0, 0, 0))));
     }
 }
