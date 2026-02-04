@@ -108,7 +108,7 @@ public class AutonomousNew extends CommandRuntimeOpMode {
                         intakeFrom(driveThroughHumanPlayer()),
                         shoot(driveToShootFar()),
                         new Instant(() -> {
-                            shooter.spin(0);
+                            shooter.setFlywheelSpeed(0);
                         })
                 )
         );
@@ -288,8 +288,8 @@ public class AutonomousNew extends CommandRuntimeOpMode {
 
         return new Sequential(
                 new Instant(() -> {
-                    shooter.spin(shooterSettings.first);
-                    shooter.setHood(shooterSettings.second);
+                    shooter.setFlywheelSpeed(shooterSettings.first);
+                    shooter.setHoodAngle(shooterSettings.second);
                 }),
                 followPathTemplate(path.first),
                 new RunUntil(

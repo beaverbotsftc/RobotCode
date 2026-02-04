@@ -134,7 +134,6 @@ public class TeleOp extends CommandRuntimeOpMode {
 
         CrossModeStorage.position = fusedLocalizer.getPosition();
 
-        telemetry.addData("Intake full", intake.isFull());
         telemetry.addData("Right trigger", gamepad.getRightTrigger());
 
         telemetry.addData("Pinpoint X", pinpoint.getPosition().getX());

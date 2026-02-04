@@ -4,245 +4,93 @@ import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoController;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
-public class CachedServo implements DcMotorEx {
-    private final DcMotorEx motor;
+public class CachedServo implements Servo {
+    private final Servo servo;
 
     private final double delta;
 
-    private double lastPower = 0;
+    private double lastPosition = Double.NaN;
 
-    public CachedServo(DcMotorEx motor, double delta) {
-        this.motor = motor;
+    public CachedServo(Servo servo, double delta) {
+        this.servo = servo;
         this.delta = delta;
     }
 
     @Override
-    public void setPower(double power) {
-        if (Math.abs(power - lastPower) > delta || (lastPower != 0 && power == 0)) {
-            lastPower = power;
-            motor.setPower(power);
+    public void setPosition(double position) {
+        if (Math.abs(position - lastPosition) > delta || Double.isNaN(lastPosition)) {
+            lastPosition = position;
+            servo.setPosition(position);
         }
     }
 
     @Override
     public void setDirection(Direction direction) {
-        if (getDirection() != direction) {
-            lastPower = Double.NaN;
-            motor.setDirection(direction);
+        if (direction != getDirection()) {
+            lastPosition = Double.NaN;
+            servo.setDirection(direction);
         }
     }
 
     @Override
-    public void setMotorEnable() {
-        motor.setMotorEnable();
+    public Direction getDirection() {
+        return servo.getDirection();
     }
 
     @Override
-    public void setMotorDisable() {
-        motor.setMotorDisable();
-    }
-
-    @Override
-    public boolean isMotorEnabled() {
-        return motor.isMotorEnabled();
-    }
-
-    @Override
-    public void setVelocity(double angularRate) {
-        motor.setVelocity(angularRate);
-    }
-
-    @Override
-    public void setVelocity(double angularRate, AngleUnit unit) {
-        motor.setVelocity(angularRate, unit);
-    }
-
-    @Override
-    public double getVelocity() {
-        return motor.getVelocity();
-    }
-
-    @Override
-    public double getVelocity(AngleUnit unit) {
-        return motor.getVelocity(unit);
-    }
-
-    @Deprecated
-    @Override
-    public void setPIDCoefficients(RunMode mode, PIDCoefficients pidCoefficients) {
-        motor.setPIDCoefficients(mode, pidCoefficients);
-    }
-
-    @Override
-    public void setPIDFCoefficients(RunMode mode, PIDFCoefficients pidfCoefficients) throws UnsupportedOperationException {
-        motor.setPIDFCoefficients(mode, pidfCoefficients);
-    }
-
-    @Override
-    public void setVelocityPIDFCoefficients(double p, double i, double d, double f) {
-        motor.setVelocityPIDFCoefficients(p, i, d, f);
-    }
-
-    @Override
-    public void setPositionPIDFCoefficients(double p) {
-        motor.setPositionPIDFCoefficients(p);
-    }
-
-    @Deprecated
-    @Override
-    public PIDCoefficients getPIDCoefficients(RunMode mode) {
-        return motor.getPIDCoefficients(mode);
-    }
-
-    @Override
-    public PIDFCoefficients getPIDFCoefficients(RunMode mode) {
-        return motor.getPIDFCoefficients(mode);
-    }
-
-    @Override
-    public void setTargetPositionTolerance(int tolerance) {
-        motor.setTargetPositionTolerance(tolerance);
-    }
-
-    @Override
-    public int getTargetPositionTolerance() {
-        return motor.getTargetPositionTolerance();
-    }
-
-    @Override
-    public double getCurrent(CurrentUnit unit) {
-        return motor.getCurrent(unit);
-    }
-
-    @Override
-    public double getCurrentAlert(CurrentUnit unit) {
-        return motor.getCurrentAlert(unit);
-    }
-
-    @Override
-    public void setCurrentAlert(double current, CurrentUnit unit) {
-        motor.setCurrentAlert(current, unit);
-    }
-
-    @Override
-    public boolean isOverCurrent() {
-        return motor.isOverCurrent();
-    }
-
-    @Override
-    public MotorConfigurationType getMotorType() {
-        return motor.getMotorType();
-    }
-
-    @Override
-    public void setMotorType(MotorConfigurationType motorType) {
-        motor.setMotorType(motorType);
-    }
-
-    @Override
-    public DcMotorController getController() {
-        return motor.getController();
+    public ServoController getController() {
+        return servo.getController();
     }
 
     @Override
     public int getPortNumber() {
-        return motor.getPortNumber();
+        return servo.getPortNumber();
     }
 
     @Override
-    public void setZeroPowerBehavior(ZeroPowerBehavior zeroPowerBehavior) {
-        motor.setZeroPowerBehavior(zeroPowerBehavior);
+    public double getPosition() {
+        return servo.getPosition();
     }
 
     @Override
-    public ZeroPowerBehavior getZeroPowerBehavior() {
-        return motor.getZeroPowerBehavior();
-    }
-
-    @Deprecated
-    @Override
-    public void setPowerFloat() {
-        motor.setPowerFloat();
-    }
-
-    @Override
-    public boolean getPowerFloat() {
-        return motor.getPowerFloat();
-    }
-
-    @Override
-    public void setTargetPosition(int position) {
-        motor.setTargetPosition(position);
-    }
-
-    @Override
-    public int getTargetPosition() {
-        return motor.getTargetPosition();
-    }
-
-    @Override
-    public boolean isBusy() {
-        return motor.isBusy();
-    }
-
-    @Override
-    public int getCurrentPosition() {
-        return motor.getCurrentPosition();
-    }
-
-    @Override
-    public void setMode(RunMode mode) {
-        motor.setMode(mode);
-    }
-
-    @Override
-    public RunMode getMode() {
-        return motor.getMode();
-    }
-
-
-    @Override
-    public Direction getDirection() {
-        return motor.getDirection();
-    }
-
-    @Override
-    public double getPower() {
-        return motor.getPower();
+    public void scaleRange(double min, double max) {
+        servo.scaleRange(min, max);
     }
 
     @Override
     public Manufacturer getManufacturer() {
-        return motor.getManufacturer();
+        return servo.getManufacturer();
     }
 
     @Override
     public String getDeviceName() {
-        return motor.getDeviceName();
+        return servo.getDeviceName();
     }
 
     @Override
     public String getConnectionInfo() {
-        return motor.getConnectionInfo();
+        return servo.getConnectionInfo();
     }
 
     @Override
     public int getVersion() {
-        return motor.getVersion();
+        return servo.getVersion();
     }
 
     @Override
     public void resetDeviceConfigurationForOpMode() {
-        motor.resetDeviceConfigurationForOpMode();
+        servo.resetDeviceConfigurationForOpMode();
     }
 
     @Override
     public void close() {
-        motor.close();
+        servo.close();
     }
 }

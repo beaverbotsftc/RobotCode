@@ -1,39 +1,40 @@
 package org.beaverbots.beaver.cachedhardware;
 
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoController;
 
-public class CachedCRServo implements Servo {
-    private final Servo servo;
+public class CachedCRServo implements CRServo {
+    private final CRServo servo;
 
     private final double delta;
 
-    private double lastPosition = 0;
+    private double lastPower = Double.NaN;
 
-    public CachedCRServo(Servo servo, double delta) {
+    public CachedCRServo(CRServo servo, double delta) {
         this.servo = servo;
         this.delta = delta;
     }
 
     @Override
-    public void setPosition(double position) {
-        if (Math.abs(position - lastPosition) > delta) {
-            lastPosition = position;
-            servo.setPosition(position);
+    public void setPower(double power) {
+        if (Math.abs(power - lastPower) > delta || (lastPower != 0 && power == 0) || Double.isNaN(lastPower)) {
+            lastPower = power;
+            servo.setPower(power);
         }
     }
 
     @Override
     public void setDirection(Direction direction) {
-        if (direction != getDirection()) {
-            lastPosition = Double.NaN;
+        if (getDirection() != direction) {
+            lastPower = Double.NaN;
             servo.setDirection(direction);
         }
     }
 
     @Override
-    public Direction getDirection() {
-        return servo.getDirection();
+    public String getDeviceName() {
+        return servo.getDeviceName();
     }
 
     @Override
@@ -47,23 +48,18 @@ public class CachedCRServo implements Servo {
     }
 
     @Override
-    public double getPosition() {
-        return servo.getPosition();
+    public Direction getDirection() {
+        return servo.getDirection();
     }
 
     @Override
-    public void scaleRange(double min, double max) {
-        servo.scaleRange(min, max);
+    public double getPower() {
+        return servo.getPower();
     }
 
     @Override
     public Manufacturer getManufacturer() {
         return servo.getManufacturer();
-    }
-
-    @Override
-    public String getDeviceName() {
-        return servo.getDeviceName();
     }
 
     @Override

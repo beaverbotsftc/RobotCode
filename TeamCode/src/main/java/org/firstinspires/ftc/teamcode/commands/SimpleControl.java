@@ -43,7 +43,7 @@ public final class SimpleControl implements Command {
         intake.spin(intakeSpeed);
 
         if (gamepad.getDpadLeft()) {
-            shooter.spin(shootrpm);
+            shooter.setFlywheelSpeed(shootrpm);
 
             double velocity = shooter.getVelocity();
             if (Math.abs(velocity - shootrpm) / shootrpm <= 0.05) {
@@ -52,7 +52,7 @@ public final class SimpleControl implements Command {
                 gamepad.stopRumble();
             }
         } else {
-            shooter.spin(0);
+            shooter.setFlywheelSpeed(0);
         }
 
         if (gamepad.getTriangle() && shootrpm < 4000) {
@@ -63,10 +63,10 @@ public final class SimpleControl implements Command {
         }
 
         if (gamepad.getLeftBumperJustPressed()) {
-            shooter.setHood(0.0);
+            shooter.setHoodAngle(0.0);
             shootrpm = 2050.0;
         } else if (gamepad.getRightBumperJustPressed()) {
-            shooter.setHood(0.51);
+            shooter.setHoodAngle(0.51);
             shootrpm = 3000.0;
         }
 

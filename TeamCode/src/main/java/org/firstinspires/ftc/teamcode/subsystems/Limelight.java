@@ -137,9 +137,9 @@ public class Limelight implements Subsystem {
 
         for (LLResultTypes.FiducialResult fiducial : result.getFiducialResults()) {
             // TODO: Somehow limelight (or the FTC SDK) thinks that pitch is yaw and yaw is pitch!!! Potential bug in the SDK, idk though.
-            if (Math.abs(fiducial.getTargetPoseRobotSpace().getOrientation().getYaw(AngleUnit.RADIANS) + Math.PI) > 0.2)
+            if (Math.abs(fiducial.getTargetPoseRobotSpace().getOrientation().getYaw(AngleUnit.RADIANS)) > 0.4)
                 return null; // The pitch is always 0 (normal parallel to floor), but because it is mounted like it is, a higher tolerance is required
-            if (Math.abs(fiducial.getTargetPoseRobotSpace().getOrientation().getRoll(AngleUnit.RADIANS) + Math.PI) > 0.2)
+            if (Math.abs(fiducial.getTargetPoseRobotSpace().getOrientation().getRoll(AngleUnit.RADIANS)) > 0.2)
                 return null; // The roll is always 0 (no tipping robots I hope)
         }
 

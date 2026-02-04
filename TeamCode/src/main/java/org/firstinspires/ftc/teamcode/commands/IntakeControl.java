@@ -37,7 +37,7 @@ public class IntakeControl implements Command {
         if (gamepad.getRightBumper()) {
             intake.spin(1.0);
             stopper.spin(1);
-            intake.empty();
+            intake.isEmpty();
         } else {
             intake.spin(intakeSpeed);
             if (intakeSpeed == 0) {
@@ -47,7 +47,7 @@ public class IntakeControl implements Command {
             }
 
             if (intakeSpeed < 0) {
-                intake.empty();
+                intake.isEmpty();
             }
         }
 

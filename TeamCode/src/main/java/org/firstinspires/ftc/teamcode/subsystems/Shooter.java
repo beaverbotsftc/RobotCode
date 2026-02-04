@@ -3,9 +3,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import android.util.Pair;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.RobotLog;
 
 import org.beaverbots.beaver.cachedhardware.CachedMotor;
 import org.beaverbots.beaver.command.HardwareManager;
@@ -13,7 +11,6 @@ import org.beaverbots.beaver.command.Subsystem;
 import org.beaverbots.beaver.util.PiecewiseLinearFunction;
 import org.beaverbots.beaver.util.Stopwatch;
 import org.beaverbots.beaver.pathing.pidf.PIDFAxis;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 
 import java.util.List;
@@ -65,11 +62,12 @@ public final class Shooter implements Subsystem {
         }
     }
 
-    public void spin(double rpm) {
+    public void setFlywheelSpeed(double rpm) {
         this.rpm = Math.min(rpm, 3200);
     }
 
-    public void setHood(double pos) {
+    /// In magic servo units
+    public void setHoodAngle(double pos) {
         if (Double.isFinite(pos))
             hood.setPosition(Math.min(pos, 1));
     }
@@ -136,10 +134,10 @@ public final class Shooter implements Subsystem {
                 new Pair<>(48.58, 2150.0),
                 new Pair<>(62.51, 2450.0),
                 new Pair<>(76.46, 2475.0),
-                new Pair<>(90.68, 2600.0),
-                new Pair<>(101.04, 2675.0),
-                new Pair<>(123.07, 2800.0),
-                new Pair<>(147.34, 3200.0)
+                new Pair<>(90.68, 2600.0 - 30),
+                new Pair<>(101.04, 2675.0 - 30),
+                new Pair<>(123.07, 2800.0 - 30),
+                new Pair<>(147.34, 3200.0 - 30)
         )).evaluate(d);
 
         double hood = new PiecewiseLinearFunction(List.of(

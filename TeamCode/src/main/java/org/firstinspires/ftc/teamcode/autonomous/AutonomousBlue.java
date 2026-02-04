@@ -132,7 +132,7 @@ public class AutonomousBlue extends CommandRuntimeOpMode {
                         intakeFrom(driveThroughSpike3()),
                         shootNear(driveToShootNear()),
                         new Instant(() -> {
-                            shooter.spin(0);
+                            shooter.setFlywheelSpeed(0);
                         }),
                         leaveNear()
                         /*
@@ -410,8 +410,8 @@ public class AutonomousBlue extends CommandRuntimeOpMode {
 
         return new Sequential(
                 new Instant(() -> {
-                    shooter.spin(SHOOTER_RPM);
-                    shooter.setHood(HOOD_ANGLE);
+                    shooter.setFlywheelSpeed(SHOOTER_RPM);
+                    shooter.setHoodAngle(HOOD_ANGLE);
                 }),
                 followPathTemplate(path.first),
                 new RunUntil(
@@ -445,8 +445,8 @@ public class AutonomousBlue extends CommandRuntimeOpMode {
 
         return new Sequential(
                 new Instant(() -> {
-                    shooter.spin(SHOOTER_RPM);
-                    shooter.setHood(HOOD_ANGLE);
+                    shooter.setFlywheelSpeed(SHOOTER_RPM);
+                    shooter.setHoodAngle(HOOD_ANGLE);
                 }),
                 followPathTemplate(path.first),
                 new RunUntil(

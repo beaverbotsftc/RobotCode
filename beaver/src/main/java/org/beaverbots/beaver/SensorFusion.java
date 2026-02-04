@@ -210,6 +210,14 @@ public final class SensorFusion {
         return covariance.copy();
     }
 
+    public void setMean(RealVector mean) {
+        this.mean = mean;
+    }
+
+    public void setCovariance(RealMatrix covariance) {
+        this.covariance = covariance;
+    }
+
     private List<RealVector> generateSigmaPoints() {
         if (!isValidMatrix(covariance)) {
             RobotLog.ee(

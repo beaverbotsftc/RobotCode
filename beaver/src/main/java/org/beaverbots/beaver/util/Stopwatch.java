@@ -3,6 +3,7 @@ package org.beaverbots.beaver.util;
 public final class Stopwatch {
     private long start;
     private double lastTime;
+    private double lastLastTime;
 
     public Stopwatch() {
         reset();
@@ -15,8 +16,14 @@ public final class Stopwatch {
     public double getDt() {
         double time = getElapsed();
         double dt = time - lastTime;
+        lastLastTime = lastTime;
         lastTime = time;
         return dt;
+    }
+
+    ///  Calling this twice in a row is undefined.
+    public void undoGetDt() {
+        lastTime = lastLastTime;
     }
 
     public void reset() {

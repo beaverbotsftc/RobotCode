@@ -125,7 +125,7 @@ public class AutonomousV0Point5 extends CommandRuntimeOpMode {
                         intakeSpike(2),
                         shootNear(),
                         new Instant(() -> {
-                            shooter.spin(0);
+                            shooter.setFlywheelSpeed(0);
                         }),
                         leaveNear()
                 )
@@ -180,8 +180,8 @@ public class AutonomousV0Point5 extends CommandRuntimeOpMode {
 
         return new Sequential(
                 new Instant(() -> {
-                    shooter.spin(SHOOTER_RPM);
-                    shooter.setHood(HOOD_ANGLE);
+                    shooter.setFlywheelSpeed(SHOOTER_RPM);
+                    shooter.setHoodAngle(HOOD_ANGLE);
                 }),
                 followPathTemplate(path.first),
                 new RunUntil(
@@ -239,8 +239,8 @@ public class AutonomousV0Point5 extends CommandRuntimeOpMode {
 
         return new Sequential(
                 new Instant(() -> {
-                    shooter.spin(SHOOTER_RPM);
-                    shooter.setHood(HOOD_ANGLE);
+                    shooter.setFlywheelSpeed(SHOOTER_RPM);
+                    shooter.setHoodAngle(HOOD_ANGLE);
                 }),
                 followPathTemplate(path.first),
                 new RunUntil(

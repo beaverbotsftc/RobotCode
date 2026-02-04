@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.beaverbots.beaver.cachedhardware.CachedMotor;
 import org.beaverbots.beaver.command.HardwareManager;
@@ -21,9 +19,9 @@ public final class Intake implements Subsystem {
     // Prioritize high battery autonomous. Also, false negative > false positive.
     private static final int CURRENT_QUEUE_SIZE = 8;
     private static final double CURRENT_CUTOFF_FULL = 4.6;
+    private static final double CURRENT_CUTOFF_EMPTY = 2.8;
 
     private Queue<Double> currentQueue = new LinkedList<>(Collections.nCopies(CURRENT_QUEUE_SIZE, 0.0));
-    private boolean full = false;
 
 
     private double power;
@@ -33,7 +31,6 @@ public final class Intake implements Subsystem {
 
         this.intake = new CachedMotor(HardwareManager.claim("intake"), 0.01);
         this.intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        this.intake.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public Intake() {
@@ -44,24 +41,36 @@ public final class Intake implements Subsystem {
     public void periodic() {
         intake.setPower(maxPower * power);
 
-        currentQueue.add(current());
+        if (power != 0)
+            currentQueue.add(current());
+        else
+            currentQueue.add(Double.NaN);
+
         if (currentQueue.size() > CURRENT_QUEUE_SIZE) {
             currentQueue.remove();
         }
-
-        if (power < 0) empty();
-
-        fullPeriodic();
     }
 
-    public void fullPeriodic() {
+    public boolean full() {
         for (double current : currentQueue) {
-            if (current < CURRENT_CUTOFF_FULL) {
-                return;
+            if (current < CURRENT_CUTOFF_FULL || Double.isNaN(current)) {
+                return false;
             }
         }
 
-        full = true;
+        return true;
+    }
+
+    public boolean isEmpty() {
+        if (power == 0) return false;
+
+        for (double current : currentQueue) {
+            if (current > CURRENT_CUTOFF_EMPTY || Double.isNaN(current)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public void spin(double power) {
@@ -70,14 +79,6 @@ public final class Intake implements Subsystem {
 
     public void setMaxPower(double maxPower) {
         this.maxPower = maxPower;
-    }
-
-    public boolean isFull() {
-        return full;
-    }
-
-    public void empty() {
-        full = false;
     }
 
     public double current() {

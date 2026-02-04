@@ -15,7 +15,6 @@ public final class Stopper implements Subsystem {
     public Stopper() {
         this.stopper = new CachedMotor(HardwareManager.claim("stopper"), 0.01);
         this.stopper.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        this.stopper.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public void periodic() {

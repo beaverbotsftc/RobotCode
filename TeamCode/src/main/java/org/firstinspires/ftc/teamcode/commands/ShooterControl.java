@@ -75,7 +75,7 @@ public class ShooterControl implements Command {
         Pair<Double, Double> values = shooter.getSettingsAtDistance(distToTarget);
         shootRpm = values.first;
 
-        shooter.setHood(values.second);
+        shooter.setHoodAngle(values.second);
 
 
         if(gamepad.getLeftBumperJustPressed()){
@@ -84,10 +84,10 @@ public class ShooterControl implements Command {
 
         if (shooterToggle) {
             if (adjustRpm)
-                shooter.spin(shootRpm);
+                shooter.setFlywheelSpeed(shootRpm);
             led.setProximity(shootRpm,getCurrentRPM());
         } else {
-            shooter.spin(0);
+            shooter.setFlywheelSpeed(0);
             led.turnOffRPMLed();
         }
 

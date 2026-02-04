@@ -63,13 +63,13 @@ public class ShooterConversionFactor extends CommandRuntimeOpMode {
 
         schedule(new Sequential(
                         new WaitUntil(() -> gamepad.getCross()),
-                        new Instant(() -> shooter.spin(targetRpm)),
+                        new Instant(() -> shooter.setFlywheelSpeed(targetRpm)),
                         new RunUntil(
                                 new Wait(12),
                                 new Repeat(() -> telemetry.addData("RPM:", shooter.getVelocity()))
                         ),
                         new Instant(() -> loss = Math.pow(shooter.getVelocity() - targetRpm, 2)),
-                        new Instant(() -> shooter.spin(0)),
+                        new Instant(() -> shooter.setFlywheelSpeed(0)),
                         new Instant(() -> RobotLog.d(String.format("Loss: %f", loss))),
                         new WaitUntil(() -> gamepad.getCircle()),
                         new Instant(() -> optimizer.addObservedPoint(point, loss)),

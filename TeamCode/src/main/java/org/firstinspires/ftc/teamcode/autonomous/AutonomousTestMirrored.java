@@ -128,7 +128,7 @@ public class AutonomousTestMirrored extends CommandRuntimeOpMode {
                         intakeSpike(driveThroughSpike2()),
                         shootNear(newPathBuilderFromPath(getPreviousPath(1)).reverse().retime(usageRatio, 1, 50).build()),
                         new Instant(() -> {
-                            shooter.spin(0);
+                            shooter.setFlywheelSpeed(0);
                         }),
                         leaveNear()
                 )
@@ -259,8 +259,8 @@ public class AutonomousTestMirrored extends CommandRuntimeOpMode {
 
         return new Sequential(
                 new Instant(() -> {
-                    shooter.spin(SHOOTER_RPM);
-                    shooter.setHood(HOOD_ANGLE);
+                    shooter.setFlywheelSpeed(SHOOTER_RPM);
+                    shooter.setHoodAngle(HOOD_ANGLE);
                 }),
                 followPathTemplate(path.first),
                 new RunUntil(

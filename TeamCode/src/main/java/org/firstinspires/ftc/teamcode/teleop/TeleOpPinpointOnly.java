@@ -126,7 +126,6 @@ public class TeleOpPinpointOnly extends CommandRuntimeOpMode {
 
         CrossModeStorage.position = pinpoint.getPosition();
 
-        telemetry.addData("Intake full", intake.isFull());
         telemetry.addData("Right trigger", gamepad.getRightTrigger());
 
         telemetry.addData("Pinpoint X", pinpoint.getPosition().getX());

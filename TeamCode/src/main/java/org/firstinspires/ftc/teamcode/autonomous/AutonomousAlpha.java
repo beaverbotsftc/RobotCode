@@ -7,6 +7,7 @@ import org.beaverbots.beaver.command.CommandRuntimeOpMode;
 import org.beaverbots.beaver.command.premade.First;
 import org.beaverbots.beaver.command.premade.Instant;
 import org.beaverbots.beaver.command.premade.Repeat;
+import org.beaverbots.beaver.command.premade.RunUntil;
 import org.beaverbots.beaver.command.premade.Sequential;
 import org.beaverbots.beaver.command.premade.Wait;
 import org.beaverbots.beaver.command.premade.WaitUntil;
@@ -20,6 +21,7 @@ import org.firstinspires.ftc.teamcode.CrossModeStorage;
 import org.firstinspires.ftc.teamcode.Motif;
 import org.firstinspires.ftc.teamcode.Side;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
+import org.firstinspires.ftc.teamcode.subsystems.GateOpener;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
@@ -48,6 +50,7 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
     private VoltageSensor voltageSensor;
     private Intake intake;
     private Stopper stopper;
+    private GateOpener gateOpener;
 
     private final Side side = Side.RED;
     private Motif motif;
@@ -78,6 +81,7 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
         shooter = new Shooter(voltageSensor);
         intake = new Intake(1);
         stopper = new Stopper();
+        //gateOpener = new GateOpener(side);
 
         usageRatio = PathBuilder.createHolonomicUsage(1 / Constants.drivetrainPowerConversionFactorX, 1 / Constants.drivetrainPowerConversionFactorY, 1 / Constants.drivetrainPowerConversionFactorTheta);
 
@@ -101,16 +105,21 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
 
         schedule(
                 new Sequential(
-                        drive(lineToShootNear()),
-                        drive(splineThroughSpike2()),
-                        drive(newPathBuilderFromPath(paths.get(paths.size() - 1)).reverse().build()),
+                        new Instant(() -> {
+                            shooter.setFlywheelSpeed(2100);
+                            shooter.setHoodAngle(0.1);
+                        }),
+                        shoot(lineToShootNear()),
+                        intake(splineThroughSpike2()),
+                        shoot(splineToShootNear()),
                         drive(splineToOpenGate()),
-                        drive(newPathBuilderFromPath(paths.get(paths.size() - 1)).reverse().build()),
-                        drive(splineThroughSpike1()),
-                        drive(newPathBuilderFromPath(paths.get(paths.size() - 1)).reverse().build()),
+                        intakeFromGate(lineToIntakeGate(), 5),
+                        shoot(splineToShootNear()),
+                        intake(splineThroughSpike1()),
+                        shoot(lineToShootNear()),
                         drive(splineToOpenGate()),
-                        drive(newPathBuilderFromPath(paths.get(paths.size() - 1)).reverse().build()),
-                        driveAndStop(lineToBehindGate()),
+                        intakeFromGate(lineToIntakeGate(), 5),
+                        shoot(splineToShootNear()),
                         new Instant(this::requestOpModeStop)
                 )
         );
@@ -122,7 +131,6 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
         telemetry.addData("Variance X:", fusedLocalizer.getCovariance().getEntry(0, 0));
         telemetry.addData("Variance Y:", fusedLocalizer.getCovariance().getEntry(1, 1));
         telemetry.addData("Variance Theta:", fusedLocalizer.getCovariance().getEntry(2, 2));
-        telemetry.addData("Intake full", intake.isFull());
         CrossModeStorage.position = fusedLocalizer.getPosition();
     }
 
@@ -161,11 +169,19 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
         update(path);
         return new Sequential(
                 followPathTemplate(path.first),
-                new Instant(() -> intake.spin(-1)),
-                new Instant(() -> stopper.spin(-1)),
-                new Instant(() -> intake.empty()),
-                new Wait(2),
-                new Instant(() -> intake.spin(0)),
+                new RunUntil(
+                        new Sequential(
+                                new WaitUntil(() -> Math.abs(shooter.getError()) < 50),
+                                new Instant(() -> intake.spin(1)),
+                                new Instant(() -> stopper.spin(1)),
+                                new First(
+                                        new Wait(20),
+                                        new WaitUntil(() -> intake.isEmpty())
+                                )
+                        ),
+                        followPathTemplate(path.second)
+                ),
+        new Instant(() -> intake.spin(0)),
                 new Instant(() -> stopper.spin(0))
         );
     }
@@ -189,9 +205,12 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
                 new Instant(() -> intake.spin(1)),
                 new Instant(() -> stopper.spin(-1)),
                 followPathTemplate(path.first),
-                new First(
-                        new WaitUntil(() -> intake.isFull()),
-                        new Wait(timeout)
+                new RunUntil(
+                        new First(
+                                new WaitUntil(() -> intake.full()),
+                                new Wait(timeout)
+                        ),
+                        followPathTemplate(path.second)
                 ),
                 new Instant(() -> intake.spin(0)),
                 new Instant(() -> stopper.spin(0))
@@ -220,27 +239,62 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
         final double Y = 25;
 
         final double EASING_FRACTION = 0.5;
+        final double STOPPING_FRACTION = 0.8;
 
         final Transform position = new Transform(
                 X,
                 Y,
                 Localizer.wind(
-                        Math.PI / 2, currentPosition.getTheta()
+                        Math.atan2(
+                                Constants.GOAL_Y - Y,
+                                Constants.GOAL_X - X
+                        ) - Constants.shooterBias, currentPosition.getTheta()
                 )
         );
 
-        return newPathBuilder().linearTo(position.toList(), EASING_FRACTION, 1).retime(usageRatio, 0.2, 50).build();
+        return newPathBuilder().linearTo(position.toList(), EASING_FRACTION, 1).stop(STOPPING_FRACTION, STOPPING_FRACTION, PathBuilder.EaseMode.PREEMPTIVE).retime(usageRatio, 0.5, 50).build();
     }
 
+    private Pair<Path, Path> splineToShootNear() {
+        // Using setup manual dimensions (middle of shark fin), rather than CAD.
+        final double X = -25;
+
+        final double BEZIER_1_Y = 40;
+        final double BEZIER_2_Y = 28;
+        final double BEZIER_3_Y = 25;
+
+        final double EASING_FRACTION = 0.2;
+        final double STOPPING_FRACTION = 0.3;
+
+        Transform position1 = new Transform(currentPosition.getX(), BEZIER_1_Y, currentPosition.getTheta());
+        Transform position2 = new Transform(currentPosition.getX(), BEZIER_2_Y, currentPosition.getTheta());
+        Transform position3 = new Transform(X, BEZIER_3_Y, Localizer.wind(
+                Math.atan2(
+                        Constants.GOAL_Y - BEZIER_3_Y,
+                        Constants.GOAL_X - X
+                ) - Constants.shooterBias, currentPosition.getTheta()
+        ));
+        Transform position0 = new Transform(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
+
+
+        return newPathBuilder()
+                .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), EASING_FRACTION, 1)
+                .bezierTo(position2.toList(), position3.toList(), position3.toList(), EASING_FRACTION, 1)
+                .stop(STOPPING_FRACTION, STOPPING_FRACTION, PathBuilder.EaseMode.PREEMPTIVE)
+                .retime(usageRatio, 0.8, 50)
+                .build();
+    }
+
+    /*
     private Pair<Path, Path> splineToOpenGate() {
-        final double X = 13;//12.5;
+        final double X = 14;//12.5;
         final double THETA = Localizer.wind(
                 1.9168, currentPosition.getTheta()
         );
 
         final double BEZIER_1_Y = 30;
         final double BEZIER_2_Y = 48;
-        final double BEZIER_3_Y = 57;//57;
+        final double BEZIER_3_Y = 56;//57;
 
         final double EASING_FRACTION = 0.3;
 
@@ -253,7 +307,67 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
         return newPathBuilder()
                 .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), EASING_FRACTION, 1)
                 .bezierTo(position2.toList(), position3.toList(), position3.toList(), EASING_FRACTION, 1)
-                .retime(usageRatio, 0.4, 50)
+                .retime(usageRatio, 0.14, 50)
+                .build();
+    }
+     */
+
+    private Pair<Path, Path> splineToOpenGate() {
+        final double X = 4;//12.5;
+
+        final double BEZIER_1_Y = 24;
+        final double BEZIER_2_Y = 44;
+        final double BEZIER_3_Y = 55;//57;
+
+        final double EASING_FRACTION = 0.2;
+        final double STOPPING_FRACTION = 0.0;
+
+        final double GATE_FRACTION = 1.5;
+
+        Transform position1 = new Transform(X, BEZIER_1_Y,
+                Localizer.wind(
+                        Math.PI / 2, currentPosition.getTheta()
+                )
+        );
+        Transform position2 = new Transform(X, BEZIER_2_Y,
+                Localizer.wind(
+                        Math.PI / 2, currentPosition.getTheta()
+                )
+        );
+        Transform position3 = new Transform(X, BEZIER_3_Y,
+                Localizer.wind(
+                        Math.PI / 2, currentPosition.getTheta()
+                )
+        );
+        Transform position0 = new Transform(position1.toVector().mapMultiply(1 + 1 / GATE_FRACTION).subtract(position2.toVector().mapMultiply(1 / GATE_FRACTION)));
+
+
+        return newPathBuilder()
+                .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), EASING_FRACTION, 1)
+                .bezierTo(position2.toList(), position3.toList(), position3.toList(), EASING_FRACTION, GATE_FRACTION)
+                .stop(STOPPING_FRACTION, STOPPING_FRACTION)
+                .retime(usageRatio, 0.7, 1000)
+                .build();
+    }
+
+    private Pair<Path, Path> lineToIntakeGate() {
+        final double X = 18;
+        final double Y = 58;
+        final double THETA = 2.3;
+
+        final double EASING_FRACTION = 0.2;
+        final double STOPPING_FRACTION = 0.2;
+
+        final Transform position = new Transform(
+                X,
+                Y,
+                THETA
+        );
+
+        return newPathBuilder()
+                .linearTo(position.toList(), EASING_FRACTION, 1)
+                .stop(STOPPING_FRACTION, STOPPING_FRACTION)
+                .retime(usageRatio, 0.8, 50)
                 .build();
     }
 
@@ -263,9 +377,10 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
 
         final double BEZIER_1_Y = 28;
         final double BEZIER_2_Y = 40;
-        final double BEZIER_3_Y = 52;
+        final double BEZIER_3_Y = 50;//56;
 
-        final double EASING_FRACTION = 0.2;
+        final double EASING_FRACTION = 0.3;
+        final double INTAKE_FRACTION = 1;
 
         Transform position1 = new Transform(X, BEZIER_1_Y,
                 Localizer.wind(
@@ -282,13 +397,13 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
                         Math.PI / 2, currentPosition.getTheta()
                 )
         );
-        Transform position0 = new Transform(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
+        Transform position0 = new Transform(position1.toVector().mapMultiply(1 + 1 / INTAKE_FRACTION).subtract(position2.toVector().mapMultiply(1 / INTAKE_FRACTION)));
 
 
         return newPathBuilder()
                 .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), EASING_FRACTION, 1)
-                .bezierTo(position2.toList(), position3.toList(), position3.toList(), EASING_FRACTION, 1)
-                .retime(usageRatio, 0.2, 50)
+                .bezierTo(position2.toList(), position3.toList(), position3.toList(), EASING_FRACTION, INTAKE_FRACTION)
+                .retime(usageRatio, 0.4, 50)
                 .build();
     }
 
@@ -298,9 +413,10 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
 
         final double BEZIER_1_Y = 28;
         final double BEZIER_2_Y = 40;
-        final double BEZIER_3_Y = 56;
+        final double BEZIER_3_Y = 60;//56;
 
         final double EASING_FRACTION = 0.3;
+        final double INTAKE_FRACTION = 1;
 
         Transform position1 = new Transform(X, BEZIER_1_Y,
                 Localizer.wind(
@@ -317,48 +433,13 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
                         Math.PI / 2, currentPosition.getTheta()
                 )
         );
-        Transform position0 = new Transform(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
+        Transform position0 = new Transform(position1.toVector().mapMultiply(1 + 1 / INTAKE_FRACTION).subtract(position2.toVector().mapMultiply(1 / INTAKE_FRACTION)));
 
 
         return newPathBuilder()
                 .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), EASING_FRACTION, 1)
-                .bezierTo(position2.toList(), position3.toList(), position3.toList(), EASING_FRACTION, 1)
-                .retime(usageRatio, 0.2, 50)
-                .build();
-    }
-
-    private Pair<Path, Path> splineThroughSpike3() {
-        // Using setup manual dimensions (middle of shark fin), rather than CAD.
-        final double X = 35.34375;
-
-        final double BEZIER_1_Y = 28;
-        final double BEZIER_2_Y = 40;
-        final double BEZIER_3_Y = 56;
-
-        final double EASING_FRACTION = 0.3;
-
-        Transform position1 = new Transform(X, BEZIER_1_Y,
-                Localizer.wind(
-                        Math.PI / 2, currentPosition.getTheta()
-                )
-        );
-        Transform position2 = new Transform(X, BEZIER_2_Y,
-                Localizer.wind(
-                        Math.PI / 2, currentPosition.getTheta()
-                )
-        );
-        Transform position3 = new Transform(X, BEZIER_3_Y,
-                Localizer.wind(
-                        Math.PI / 2, currentPosition.getTheta()
-                )
-        );
-        Transform position0 = new Transform(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
-
-
-        return newPathBuilder()
-                .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), EASING_FRACTION, 1)
-                .bezierTo(position2.toList(), position3.toList(), position3.toList(), EASING_FRACTION, 1)
-                .retime(usageRatio, 0.2, 50)
+                .bezierTo(position2.toList(), position3.toList(), position3.toList(), EASING_FRACTION, INTAKE_FRACTION)
+                .retime(usageRatio, 0.6, 50)
                 .build();
     }
 

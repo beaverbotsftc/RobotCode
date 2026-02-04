@@ -30,8 +30,8 @@ public class IntakeSpeedExperiment extends CommandRuntimeOpMode {
 
     @Override
     public void periodic() {
-        shooter.spin(2200);
-        shooter.setHood(0.4);
+        shooter.setFlywheelSpeed(2200);
+        shooter.setHoodAngle(0.4);
         stopper.spin(gamepad.getLeftX());
         intake.spin(gamepad.getLeftX());
     }

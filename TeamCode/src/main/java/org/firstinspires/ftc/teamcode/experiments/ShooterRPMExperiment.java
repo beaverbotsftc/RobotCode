@@ -30,14 +30,14 @@ public class ShooterRPMExperiment extends CommandRuntimeOpMode {
     @Override
     public void periodic() {
         if (gamepad.getDpadUpJustPressed())
-            shooter.spin(4000);
+            shooter.setFlywheelSpeed(4000);
         if (gamepad.getDpadRightJustPressed())
-            shooter.spin(3000);
+            shooter.setFlywheelSpeed(3000);
         if (gamepad.getDpadDownJustPressed())
-            shooter.spin(2000);
+            shooter.setFlywheelSpeed(2000);
         if (gamepad.getDpadLeftJustPressed())
-            shooter.spin(1000);
+            shooter.setFlywheelSpeed(1000);
         if (gamepad.getCircleJustPressed())
-            shooter.spin(0);
+            shooter.setFlywheelSpeed(0);
     }
 }

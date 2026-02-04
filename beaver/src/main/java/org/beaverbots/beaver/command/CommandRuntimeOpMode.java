@@ -1,9 +1,8 @@
 package org.beaverbots.beaver.command;
 
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.RobotLog;
-
-import org.firstinspires.ftc.robotcore.internal.network.NetworkConnectionHandler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,7 +19,7 @@ public abstract class CommandRuntimeOpMode extends OpMode {
     private final List<Command> commandsToSchedule = new ArrayList<>();
     private final Set<Command> commandsToCancel = new HashSet<>();
 
-    private boolean isInitialized = false;
+    private List<LynxModule> hubs;
 
     private void runScheduler() {
         for (Command command : commandBuffer) {
@@ -82,13 +81,19 @@ public abstract class CommandRuntimeOpMode extends OpMode {
     }
 
     public final void init() {
+        hubs = hardwareMap.getAll(LynxModule.class);
+
+        for (LynxModule hub : hubs) {
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+        }
+
         HardwareManager.init(hardwareMap);
         onInit();
     }
 
     public final void init_loop() {
-        if (!isInitialized) {
-            isInitialized = true;
+        for (LynxModule hub : hubs) {
+            hub.clearBulkCache();
         }
 
         runSubsystems();
@@ -102,6 +107,10 @@ public abstract class CommandRuntimeOpMode extends OpMode {
     }
 
     public final void loop() {
+        for (LynxModule hub : hubs) {
+            hub.clearBulkCache();
+        }
+
         runSubsystems();
         periodic();
         runScheduler();
