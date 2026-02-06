@@ -1,12 +1,14 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.RobotLog;
 
 import org.beaverbots.beaver.cachedhardware.CachedMotor;
 import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.command.Subsystem;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -17,9 +19,9 @@ public final class Intake implements Subsystem {
     private CachedMotor intake;
 
     // Prioritize high battery autonomous. Also, false negative > false positive.
-    private static final int CURRENT_QUEUE_SIZE = 8;
-    private static final double CURRENT_CUTOFF_FULL = 4.6;
-    private static final double CURRENT_CUTOFF_EMPTY = 2.8;
+    private static final int CURRENT_QUEUE_SIZE = 12;
+    private static final double CURRENT_CUTOFF_FULL = 4.5;
+    private static final double CURRENT_CUTOFF_EMPTY = 2.6;
 
     private Queue<Double> currentQueue = new LinkedList<>(Collections.nCopies(CURRENT_QUEUE_SIZE, 0.0));
 
@@ -49,9 +51,11 @@ public final class Intake implements Subsystem {
         if (currentQueue.size() > CURRENT_QUEUE_SIZE) {
             currentQueue.remove();
         }
+
+        RobotLog.dd("Intake", Arrays.toString(currentQueue.toArray()));
     }
 
-    public boolean full() {
+    public boolean isFull() {
         for (double current : currentQueue) {
             if (current < CURRENT_CUTOFF_FULL || Double.isNaN(current)) {
                 return false;

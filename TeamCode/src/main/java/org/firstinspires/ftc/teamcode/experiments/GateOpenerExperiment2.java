@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.subsystems.GateOpener;
 public class GateOpenerExperiment2 extends CommandRuntimeOpMode {
     GateOpener go;
     public void onInit() {
-        go = new GateOpener(Side.RED);
+        go = new GateOpener();
     }
 
     public void periodic() {

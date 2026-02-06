@@ -119,7 +119,7 @@ public final class Constants {
     public static double pidGammaShooter = 0.0004;
 
     public static double lateralVariancePinpoint = 0.000683634022087;
-    public static double angularVariancePinpoint = 0.0000000268388027135;
+    public static double angularVariancePinpoint = 0.0000000268388027135 * 1000;
 
     public static double minLateralVarianceLimelight = 0;
     public static double minAngularVariancePinpoint = 0;//Math.pow(Math.PI / 36, 2); // 5 deg

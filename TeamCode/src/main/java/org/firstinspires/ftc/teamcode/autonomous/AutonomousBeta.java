@@ -21,6 +21,7 @@ import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.CrossModeStorage;
 import org.firstinspires.ftc.teamcode.Motif;
 import org.firstinspires.ftc.teamcode.Side;
+import org.firstinspires.ftc.teamcode.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.GateOpener;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
@@ -29,7 +30,6 @@ import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.Stopper;
 import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
-import org.firstinspires.ftc.teamcode.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Localizer;
@@ -41,7 +41,7 @@ import java.util.function.DoubleUnaryOperator;
 import java.util.function.ToDoubleFunction;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous
-public class AutonomousAlpha extends CommandRuntimeOpMode {
+public class AutonomousBeta extends CommandRuntimeOpMode {
     private Gamepad gamepad;
     private Drivetrain drivetrain;
     private Pinpoint pinpoint;
@@ -111,19 +111,19 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
                 }),
                 new Sequential(
                         new Instant(() -> {
-                            shooter.setFlywheelSpeed(2100);
-                            shooter.setHoodAngle(0.1);
+                            shooter.setFlywheelSpeed(2800);
+                            shooter.setHoodAngle(0.5);
                         }),
                         new Instant(() -> gateOpener.close()),
-                        shoot(lineToShootNear(), 0.75),
-                        intake(splineThroughSpike2()),
-                        shoot(splineToShootNear(), 0.75),
-                        intakeFromGate(splineToIntakeGate(), 1.2),
-                        shoot(splineToShootNear(), 0.75),
-                        intakeFromGate(splineToIntakeGate(), 2),
-                        shoot(splineToShootNear(), 0.75),
-                        intake(splineThroughSpike1()),
-                        shoot(splineToShootNear(), 0.75),
+                        shoot(lineToShootFar(), 1),
+                        intake(splineThroughSpike3()),
+                        shoot(splineToShootFar(), 1),
+                        intake(lineToHumanPlayer()),
+                        shoot(lineToShootFar(), 1),
+                        intake(lineToHumanPlayer()),
+                        shoot(lineToShootFar(), 1),
+                        intake(lineToHumanPlayer()),
+                        shoot(lineToShootFar(), 1),
                         new Instant(this::requestOpModeStop)
                 )
         );
@@ -175,7 +175,7 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
                 followPathTemplate(path.first),
                 new RunUntil(
                         new Sequential(
-                                new Wait(0.5),
+                                new Wait(2),
                                 new WaitUntil(() -> Math.abs(shooter.getError()) < 80),
                                 new Instant(() -> intake.spin(1)),
                                 new Instant(() -> stopper.spin(1)),
@@ -227,9 +227,9 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
         );
     }
 
-    public Pair<Path, Path> lineToShootNear() {
-        final double X = -24;
-        final double Y = 24;
+    public Pair<Path, Path> lineToShootFar() {
+        final double X = 56;
+        final double Y = 16;
 
         final double EASING_FRACTION = 0.4;
         final double STOPPING_FRACTION = 0.2;
@@ -248,17 +248,40 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
         return newPathBuilder()
                 .linearTo(position.toList(), EASING_FRACTION, 1)
                 .stop(STOPPING_FRACTION, STOPPING_FRACTION)
-                .retime(usageRatio, 1, 50)
+                .retime(usageRatio, 0.4, 50)
                 .build();
     }
 
 
-    private Pair<Path, Path> splineToShootNear() {
-        final double X = -24;
+    public Pair<Path, Path> lineToHumanPlayer() {
+        final double X = 60;
+        final double Y = 56;
+
+        final double EASING_FRACTION = 0.4;
+        final double STOPPING_FRACTION = 0.2;
+
+        final Transform position = new Transform(
+                X,
+                Y,
+                Localizer.wind(
+                        Math.PI / 2, currentPosition.getTheta()
+                )
+        );
+
+        return newPathBuilder()
+                .linearTo(position.toList(), EASING_FRACTION, 1)
+                .stop(STOPPING_FRACTION, STOPPING_FRACTION)
+                .retime(usageRatio, 0.4, 50)
+                .build();
+    }
+
+
+    private Pair<Path, Path> splineToShootFar() {
+        final double X = 56;
 
         final double BEZIER_1_Y = 40;
         final double BEZIER_2_Y = 28;
-        final double BEZIER_3_Y = 24;
+        final double BEZIER_3_Y = 16;
 
         final double EASING_FRACTION = 0.4;
         final double STOPPING_FRACTION = 0.2;
@@ -279,54 +302,13 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
                 .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), 0, BACKUP_FRACTION)
                 .bezierTo(position2.toList(), position3.toList(), position3.toList(), 0, 1)
                 .stop(STOPPING_FRACTION, STOPPING_FRACTION)
-                .retime(usageRatio, 1, 50)
+                .retime(usageRatio, 0.4, 50)
                 .build();
     }
 
-    private Pair<Path, Path> splineThroughSpike1() {
+    private Pair<Path, Path> splineThroughSpike3() {
         // Using setup manual dimensions (middle of shark fin), rather than CAD.
-        final double X = -11.78125;
-
-        final double BEZIER_1_Y = 28;
-        final double BEZIER_2_Y = 35;
-        final double BEZIER_3_Y = 60;
-
-        final double EASING_FRACTION = 0.3;
-        final double STOPPING_FRACTION = 0;
-        final double INTAKE_FRACTION = 2.6;
-
-        Transform position1 = new Transform(X, BEZIER_1_Y,
-                Localizer.wind(
-                        Math.PI / 2,
-                        currentPosition.getTheta()
-                )
-        );
-        Transform position2 = new Transform(X, BEZIER_2_Y,
-                Localizer.wind(
-                        Math.PI / 2,
-                        currentPosition.getTheta()
-                )
-        );
-        Transform position3 = new Transform(X, BEZIER_3_Y,
-                Localizer.wind(
-                        Math.PI / 2,
-                        currentPosition.getTheta()
-                )
-        );
-        Transform position0 = new Transform(position1.toVector().mapMultiply(1 + 1 / INTAKE_FRACTION).subtract(position2.toVector().mapMultiply(1 / INTAKE_FRACTION)));
-
-
-        return newPathBuilder()
-                .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), 0, 1)
-                .bezierTo(position2.toList(), position3.toList(), position3.toList(), 0, INTAKE_FRACTION)
-                .stop(STOPPING_FRACTION, STOPPING_FRACTION)
-                .retime(usageRatio, 0.8, 50)
-                .build();
-    }
-
-    private Pair<Path, Path> splineThroughSpike2() {
-        // Using setup manual dimensions (middle of shark fin), rather than CAD.
-        final double X = 11.78125 + 2;
+        final double X = 35.34375;
 
         final double BEZIER_1_Y = 28;
         final double BEZIER_2_Y = 45;
@@ -361,7 +343,7 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
                 .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), 0, 1)
                 .bezierTo(position2.toList(), position3.toList(), position3.toList(), 0, INTAKE_FRACTION)
                 .stop(STOPPING_FRACTION, STOPPING_FRACTION)
-                .retime(usageRatio, 0.8, 50)
+                .retime(usageRatio, 0.4, 50)
                 .build();
     }
 

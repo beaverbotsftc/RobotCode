@@ -6,26 +6,23 @@ import org.beaverbots.beaver.command.Subsystem;
 import org.firstinspires.ftc.teamcode.Side;
 
 public final class GateOpener implements Subsystem {
-    public CachedServo servo;
-    private Side side;
+    public CachedServo redServo;
+    public CachedServo blueServo;
 
-    public GateOpener(Side side) {
-        servo = new CachedServo(HardwareManager.claim("gate servo"), 0);
-        this.side = side;
+    public GateOpener() {
+        redServo = new CachedServo(HardwareManager.claim("left gate"), 0);
+        blueServo = new CachedServo(HardwareManager.claim("right gate"), 0);
+
+        close();
     }
 
     public void open() {
-        switch (side) {
-            case RED:
-                servo.setPosition(0);
-                break;
-            case BLUE:
-                servo.setPosition(1);
-                break;
-        }
+        redServo.setPosition(0.18);
+        blueServo.setPosition(0.18);
     }
 
     public void close() {
-        servo.setPosition(0.5);
+        redServo.setPosition(0.5);
+        blueServo.setPosition(0.5);
     }
 }

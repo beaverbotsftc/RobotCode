@@ -139,6 +139,9 @@ public class TeleOp extends CommandRuntimeOpMode {
         telemetry.addData("Pinpoint X", pinpoint.getPosition().getX());
         telemetry.addData("Pinpoint Y", pinpoint.getPosition().getY());
         telemetry.addData("Pinpoint Theta", pinpoint.getPosition().getTheta());
+
+        telemetry.addData("Full", intake.isFull());
+        telemetry.addData("Empty", intake.isEmpty());
         /*
         if (gamepad.getDpadUpJustPressed() && !a) {
             pinpoint.setPosition(fusedLocalizer.getPosition());
