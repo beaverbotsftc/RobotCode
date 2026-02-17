@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @Autonomous(name="Turret Tester", group="Examples")
@@ -28,7 +29,7 @@ public class TurretExperiment extends LinearOpMode {
         motor2 = hardwareMap.get(DcMotorEx.class, "shoot2");
         motor2.setDirection(DcMotor.Direction.REVERSE);
 
-        hoodServo = hardwareMap.get(Servo.class, "hood");
+        hoodServo = hardwareMap.get(Servo.class, "stopper servo");
         turret = hardwareMap.get(Servo.class, "turret servo");
         turret1 = hardwareMap.get(Servo.class, "turret servo2");
 
@@ -43,6 +44,9 @@ public class TurretExperiment extends LinearOpMode {
 
         intake = hardwareMap.get(DcMotorEx.class, "intake");
         stopper = hardwareMap.get(DcMotorEx.class, "stopper");
+
+        intake.setDirection(DcMotor.Direction.FORWARD);
+        stopper.setDirection(DcMotor.Direction.REVERSE);
 
         waitForStart();
 
@@ -84,7 +88,7 @@ public class TurretExperiment extends LinearOpMode {
             motor2.setPower(outputPower);
 
             intake.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
-            stopper.setPower(gamepad1.right_stick_y);
+            stopper.setPower(intake.getPower());
 
             // Calculate RPMs
             double rpm1 = ticksPerSecondToRPM(motor.getVelocity());
