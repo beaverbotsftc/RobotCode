@@ -50,7 +50,8 @@ public final class SensorFusion {
             RealMatrix covariance,
             double alpha,
             PredictorFunction predictorFunction,
-            RealMatrix processNoise) {
+            RealMatrix processNoise
+    ) {
         this.dimensionality = dimensionality;
         this.alpha = alpha;
         kappa = 0;
@@ -91,6 +92,22 @@ public final class SensorFusion {
 
         predictedCovariance = predictedCovariance.add(processNoise.scalarMultiply(dt));
 
+        // TODO: Really slow, like 10% of loop time slow
+        /*
+        RobotLog.dd("UKF", Arrays.deepToString(predictedCovariance.getData()));
+        RobotLog.dd("UKF", String.valueOf(predictedMean.getEntry(0)));
+        RobotLog.dd("UKF", String.valueOf(predictedMean.getEntry(1)));
+        RobotLog.dd("UKF", String.valueOf(predictedMean.getEntry(2)));
+        RobotLog.dd("UKF", "");
+        RobotLog.dd("UKF", String.valueOf(controlVector.getEntry(0)));
+        RobotLog.dd("UKF", String.valueOf(controlVector.getEntry(1)));
+        RobotLog.dd("UKF", String.valueOf(controlVector.getEntry(2)));
+        RobotLog.dd("UKF", String.valueOf(controlVector.getEntry(3)));
+        RobotLog.dd("UKF", "");
+        RobotLog.dd("UKF", "");
+        RobotLog.dd("UKF", "");
+         */
+
         if (isValidVector(predictedMean) && isValidMatrix(predictedCovariance)) {
             this.mean = predictedMean;
             this.covariance = predictedCovariance;
@@ -102,6 +119,7 @@ public final class SensorFusion {
     public void update(
             RealVector measurement,
             RealMatrix sensorCovariance,
+            RealVector minimumVariance,
             MeasurementFunction measurementFunction) {
         final int measurementDimensionality = measurement.getDimension();
 
@@ -125,7 +143,7 @@ public final class SensorFusion {
             RealVector deviation = measurementPoints.get(i).subtract(predictedMeasurement);
             innovationCovariance = innovationCovariance.add(deviation.outerProduct(deviation).scalarMultiply(w));
         }
-        innovationCovariance = innovationCovariance.add(sensorCovariance);
+        innovationCovariance = innovationCovariance.add(enforceMinimumVariance(sensorCovariance, minimumVariance));
 
         RealMatrix crossCovariance = new Array2DRowRealMatrix(dimensionality, measurementDimensionality);
         for (int i = 0; i < sigmaPoints.size(); i++) {
@@ -137,10 +155,15 @@ public final class SensorFusion {
 
         RealMatrix kalmanGain;
         try {
-            // Use safe cholesky here too to prevent crashing on singular innovation
-            // matrices
-            kalmanGain = crossCovariance.multiply(
-                    choleskyDecomposeSafe(innovationCovariance).getSolver().getInverse());
+            // Use safe cholesky here too to prevent crashing on singular innovation matrices
+            // Solve S * X = P_xy^T. Result X is K^T. Transpose back.
+            kalmanGain = choleskyDecomposeSafe(innovationCovariance)
+                    .getSolver()
+                    .solve(crossCovariance.transpose())
+                    .transpose();
+            //kalmanGain = crossCovariance.multiply(
+            //        choleskyDecomposeSafe(innovationCovariance).getSolver().getInverse()
+            //);
         } catch (Exception e) {
             RobotLog.ee(
                     "BeaverSensor",
@@ -164,12 +187,35 @@ public final class SensorFusion {
         }
     }
 
+    public RealMatrix enforceMinimumVariance(RealMatrix variance, RealVector minimumVariance) {
+        RealMatrix varianceCopy = variance.copy();
+        for (int i = 0; i < minimumVariance.getDimension(); i++) {
+            varianceCopy.setEntry(
+                    i, i,
+                    Math.max(
+                            minimumVariance.getEntry(i),
+                            variance.getEntry(i, i)
+                    )
+            );
+        }
+
+        return varianceCopy;
+    }
+
     public RealVector getMean() {
         return mean.copy();
     }
 
     public RealMatrix getCovariance() {
         return covariance.copy();
+    }
+
+    public void setMean(RealVector mean) {
+        this.mean = mean;
+    }
+
+    public void setCovariance(RealMatrix covariance) {
+        this.covariance = covariance;
     }
 
     private List<RealVector> generateSigmaPoints() {
@@ -204,6 +250,7 @@ public final class SensorFusion {
     public boolean isMeasurementInlier(
             RealVector measurement,
             RealMatrix sensorCovariance,
+            RealVector minimumVariance,
             MeasurementFunction measurementFunction,
             double significanceLevel) {
         final int measurementDimensionality = measurement.getDimension();
@@ -228,7 +275,7 @@ public final class SensorFusion {
             RealVector deviation = measurementPoints.get(i).subtract(predictedMeasurement);
             innovationCovariance = innovationCovariance.add(deviation.outerProduct(deviation).scalarMultiply(w));
         }
-        innovationCovariance = innovationCovariance.add(sensorCovariance);
+        innovationCovariance = innovationCovariance.add(enforceMinimumVariance(sensorCovariance, minimumVariance));
 
         RealVector innovation = measurement.subtract(predictedMeasurement);
 
@@ -297,9 +344,11 @@ public final class SensorFusion {
             throw new NonPositiveDefiniteMatrixException(0, 0, 0);
         }
 
+        /*
         if (Math.abs(Arrays.stream(new EigenDecomposition(matrix).getRealEigenvalues()).min().getAsDouble()) < 1e-6) {
             throw new NonPositiveDefiniteMatrixException(9999, 9999, 9999);
         }
+         */
 
         try {
             return new CholeskyDecomposition(matrix);

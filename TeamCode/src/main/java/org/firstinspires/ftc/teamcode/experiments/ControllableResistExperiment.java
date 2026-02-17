@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.commands.ShooterMode;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
 
 @Autonomous
@@ -27,7 +27,7 @@ public class ControllableResistExperiment extends CommandRuntimeOpMode {
     public void onInit() {
         gamepad = new Gamepad(gamepad1);
         drivetrain = new MecanumDrivetrain();
-        pinpoint = new Pinpoint(new DrivetrainState(0, 0, 0));
+        pinpoint = new Pinpoint(new Transform(0, 0, 0));
     }
 
     @Override

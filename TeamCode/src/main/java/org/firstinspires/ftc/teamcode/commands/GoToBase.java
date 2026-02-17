@@ -3,15 +3,13 @@ package org.firstinspires.ftc.teamcode.commands;
 import org.beaverbots.beaver.command.Command;
 import org.beaverbots.beaver.command.Subsystem;
 import org.beaverbots.beaver.pathing.commands.HolonomicFollowPath;
-import org.beaverbots.beaver.pathing.path.Path;
-import org.beaverbots.beaver.pathing.path.PathAxis;
 import org.beaverbots.beaver.pathing.path.pathbuilder.PathBuilder;
 import org.beaverbots.beaver.pathing.pidf.PIDF;
 import org.beaverbots.beaver.pathing.pidf.PIDFAxis;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Side;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Localizer;
 
 import java.util.List;
@@ -35,11 +33,11 @@ public class GoToBase implements Command {
     }
 
     public void start() {
-        DrivetrainState position = localizer.getPosition();
+        Transform position = localizer.getPosition();
 
         followPathCommand = new HolonomicFollowPath(
                 new PathBuilder(position.toList())
-                        .linearTo(new DrivetrainState(Constants.BASE_X, side == Side.RED ? Constants.BASE_Y : -Constants.BASE_Y, 0).toList(), 1, 5)
+                        .linearTo(new Transform(Constants.BASE_X, side == Side.RED ? Constants.BASE_Y : -Constants.BASE_Y, 0).toList(), 1, 5)
                         .build()
                         .first,
                 new PIDF(List.of(

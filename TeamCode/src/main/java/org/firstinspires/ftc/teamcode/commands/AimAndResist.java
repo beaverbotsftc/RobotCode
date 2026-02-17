@@ -10,7 +10,7 @@ import org.beaverbots.beaver.pathing.pidf.PIDFAxis;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Side;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Localizer;
 
 import java.util.List;
@@ -37,8 +37,8 @@ public class AimAndResist implements Command {
     }
 
     public void start() {
-        DrivetrainState goalPosition = new DrivetrainState(Constants.GOAL_X, side == Side.RED ? Constants.GOAL_Y : -Constants.GOAL_Y, 0);
-        DrivetrainState position = localizer.getPosition();
+        Transform goalPosition = new Transform(Constants.GOAL_X, side == Side.RED ? Constants.GOAL_Y : -Constants.GOAL_Y, 0);
+        Transform position = localizer.getPosition();
 
         command = new HolonomicFollowPath(
                 new Path(

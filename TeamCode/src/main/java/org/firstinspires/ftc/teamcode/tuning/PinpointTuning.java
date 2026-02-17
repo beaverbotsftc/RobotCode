@@ -13,7 +13,7 @@ import org.beaverbots.beaver.command.premade.WaitUntil;
 import org.beaverbots.beaver.optimize.BayesianOptimizer;
 import org.beaverbots.beaver.optimize.kernels.RBFKernel;
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -58,7 +58,7 @@ public class PinpointTuning extends CommandRuntimeOpMode {
             RobotLog.d(optimizer.getBestObservedPoint().toString());
         } catch (IllegalStateException ignored) {}
 
-        pinpoint = new Pinpoint(new DrivetrainState(0, 0, 0));
+        pinpoint = new Pinpoint(new Transform(0, 0, 0));
 
         gamepad = new Gamepad(gamepad1);
     }

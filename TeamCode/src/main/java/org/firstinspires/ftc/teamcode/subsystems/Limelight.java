@@ -16,7 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.Motif;
 import org.firstinspires.ftc.teamcode.Side;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.Transform;
 
 import java.util.List;
 import java.util.Set;
@@ -30,19 +30,19 @@ public class Limelight implements Subsystem {
     }
 
     public static class LimelightLocalization {
-        private DrivetrainState state;
-        private DrivetrainState variance;
+        private Transform state;
+        private Transform variance;
 
-        public LimelightLocalization(DrivetrainState state, DrivetrainState variance) {
+        public LimelightLocalization(Transform state, Transform variance) {
             this.state = state;
             this.variance = variance;
         }
 
-        public DrivetrainState getState() {
+        public Transform getState() {
             return state;
         }
 
-        public DrivetrainState getVariance() {
+        public Transform getVariance() {
             return variance;
         }
 
@@ -131,10 +131,6 @@ public class Limelight implements Subsystem {
         if (currentPipeline != Pipeline.LOCALIZATION_GOAL)
             throw new IllegalStateException("Invalid pipeline currently selected");
 
-        // TODO: It isn't synced with Pinpoint yet, so the dt will always be a bit too long (compared to what the UKF has, i.e. pinpoint), but whatever.
-        // TODO: The timestamp returned by limelight for Control Hub time in nanoseconds is wrong, so I'll use milliseconds.
-        long time = System.currentTimeMillis();
-
         LLResult result = limelight.getLatestResult();
         if (result.getTimestamp() == lastPositionResultTime) return null;
         if (!result.isValid()) return null;
@@ -161,10 +157,9 @@ public class Limelight implements Subsystem {
         double thetaVariance = Math.pow(Math.toRadians(result.getStddevMt1()[5]), 2);
         RobotLog.d(String.valueOf(thetaVariance));
 
-        // Ignores parse latency to avoid double counting it
         return new Pair<>(new LimelightLocalization(
-                new DrivetrainState(x, y, theta),
-                new DrivetrainState(xVariance, yVariance, thetaVariance)
-        ), (double) (time - result.getControlHubTimeStamp()) / 1000 + result.getCaptureLatency() / 1000 * 0 + result.getTargetingLatency() / 1000 * 0);
+                new Transform(x, y, theta),
+                new Transform(xVariance, yVariance, thetaVariance)
+        ), (double) result.getStaleness() / 1000);
     }
 }

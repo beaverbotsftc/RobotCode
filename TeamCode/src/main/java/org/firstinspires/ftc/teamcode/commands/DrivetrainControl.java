@@ -5,14 +5,14 @@ import org.beaverbots.beaver.command.Subsystem;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.Transform;
 
 import java.util.Set;
 
 
 public class DrivetrainControl implements Command {
-    private Drivetrain drivetrain;
-    private Gamepad gamepad;
+    private final Drivetrain drivetrain;
+    private final Gamepad gamepad;
 
     public DrivetrainControl(Drivetrain drivetrain, Gamepad gamepad) {
         this.drivetrain = drivetrain;
@@ -29,7 +29,7 @@ public class DrivetrainControl implements Command {
         double y = -gamepad.getLeftX() / Constants.drivetrainPowerConversionFactorY; //* 70;
         double theta = -gamepad.getRightX() / Constants.drivetrainPowerConversionFactorTheta; //* Math.PI * 2;
 
-        drivetrain.move(new DrivetrainState(x, y, theta));
+        drivetrain.move(new Transform(x, y, theta));
 
         if (gamepad.getDpadDownJustPressed()) {
             drivetrain.toggleBrake();

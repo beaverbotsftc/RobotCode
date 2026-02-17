@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.Side;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.Led;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Localizer;
 
 public class ShooterControl implements Command {
@@ -41,7 +41,7 @@ public class ShooterControl implements Command {
 
     int preset = 0;
     public boolean periodic() {
-        double distToTarget = localizer.getPosition().lateralDistance(new DrivetrainState(Constants.GOAL_X, side == Side.RED ? Constants.GOAL_Y : -Constants.GOAL_Y, 0));
+        double distToTarget = localizer.getPosition().lateralDistance(new Transform(Constants.GOAL_X, side == Side.RED ? Constants.GOAL_Y : -Constants.GOAL_Y, 0));
         /*
         if (gamepad.getTriangleJustPressed()) {
             preset = Math.min(preset + 1, 2);
@@ -75,7 +75,7 @@ public class ShooterControl implements Command {
         Pair<Double, Double> values = shooter.getSettingsAtDistance(distToTarget);
         shootRpm = values.first;
 
-        shooter.setHood(values.second);
+        shooter.setHoodAngle(values.second);
 
 
         if(gamepad.getLeftBumperJustPressed()){
@@ -84,10 +84,10 @@ public class ShooterControl implements Command {
 
         if (shooterToggle) {
             if (adjustRpm)
-                shooter.spin(shootRpm);
+                shooter.setFlywheelSpeed(shootRpm);
             led.setProximity(shootRpm,getCurrentRPM());
         } else {
-            shooter.spin(0);
+            shooter.setFlywheelSpeed(0);
             led.turnOffRPMLed();
         }
 
@@ -109,6 +109,6 @@ public class ShooterControl implements Command {
     }
 
     public double getDistanceToTag(){
-        return localizer.getPosition().lateralDistance(new DrivetrainState(Constants.GOAL_X, side == Side.RED ? Constants.GOAL_Y : -Constants.GOAL_Y, 0));
+        return localizer.getPosition().lateralDistance(new Transform(Constants.GOAL_X, side == Side.RED ? Constants.GOAL_Y : -Constants.GOAL_Y, 0));
     }
 }

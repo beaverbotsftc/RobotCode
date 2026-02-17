@@ -95,7 +95,9 @@ public class SensorFilterTest2 extends LinearOpMode {
             RealVector measurement = new ArrayRealVector(new double[]{measuredPosition});
 
             // UPDATE: The filter uses its incorrect, overly optimistic belief about the sensor noise
-            ukf.update(measurement, sensorCovarianceForFilter, measurementFunc);
+            ukf.update(measurement, sensorCovarianceForFilter,
+                    new ArrayRealVector(new double[] {0, 0, 0}),
+                    measurementFunc);
 
             // LOG DATA
             timeData.add(timer.seconds());

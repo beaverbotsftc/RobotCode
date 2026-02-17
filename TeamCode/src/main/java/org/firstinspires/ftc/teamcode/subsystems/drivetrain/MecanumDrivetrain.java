@@ -1,23 +1,24 @@
 package org.firstinspires.ftc.teamcode.subsystems.drivetrain;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import org.beaverbots.beaver.cachedhardware.CachedMotor;
 import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.command.Subsystem;
-import org.firstinspires.ftc.robotcore.internal.network.NetworkConnectionHandler;
 import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.Transform;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class MecanumDrivetrain implements Drivetrain, Subsystem {
-    private DcMotorEx frontLeft;
-    private DcMotorEx frontRight;
-    private DcMotorEx backLeft;
-    private DcMotorEx backRight;
+    private CachedMotor frontLeft;
+    private CachedMotor frontRight;
+    private CachedMotor backLeft;
+    private CachedMotor backRight;
 
-    private DrivetrainState velocity = new DrivetrainState(0, 0, 0);
+    private Transform velocity = new Transform(0, 0, 0);
 
     private double maxPower;
 
@@ -26,20 +27,20 @@ public final class MecanumDrivetrain implements Drivetrain, Subsystem {
     public MecanumDrivetrain(double maxPower) {
         this.maxPower = maxPower;
 
-        this.frontLeft = HardwareManager.claim("left front");
-        this.frontRight = HardwareManager.claim("right front");
-        this.backLeft = HardwareManager.claim("left back");
-        this.backRight = HardwareManager.claim("right back");
+        this.frontLeft = new CachedMotor(HardwareManager.claim("left front"), 0.01);
+        this.frontRight = new CachedMotor(HardwareManager.claim("right front"), 0.01);
+        this.backLeft = new CachedMotor(HardwareManager.claim("left back"), 0.01);
+        this.backRight = new CachedMotor(HardwareManager.claim("right back"), 0.01);
 
         frontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         backRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         setBrake(isBraking);
     }
@@ -48,8 +49,12 @@ public final class MecanumDrivetrain implements Drivetrain, Subsystem {
         this(1);
     }
 
+    List<Double> powerPercentages = new ArrayList<>(List.of(0.0));
+
     public void periodic() {
         // TODO: stuff
+        // TODO: Doesn't work. ?
+        /*
         if (!NetworkConnectionHandler.getInstance().isNetworkConnected()) {
             frontLeft.setPower(0);
             frontRight.setPower(0);
@@ -57,6 +62,7 @@ public final class MecanumDrivetrain implements Drivetrain, Subsystem {
             backRight.setPower(0);
             return;
         }
+         */
 
         double frontLeftPower = (velocity.getX() * Constants.drivetrainPowerConversionFactorX - velocity.getY() * Constants.drivetrainPowerConversionFactorY - velocity.getTheta() * Constants.drivetrainPowerConversionFactorTheta);
         double frontRightPower = (velocity.getX() * Constants.drivetrainPowerConversionFactorX + velocity.getY() * Constants.drivetrainPowerConversionFactorY + velocity.getTheta() * Constants.drivetrainPowerConversionFactorTheta);
@@ -83,18 +89,43 @@ public final class MecanumDrivetrain implements Drivetrain, Subsystem {
         frontRight.setPower(frontRightPower);
         backLeft.setPower(backLeftPower);
         backRight.setPower(backRightPower);
+
+        // TODO: Profiling says really slow, like 10% of the loop times slow.
+        /*
+        powerPercentages.add(
+                Math.max(
+                        Math.abs(frontLeft.getVelocity() / 384.5 * 60),
+                        Math.max(
+                                Math.abs(frontRight.getVelocity() / 384.5 * 60),
+                                Math.max(
+                                        Math.abs(backLeft.getVelocity() / 384.5 * 60),
+                                        Math.abs(backRight.getVelocity() / 384.5 * 60)
+                                ))
+                ) / 435.0 * 100
+        );
+         */
     }
 
-    public void move(DrivetrainState velocity) {
+    public double getTop10PercentPowerPercentage() {
+        powerPercentages.sort(Double::compare);
+        return powerPercentages.get((int) (powerPercentages.size() * 0.9));
+    }
+
+    public double getTop1PercentPowerPercentage() {
+        powerPercentages.sort(Double::compare);
+        return powerPercentages.get((int) (powerPercentages.size() * 0.99));
+    }
+
+    public void move(Transform velocity) {
         this.velocity = velocity;
     }
 
-    public void move(DrivetrainState velocity, DrivetrainState position) {
+    public void move(Transform velocity, Transform position) {
         this.velocity = velocity.toLocalVelocity(position);
     }
 
     public void move(List<Double> velocity, List<Double> position) {
-        move(new DrivetrainState(velocity), new DrivetrainState(position));
+        move(new Transform(velocity), new Transform(position));
     }
 
     public void setMaxPower(double maxPower) {

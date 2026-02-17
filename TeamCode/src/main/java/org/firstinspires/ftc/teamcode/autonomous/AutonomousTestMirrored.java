@@ -27,7 +27,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.Stopper;
 import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Localizer;
@@ -55,7 +55,7 @@ public class AutonomousTestMirrored extends CommandRuntimeOpMode {
 
     private List<DoubleUnaryOperator> mirror;
 
-    private DrivetrainState currentPosition;
+    private Transform currentPosition;
     private List<Path> paths = new ArrayList<>();
     private List<Path> pathsHold = new ArrayList<>();
 
@@ -71,12 +71,12 @@ public class AutonomousTestMirrored extends CommandRuntimeOpMode {
 
         gamepad = new Gamepad(gamepad1);
         drivetrain = new MecanumDrivetrain();
-        pinpoint = new Pinpoint(new DrivetrainState(0, 0, 0));
+        pinpoint = new Pinpoint(new Transform(0, 0, 0));
         limelight = new Limelight();
-        fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new DrivetrainState(0, 0, 0));
+        fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new Transform(0, 0, 0));
         voltageSensor = new VoltageSensor();
         shooter = new Shooter(voltageSensor);
-        intake = new Intake(voltageSensor);
+        intake = new Intake();
         stopper = new Stopper();
 
         usageRatio = PathBuilder.createHolonomicUsage(1 / Constants.drivetrainPowerConversionFactorX, 1 / Constants.drivetrainPowerConversionFactorY, 1 / Constants.drivetrainPowerConversionFactorTheta);
@@ -128,7 +128,7 @@ public class AutonomousTestMirrored extends CommandRuntimeOpMode {
                         intakeSpike(driveThroughSpike2()),
                         shootNear(newPathBuilderFromPath(getPreviousPath(1)).reverse().retime(usageRatio, 1, 50).build()),
                         new Instant(() -> {
-                            shooter.spin(0);
+                            shooter.setFlywheelSpeed(0);
                         }),
                         leaveNear()
                 )
@@ -150,7 +150,7 @@ public class AutonomousTestMirrored extends CommandRuntimeOpMode {
     }
 
     private void update(Pair<Path, Path> path) {
-        currentPosition = new DrivetrainState(path.second.position(0));
+        currentPosition = new Transform(path.second.position(0));
         paths.add(path.first);
         pathsHold.add(path.second);
     }
@@ -165,7 +165,7 @@ public class AutonomousTestMirrored extends CommandRuntimeOpMode {
 
         final double EASING_FRACTION = 1;
 
-        final DrivetrainState position = new DrivetrainState(
+        final Transform position = new Transform(
                 X,
                 -Y,
                 Localizer.wind(
@@ -189,10 +189,10 @@ public class AutonomousTestMirrored extends CommandRuntimeOpMode {
 
         final double EASING_FRACTION = 1;
 
-        DrivetrainState position1 = new DrivetrainState(X, -BEZIER_1_Y, -Math.PI / 2);
-        DrivetrainState position2 = new DrivetrainState(X, -BEZIER_2_Y, -Math.PI / 2);
-        DrivetrainState position3 = new DrivetrainState(X, -BEZIER_3_Y, -Math.PI / 2);
-        DrivetrainState position0 = new DrivetrainState(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
+        Transform position1 = new Transform(X, -BEZIER_1_Y, -Math.PI / 2);
+        Transform position2 = new Transform(X, -BEZIER_2_Y, -Math.PI / 2);
+        Transform position3 = new Transform(X, -BEZIER_3_Y, -Math.PI / 2);
+        Transform position0 = new Transform(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
 
 
         return newPathBuilder()
@@ -214,10 +214,10 @@ public class AutonomousTestMirrored extends CommandRuntimeOpMode {
         final double EASING_FRACTION = 1;
 
 
-        DrivetrainState position1 = new DrivetrainState(X, -BEZIER_1_Y, -Math.PI / 2);
-        DrivetrainState position2 = new DrivetrainState(X, -BEZIER_2_Y, -Math.PI / 2);
-        DrivetrainState position3 = new DrivetrainState(X, -BEZIER_3_Y, -Math.PI / 2);
-        DrivetrainState position0 = new DrivetrainState(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
+        Transform position1 = new Transform(X, -BEZIER_1_Y, -Math.PI / 2);
+        Transform position2 = new Transform(X, -BEZIER_2_Y, -Math.PI / 2);
+        Transform position3 = new Transform(X, -BEZIER_3_Y, -Math.PI / 2);
+        Transform position0 = new Transform(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
 
 
         return newPathBuilder()
@@ -237,10 +237,10 @@ public class AutonomousTestMirrored extends CommandRuntimeOpMode {
 
         final double EASING_FRACTION = 1;
 
-        DrivetrainState position1 = new DrivetrainState(X, -BEZIER_1_Y, -Math.PI / 2);
-        DrivetrainState position2 = new DrivetrainState(X, -BEZIER_2_Y, -Math.PI / 2);
-        DrivetrainState position3 = new DrivetrainState(X, -BEZIER_3_Y, -Math.PI / 2);
-        DrivetrainState position0 = new DrivetrainState(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
+        Transform position1 = new Transform(X, -BEZIER_1_Y, -Math.PI / 2);
+        Transform position2 = new Transform(X, -BEZIER_2_Y, -Math.PI / 2);
+        Transform position3 = new Transform(X, -BEZIER_3_Y, -Math.PI / 2);
+        Transform position0 = new Transform(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
 
 
         return newPathBuilder()
@@ -259,8 +259,8 @@ public class AutonomousTestMirrored extends CommandRuntimeOpMode {
 
         return new Sequential(
                 new Instant(() -> {
-                    shooter.spin(SHOOTER_RPM);
-                    shooter.setHood(HOOD_ANGLE);
+                    shooter.setFlywheelSpeed(SHOOTER_RPM);
+                    shooter.setHoodAngle(HOOD_ANGLE);
                 }),
                 followPathTemplate(path.first),
                 new RunUntil(
@@ -307,7 +307,7 @@ public class AutonomousTestMirrored extends CommandRuntimeOpMode {
         final double Y = 23.531253;
         final double EASING = 0.6;
 
-        DrivetrainState position = new DrivetrainState(X, Y, currentPosition.getTheta());
+        Transform position = new Transform(X, Y, currentPosition.getTheta());
         double distance = currentPosition.lateralDistance(position);
 
         Pair<Path, Path> path = newPathBuilder()
@@ -332,6 +332,6 @@ public class AutonomousTestMirrored extends CommandRuntimeOpMode {
                                 new PIDFAxis(new PIDFAxis.K(Constants.pidPY, Constants.pidIY, Constants.pidDY, 1, 6, 48, Constants.pidTauY, Constants.pidGammaY)),
                                 new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, 1, 6, 48, Constants.pidTauTheta, Constants.pidGammaTheta)))),
                         pinpoint, drivetrain),
-                new Instant(() -> drivetrain.move(new DrivetrainState(0, 0, 0))));
+                new Instant(() -> drivetrain.move(new Transform(0, 0, 0))));
     }
 }

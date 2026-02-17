@@ -14,7 +14,7 @@ import org.beaverbots.beaver.pathing.path.Path;
 import org.beaverbots.beaver.pathing.path.PathAxis;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
@@ -30,17 +30,17 @@ public class CircleAutoExperiment extends CommandRuntimeOpMode {
     @Override
     public void onInit() {
         drivetrain = new MecanumDrivetrain(1);
-        pinpoint = new Pinpoint(new DrivetrainState(0, 0, 0));
+        pinpoint = new Pinpoint(new Transform(0, 0, 0));
         limelight = new Limelight();
         limelight.localizationPipeline();
-        fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new DrivetrainState(0, 0, 0));
+        fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new Transform(0, 0, 0));
 
         register(drivetrain, pinpoint, fusedLocalizer, limelight);
     }
 
     @Override
     public void periodicInit() {
-        DrivetrainState pos = fusedLocalizer.getPosition();
+        Transform pos = fusedLocalizer.getPosition();
         telemetry.addData("Position:", pos);
         if (gamepad1.leftBumperWasPressed()) {
             pinpoint.setPosition(pos);
@@ -67,7 +67,7 @@ public class CircleAutoExperiment extends CommandRuntimeOpMode {
                                 ),
                                 pinpoint,
                                 drivetrain),
-                        new Instant(() -> drivetrain.move(new DrivetrainState(0, 0, 0)))));
+                        new Instant(() -> drivetrain.move(new Transform(0, 0, 0)))));
     }
 
     @Override

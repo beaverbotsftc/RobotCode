@@ -6,7 +6,6 @@ import org.beaverbots.beaver.command.CommandRuntimeOpMode;
 import org.beaverbots.beaver.command.premade.Repeat;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

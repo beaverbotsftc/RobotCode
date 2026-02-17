@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.teleop;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.beaverbots.beaver.command.CommandRuntimeOpMode;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.Transform;
 import org.firstinspires.ftc.teamcode.commands.SimpleControl;
 import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
@@ -27,9 +27,9 @@ public class Debug extends CommandRuntimeOpMode {
         voltageSensor = new VoltageSensor();
         gamepad = new Gamepad(gamepad1);
         drivetrain = new MecanumDrivetrain();
-        intake = new Intake(voltageSensor);
+        intake = new Intake();
         shooter = new Shooter(voltageSensor);
-        pinpoint = new Pinpoint(new DrivetrainState(0, 0, 0));
+        pinpoint = new Pinpoint(new Transform(0, 0, 0));
 
     }
 

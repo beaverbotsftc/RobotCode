@@ -1,10 +1,10 @@
 package org.firstinspires.ftc.teamcode.subsystems.localizer;
 
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.Transform;
 
 public interface Localizer extends org.beaverbots.beaver.pathing.Localizer {
-    DrivetrainState getPosition();
-    DrivetrainState getVelocity();
+    Transform getPosition();
+    Transform getVelocity();
 
     static double wind(double theta, double to) {
         double TWO_PI = 2.0 * Math.PI;

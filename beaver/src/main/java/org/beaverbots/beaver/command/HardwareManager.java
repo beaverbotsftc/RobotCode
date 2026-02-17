@@ -27,22 +27,31 @@ public final class HardwareManager {
         HardwareManager.hardwareMap = hardwareMap;
     }
 
+
+    public static <T extends HardwareDevice> T get(String id) {
+        hardwareCache.put(id, hardwareMap.get(id));
+        //noinspection unchecked
+        return (T) hardwareCache.get(id);
+    }
+
+    public static <T extends HardwareDevice> T get(Class<? extends T> classOrInterface, String id) {
+        hardwareCache.put(id, hardwareMap.get(classOrInterface, id));
+        //noinspection unchecked
+        return (T) hardwareCache.get(id);
+    }
+
     public static <T extends HardwareDevice> T claim(String id) {
         if (claimedHardwareIds.contains(id))
             throw new AlreadyClaimedException(String.format("Hardware with ID: '%s' already claimed, cannot claim it again.", id));
         claimedHardwareIds.add(id);
-        hardwareCache.put(id, hardwareMap.get(id));
-        //noinspection unchecked
-        return (T) hardwareCache.get(id);
+        return get(id);
     }
 
     public static <T extends HardwareDevice> T claim(Class<? extends T> classOrInterface, String id) {
         if (claimedHardwareIds.contains(id))
             throw new AlreadyClaimedException(String.format("Hardware with ID: '%s' already claimed, cannot claim it again.", id));
         claimedHardwareIds.add(id);
-        hardwareCache.put(id, hardwareMap.get(classOrInterface, id));
-        //noinspection unchecked
-        return (T) hardwareCache.get(id);
+        return get(classOrInterface, id);
     }
 
     public static void release(String id) {

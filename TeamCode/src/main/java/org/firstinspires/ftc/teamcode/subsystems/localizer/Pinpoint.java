@@ -1,12 +1,14 @@
+
 package org.firstinspires.ftc.teamcode.subsystems.localizer;
 
 import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.command.Subsystem;
+import org.beaverbots.beaver.util.Stopwatch;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.Transform;
 import org.firstinspires.ftc.teamcode.drivers.GoBildaPinpointDriver;
 
 import java.util.List;
@@ -15,16 +17,20 @@ public final class Pinpoint implements Localizer, Subsystem {
     private static final double IN_TO_MM = 25.4;
 
     private GoBildaPinpointDriver pinpoint;
-    private DrivetrainState currentPose = null;
-    private DrivetrainState currentVelocity = null;
+    private Transform currentPose = new Transform(0, 0, 0);
+    private Transform currentVelocity = new Transform(0, 0, 0);
 
-    public Pinpoint(DrivetrainState pose) {
+    private Stopwatch stopwatch;
+
+    public Pinpoint(Transform pose) {
         pinpoint = HardwareManager.claim(GoBildaPinpointDriver.class, "pinpoint");
         pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         pinpoint.setOffsets(Constants.pinpointXOffset * IN_TO_MM, Constants.pinpointYOffset * IN_TO_MM);
         pinpoint.recalibrateIMU();
         setPosition(pose);
+
+        stopwatch = new Stopwatch();
     }
 
     public List<Double> getPositionAsList() {
@@ -35,22 +41,56 @@ public final class Pinpoint implements Localizer, Subsystem {
         return List.of(currentVelocity.getX(), currentVelocity.getY(), currentVelocity.getTheta());
     }
 
-    public DrivetrainState getPosition() {
+    public Transform getPosition() {
         return currentPose;
     }
 
-    public DrivetrainState getVelocity() {
+    public Transform getVelocity() {
         return currentVelocity;
     }
 
     public void periodic() {
         pinpoint.update();
-        currentPose = new DrivetrainState(pinpoint.getPosition(), pinpoint.getHeading());
-        currentVelocity = new DrivetrainState(pinpoint.getVelocity(), pinpoint.getHeadingVelocity());
+        if (
+                pinpoint.getPosition().getX(DistanceUnit.INCH) == 0
+                        && pinpoint.getPosition().getY(DistanceUnit.INCH) == 0
+                        && pinpoint.getPosition().getHeading(AngleUnit.RADIANS) == 0
+        ) {
+            // TODO: Not 100% robust, sometimes I2C errors can happen in the middle of transmission
+            // !!! Lynx error !!!
+            // Also, if it is legitimately 0, 0, 0 *exactly*, it is probably at the start of the match where
+            // a) it probably doesn't matter, this is init
+            // and b) the default 0, 0, 0 is probably correct
+            return;
+        }
+
+        double dt = stopwatch.getDt();
+
+        Transform lastPose = currentPose;
+        currentPose = new Transform(pinpoint.getPosition(), pinpoint.getHeading());
+
+        Transform lastVelocity = currentVelocity;
+        currentVelocity = new Transform(pinpoint.getVelocity(), pinpoint.getHeadingVelocity());
+
+        // Should be more robust
+        if (
+                Math.abs((currentPose.getX() - lastPose.getX()) / dt) > 300
+                        || Math.abs((currentPose.getY() - lastPose.getY()) / dt) > 300
+                        || Math.abs((currentPose.getTheta() - lastPose.getTheta()) / dt) > 6 * Math.PI
+                        || Math.abs(currentVelocity.getX()) > 300
+                        || Math.abs(currentVelocity.getY()) > 300
+                        || Math.abs(currentVelocity.getTheta()) > 6 * Math.PI
+        ) {
+            // !!! Lynx error !!!
+            currentVelocity = lastVelocity;
+            currentPose = lastPose;
+            stopwatch.undoGetDt();
+        }
     }
 
-    public void setPosition(DrivetrainState position) {
+    public void setPosition(Transform position) {
         pinpoint.setPosition(position != null ? position.toPose2d() : new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, 0));
+        currentPose = position;
     }
 
     public double wind(double theta) {

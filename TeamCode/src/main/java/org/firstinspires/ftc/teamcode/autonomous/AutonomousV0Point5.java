@@ -28,7 +28,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.Stopper;
 import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.DrivetrainState;
+import org.firstinspires.ftc.teamcode.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Localizer;
@@ -54,7 +54,7 @@ public class AutonomousV0Point5 extends CommandRuntimeOpMode {
     private Motif motif;
 
     private List<DoubleUnaryOperator> mirror;
-    private DrivetrainState currentPosition;
+    private Transform currentPosition;
 
     private ToDoubleFunction<Pair<List<Double>, List<Double>>> usageRatio;
 
@@ -68,12 +68,12 @@ public class AutonomousV0Point5 extends CommandRuntimeOpMode {
 
         gamepad = new Gamepad(gamepad1);
         drivetrain = new MecanumDrivetrain();
-        pinpoint = new Pinpoint(new DrivetrainState(0, 0, 0));
+        pinpoint = new Pinpoint(new Transform(0, 0, 0));
         limelight = new Limelight();
-        fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new DrivetrainState(0, 0, 0));
+        fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new Transform(0, 0, 0));
         voltageSensor = new VoltageSensor();
         shooter = new Shooter(voltageSensor);
-        intake = new Intake(voltageSensor);
+        intake = new Intake();
         stopper = new Stopper();
 
         usageRatio = PathBuilder.createHolonomicUsage(1 / Constants.drivetrainPowerConversionFactorX, 1 / Constants.drivetrainPowerConversionFactorY, 1 / Constants.drivetrainPowerConversionFactorTheta);
@@ -125,7 +125,7 @@ public class AutonomousV0Point5 extends CommandRuntimeOpMode {
                         intakeSpike(2),
                         shootNear(),
                         new Instant(() -> {
-                            shooter.spin(0);
+                            shooter.setFlywheelSpeed(0);
                         }),
                         leaveNear()
                 )
@@ -143,7 +143,7 @@ public class AutonomousV0Point5 extends CommandRuntimeOpMode {
     }
 
     private void updateCurrentPosition(Path holdPath) {
-        currentPosition = new DrivetrainState(holdPath.position(0));
+        currentPosition = new Transform(holdPath.position(0));
     }
 
     private Command shootNear() {
@@ -154,7 +154,7 @@ public class AutonomousV0Point5 extends CommandRuntimeOpMode {
         final double HOOD_ANGLE = 0.3;
         final double EASING = 1.8;
 
-        DrivetrainState position = new DrivetrainState(
+        Transform position = new Transform(
                 X,
                 Y,
                 Localizer.wind(
@@ -180,8 +180,8 @@ public class AutonomousV0Point5 extends CommandRuntimeOpMode {
 
         return new Sequential(
                 new Instant(() -> {
-                    shooter.spin(SHOOTER_RPM);
-                    shooter.setHood(HOOD_ANGLE);
+                    shooter.setFlywheelSpeed(SHOOTER_RPM);
+                    shooter.setHoodAngle(HOOD_ANGLE);
                 }),
                 followPathTemplate(path.first),
                 new RunUntil(
@@ -213,7 +213,7 @@ public class AutonomousV0Point5 extends CommandRuntimeOpMode {
         final double HOOD_ANGLE = 0.72;
         final double EASING = 1.8;
 
-        DrivetrainState position = new DrivetrainState(
+        Transform position = new Transform(
                 X,
                 Y,
                 Localizer.wind(
@@ -239,8 +239,8 @@ public class AutonomousV0Point5 extends CommandRuntimeOpMode {
 
         return new Sequential(
                 new Instant(() -> {
-                    shooter.spin(SHOOTER_RPM);
-                    shooter.setHood(HOOD_ANGLE);
+                    shooter.setFlywheelSpeed(SHOOTER_RPM);
+                    shooter.setHoodAngle(HOOD_ANGLE);
                 }),
                 followPathTemplate(path.first),
                 new RunUntil(
@@ -292,10 +292,10 @@ public class AutonomousV0Point5 extends CommandRuntimeOpMode {
                 throw new IllegalArgumentException("Spike must be 1, 2, or 3");
         }
 
-        DrivetrainState position1 = new DrivetrainState(spikeX, BEZIER_1_Y, Math.PI / 2);
-        DrivetrainState position2 = new DrivetrainState(spikeX, BEZIER_2_Y, Math.PI / 2);
-        DrivetrainState position3 = new DrivetrainState(spikeX, BEZIER_3_Y, Math.PI / 2);
-        DrivetrainState position0 = new DrivetrainState(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
+        Transform position1 = new Transform(spikeX, BEZIER_1_Y, Math.PI / 2);
+        Transform position2 = new Transform(spikeX, BEZIER_2_Y, Math.PI / 2);
+        Transform position3 = new Transform(spikeX, BEZIER_3_Y, Math.PI / 2);
+        Transform position0 = new Transform(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
 
         double maxLateralSpeed = Math.max(
                 MaxSpeed.cubicBezier(
@@ -363,7 +363,7 @@ public class AutonomousV0Point5 extends CommandRuntimeOpMode {
         final double Y = 23.531253;
         final double EASING = 0.6;
 
-        DrivetrainState position = new DrivetrainState(X, Y, currentPosition.getTheta());
+        Transform position = new Transform(X, Y, currentPosition.getTheta());
         double distance = currentPosition.lateralDistance(position);
 
         Pair<Path, Path> path = newPathBuilder()
@@ -384,7 +384,7 @@ public class AutonomousV0Point5 extends CommandRuntimeOpMode {
         final double Y = 34;
         final double EASING = 0.6;
 
-        DrivetrainState position = new DrivetrainState(X, Y, currentPosition.getTheta());
+        Transform position = new Transform(X, Y, currentPosition.getTheta());
         double distance = currentPosition.lateralDistance(position);
 
         Pair<Path, Path> path = newPathBuilder()
@@ -409,6 +409,6 @@ public class AutonomousV0Point5 extends CommandRuntimeOpMode {
                                 new PIDFAxis(new PIDFAxis.K(Constants.pidPY, Constants.pidIY, Constants.pidDY, 1, 6, 48, Constants.pidTauY, Constants.pidGammaY)),
                                 new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, 1, 6, 48, Constants.pidTauTheta, Constants.pidGammaTheta)))),
                         pinpoint, drivetrain),
-                new Instant(() -> drivetrain.move(new DrivetrainState(0, 0, 0))));
+                new Instant(() -> drivetrain.move(new Transform(0, 0, 0))));
     }
 }

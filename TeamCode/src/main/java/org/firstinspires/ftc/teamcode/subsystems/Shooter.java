@@ -3,11 +3,9 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import android.util.Pair;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.RobotLog;
-import com.sun.tools.javac.util.List;
 
+import org.beaverbots.beaver.cachedhardware.CachedMotor;
 import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.command.Subsystem;
 import org.beaverbots.beaver.util.PiecewiseLinearFunction;
@@ -15,9 +13,11 @@ import org.beaverbots.beaver.util.Stopwatch;
 import org.beaverbots.beaver.pathing.pidf.PIDFAxis;
 import org.firstinspires.ftc.teamcode.Constants;
 
+import java.util.List;
+
 public final class Shooter implements Subsystem {
-    private DcMotorEx shooterLeft;
-    private DcMotorEx shooterRight;
+    private CachedMotor shooterLeft;
+    private CachedMotor shooterRight;
     private Servo hood;
     private double rpm;
     private PIDFAxis pidf = new PIDFAxis(new PIDFAxis.K(Constants.pidPShooter, Constants.pidIShooter, 0, 1, 0.01, 1, 1, Constants.pidGammaShooter));
@@ -27,9 +27,9 @@ public final class Shooter implements Subsystem {
     public boolean hardStopSetting = false;
 
     public Shooter(VoltageSensor voltageSensor) {
-        shooterLeft = HardwareManager.claim(DcMotorEx.class, "shoot");
+        shooterLeft = new CachedMotor(HardwareManager.claim("shoot"), 0.01);
         shooterLeft.setDirection(DcMotor.Direction.REVERSE);
-        shooterRight = HardwareManager.claim(DcMotorEx.class, "shoot2");
+        shooterRight = new CachedMotor(HardwareManager.claim("shoot2"), 0.01);
         shooterRight.setDirection(DcMotor.Direction.FORWARD);
 
         shooterLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -62,11 +62,12 @@ public final class Shooter implements Subsystem {
         }
     }
 
-    public void spin(double rpm) {
+    public void setFlywheelSpeed(double rpm) {
         this.rpm = Math.min(rpm, 3200);
     }
 
-    public void setHood(double pos) {
+    /// In magic servo units
+    public void setHoodAngle(double pos) {
         if (Double.isFinite(pos))
             hood.setPosition(Math.min(pos, 1));
     }
@@ -129,14 +130,15 @@ public final class Shooter implements Subsystem {
         )).evaluate(d);
          */
 
+        /*
         double rpm = new PiecewiseLinearFunction(List.of(
                 new Pair<>(48.58, 2150.0),
                 new Pair<>(62.51, 2450.0),
                 new Pair<>(76.46, 2475.0),
-                new Pair<>(90.68, 2600.0),
-                new Pair<>(101.04, 2675.0),
-                new Pair<>(123.07, 2800.0),
-                new Pair<>(147.34, 3200.0)
+                new Pair<>(90.68, 2600.0 - 30),
+                new Pair<>(101.04, 2675.0 - 30),
+                new Pair<>(123.07, 2800.0 - 30),
+                new Pair<>(147.34, 3200.0 - 30)
         )).evaluate(d);
 
         double hood = new PiecewiseLinearFunction(List.of(
@@ -147,6 +149,35 @@ public final class Shooter implements Subsystem {
                 new Pair<>(101.04, 0.66),
                 new Pair<>(123.07, 0.675 + 0.05),
                 new Pair<>(147.34, 0.9 + 0.05)
+        )).evaluate(d);
+
+         */
+
+
+        double rpm = new PiecewiseLinearFunction(List.of(
+                new Pair<>(14.4553, 2100.0),
+                new Pair<>(47.6251, 2100.0),
+                new Pair<>(59.136, 2150.0),
+                new Pair<>(72.7911, 2250.0),
+                new Pair<>(84.727, 2375.0),
+                new Pair<>(92.9576, 2875.0),
+                new Pair<>(103.07, 2650.0),
+                new Pair<>(133.2, 2975.0),
+                new Pair<>(139.8, 2875.0),
+                new Pair<>(146.2, 2950.0)
+        )).evaluate(d);
+
+        double hood = new PiecewiseLinearFunction(List.of(
+                new Pair<>(14.4553, 0.0),
+                new Pair<>(47.6251, 0.0),
+                new Pair<>(59.136, 0.1),
+                new Pair<>(72.7911, 0.15),
+                new Pair<>(84.727, 0.265),
+                new Pair<>(92.9576, 0.73),
+                new Pair<>(103.07, 0.545),
+                new Pair<>(133.2, 0.405),
+                new Pair<>(139.8, 0.69),
+                new Pair<>(146.2, 0.5)
         )).evaluate(d);
 
         return new Pair<>(rpm, hood);

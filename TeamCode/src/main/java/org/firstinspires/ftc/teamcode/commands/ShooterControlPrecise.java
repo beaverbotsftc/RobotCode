@@ -30,7 +30,7 @@ public class ShooterControlPrecise implements Command {
             hoodPos -= 0.005;
         }
 
-        shooter.setHood(hoodPos);
+        shooter.setHoodAngle(hoodPos);
 
 
         if(gamepad.getSquareJustPressed()){
@@ -38,9 +38,9 @@ public class ShooterControlPrecise implements Command {
         }
 
         if (shooterToggle) {
-            shooter.spin(shootRpm);
+            shooter.setFlywheelSpeed(shootRpm);
         } else {
-            shooter.spin(0);
+            shooter.setFlywheelSpeed(0);
         }
 
         if (shootRpm > 0) {

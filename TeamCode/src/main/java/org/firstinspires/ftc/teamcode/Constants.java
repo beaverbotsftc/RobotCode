@@ -30,7 +30,6 @@ public final class Constants {
         return 1 / drivetrainPowerConversionFactorTheta;
     }
 
-    /*
     // Ziegler–Nichols method
     // K_p = 0.2 * K_u
     // K_i = 0.4 * K_u / T_u
@@ -45,34 +44,54 @@ public final class Constants {
 
     public static double pidPX = 4.4;
     public static double pidIX = 8.8;
-    public static double pidDX = 1.46652;
+    public static double pidDX = 1.46652 / 4;
     public static double pidTauX = 0.1;
+    public static double pidGammaX = 100;
     public static double pidPY = 4.6;
     public static double pidIY = 13.142857142857146;
-    public static double pidDY = 1.073226;
+    public static double pidDY = 1.073226 / 4;
     public static double pidTauY = 0.1;
+    public static double pidGammaY = 100;
     public static double pidPTheta = 3.6;
     public static double pidITheta = 20.571428571428573;
-    public static double pidDTheta = 0.41995799999999994;
+    public static double pidDTheta = 0.419958 / 4;
     public static double pidTauTheta = 0.1;
-*/
+    public static double pidGammaTheta = 1000;
 
-
+/*
     public static double pidPX = 3;
-    public static double pidIX = 0;
+    public static double pidIX = 10;
     public static double pidDX = 1 / 2.;
     public static double pidTauX = 0.1;
-    public static double pidGammaX = 0;
+    public static double pidGammaX = 1000;
     public static double pidPY = 3.4;
-    public static double pidIY = 0;
+    public static double pidIY = 10;
     public static double pidDY = 1.2 / 2.;
     public static double pidTauY = 0.1;
-    public static double pidGammaY = 0;
+    public static double pidGammaY = 1000;
     public static double pidPTheta = 4;
-    public static double pidITheta = 0;
+    public static double pidITheta = 2;
     public static double pidDTheta = 0.3 / 2.;
     public static double pidTauTheta = 0.1;
-    public static double pidGammaTheta = 0;
+    public static double pidGammaTheta = 10000;
+*/
+/*
+    public static double pidPX = 3;
+    public static double pidIX = 10;
+    public static double pidDX = 1 / 2.;
+    public static double pidTauX = 0.1;
+    public static double pidGammaX = 1000;
+    public static double pidPY = 3.4;
+    public static double pidIY = 10;
+    public static double pidDY = 1.2 / 2.;
+    public static double pidTauY = 0.1;
+    public static double pidGammaY = 1000;
+    public static double pidPTheta = 4;
+    public static double pidITheta = 2;
+    public static double pidDTheta = 0.3 / 2.;
+    public static double pidTauTheta = 0.1;
+    public static double pidGammaTheta = 10000;
+ */
 
     /*
     public static double pidPX = 0;
@@ -100,5 +119,11 @@ public final class Constants {
     public static double pidGammaShooter = 0.0004;
 
     public static double lateralVariancePinpoint = 0.000683634022087;
-    public static double thetaVariancePinpoint = 0.0000000268388027135;
+    public static double angularVariancePinpoint = 0.0000000268388027135 * 1000;
+
+    public static double minLateralVarianceLimelight = 0;
+    public static double minAngularVariancePinpoint = 0;//Math.pow(Math.PI / 36, 2); // 5 deg
+
+
+    public static double maxAngularShootingError = 0.004;
 }
