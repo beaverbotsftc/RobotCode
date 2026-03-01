@@ -1,4 +1,4 @@
-package org.beaverbots.beaver.pathing.pidf;
+package org.beaverbots.beaver.pidf;
 
 import java.util.List;
 import java.util.stream.Collectors;

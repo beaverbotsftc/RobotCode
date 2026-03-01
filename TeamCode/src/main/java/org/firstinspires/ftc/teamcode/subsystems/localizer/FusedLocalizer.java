@@ -107,7 +107,7 @@ public class FusedLocalizer implements Subsystem, Localizer {
         if (dt > maxDt) {
             maxDt = dt;
         }
-        RobotLog.dd("FusedLocalizer", "maxDt=%.6f", maxDt);
+        //RobotLog.dd("FusedLocalizer", "maxDt=%.6f", maxDt);
 
         RealVector cumulativeDelta = currentRawPinpointState.subtract(lastFilterPinpointState);
         RealVector totalControl = new ArrayRealVector(new double[]{
@@ -125,7 +125,7 @@ public class FusedLocalizer implements Subsystem, Localizer {
         if (allowLimelight && limelight.getCurrentPipeline() == Limelight.Pipeline.LOCALIZATION_GOAL) {
             Pair<Limelight.LimelightLocalization, Double> limelightEstimation = limelight.getEstimatedPosition();
 
-            if (limelightEstimation != null && (true ||
+            if (limelightEstimation != null && (
                     getVelocity().lateralDistance(new Transform(0, 0, 0)) < 0.5 &&
                     Math.abs(getVelocity().getTheta()) < 0.05
             )

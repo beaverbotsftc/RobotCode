@@ -52,7 +52,7 @@ public final class Intake implements Subsystem {
             currentQueue.remove();
         }
 
-        RobotLog.dd("Intake", Arrays.toString(currentQueue.toArray()));
+        //RobotLog.dd("Intake", Arrays.toString(currentQueue.toArray()));
     }
 
     public boolean isFull() {

@@ -14,8 +14,8 @@ import org.beaverbots.beaver.command.premade.WaitUntil;
 import org.beaverbots.beaver.pathing.commands.HolonomicFollowPath;
 import org.beaverbots.beaver.pathing.path.Path;
 import org.beaverbots.beaver.pathing.path.pathbuilder.PathBuilder;
-import org.beaverbots.beaver.pathing.pidf.PIDF;
-import org.beaverbots.beaver.pathing.pidf.PIDFAxis;
+import org.beaverbots.beaver.pidf.PIDF;
+import org.beaverbots.beaver.pidf.PIDFAxis;
 import org.beaverbots.beaver.util.Stopwatch;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.CrossModeStorage;
@@ -53,7 +53,7 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
     private Stopper stopper;
     private GateOpener gateOpener;
 
-    private final Side side = Side.RED;
+    private Side side = Side.RED;
     private Motif motif;
 
     private List<DoubleUnaryOperator> mirror;
@@ -99,6 +99,15 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
         );
     }
 
+
+    public void periodicInit() {
+        if (gamepad.getSquareJustPressed()) {
+            side = side == Side.RED ? Side.BLUE : Side.RED;
+            CrossModeStorage.side = side;
+        }
+        telemetry.addData("Side", side);
+    }
+
     @Override
     public void onStart() {
         cancelAll();
@@ -115,15 +124,33 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
                             shooter.setHoodAngle(0.1);
                         }),
                         new Instant(() -> gateOpener.close()),
-                        shoot(lineToShootNear(), 0.75),
+
+                        shoot(lineToShootNear(), 0.9),
                         intake(splineThroughSpike2()),
-                        shoot(splineToShootNear(), 0.75),
-                        intakeFromGate(splineToIntakeGate(), 1.2),
-                        shoot(splineToShootNear(), 0.75),
-                        intakeFromGate(splineToIntakeGate(), 2),
-                        shoot(splineToShootNear(), 0.75),
+                        shoot(splineToShootNear(), 0.9),
+                        intakeFromGate(splineToIntakeGate(), 1.6),
+                        shoot(splineToShootNear(), 0.9),
+//                        intake(splineThroughSpike3()),
+                        intakeFromGate(splineToIntakeGate(), 1.6),
+                        shoot(splineToShootNear(), 0.9),
                         intake(splineThroughSpike1()),
-                        shoot(splineToShootNear(), 0.75),
+                        shoot(splineToShootNear(), 0.9),
+                        driveAndStop(lineToFrontOfGate()),
+
+
+                        /*
+                        shoot(lineToShootNear(), 0.9),
+                        intake(splineThroughSpike1()),
+                        drive(splineToOpenGate()),
+                        shoot(lineToShootNear(), 0.9),
+                        intake(splineThroughSpike2()),
+                        drive(splineToOpenGate()),
+                        shoot(lineToShootNear(), 0.9),
+                        intakeFromGate(splineToIntakeGate(), 1.6),
+                        shoot(splineToShootNear(), 0.9),
+                        driveAndStop(lineToFrontOfGate()),
+
+                         */
                         new Instant(this::requestOpModeStop)
                 )
         );
@@ -136,6 +163,7 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
         telemetry.addData("Variance Y:", fusedLocalizer.getCovariance().getEntry(1, 1));
         telemetry.addData("Variance Theta:", fusedLocalizer.getCovariance().getEntry(2, 2));
         CrossModeStorage.position = fusedLocalizer.getPosition();
+        CrossModeStorage.covariance = fusedLocalizer.getCovariance();
     }
 
     private PathBuilder newPathBuilder() {
@@ -247,6 +275,25 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
 
         return newPathBuilder()
                 .linearTo(position.toList(), EASING_FRACTION, 1)
+                .stop(STOPPING_FRACTION, STOPPING_FRACTION)
+                .retime(usageRatio, 1, 50)
+                .build();
+    }
+
+    public Pair<Path, Path> lineToFrontOfGate() {
+        final double X = 0;
+        final double Y = 32;
+
+        final double STOPPING_FRACTION = 0.2;
+
+        final Transform position = new Transform(
+                X,
+                Y,
+                currentPosition.getTheta()
+        );
+
+        return newPathBuilder()
+                .linearTo(position.toList(), 0, 1)
                 .stop(STOPPING_FRACTION, STOPPING_FRACTION)
                 .retime(usageRatio, 1, 50)
                 .build();
@@ -365,6 +412,48 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
                 .build();
     }
 
+
+    private Pair<Path, Path> splineThroughSpike3() {
+        // Using setup manual dimensions (middle of shark fin), rather than CAD.
+        final double X = 35.34375;
+
+        final double BEZIER_1_Y = 28;
+        final double BEZIER_2_Y = 45;
+        final double BEZIER_3_Y = 64;
+
+        final double EASING_FRACTION = 0.3;
+        final double STOPPING_FRACTION = 0;
+        final double INTAKE_FRACTION = 1.2;
+
+        Transform position1 = new Transform(X, BEZIER_1_Y,
+                Localizer.wind(
+                        Math.PI / 2,
+                        currentPosition.getTheta()
+                )
+        );
+        Transform position2 = new Transform(X, BEZIER_2_Y,
+                Localizer.wind(
+                        Math.PI / 2,
+                        currentPosition.getTheta()
+                )
+        );
+        Transform position3 = new Transform(X, BEZIER_3_Y,
+                Localizer.wind(
+                        Math.PI / 2,
+                        currentPosition.getTheta()
+                )
+        );
+        Transform position0 = new Transform(position1.toVector().mapMultiply(1 + 1 / INTAKE_FRACTION).subtract(position2.toVector().mapMultiply(1 / INTAKE_FRACTION)));
+
+
+        return newPathBuilder()
+                .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), 0, 1)
+                .bezierTo(position2.toList(), position3.toList(), position3.toList(), 0, INTAKE_FRACTION)
+                .stop(STOPPING_FRACTION, STOPPING_FRACTION)
+                .retime(usageRatio, 0.8, 50)
+                .build();
+    }
+
     private Pair<Path, Path> splineToIntakeGate() {
         final double X = 12.2328 + 1;
 
@@ -402,6 +491,36 @@ public class AutonomousAlpha extends CommandRuntimeOpMode {
         return newPathBuilder()
                 .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), 0, 1)
                 .bezierTo(position2.toList(), position3.toList(), position3.toList(), 0, INTAKE_FRACTION)
+                .stop(STOPPING_FRACTION, STOPPING_FRACTION)
+                .retime(usageRatio, 0.8, 50)
+                .build();
+    }
+
+    private Pair<Path, Path> splineToOpenGate() {
+        // Using setup manual dimensions (middle of shark fin), rather than CAD.
+        final double X = 0;
+
+        final double BEZIER_1_Y = 40;
+        final double BEZIER_2_Y = 60;
+
+        final double STOPPING_FRACTION = 0;
+
+        Transform position1 = new Transform(X, BEZIER_1_Y,
+                Localizer.wind(
+                        Math.PI / 2,
+                        currentPosition.getTheta()
+                )
+        );
+        Transform position2 = new Transform(X, BEZIER_2_Y,
+                Localizer.wind(
+                        Math.PI / 2,
+                        currentPosition.getTheta()
+                )
+        );
+
+
+        return newPathBuilder()
+                .bezierTo(currentPosition.toList(), position1.toList(), position2.toList(), 0, 1)
                 .stop(STOPPING_FRACTION, STOPPING_FRACTION)
                 .retime(usageRatio, 0.8, 50)
                 .build();

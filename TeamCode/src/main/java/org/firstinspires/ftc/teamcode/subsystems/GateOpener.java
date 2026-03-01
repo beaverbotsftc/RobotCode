@@ -17,7 +17,7 @@ public final class GateOpener implements Subsystem {
     }
 
     public void open() {
-        redServo.setPosition(0.18);
+        redServo.setPosition(1 - 0.18);
         blueServo.setPosition(0.18);
     }
 

@@ -9,7 +9,7 @@ import org.beaverbots.beaver.util.Stopwatch;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Side;
 import org.firstinspires.ftc.teamcode.CrossModeStorage;
-import org.firstinspires.ftc.teamcode.commands.AimAndResist;
+import org.firstinspires.ftc.teamcode.commands.Resist;
 import org.firstinspires.ftc.teamcode.commands.AimWhileDriving;
 import org.firstinspires.ftc.teamcode.commands.DrivetrainControl;
 import org.firstinspires.ftc.teamcode.commands.GoToBase;
@@ -99,9 +99,9 @@ public class TeleOp extends CommandRuntimeOpMode {
                         }
                         ),
                         new DrivetrainControl(drivetrain, gamepad),
-                        new AimAndResist(fusedLocalizer, drivetrain, CrossModeStorage.side, true),
-                        new AimAndResist(fusedLocalizer, drivetrain, CrossModeStorage.side, false),
-                        new AimWhileDriving(fusedLocalizer, drivetrain, CrossModeStorage.side, gamepad),
+                        new Resist(fusedLocalizer, drivetrain, CrossModeStorage.side, true),
+                        new Resist(fusedLocalizer, drivetrain, CrossModeStorage.side, false),
+                        new AimWhileDriving(fusedLocalizer, drivetrain, CrossModeStorage.side, gamepad, false),
                         new GoToBase(fusedLocalizer, drivetrain, CrossModeStorage.side)
                 ),
                 new Router(new Selector(() -> gamepad.getRightStickPressedToggle()),
@@ -122,7 +122,7 @@ public class TeleOp extends CommandRuntimeOpMode {
 
 
         telemetry.addData("Current RPM:", shooter.getVelocity());
-        telemetry.addData("Distance to goal:", pinpoint.getPosition().lateralDistance(new Transform(Constants.GOAL_X, CrossModeStorage.side == Side.RED ? Constants.GOAL_Y : -Constants.GOAL_Y, 0)));
+        telemetry.addData("Distance to goal:", fusedLocalizer.getPosition().lateralDistance(new Transform(Constants.GOAL_X, CrossModeStorage.side == Side.RED ? Constants.GOAL_Y : -Constants.GOAL_Y, 0)));
 
         telemetry.addData("X", fusedLocalizer.getPosition().getX());
         telemetry.addData("Y", fusedLocalizer.getPosition().getY());

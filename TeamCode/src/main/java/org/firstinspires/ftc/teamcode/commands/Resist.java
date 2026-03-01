@@ -5,8 +5,8 @@ import org.beaverbots.beaver.command.Subsystem;
 import org.beaverbots.beaver.pathing.commands.HolonomicFollowPath;
 import org.beaverbots.beaver.pathing.path.Path;
 import org.beaverbots.beaver.pathing.path.PathAxis;
-import org.beaverbots.beaver.pathing.pidf.PIDF;
-import org.beaverbots.beaver.pathing.pidf.PIDFAxis;
+import org.beaverbots.beaver.pidf.PIDF;
+import org.beaverbots.beaver.pidf.PIDFAxis;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Side;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.subsystems.localizer.Localizer;
 import java.util.List;
 import java.util.Set;
 
-public class AimAndResist implements Command {
+public class Resist implements Command {
     private Localizer localizer;
     private Drivetrain drivetrain;
 
@@ -25,7 +25,7 @@ public class AimAndResist implements Command {
 
     private boolean aim;
 
-    public AimAndResist(Localizer localization, Drivetrain drivetrain, Side side, boolean aim) {
+    public Resist(Localizer localization, Drivetrain drivetrain, Side side, boolean aim) {
         this.localizer = localization;
         this.drivetrain = drivetrain;
         this.side = side;
@@ -53,9 +53,9 @@ public class AimAndResist implements Command {
                         t -> false
                 ),
                 new PIDF(List.of(
-                        new PIDFAxis(new PIDFAxis.K(1.5 * Constants.pidPX, Constants.pidIX, Constants.pidDX, 0, 6, 48, Constants.pidTauX, Constants.pidGammaX)),
-                        new PIDFAxis(new PIDFAxis.K(1.5 * Constants.pidPY, Constants.pidIY, Constants.pidDY, 0, 6, 48, Constants.pidTauY, Constants.pidGammaY)),
-                        new PIDFAxis(new PIDFAxis.K(2 * Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, 0, 6, 48, Constants.pidTauTheta, Constants.pidGammaTheta))
+                        new PIDFAxis(new PIDFAxis.K(Constants.pidPX, Constants.pidIX, Constants.pidDX, 0, 6, 48, Constants.pidTauX, Constants.pidGammaX)),
+                        new PIDFAxis(new PIDFAxis.K(Constants.pidPY, Constants.pidIY, Constants.pidDY, 0, 6, 48, Constants.pidTauY, Constants.pidGammaY)),
+                        new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, 0, 6, 48, Constants.pidTauTheta, Constants.pidGammaTheta))
                 )),
                 localizer, drivetrain
         );

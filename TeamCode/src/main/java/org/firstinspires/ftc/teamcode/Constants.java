@@ -125,5 +125,8 @@ public final class Constants {
     public static double minAngularVariancePinpoint = 0;//Math.pow(Math.PI / 36, 2); // 5 deg
 
 
-    public static double maxAngularShootingError = 0.004;
+    public static double maxAngularShootingError = Math.toRadians(5) * 150;
+
+    public static double maxFlywheelRpmErrorDown = 50;
+    public static double maxFlywheelRpmErrorUp = 80;
 }

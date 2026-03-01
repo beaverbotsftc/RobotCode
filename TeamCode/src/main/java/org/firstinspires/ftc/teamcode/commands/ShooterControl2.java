@@ -19,17 +19,20 @@ public class ShooterControl2 implements Command {
     private Stopper stopper;
     private Localizer localizer;
     private Side side;
+    private boolean wall;
+    private boolean restrict;
 
     private Transform goalPosition;
 
-    public ShooterControl2(Shooter shooter, Intake intake, Stopper stopper, Localizer localizer, Side side, Gamepad gamepad) {
+    public ShooterControl2(Shooter shooter, Intake intake, Stopper stopper, Localizer localizer, Side side, Gamepad gamepad, boolean wall, boolean restrict) {
         this.shooter = shooter;
         this.localizer = localizer;
         this.gamepad = gamepad;
-        this.side = side;
         this.stopper = stopper;
         this.intake = intake;
         this.side = side;
+        this.wall = wall;
+        this.restrict = restrict;
 
         goalPosition = new Transform(Constants.GOAL_X, side == Side.RED ? Constants.GOAL_Y : -Constants.GOAL_Y, 0);
     }
@@ -38,12 +41,20 @@ public class ShooterControl2 implements Command {
         double distanceToGoal = localizer.getPosition().lateralDistance(goalPosition);
         double relativeAngleToGoal = localizer.getPosition().relativeAngleTo(goalPosition);
 
-        Pair<Double, Double> values = Shooter.getSettingsAtDistance(distanceToGoal);
+        Pair<Double, Double> values = wall ? Shooter.getSettingsAtDistanceWall(distanceToGoal) : Shooter.getSettingsAtDistanceNonWall(distanceToGoal);
 
         shooter.setFlywheelSpeed(values.first);
         shooter.setHoodAngle(values.second);
 
-        if (gamepad.getRightBumper() && Math.abs(relativeAngleToGoal) / distanceToGoal < Constants.maxAngularShootingError) {
+        if (gamepad.getRightBumper() &&
+                (
+                        !restrict || (
+                                Math.abs(relativeAngleToGoal) * distanceToGoal < Constants.maxAngularShootingError
+                                        && shooter.getError() > -Constants.maxFlywheelRpmErrorDown
+                                        && shooter.getError() < Constants.maxFlywheelRpmErrorUp
+                        )
+                )
+        ) {
             intake.spin(1);
             stopper.spin(1);
         } else {

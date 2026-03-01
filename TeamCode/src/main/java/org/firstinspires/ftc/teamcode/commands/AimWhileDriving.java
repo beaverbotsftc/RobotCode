@@ -4,8 +4,8 @@ import org.beaverbots.beaver.command.Command;
 import org.beaverbots.beaver.command.Subsystem;
 import org.beaverbots.beaver.pathing.path.Path;
 import org.beaverbots.beaver.pathing.path.PathAxis;
-import org.beaverbots.beaver.pathing.pidf.PIDF;
-import org.beaverbots.beaver.pathing.pidf.PIDFAxis;
+import org.beaverbots.beaver.pidf.PIDF;
+import org.beaverbots.beaver.pidf.PIDFAxis;
 import org.beaverbots.beaver.pathing.trackers.HolonomicPathTracker;
 import org.beaverbots.beaver.util.Stopwatch;
 import org.firstinspires.ftc.teamcode.Constants;
@@ -22,17 +22,19 @@ public class AimWhileDriving implements Command {
     private Localizer localizer;
     private Drivetrain drivetrain;
     private Gamepad gamepad;
+    private boolean wall;
 
     private Stopwatch stopwatch;
 
     private Side side;
     private HolonomicPathTracker aimTracker;
 
-    public AimWhileDriving(Localizer localization, Drivetrain drivetrain, Side side, Gamepad gamepad) {
+    public AimWhileDriving(Localizer localization, Drivetrain drivetrain, Side side, Gamepad gamepad, boolean wall) {
         this.localizer = localization;
         this.drivetrain = drivetrain;
         this.side = side;
         this.gamepad = gamepad;
+        this.wall = wall;
         this.stopwatch = new Stopwatch();
     }
 
@@ -46,7 +48,13 @@ public class AimWhileDriving implements Command {
         aimTracker = new HolonomicPathTracker(
                 new Path(
                         List.of(
-                                new PathAxis(t -> Localizer.wind(localizer.getPosition().angleTo(goalPosition) - Constants.shooterBias, localizer.getPosition().getTheta()), 0, Double.POSITIVE_INFINITY)
+                                new PathAxis(t ->
+                                        Localizer.wind(
+                                                wall
+                                                        ? (side == Side.RED ? Math.PI / 2 : -Math.PI / 2)
+                                                        : (localizer.getPosition().angleTo(goalPosition) - Constants.shooterBias),
+                                               localizer.getPosition().getTheta()
+                                        ), 0, Double.POSITIVE_INFINITY)
                         ),
                         t -> false
                 ),

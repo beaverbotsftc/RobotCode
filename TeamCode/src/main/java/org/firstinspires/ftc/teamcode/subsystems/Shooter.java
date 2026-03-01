@@ -10,7 +10,7 @@ import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.command.Subsystem;
 import org.beaverbots.beaver.util.PiecewiseLinearFunction;
 import org.beaverbots.beaver.util.Stopwatch;
-import org.beaverbots.beaver.pathing.pidf.PIDFAxis;
+import org.beaverbots.beaver.pidf.PIDFAxis;
 import org.firstinspires.ftc.teamcode.Constants;
 
 import java.util.List;
@@ -87,7 +87,7 @@ public final class Shooter implements Subsystem {
     }
 
 
-    public static Pair<Double, Double> getSettingsAtDistance(double d) { //First value is rpm, second value is hood angle
+    public static Pair<Double, Double> getSettingsAtDistanceNonWall(double d) { //First value is rpm, second value is hood angle
         /*
         double rpm = new PiecewiseLinearFunction(List.of(
                 new Pair<>(65.3, 2200.0),
@@ -154,6 +154,7 @@ public final class Shooter implements Subsystem {
          */
 
 
+        /*
         double rpm = new PiecewiseLinearFunction(List.of(
                 new Pair<>(14.4553, 2100.0),
                 new Pair<>(47.6251, 2100.0),
@@ -178,6 +179,52 @@ public final class Shooter implements Subsystem {
                 new Pair<>(133.2, 0.405),
                 new Pair<>(139.8, 0.69),
                 new Pair<>(146.2, 0.5)
+        )).evaluate(d);
+        */
+
+
+        double rpm = new PiecewiseLinearFunction(List.of(
+                new Pair<>(41.0, 2100.0),
+                new Pair<>(61.0, 2100.0),
+                new Pair<>(72.0, 2400.0),
+                new Pair<>(86.0, 2550.0),
+                new Pair<>(93.0, 2600.0),
+                new Pair<>(100.0, 2625.0),
+                new Pair<>(114.0, 2625.0),
+                new Pair<>(127.0, 2875.0),
+                new Pair<>(133.0, 2950.0),
+                new Pair<>(150.0, 3000.0)
+        )).evaluate(d);
+
+        double hood = new PiecewiseLinearFunction(List.of(
+                new Pair<>(41.0, 0.0),
+                new Pair<>(61.0, 0.045),
+                new Pair<>(72.0, 0.45),
+                new Pair<>(86.0, 0.55),
+                new Pair<>(93.0, 0.68),
+                new Pair<>(100.0, 0.57),
+                new Pair<>(114.0, 0.435),
+                new Pair<>(127.0, 0.5),
+                new Pair<>(133.0, 0.535),
+                new Pair<>(150.0, 0.565)
+        )).evaluate(d);
+
+        return new Pair<>(rpm, hood);
+    }
+
+    public static Pair<Double, Double> getSettingsAtDistanceWall(double d) { //First value is rpm, second value is hood angle
+        double rpm = new PiecewiseLinearFunction(List.of(
+                new Pair<>(43.0, 2075.0),
+                new Pair<>(65.0, 2150.0),
+                new Pair<>(90.0, 2450.0),
+                new Pair<>(102.0, 2550.0)
+        )).evaluate(d);
+
+        double hood = new PiecewiseLinearFunction(List.of(
+                new Pair<>(43.0, 0.0),
+                new Pair<>(65.0, 0.0),
+                new Pair<>(90.0, 0.465),
+                new Pair<>(102.0, 0.5)
         )).evaluate(d);
 
         return new Pair<>(rpm, hood);

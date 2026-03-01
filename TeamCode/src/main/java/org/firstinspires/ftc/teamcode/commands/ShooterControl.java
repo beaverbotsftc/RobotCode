@@ -72,7 +72,7 @@ public class ShooterControl implements Command {
             shootRpm = 2950.0;
         }
  */
-        Pair<Double, Double> values = shooter.getSettingsAtDistance(distToTarget);
+        Pair<Double, Double> values = shooter.getSettingsAtDistanceNonWall(distToTarget);
         shootRpm = values.first;
 
         shooter.setHoodAngle(values.second);

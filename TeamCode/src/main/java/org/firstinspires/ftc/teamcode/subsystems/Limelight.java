@@ -27,6 +27,7 @@ public class Limelight implements Subsystem {
     public enum Pipeline {
         OBELISK,
         LOCALIZATION_GOAL,
+        ARTIFACT_DETECTION,
     }
 
     public static class LimelightLocalization {
@@ -161,5 +162,15 @@ public class Limelight implements Subsystem {
                 new Transform(x, y, theta),
                 new Transform(xVariance, yVariance, thetaVariance)
         ), (double) result.getStaleness() / 1000);
+    }
+
+    public LLResultTypes.DetectorResult getVision() {
+        LLResultTypes.DetectorResult best = null;
+        for (LLResultTypes.DetectorResult detectorResult : limelight.getLatestResult().getDetectorResults()) {
+            if (detectorResult.getConfidence() < 0.7) continue;
+            if (best == null) best = detectorResult;
+            if (best.getConfidence() < detectorResult.getConfidence()) best = detectorResult;
+        }
+        return best;
     }
 }

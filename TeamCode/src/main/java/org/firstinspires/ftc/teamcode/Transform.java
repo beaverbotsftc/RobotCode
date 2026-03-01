@@ -44,6 +44,7 @@ public final class Transform {
             y = state[1];
             theta = state[2];
         } else if (state.length == 2) {
+            // TODO: Idk why I did this in the past, seems wrong but I guess it works maybe? I don't think this branch is used.
             x = state[0];
             y = 0;
             theta = state[1];

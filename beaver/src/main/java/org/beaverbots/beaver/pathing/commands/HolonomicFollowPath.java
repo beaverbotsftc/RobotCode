@@ -7,7 +7,7 @@ import org.beaverbots.beaver.command.Subsystem;
 import org.beaverbots.beaver.pathing.trackers.HolonomicPathTracker;
 import org.beaverbots.beaver.pathing.Localizer;
 import org.beaverbots.beaver.pathing.Locomotion;
-import org.beaverbots.beaver.pathing.pidf.PIDF;
+import org.beaverbots.beaver.pidf.PIDF;
 import org.beaverbots.beaver.pathing.path.Path;
 
 import java.util.Collections;

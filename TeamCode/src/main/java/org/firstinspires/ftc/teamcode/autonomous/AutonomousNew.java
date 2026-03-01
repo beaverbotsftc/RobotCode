@@ -14,8 +14,8 @@ import org.beaverbots.beaver.command.premade.WaitUntil;
 import org.beaverbots.beaver.pathing.commands.HolonomicFollowPath;
 import org.beaverbots.beaver.pathing.path.Path;
 import org.beaverbots.beaver.pathing.path.pathbuilder.PathBuilder;
-import org.beaverbots.beaver.pathing.pidf.PIDF;
-import org.beaverbots.beaver.pathing.pidf.PIDFAxis;
+import org.beaverbots.beaver.pidf.PIDF;
+import org.beaverbots.beaver.pidf.PIDFAxis;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.CrossModeStorage;
 import org.firstinspires.ftc.teamcode.Motif;
@@ -280,7 +280,7 @@ public class AutonomousNew extends CommandRuntimeOpMode {
     }
 
     private Command shoot(Pair<Path, Path> path) {
-        final Pair<Double, Double> shooterSettings = Shooter.getSettingsAtDistance(currentPosition.lateralDistance(new Transform(Constants.GOAL_X, Constants.GOAL_Y, 0)));
+        final Pair<Double, Double> shooterSettings = Shooter.getSettingsAtDistanceNonWall(currentPosition.lateralDistance(new Transform(Constants.GOAL_X, Constants.GOAL_Y, 0)));
         final double MAX_RPM_ERROR = 50;
         final double MAX_ANGLE_ERROR = 0.02;
 
