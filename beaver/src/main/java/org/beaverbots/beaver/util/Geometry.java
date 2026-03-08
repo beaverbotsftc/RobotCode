@@ -127,4 +127,18 @@ public class Geometry {
 
         return new Pair<>(xs, ys);
     }
+
+    public static double shortestAngle(double current, double target) {
+        double diff = (target - current) % (2 * Math.PI);
+        if (diff > Math.PI) {
+            diff -= 2 * Math.PI;
+        } else if (diff < -Math.PI) {
+            diff += 2 * Math.PI;
+        }
+        return diff;
+    }
+
+    public static double normalizeAngle(double angle) {
+        return Modulus.modulus(angle, 2 * Math.PI);
+    }
 }

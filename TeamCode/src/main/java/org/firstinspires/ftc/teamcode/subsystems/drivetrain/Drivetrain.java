@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems.drivetrain;
 
 import org.beaverbots.beaver.pathing.Locomotion;
-import org.firstinspires.ftc.teamcode.Transform;
+import org.beaverbots.beaver.util.Transform;
 
 import java.util.List;
 

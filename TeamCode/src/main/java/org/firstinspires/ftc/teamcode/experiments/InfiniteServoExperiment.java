@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import org.beaverbots.beaver.InfiniteServo;
 import org.beaverbots.beaver.command.CommandRuntimeOpMode;
 import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.pidf.PIDF;
@@ -27,16 +28,12 @@ public class InfiniteServoExperiment extends CommandRuntimeOpMode {
             0.3239, 0.9773, 0.0001, 0, 0, 1, 0.2072, 527.6937
     ))));
 
-    double axonDelay = 0.00;
-
-    double readWindow = 0.1;
-
-    List<Double> times = new ArrayList<>(List.of(0., 0., 0.));
-    List<Double> positions = new ArrayList<>(List.of(0., 0., 0.));
 
     Gamepad gamepad;
 
     Stopwatch stopwatch;
+
+    InfiniteServo infiniteServo;
 
     public void onInit() {
         servo = HardwareManager.claim(CRServo.class, "servo");
@@ -46,7 +43,9 @@ public class InfiniteServoExperiment extends CommandRuntimeOpMode {
 
         gamepad = new Gamepad(gamepad1);
 
-        register(gamepad);
+        infiniteServo = new InfiniteServo(servo, encoder, pidf, 0);
+
+        register(gamepad, infiniteServo);
     }
 
     public void onStart() {
@@ -54,30 +53,6 @@ public class InfiniteServoExperiment extends CommandRuntimeOpMode {
     }
 
     public void periodic() {
-        double angle = encoder.getVoltage() / 3.3 * 2.0 * Math.PI;
-        double time = stopwatch.getElapsed();
-        times.add(time - axonDelay);
-        positions.add(angle);
-
-        double actualAngle;
-        int  i = 0;
-        while (true) {
-            if (times.get(i) >= time - axonDelay - readWindow) break;
-            i++;
-        }
-
-        actualAngle = (angle - positions.get(i)) / (time - times.get(i) + 0.0001) * axonDelay + angle;
-
-        telemetry.addData("Angle (deg)", actualAngle / Math.PI * 180.0);
-        telemetry.addData("Angle (V)", encoder.getVoltage());
-        telemetry.addData("Max Angle (V)", encoder.getMaxVoltage());
-
-        double desiredAngle = (gamepad.getRightX() + 1) * Math.PI;
-
-        double control = pidf.update(List.of(actualAngle - desiredAngle), List.of(desiredAngle), stopwatch.getDt()).get(0);
-        servo.setPower(control);
-
-        telemetry.addData("Desired angle (deg)", desiredAngle / Math.PI * 180.0);
-        telemetry.addData("Power given", control);
+        infiniteServo.setAngle(gamepad.getRightX() * 2 * Math.PI);
     }
 }

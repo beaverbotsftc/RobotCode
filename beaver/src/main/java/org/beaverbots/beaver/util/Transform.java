@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.beaverbots.beaver.util;
 
 import androidx.annotation.NonNull;
 
@@ -8,6 +8,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 
@@ -15,6 +16,8 @@ public final class Transform {
     private double x;
     private double y;
     private double theta;
+
+    public static Transform FORWARD = new Transform(1, 0);
 
     public Transform(double x, double y, double theta) {
         this.x = x;
@@ -80,11 +83,43 @@ public final class Transform {
     }
 
     public List<Double> toList() {
-        return List.of(x, y, theta);
+        return Arrays.asList(x, y, theta);
     }
 
     public RealVector toVector() {
         return new ArrayRealVector(toArray());
+    }
+
+    public Transform lateral() {
+        return new Transform(x, y, 0);
+    }
+
+    public Transform angular() {
+        return new Transform(0, 0, theta);
+    }
+
+    public Transform add(Transform other) {
+        return new Transform(x + other.x, y + other.y, theta + other.theta);
+    }
+
+    public Transform subtract(Transform other) {
+        return new Transform(x - other.x, y - other.y, theta - other.theta);
+    }
+
+    public Transform scale(double scalar) {
+        return new Transform(x * scalar, y * scalar, theta * scalar);
+    }
+
+    public double lateralDot(Transform other) {
+        return x * other.x + y * other.y;
+    }
+
+    public Transform cross(Transform other) {
+        return new Transform(y * other.theta - theta * other.y, theta * other.x - x * other.theta, x * other.y - y * other.x);
+    }
+
+    public Transform unit() {
+        return this.scale(1 / lateralNorm());
     }
 
     public Transform rotate(double angle) {
@@ -95,19 +130,6 @@ public final class Transform {
         double newY = this.x * sin + this.y * cos;
 
         return new Transform(newX, newY, this.theta);
-    }
-
-    public Transform toLocal(Transform reference) {
-        // 1. Translation
-        double deltaX = this.x - reference.getX();
-        double deltaY = this.y - reference.getY();
-
-        // 2. Rotation
-        // We rotate by negative reference theta to convert Global -> Local
-        Transform rotated = new Transform(deltaX, deltaY, 0).rotate(-reference.getTheta());
-
-        // 3. Heading Delta
-        return new Transform(rotated.getX(), rotated.getY(), this.theta - reference.getTheta());
     }
 
     public Transform toLocalVelocity(Transform reference) {
@@ -134,6 +156,10 @@ public final class Transform {
 
     public double lateralDistance(Transform other) {
         return Math.sqrt(Math.pow(x - other.getX(), 2) + Math.pow(y - other.getY(), 2));
+    }
+
+    public double lateralNorm() {
+        return Math.sqrt(x * x + y * y);
     }
 
     public double angularDistance(Transform other) {
