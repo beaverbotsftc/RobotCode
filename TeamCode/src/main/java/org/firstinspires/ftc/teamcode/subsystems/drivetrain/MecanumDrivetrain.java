@@ -27,20 +27,20 @@ public final class MecanumDrivetrain implements Drivetrain, Subsystem {
     public MecanumDrivetrain(double maxPower) {
         this.maxPower = maxPower;
 
-        this.frontLeft = new CachedMotor(HardwareManager.claim("left front"), 0.01);
-        this.frontRight = new CachedMotor(HardwareManager.claim("right front"), 0.01);
-        this.backLeft = new CachedMotor(HardwareManager.claim("left back"), 0.01);
-        this.backRight = new CachedMotor(HardwareManager.claim("right back"), 0.01);
+        this.frontLeft = new CachedMotor(HardwareManager.claim("front left drive"), 0.01);
+        this.frontRight = new CachedMotor(HardwareManager.claim("front right drive"), 0.01);
+        this.backLeft = new CachedMotor(HardwareManager.claim("back left drive"), 0.01);
+        this.backRight = new CachedMotor(HardwareManager.claim("back right drive"), 0.01);
 
         frontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         backRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         setBrake(isBraking);
     }

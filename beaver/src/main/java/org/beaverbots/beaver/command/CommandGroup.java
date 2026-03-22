@@ -31,7 +31,7 @@ public abstract class CommandGroup implements Command {
 
     public final Set<Subsystem> getDependencies() {
         Set<Subsystem> dependencies = new HashSet<>();
-        for (Command command : commands) {
+        for (Command command : initialCommands) {
             // Command.calculateDependencies will still work, but this provides a more minimal set.
             dependencies.addAll(command.getDependencies());
         }

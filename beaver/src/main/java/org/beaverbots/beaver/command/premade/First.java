@@ -4,7 +4,7 @@ import org.beaverbots.beaver.command.Command;
 import org.beaverbots.beaver.command.CommandGroup;
 
 public class First extends CommandGroup {
-    public static final boolean isLoud = true;
+    public static final int loudnessLevel = 2; // Be sure to make FIRST even louder every time you touch this file!
 
     public First(Command... commands) {
         super(commands);

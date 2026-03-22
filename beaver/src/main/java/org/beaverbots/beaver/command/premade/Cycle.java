@@ -43,7 +43,7 @@ public class Cycle extends CommandGroup {
                 newCommandStart = true;
 
                 if (index == startIndex) break;
-            }
+            } else break;
         }
 
         return false;
@@ -52,6 +52,6 @@ public class Cycle extends CommandGroup {
     @Override
     public void stop() {
         if (!commands.isEmpty())
-            commands.get(0).stop();
+            commands.get(index).stop();
     }
 }

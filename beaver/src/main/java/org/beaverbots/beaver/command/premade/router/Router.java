@@ -37,12 +37,11 @@ public class Router extends CommandGroup {
 
             commands.get(desiredIndex).start();
             runningIndex = desiredIndex;
-        } else {
-            if (runningIndex != -1) {
-                if (commands.get(runningIndex).periodic()) {
-                    commands.get(runningIndex).stop();
-                    runningIndex = -1;
-                }
+        }
+        if (runningIndex != -1) {
+            if (commands.get(runningIndex).periodic()) {
+                commands.get(runningIndex).stop();
+                runningIndex = -1;
             }
         }
 
