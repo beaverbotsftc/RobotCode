@@ -3,22 +3,25 @@ package org.firstinspires.ftc.teamcode.experiments;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.beaverbots.beaver.command.CommandRuntimeOpMode;
-import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
+import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
 import org.firstinspires.ftc.teamcode.subsystems.Turret;
+import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 
 @Autonomous
 public class TurretExperiment extends CommandRuntimeOpMode {
+    private VoltageSensor voltageSensor;
     private Turret turret;
-    private Gamepad gamepad;
+    private GamepadEx gamepad;
 
     public void onInit() {
-        turret = new Turret();
-        gamepad = new Gamepad(gamepad1);
+        voltageSensor = new VoltageSensor();
+        turret = new Turret(voltageSensor);
+        gamepad = new GamepadEx(gamepad1);
 
         register(turret, gamepad);
     }
 
     public void periodic() {
-        turret.turn(gamepad.getRightX() + Math.PI);
+        turret.turn(-2 * gamepad.getRightX() + Math.PI);
     }
 }

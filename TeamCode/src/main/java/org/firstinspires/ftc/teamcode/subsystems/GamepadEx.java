@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import org.beaverbots.beaver.command.Subsystem;
 
-public class Gamepad implements Subsystem {
+public class GamepadEx implements Subsystem {
 
     private com.qualcomm.robotcore.hardware.Gamepad gamepad;
 
@@ -19,10 +19,10 @@ public class Gamepad implements Subsystem {
     private double rightTrigger = 0;
     private boolean leftBumper = false;
     private boolean rightBumper = false;
-    private boolean circle = false;
-    private boolean cross = false;
-    private boolean square = false;
-    private boolean triangle = false;
+    private boolean b = false;
+    private boolean a = false;
+    private boolean x = false;
+    private boolean y = false;
     private boolean guide = false;
 
     private boolean dpadUp = false;
@@ -38,10 +38,10 @@ public class Gamepad implements Subsystem {
     private boolean lastRightTriggerState = false;
     private boolean lastLeftBumper = false;
     private boolean lastRightBumper = false;
-    private boolean lastCircle = false;
-    private boolean lastCross = false;
-    private boolean lastSquare = false;
-    private boolean lastTriangle = false;
+    private boolean lastB = false;
+    private boolean lastA = false;
+    private boolean lastX = false;
+    private boolean lastY = false;
     private boolean lastGuide = false;
 
     private boolean lastDpadUp = false;
@@ -63,14 +63,14 @@ public class Gamepad implements Subsystem {
     private boolean rightBumperJustPressed = false;
     private boolean rightBumperJustReleased = false;
 
-    private boolean circleJustPressed = false;
-    private boolean circleJustReleased = false;
-    private boolean crossJustPressed = false;
-    private boolean crossJustReleased = false;
-    private boolean squareJustPressed = false;
-    private boolean squareJustReleased = false;
-    private boolean triangleJustPressed = false;
-    private boolean triangleJustReleased = false;
+    private boolean bJustPressed = false;
+    private boolean bJustReleased = false;
+    private boolean aJustPressed = false;
+    private boolean aJustReleased = false;
+    private boolean xJustPressed = false;
+    private boolean xJustReleased = false;
+    private boolean yJustPressed = false;
+    private boolean yJustReleased = false;
     private boolean guideJustPressed = false;
     private boolean guideJustReleased = false;
 
@@ -99,14 +99,14 @@ public class Gamepad implements Subsystem {
     private boolean rightBumperPressedToggle = false;
     private boolean rightBumperReleasedToggle = false;
 
-    private boolean circlePressedToggle = false;
-    private boolean circleReleasedToggle = false;
-    private boolean crossPressedToggle = false;
-    private boolean crossReleasedToggle = false;
-    private boolean squarePressedToggle = false;
-    private boolean squareReleasedToggle = false;
-    private boolean trianglePressedToggle = false;
-    private boolean triangleReleasedToggle = false;
+    private boolean bPressedToggle = false;
+    private boolean bReleasedToggle = false;
+    private boolean aPressedToggle = false;
+    private boolean aReleasedToggle = false;
+    private boolean xPressedToggle = false;
+    private boolean xReleasedToggle = false;
+    private boolean yPressedToggle = false;
+    private boolean yReleasedToggle = false;
     private boolean guidePressedToggle = false;
     private boolean guideReleasedToggle = false;
 
@@ -124,7 +124,7 @@ public class Gamepad implements Subsystem {
     private boolean rightStickPressedToggle = false;
     private boolean rightStickReleasedToggle = false;
 
-    public Gamepad(com.qualcomm.robotcore.hardware.Gamepad gamepad) {
+    public GamepadEx(com.qualcomm.robotcore.hardware.Gamepad gamepad) {
         gamepad.setLedColor(1.0 / 256.0, 0.0, 64.0 / 256.0, com.qualcomm.robotcore.hardware.Gamepad.LED_DURATION_CONTINUOUS);
         this.gamepad = gamepad;
     }
@@ -146,10 +146,10 @@ public class Gamepad implements Subsystem {
 
         leftBumper = gamepad.left_bumper;
         rightBumper = gamepad.right_bumper;
-        circle = gamepad.circle;
-        cross = gamepad.cross;
-        square = gamepad.square;
-        triangle = gamepad.triangle;
+        b = gamepad.b;
+        a = gamepad.a;
+        x = gamepad.x;
+        y = gamepad.y;
         guide = gamepad.guide;
 
         dpadUp = gamepad.dpad_up;
@@ -178,21 +178,21 @@ public class Gamepad implements Subsystem {
         rightBumperJustReleased = !rightBumper && lastRightBumper;
         lastRightBumper = rightBumper;
 
-        circleJustPressed = circle && !lastCircle;
-        circleJustReleased = !circle && lastCircle;
-        lastCircle = circle;
+        bJustPressed = b && !lastB;
+        bJustReleased = !b && lastB;
+        lastB = b;
 
-        crossJustPressed = cross && !lastCross;
-        crossJustReleased = !cross && lastCross;
-        lastCross = cross;
+        aJustPressed = a && !lastA;
+        aJustReleased = !a && lastA;
+        lastA = a;
 
-        squareJustPressed = square && !lastSquare;
-        squareJustReleased = !square && lastSquare;
-        lastSquare = square;
+        xJustPressed = x && !lastX;
+        xJustReleased = !x && lastX;
+        lastX = x;
 
-        triangleJustPressed = triangle && !lastTriangle;
-        triangleJustReleased = !triangle && lastTriangle;
-        lastTriangle = triangle;
+        yJustPressed = y && !lastY;
+        yJustReleased = !y && lastY;
+        lastY = y;
 
         guideJustPressed = guide && !lastGuide;
         guideJustReleased = !guide && lastGuide;
@@ -232,14 +232,14 @@ public class Gamepad implements Subsystem {
         if (rightBumperJustPressed) rightBumperPressedToggle = !rightBumperPressedToggle;
         if (rightBumperJustReleased) rightBumperReleasedToggle = !rightBumperReleasedToggle;
 
-        if (circleJustPressed) circlePressedToggle = !circlePressedToggle;
-        if (circleJustReleased) circleReleasedToggle = !circleReleasedToggle;
-        if (crossJustPressed) crossPressedToggle = !crossPressedToggle;
-        if (crossJustReleased) crossReleasedToggle = !crossReleasedToggle;
-        if (squareJustPressed) squarePressedToggle = !squarePressedToggle;
-        if (squareJustReleased) squareReleasedToggle = !squareReleasedToggle;
-        if (triangleJustPressed) trianglePressedToggle = !trianglePressedToggle;
-        if (triangleJustReleased) triangleReleasedToggle = !triangleReleasedToggle;
+        if (bJustPressed) bPressedToggle = !bPressedToggle;
+        if (bJustReleased) bReleasedToggle = !bReleasedToggle;
+        if (aJustPressed) aPressedToggle = !aPressedToggle;
+        if (aJustReleased) aReleasedToggle = !aReleasedToggle;
+        if (xJustPressed) xPressedToggle = !xPressedToggle;
+        if (xJustReleased) xReleasedToggle = !xReleasedToggle;
+        if (yJustPressed) yPressedToggle = !yPressedToggle;
+        if (yJustReleased) yReleasedToggle = !yReleasedToggle;
         if (guideJustPressed) guidePressedToggle = !guidePressedToggle;
         if (guideJustReleased) guideReleasedToggle = !guideReleasedToggle;
 
@@ -294,20 +294,20 @@ public class Gamepad implements Subsystem {
         return rightBumper;
     }
 
-    public boolean getCircle() {
-        return circle;
+    public boolean getB() {
+        return b;
     }
 
-    public boolean getCross() {
-        return cross;
+    public boolean getA() {
+        return a;
     }
 
-    public boolean getSquare() {
-        return square;
+    public boolean getX() {
+        return x;
     }
 
-    public boolean getTriangle() {
-        return triangle;
+    public boolean getY() {
+        return y;
     }
 
     public boolean getGuide() {
@@ -358,20 +358,20 @@ public class Gamepad implements Subsystem {
         return rightBumperJustPressed;
     }
 
-    public boolean getCircleJustPressed() {
-        return circleJustPressed;
+    public boolean getBJustPressed() {
+        return bJustPressed;
     }
 
-    public boolean getCrossJustPressed() {
-        return crossJustPressed;
+    public boolean getAJustPressed() {
+        return aJustPressed;
     }
 
-    public boolean getSquareJustPressed() {
-        return squareJustPressed;
+    public boolean getXJustPressed() {
+        return xJustPressed;
     }
 
-    public boolean getTriangleJustPressed() {
-        return triangleJustPressed;
+    public boolean getYJustPressed() {
+        return yJustPressed;
     }
 
     public boolean getGuideJustPressed() {
@@ -422,20 +422,20 @@ public class Gamepad implements Subsystem {
         return rightBumperJustReleased;
     }
 
-    public boolean getCircleJustReleased() {
-        return circleJustReleased;
+    public boolean getBJustReleased() {
+        return bJustReleased;
     }
 
-    public boolean getCrossJustReleased() {
-        return crossJustReleased;
+    public boolean getAJustReleased() {
+        return aJustReleased;
     }
 
-    public boolean getSquareJustReleased() {
-        return squareJustReleased;
+    public boolean getXJustReleased() {
+        return xJustReleased;
     }
 
-    public boolean getTriangleJustReleased() {
-        return triangleJustReleased;
+    public boolean getYJustReleased() {
+        return yJustReleased;
     }
 
     public boolean getGuideJustReleased() {
@@ -534,68 +534,68 @@ public class Gamepad implements Subsystem {
         rightBumperReleasedToggle = v;
     }
 
-    public boolean getCirclePressedToggle() {
-        return circlePressedToggle;
+    public boolean getBPressedToggle() {
+        return bPressedToggle;
     }
 
-    public void setCirclePressedToggle(boolean v) {
-        circlePressedToggle = v;
+    public void setBPressedToggle(boolean v) {
+        bPressedToggle = v;
     }
 
-    public boolean getCircleReleasedToggle() {
-        return circleReleasedToggle;
+    public boolean getBReleasedToggle() {
+        return bReleasedToggle;
     }
 
-    public void setCircleReleasedToggle(boolean v) {
-        circleReleasedToggle = v;
+    public void setBReleasedToggle(boolean v) {
+        bReleasedToggle = v;
     }
 
-    public boolean getCrossPressedToggle() {
-        return crossPressedToggle;
+    public boolean getAPressedToggle() {
+        return aPressedToggle;
     }
 
-    public void setCrossPressedToggle(boolean v) {
-        crossPressedToggle = v;
+    public void setAPressedToggle(boolean v) {
+        aPressedToggle = v;
     }
 
-    public boolean getCrossReleasedToggle() {
-        return crossReleasedToggle;
+    public boolean getAReleasedToggle() {
+        return aReleasedToggle;
     }
 
-    public void setCrossReleasedToggle(boolean v) {
-        crossReleasedToggle = v;
+    public void setAReleasedToggle(boolean v) {
+        aReleasedToggle = v;
     }
 
-    public boolean getSquarePressedToggle() {
-        return squarePressedToggle;
+    public boolean getXPressedToggle() {
+        return xPressedToggle;
     }
 
-    public void setSquarePressedToggle(boolean v) {
-        squarePressedToggle = v;
+    public void setXPressedToggle(boolean v) {
+        xPressedToggle = v;
     }
 
-    public boolean getSquareReleasedToggle() {
-        return squareReleasedToggle;
+    public boolean getXReleasedToggle() {
+        return xReleasedToggle;
     }
 
-    public void setSquareReleasedToggle(boolean v) {
-        squareReleasedToggle = v;
+    public void setXReleasedToggle(boolean v) {
+        xReleasedToggle = v;
     }
 
-    public boolean getTrianglePressedToggle() {
-        return trianglePressedToggle;
+    public boolean getYPressedToggle() {
+        return yPressedToggle;
     }
 
-    public void setTrianglePressedToggle(boolean v) {
-        trianglePressedToggle = v;
+    public void setYPressedToggle(boolean v) {
+        yPressedToggle = v;
     }
 
-    public boolean getTriangleReleasedToggle() {
-        return triangleReleasedToggle;
+    public boolean getYReleasedToggle() {
+        return yReleasedToggle;
     }
 
-    public void setTriangleReleasedToggle(boolean v) {
-        triangleReleasedToggle = v;
+    public void setYReleasedToggle(boolean v) {
+        yReleasedToggle = v;
     }
 
     public boolean getGuidePressedToggle() {
@@ -722,14 +722,14 @@ public class Gamepad implements Subsystem {
         rightBumperPressedToggle = false;
         rightBumperReleasedToggle = false;
 
-        circlePressedToggle = false;
-        circleReleasedToggle = false;
-        crossPressedToggle = false;
-        crossReleasedToggle = false;
-        squarePressedToggle = false;
-        squareReleasedToggle = false;
-        trianglePressedToggle = false;
-        triangleReleasedToggle = false;
+        bPressedToggle = false;
+        bReleasedToggle = false;
+        aPressedToggle = false;
+        aReleasedToggle = false;
+        xPressedToggle = false;
+        xReleasedToggle = false;
+        yPressedToggle = false;
+        yReleasedToggle = false;
         guidePressedToggle = false;
         guideReleasedToggle = false;
 
@@ -757,10 +757,10 @@ public class Gamepad implements Subsystem {
         leftBumperPressedToggle = false;
         rightBumperPressedToggle = false;
 
-        circlePressedToggle = false;
-        crossPressedToggle = false;
-        squarePressedToggle = false;
-        trianglePressedToggle = false;
+        bPressedToggle = false;
+        aPressedToggle = false;
+        xPressedToggle = false;
+        yPressedToggle = false;
         guidePressedToggle = false;
 
         dpadUpPressedToggle = false;
@@ -780,10 +780,10 @@ public class Gamepad implements Subsystem {
         leftBumperReleasedToggle = false;
         rightBumperReleasedToggle = false;
 
-        circleReleasedToggle = false;
-        crossReleasedToggle = false;
-        squareReleasedToggle = false;
-        triangleReleasedToggle = false;
+        bReleasedToggle = false;
+        aReleasedToggle = false;
+        xReleasedToggle = false;
+        yReleasedToggle = false;
         guideReleasedToggle = false;
 
         dpadUpReleasedToggle = false;

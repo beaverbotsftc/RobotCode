@@ -7,6 +7,7 @@ import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.linear.RealVector;
 import org.beaverbots.beaver.command.Subsystem;
+import org.beaverbots.beaver.util.Geometry;
 import org.beaverbots.beaver.util.Stopwatch;
 import org.beaverbots.beaver.SensorFusion;
 import org.firstinspires.ftc.teamcode.Constants;
@@ -94,7 +95,7 @@ public class FusedLocalizer implements Subsystem, Localizer {
         );
         double thetaPinpoint = controlInput.getEntry(3);
 
-        Transform deltaTrusted = deltaPinpoint.rotate(theta - thetaPinpoint);
+        Transform deltaTrusted = deltaPinpoint.rotateLateral(theta - thetaPinpoint);
 
         return currentState.add(deltaTrusted.toVector());
     }
@@ -131,7 +132,7 @@ public class FusedLocalizer implements Subsystem, Localizer {
                 RealVector measurement = new ArrayRealVector(new double[]{
                         limelightEstimation.first.getState().getX(),
                         limelightEstimation.first.getState().getY(),
-                        wind(limelightEstimation.first.getState().getTheta())
+                        Geometry.unnormalizeAngle(limelightEstimation.first.getState().getTheta(), getPosition().getTheta())
                 }).add(getVelocity().toVector().mapMultiply(limelightEstimation.second));
 
                 RealMatrix sensorCovariance = new Array2DRowRealMatrix(new double[][]{
@@ -159,7 +160,7 @@ public class FusedLocalizer implements Subsystem, Localizer {
     }
 
     public Transform getVelocity() {
-        return localizer.getVelocity().rotate(highFrequencyPose.getEntry(2) - localizer.getPosition().getTheta());
+        return localizer.getVelocity().rotateLateral(highFrequencyPose.getEntry(2) - localizer.getPosition().getTheta());
     }
 
     public List<Double> getVelocityAsList() {
@@ -168,9 +169,5 @@ public class FusedLocalizer implements Subsystem, Localizer {
 
     public RealMatrix getCovariance() {
         return filter.getCovariance();
-    }
-
-    public double wind(double theta) {
-        return Localizer.wind(theta, getPosition().getTheta());
     }
 }

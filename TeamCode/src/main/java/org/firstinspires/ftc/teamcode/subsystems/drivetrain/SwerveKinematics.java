@@ -5,7 +5,7 @@ import org.beaverbots.beaver.util.Transform;
 public final class SwerveKinematics {
     public static double getWheelVelocity(Transform wheelPosition, double wheelDirection, Transform chassisTarget) {
         Transform vLinear = chassisTarget.lateral();
-        Transform vAngular = chassisTarget.angular().cross(wheelPosition);
-        return vLinear.add(vAngular).lateralDot(Transform.FORWARD.rotate(wheelDirection));
+        Transform vAngular = new Transform(-chassisTarget.getTheta() * wheelPosition.getY(), chassisTarget.getTheta() * wheelPosition.getX(), 0);
+        return vLinear.add(vAngular).dotLateral(Transform.FORWARD.rotateLateral(wheelDirection));
     }
 }

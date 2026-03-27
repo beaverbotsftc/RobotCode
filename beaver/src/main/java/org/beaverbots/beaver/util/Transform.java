@@ -106,23 +106,35 @@ public final class Transform {
         return new Transform(x - other.x, y - other.y, theta - other.theta);
     }
 
+    public Transform scaleLateral(double scalar) {
+        return new Transform(x * scalar, y * scalar, theta);
+    }
+
     public Transform scale(double scalar) {
         return new Transform(x * scalar, y * scalar, theta * scalar);
     }
 
-    public double lateralDot(Transform other) {
+    public double dotLateral(Transform other) {
         return x * other.x + y * other.y;
     }
 
-    public Transform cross(Transform other) {
-        return new Transform(y * other.theta - theta * other.y, theta * other.x - x * other.theta, x * other.y - y * other.x);
+    public Transform unitLateral() {
+        return this.scaleLateral(1 / lateralNorm());
     }
 
-    public Transform unit() {
-        return this.scale(1 / lateralNorm());
-    }
+    public Transform blend(Transform other, double t) { return this.scale(1 - t).add(other.scale(t)); }
 
     public Transform rotate(double angle) {
+        double cos = Math.cos(angle);
+        double sin = Math.sin(angle);
+
+        double newX = this.x * cos - this.y * sin;
+        double newY = this.x * sin + this.y * cos;
+
+        return new Transform(newX, newY, this.theta + angle);
+    }
+
+    public Transform rotateLateral(double angle) {
         double cos = Math.cos(angle);
         double sin = Math.sin(angle);
 
@@ -134,7 +146,7 @@ public final class Transform {
 
     public Transform toLocalVelocity(Transform reference) {
         // We simply rotate the current vector by negative reference theta
-        return this.rotate(-reference.getTheta());
+        return this.rotateLateral(-reference.getTheta());
     }
 
     public double angleTo(Transform other) {

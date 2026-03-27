@@ -92,8 +92,4 @@ public final class Pinpoint implements Localizer, Subsystem {
         pinpoint.setPosition(position != null ? position.toPose2d() : new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, 0));
         currentPose = position;
     }
-
-    public double wind(double theta) {
-        return Localizer.wind(theta, getPosition().getTheta());
-    }
 }

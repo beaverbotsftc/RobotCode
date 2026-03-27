@@ -161,7 +161,7 @@ public class Limelight implements Subsystem {
         return new Pair<>(new LimelightLocalization(
                 new Transform(x, y, theta),
                 new Transform(xVariance, yVariance, thetaVariance)
-        ), (double) result.getStaleness() / 1000);
+        ), (result.getCaptureLatency() + result.getTargetingLatency() + (double) result.getStaleness()) / 1000);
     }
 
     public LLResultTypes.DetectorResult getVision() {

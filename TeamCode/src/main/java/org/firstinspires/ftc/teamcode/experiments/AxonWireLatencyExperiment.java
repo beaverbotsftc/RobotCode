@@ -11,14 +11,14 @@ import org.beaverbots.beaver.command.premade.Instant;
 import org.beaverbots.beaver.command.premade.Sequential;
 import org.beaverbots.beaver.command.premade.WaitUntil;
 import org.beaverbots.beaver.util.Stopwatch;
-import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
+import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
 
 @Autonomous
 public class AxonWireLatencyExperiment extends CommandRuntimeOpMode {
     CRServo servo;
     AnalogInput encoder;
 
-    Gamepad gamepad;
+    GamepadEx gamepad;
 
     Stopwatch stopwatch;
     double previousPosition = 0;
@@ -30,13 +30,13 @@ public class AxonWireLatencyExperiment extends CommandRuntimeOpMode {
 
         servo.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        gamepad = new Gamepad(gamepad1);
+        gamepad = new GamepadEx(gamepad1);
 
         register(gamepad);
     }
 
     public void periodic() {
-        if (gamepad.getCrossJustPressed()) {
+        if (gamepad.getAJustPressed()) {
             schedule(new Sequential(new Instant(() -> stopwatch = new Stopwatch()),
                     new Instant(() -> previousPosition = encoder.getVoltage()),
                     new Instant(() -> servo.setPower(1)),

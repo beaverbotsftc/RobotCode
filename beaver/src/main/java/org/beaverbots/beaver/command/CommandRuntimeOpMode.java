@@ -59,6 +59,8 @@ public abstract class CommandRuntimeOpMode extends OpMode {
                 commandBuffer.remove(i);
             }
 
+            // Technically, if it were canceled, you don't need to add them. However, it makes it easier to reason about.
+            // Also, the only way this could cause a problem is if multiple commands are scheduled within the same loop.
             conflictingSubsystems.addAll(dependencies);
         }
 

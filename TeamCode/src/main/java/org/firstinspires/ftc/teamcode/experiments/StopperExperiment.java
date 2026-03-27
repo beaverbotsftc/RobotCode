@@ -1,30 +1,28 @@
 package org.firstinspires.ftc.teamcode.experiments;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.beaverbots.beaver.command.CommandRuntimeOpMode;
 import org.beaverbots.beaver.command.HardwareManager;
 import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
 
 @Autonomous
-public class CRServoExperiment extends CommandRuntimeOpMode {
-    CRServo servo;
-
-    GamepadEx gamepad;
+public class StopperExperiment extends CommandRuntimeOpMode {
+    private GamepadEx gamepad;
+    private DcMotorEx intake;
+    private DcMotorEx stopper;
 
     public void onInit() {
-        servo = HardwareManager.claim(CRServo.class, "servo");
-
-        servo.setDirection(DcMotorSimple.Direction.REVERSE);
-
         gamepad = new GamepadEx(gamepad1);
+        intake = HardwareManager.claim("intake");
+        stopper = HardwareManager.claim("stopper");
 
         register(gamepad);
     }
 
     public void periodic() {
-        servo.setPower(gamepad.getRightX());
+        intake.setPower(gamepad.getLeftY());
+        stopper.setPower(gamepad.getRightY());
     }
 }

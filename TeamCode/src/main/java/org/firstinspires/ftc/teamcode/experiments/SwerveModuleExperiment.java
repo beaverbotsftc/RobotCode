@@ -2,15 +2,15 @@ package org.firstinspires.ftc.teamcode.experiments;
 
 import org.beaverbots.beaver.command.CommandRuntimeOpMode;
 import org.beaverbots.beaver.util.Transform;
-import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
+import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.SwerveModule;
 
 public class SwerveModuleExperiment extends CommandRuntimeOpMode {
-    Gamepad gamepad;
+    GamepadEx gamepad;
     SwerveModule module;
 
     public void onInit() {
-        gamepad = new Gamepad(gamepad1);
+        gamepad = new GamepadEx(gamepad1);
         module = new SwerveModule();
 
         register(gamepad, module);

@@ -18,9 +18,9 @@ public final class Constants {
     public static final List<Double> SHOOTING_ZONE_FAR_X = List.of(69.636643, 46.386643, 69.636643);
     public static final List<Double> SHOOTING_ZONE_FAR_Y = List.of(-23.218750, 0.0, 23.218750);
 
-    public static double drivetrainPowerConversionFactorX = 0.0128674126; // 0.01072290598019666; // in/s -> proportion of max rpm
-    public static double drivetrainPowerConversionFactorY = 0.0142546161; // 0.01072290598019666; // in/s -> proportion of max rpm
-    public static double drivetrainPowerConversionFactorTheta = 0.1603526706; // 0.1319953842421724; // rad/s -> proportion of max rpm
+    public static double drivetrainPowerConversionFactorX = 1 / 62.45693318101283;
+    public static double drivetrainPowerConversionFactorY = 1 / 62.45693318101283;
+    public static double drivetrainPowerConversionFactorTheta = 1 / 6.874573388870918;
 
     public static double getMaxLateralVelocity() {
         return Math.min(1 / drivetrainPowerConversionFactorX, 1 / drivetrainPowerConversionFactorY);
@@ -46,19 +46,19 @@ public final class Constants {
     public static double pidIX = 8.8;
     public static double pidDX = 1.46652 / 4;
     public static double pidTauX = 0.1;
-    public static double pidGammaX = 100;
+    public static double pidGammaX = 300;
     public static double pidPY = 4.6;
     public static double pidIY = 13.142857142857146;
     public static double pidDY = 1.073226 / 4;
     public static double pidTauY = 0.1;
-    public static double pidGammaY = 100;
+    public static double pidGammaY = 300;
     public static double pidPTheta = 3.6;
     public static double pidITheta = 20.571428571428573;
     public static double pidDTheta = 0.419958 / 4;
     public static double pidTauTheta = 0.1;
-    public static double pidGammaTheta = 1000;
+    public static double pidGammaTheta = 3000;
 
-/*
+    /*
     public static double pidPX = 3;
     public static double pidIX = 10;
     public static double pidDX = 1 / 2.;
@@ -74,7 +74,9 @@ public final class Constants {
     public static double pidDTheta = 0.3 / 2.;
     public static double pidTauTheta = 0.1;
     public static double pidGammaTheta = 10000;
-*/
+
+     */
+
 /*
     public static double pidPX = 3;
     public static double pidIX = 10;
@@ -113,10 +115,10 @@ public final class Constants {
 
     public static final double shooterBias = 0.03-0.03;
 
-    public static double shooterFrictionConversionFactor = 0.00258; // rpm -> proportion of max RPM at 1V
-    public static double pidPShooter = 0.003;
-    public static double pidIShooter = 0.003;
-    public static double pidGammaShooter = 0.0004;
+    public static double shooterFrictionConversionFactor = 0.0023;//0.00294; // rpm -> proportion of max RPM at 1V
+    public static double pidPShooter = 0.001;
+    public static double pidIShooter = 0.001;
+    public static double pidGammaShooter = 5;
 
     public static double lateralVariancePinpoint = 0.000683634022087;
     public static double angularVariancePinpoint = 0.0000000268388027135 * 1000;

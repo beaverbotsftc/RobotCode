@@ -11,9 +11,8 @@ import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.pidf.PIDF;
 import org.beaverbots.beaver.pidf.PIDFAxis;
 import org.beaverbots.beaver.util.Stopwatch;
-import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
+import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Autonomous
@@ -29,7 +28,7 @@ public class InfiniteServoExperiment extends CommandRuntimeOpMode {
     ))));
 
 
-    Gamepad gamepad;
+    GamepadEx gamepad;
 
     Stopwatch stopwatch;
 
@@ -41,7 +40,7 @@ public class InfiniteServoExperiment extends CommandRuntimeOpMode {
 
         servo.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        gamepad = new Gamepad(gamepad1);
+        gamepad = new GamepadEx(gamepad1);
 
         infiniteServo = new InfiniteServo(servo, encoder, pidf, 0);
 

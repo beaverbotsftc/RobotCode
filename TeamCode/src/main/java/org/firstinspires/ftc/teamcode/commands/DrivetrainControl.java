@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.commands;
 import org.beaverbots.beaver.command.Command;
 import org.beaverbots.beaver.command.Subsystem;
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.subsystems.Gamepad;
+import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.beaverbots.beaver.util.Transform;
 
@@ -12,9 +12,9 @@ import java.util.Set;
 
 public class DrivetrainControl implements Command {
     private final Drivetrain drivetrain;
-    private final Gamepad gamepad;
+    private final GamepadEx gamepad;
 
-    public DrivetrainControl(Drivetrain drivetrain, Gamepad gamepad) {
+    public DrivetrainControl(Drivetrain drivetrain, GamepadEx gamepad) {
         this.drivetrain = drivetrain;
         this.gamepad = gamepad;
     }

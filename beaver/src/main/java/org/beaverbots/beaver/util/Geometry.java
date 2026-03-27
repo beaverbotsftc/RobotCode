@@ -141,4 +141,13 @@ public class Geometry {
     public static double normalizeAngle(double angle) {
         return Modulus.modulus(angle, 2 * Math.PI);
     }
+
+    public static double normalizeAngle2(double angle) {
+        double normalized = normalizeAngle(angle);
+        return normalized > Math.PI ? normalized - 2 * Math.PI : normalized;
+    }
+
+    public static double unnormalizeAngle(double angle, double closestTo) {
+        return angle - 2 * Math.PI * Math.round((angle - closestTo) / 2 / Math.PI);
+    }
 }
