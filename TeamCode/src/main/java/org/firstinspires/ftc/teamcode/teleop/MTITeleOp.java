@@ -3,9 +3,11 @@ package org.firstinspires.ftc.teamcode.teleop;
 import android.util.Pair;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.beaverbots.beaver.command.Command;
 import org.beaverbots.beaver.command.CommandRuntimeOpMode;
+import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.command.premade.Defer;
 import org.beaverbots.beaver.command.premade.Instant;
 import org.beaverbots.beaver.command.premade.NoOp;
@@ -14,6 +16,7 @@ import org.beaverbots.beaver.command.premade.Repeat;
 import org.beaverbots.beaver.command.premade.RunUntil;
 import org.beaverbots.beaver.command.premade.Sequential;
 import org.beaverbots.beaver.command.premade.StartWith;
+import org.beaverbots.beaver.command.premade.Wait;
 import org.beaverbots.beaver.command.premade.WaitUntil;
 import org.beaverbots.beaver.command.premade.router.Router;
 import org.beaverbots.beaver.command.premade.router.Selector;
@@ -25,6 +28,7 @@ import org.beaverbots.beaver.pidf.PIDFAxis;
 import org.beaverbots.beaver.util.Geometry;
 import org.beaverbots.beaver.util.Transform;
 import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.CrossModeStorage;
 import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
@@ -46,12 +50,13 @@ public class MTITeleOp extends CommandRuntimeOpMode {
     private VoltageSensor voltageSensor;
     private Turret turret;
 
-    private FusedLocalizer localizer;
+    private Pinpoint localizer;
 
     private GamepadEx gamepad;
 
     private ToDoubleFunction<Pair<List<Double>, List<Double>>> usageRatio;
 
+    Servo hood;
 
     public void onInit() {
         drivetrain = new MecanumDrivetrain();
@@ -59,16 +64,19 @@ public class MTITeleOp extends CommandRuntimeOpMode {
         voltageSensor = new VoltageSensor();
         turret = new Turret(voltageSensor);
 
-        Pinpoint pinpoint = new Pinpoint(new Transform(0, 0, 0));
+        Pinpoint pinpoint = new Pinpoint(CrossModeStorage.position);
         Limelight limelight = new Limelight();
 
-        localizer = new FusedLocalizer(
+        localizer = pinpoint;/*new FusedLocalizer(
                 pinpoint,
                 limelight,
                 new Transform(0, 0, 0)
         );
+        */
 
         gamepad = new GamepadEx(gamepad1);
+
+        hood = HardwareManager.claim(Servo.class, "hood");
 
         usageRatio = PathBuilder.createHolonomicUsage(1 / Constants.drivetrainPowerConversionFactorX, 1 / Constants.drivetrainPowerConversionFactorY, 1 / Constants.drivetrainPowerConversionFactorTheta);
 
@@ -79,9 +87,6 @@ public class MTITeleOp extends CommandRuntimeOpMode {
         telemetry.addData("Position X", localizer.getPosition().getX());
         telemetry.addData("Position Y", localizer.getPosition().getY());
         telemetry.addData("Position Theta", localizer.getPosition().getTheta());
-        telemetry.addData("Variance X", localizer.getCovariance().getEntry(0, 0));
-        telemetry.addData("Variance Y", localizer.getCovariance().getEntry(1, 1));
-        telemetry.addData("Variance Theta", localizer.getCovariance().getEntry(2, 2));
         telemetry.addData("RPM", turret.getVelocity());
     }
 
@@ -93,7 +98,13 @@ public class MTITeleOp extends CommandRuntimeOpMode {
         turret.shoot(2800);
         schedule(
                 new Router(
-                        new Selector(() -> gamepad.getX()),
+                        new Selector(() -> {
+                            if (gamepad.getX())
+                                return 1;
+                            if (gamepad.getB())
+                                return 2;
+                            return 0;
+                        }),
                         new StartWith(
                                 new Parallel(
                                         new Repeat(
@@ -121,19 +132,23 @@ public class MTITeleOp extends CommandRuntimeOpMode {
                                         Transform goalLocation = new Transform(-72, 72);
                                         double angle = Geometry.unnormalizeAngle(localizer.getPosition().angleTo(shootLocation), localizer.getPosition().getTheta());
                                         boolean invertAngle = Math.abs(localizer.getPosition().getTheta() - angle) >= Math.PI;
-                                        Transform shootPose = new Transform(shootLocation.getX(), shootLocation.getY(), Geometry.unnormalizeAngle(invertAngle ? angle + Math.PI : angle, localizer.getPosition().getTheta()));
+                                        Transform shootPose = new Transform(shootLocation.getX(), shootLocation.getY(), localizer.getPosition().getTheta());//Geometry.unnormalizeAngle(invertAngle ? angle + Math.PI : angle, localizer.getPosition().getTheta()));
                                         Path pathThere = new PathBuilder(localizer.getPositionAsList())
+                                                /*
                                                 .bezierTo(
                                                         localizer.getPosition().lateral().add(shootPose.angular()).blend(shootPose, 1.0 / 3.0).toList(),
                                                         localizer.getPosition().lateral().add(shootPose.angular()).blend(shootPose, 2.0 / 3.0).toList(),
                                                         shootPose.toList(),
-                                                        0.2,
+                                                        0.4,
                                                         1
                                                 )
+
+                                                 */
+                                                .linearTo(shootPose.toList(), 0.2, 1)
                                                 .build()
                                                 .first;
                                         Pair<Path, Path> timedPathThere = new PathBuilder(pathThere)
-                                                .retime(usageRatio, 1, 50)
+                                                .retime(usageRatio, 1.5, 50)
                                                 .build();
                                         Pair<Path, Path> timedPathBack = new PathBuilder(pathThere)
                                                 .reverse()
@@ -153,7 +168,7 @@ public class MTITeleOp extends CommandRuntimeOpMode {
                                                                         followPathTemplate(timedPathThere.second, 0.3)
                                                                 )
                                                         ),
-                                                        new Repeat(() -> turret.turn(localizer.getPosition().angleTo(goalLocation.subtract(localizer.getVelocity().scale(0.7))) - localizer.getPosition().getTheta()))
+                                                        new Repeat(() -> turret.turn(localizer.getPosition().angleTo(goalLocation.subtract(localizer.getVelocity().scale(0.9))) - localizer.getPosition().getTheta() - 0.1))
                                                 ),
                                                 followPathTemplate(timedPathBack.first, 1)
                                         );
@@ -162,6 +177,51 @@ public class MTITeleOp extends CommandRuntimeOpMode {
                                 () -> {
                                     intake.transfer(true);
                                     intake.stop();
+                                    turret.shoot(2800);
+                                    hood.setPosition(0.05);
+                                }
+                        ),
+                        new StartWith(
+                                new Defer(() -> {
+                                        Transform shootLocation = new Transform(58, 6);
+                                        Transform goalLocation = new Transform(-72, 72);
+                                        Transform shootPose = new Transform(shootLocation.getX(), shootLocation.getY(), localizer.getPosition().getTheta());
+                                        Path pathThere = new PathBuilder(localizer.getPositionAsList())
+                                                .linearTo(shootPose.toList(), 0.2, 1)
+                                                .build()
+                                                .first;
+                                        Pair<Path, Path> timedPathThere = new PathBuilder(pathThere)
+                                                .retime(usageRatio, 1, 50)
+                                                .build();
+                                        Pair<Path, Path> timedPathBack = new PathBuilder(pathThere)
+                                                .reverse()
+                                                .retime(usageRatio, 1, 50)
+                                                .build();
+                                        return new Sequential(
+                                                new RunUntil(
+                                                        new Sequential(
+                                                                followPathTemplate(timedPathThere.first, 1),
+                                                                new RunUntil(
+                                                                        new Sequential(
+                                                                                new WaitUntil(() -> gamepad.getA()),
+                                                                                new Instant(() -> intake.intakeNow()),
+                                                                                new WaitUntil(() -> !gamepad.getA()),
+                                                                                new Instant(() -> intake.stop())
+                                                                        ),
+                                                                        followPathTemplate(timedPathThere.second, 0.3)
+                                                                )
+                                                        ),
+                                                        new Repeat(() -> turret.turn(localizer.getPosition().angleTo(goalLocation.subtract(localizer.getVelocity().scale(0))) - localizer.getPosition().getTheta()))
+                                                ),
+                                                followPathTemplate(timedPathBack.first, 1)
+                                        );
+                                    }
+                                ),
+                                () -> {
+                                    intake.transfer(true);
+                                    intake.stop();
+                                    turret.shoot(4250);
+                                    hood.setPosition(0.45);
                                 }
                         )
                 )

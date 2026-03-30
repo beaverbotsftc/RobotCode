@@ -15,10 +15,10 @@ import org.beaverbots.beaver.pathing.path.Path;
 import org.beaverbots.beaver.pathing.path.pathbuilder.PathBuilder;
 import org.beaverbots.beaver.pidf.PIDF;
 import org.beaverbots.beaver.pidf.PIDFAxis;
+import org.beaverbots.beaver.util.Geometry;
 import org.beaverbots.beaver.util.Transform;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.CrossModeStorage;
-import org.firstinspires.ftc.teamcode.Motif;
 import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
@@ -85,11 +85,24 @@ public class MTIAuto extends CommandRuntimeOpMode {
                         shootNear(driveToShootNear()),
                         intakeFrom(driveThroughSpike2()),
                         shootNear(driveSplineToShootNear()),
-                        intakeFrom(driveThroughSpike3()),
+                        new Instant(() -> {
+                            intake.transfer(false);
+                            intake.intake(true);
+                        }),
+                        drive(driveToGateFront()),
+                        intakeFromGate(driveToIntakeGate()),
                         shootNear(driveSplineToShootNear()),
                         intakeFrom(driveThroughSpike1()),
                         shootNear(driveToShootNear()),
-                        new Instant(() -> turret.shoot(0))
+                        intakeFrom(driveThroughSpike3()),
+                        shootNear(driveToShootNear()),
+                        driveAndHold(
+                                new PathBuilder(currentPosition.toList())
+                                        .linearTo(new Transform(8, 36, Geometry.unnormalizeAngle(Math.PI / 2, currentPosition.getTheta())).toList(), 1)
+                                        .retime(usageRatio, 1, 50)
+                                        .build()
+                        ),
+                        new Instant(this::requestOpModeStop)
                 )
         );
     }
@@ -111,7 +124,7 @@ public class MTIAuto extends CommandRuntimeOpMode {
     }
 
     private Pair<Path, Path> driveToShootNear() {
-        final Transform SHOOT_LOCATION = new Transform(-24, 26, 3 * Math.PI / 4);
+        final Transform SHOOT_LOCATION = new Transform(-20, 26, Math.PI / 2);
 
         final double EASING_FRACTION = 0.4;
 
@@ -123,24 +136,26 @@ public class MTIAuto extends CommandRuntimeOpMode {
     }
 
     private Pair<Path, Path> driveSplineToShootNear() {
-        // Using setup manual dimensions (middle of shark fin), rather than CAD.
-        final double X = -24;
+        final double X = -20;
 
-        final double BEZIER_1_Y = 40;
-        final double BEZIER_2_Y = 28;
-        final double BEZIER_3_Y = 24;
+        final double BEZIER_1_Y = 38;
+        final double BEZIER_2_Y = 16;
+        final double BEZIER_3_Y = 26;
 
         final double EASING_FRACTION = 0.4;
 
-        Transform position1 = new Transform(currentPosition.getX(), BEZIER_1_Y, currentPosition.getTheta());
-        Transform position2 = new Transform(currentPosition.getX(), BEZIER_2_Y, currentPosition.getTheta());
-        Transform position3 = new Transform(X, BEZIER_3_Y, currentPosition.getTheta());
-        Transform position0 = new Transform(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
+        final double MOVE_TIME = 1.8;
 
+        Transform position1 = new Transform(currentPosition.getX(), BEZIER_1_Y, currentPosition.getTheta());
+        Transform position2 = new Transform(currentPosition.getX(), BEZIER_2_Y, Geometry.unnormalizeAngle(Math.PI / 2, currentPosition.getTheta()));
+        Transform position3 = new Transform(X, BEZIER_3_Y, Geometry.unnormalizeAngle(Math.PI / 2, currentPosition.getTheta()));
+        Transform position0 = position1.subtract(
+                position2.subtract(position1).scale(1.0 / MOVE_TIME)
+        );
 
         return new PathBuilder(currentPosition.toList())
-                .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), EASING_FRACTION, 1)
-                .bezierTo(position2.toList(), position3.toList(), position3.toList(), EASING_FRACTION, 1)
+                .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), EASING_FRACTION, 1.0)
+                .bezierTo(position2.toList(), position3.toList(), position3.toList(), EASING_FRACTION, MOVE_TIME)
                 .stop(0.2, 0.2)
                 .retime(usageRatio, 1, 50)
                 .build();
@@ -148,79 +163,141 @@ public class MTIAuto extends CommandRuntimeOpMode {
 
     private Pair<Path, Path> driveThroughSpike1() {
         // Using setup manual dimensions (middle of shark fin), rather than CAD.
-        final double X = -11.78125;
+        final double X = -11.78125 + 2;
 
-        final double BEZIER_1_Y = 28;
+        final double BEZIER_1_Y = 30;
         final double BEZIER_2_Y = 40;
-        final double BEZIER_3_Y = 56;
+        final double BEZIER_3_Y = 48;
 
         final double EASING_FRACTION = 0.3;
+        final double INTAKE_TIME = 1;
 
         Transform position1 = new Transform(X, BEZIER_1_Y, Math.PI / 2);
         Transform position2 = new Transform(X, BEZIER_2_Y, Math.PI / 2);
         Transform position3 = new Transform(X, BEZIER_3_Y, Math.PI / 2);
-        Transform position0 = new Transform(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
+        Transform position0 = position1.subtract(position2.subtract(position1).scale(1.0 / INTAKE_TIME));
 
 
         return new PathBuilder(currentPosition.toList())
                 .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), EASING_FRACTION, 1)
-                .bezierTo(position2.toList(), position3.toList(), position3.toList(), EASING_FRACTION, 1)
-                .retime(usageRatio, 0.7, 50)
+                .bezierTo(position2.toList(), position3.toList(), position3.toList(), INTAKE_TIME)
+                .retime(usageRatio, 0.8, 50)
                 .build();
     }
 
     private Pair<Path, Path> driveThroughSpike2() {
         // Using setup manual dimensions (middle of shark fin), rather than CAD.
-        final double X = 11.78125 + 3;
+        final double X = 11.78125 + 7;
         //final double X = 7;
 
-        final double BEZIER_1_Y = 28;
-        final double BEZIER_2_Y = 40;
-        final double BEZIER_3_Y = 58;
+        final double BEZIER_1_Y = 18;
+        final double BEZIER_2_Y = 35;
+        final double BEZIER_3_Y = 54;
 
         final double EASING_FRACTION = 0.3;
+        final double INTAKE_TIME = 0.8;
 
 
-        Transform position1 = new Transform(X, BEZIER_1_Y, Math.PI / 2);
+        Transform position1 = new Transform(X - 5, BEZIER_1_Y, Math.PI / 2);
         Transform position2 = new Transform(X, BEZIER_2_Y, Math.PI / 2);
         Transform position3 = new Transform(X, BEZIER_3_Y, Math.PI / 2);
-        Transform position0 = new Transform(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
+        Transform position0 = position1.subtract(position2.subtract(position1).scale(1.0 / INTAKE_TIME));
 
 
         return new PathBuilder(currentPosition.toList())
                 .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), EASING_FRACTION, 1)
-                .bezierTo(position2.toList(), position3.toList(), position3.toList(), EASING_FRACTION, 1)
+                .bezierTo(position2.toList(), position3.toList(), position3.toList(), INTAKE_TIME)
                 .retime(usageRatio, 0.7, 50)
                 .build();
     }
 
     private Pair<Path, Path> driveThroughSpike3() {
         // Using setup manual dimensions (middle of shark fin), rather than CAD.
-        final double X = 35.34375;
+        final double X = 35.34375 + 5;
 
         final double BEZIER_1_Y = 28;
         final double BEZIER_2_Y = 40;
-        final double BEZIER_3_Y = 56;
+        final double BEZIER_3_Y = 54;
 
         final double EASING_FRACTION = 0.2; // It's longer time, so easing fraction will be larger proportional to the fraction
+        final double INTAKE_TIME = 0.4;
 
         Transform position1 = new Transform(X, BEZIER_1_Y, Math.PI / 2);
         Transform position2 = new Transform(X, BEZIER_2_Y, Math.PI / 2);
         Transform position3 = new Transform(X, BEZIER_3_Y, Math.PI / 2);
-        Transform position0 = new Transform(position1.toVector().mapMultiply(2).subtract(position2.toVector()));
+        Transform position0 = position1.subtract(position2.subtract(position1).scale(1.0 / INTAKE_TIME));
 
 
         return new PathBuilder(currentPosition.toList())
                 .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), EASING_FRACTION, 1)
-                .bezierTo(position2.toList(), position3.toList(), position3.toList(), EASING_FRACTION, 1)
-                .retime(usageRatio, 0.7, 50)
+                .bezierTo(position2.toList(), position3.toList(), position3.toList(), INTAKE_TIME)
+                .retime(usageRatio, 1, 50)
                 .build();
+    }
+
+    private Pair<Path, Path> driveToGateFront() {
+        final double X = 12;
+
+        final double BEZIER_1_Y = 28;
+        final double BEZIER_2_Y = 40;
+        final double BEZIER_3_Y = 50;
+
+        final double EASING_FRACTION = 0.2;
+        final double OPEN_TIME = 0.7;
+
+
+        Transform position1 = new Transform(X, BEZIER_1_Y, Geometry.unnormalizeAngle(Math.PI / 2, currentPosition.getTheta()));
+        Transform position2 = new Transform(X, BEZIER_2_Y, Geometry.unnormalizeAngle(Math.PI / 2, currentPosition.getTheta()));
+        Transform position3 = new Transform(X, BEZIER_3_Y, Geometry.unnormalizeAngle(Math.PI / 2, currentPosition.getTheta()));
+        Transform position0 = position1.subtract(position2.subtract(position1).scale(1.0 / OPEN_TIME));
+
+
+        return new PathBuilder(currentPosition.toList())
+                .bezierTo(currentPosition.toList(), position0.toList(), position1.toList(), EASING_FRACTION, 1)
+                .bezierTo(position2.toList(), position3.toList(), position3.toList(), OPEN_TIME)
+                .retime(usageRatio, 0.8, 50)
+                .build();
+    }
+
+    private Pair<Path, Path> driveToIntakeGate() {
+        final double X = 24;
+        final double Y = 56;
+        final double THETA = 2.3;
+
+        final double EASING_FRACTION_IN = 0.4;
+        final double EASING_FRACTION_OUT = 0.4;
+
+        final Transform position = new Transform(
+                X,
+                Y,
+                THETA
+        );
+
+        return new PathBuilder(currentPosition.toList())
+                .linearTo(position.toList(), EASING_FRACTION_IN, 1)
+                .stop(EASING_FRACTION_OUT, EASING_FRACTION_OUT)
+                .linearTo(position.add(new Transform(-3, 0, 0)).toList(), 0.3, 0.3)
+                .retime(usageRatio, 0.6, 50)
+                .build();
+    }
+
+    private Command drive(Pair<Path, Path> path) {
+        update(path);
+        return followPath(path.first, 1);
+    }
+
+    private Command driveAndHold(Pair<Path, Path> path) {
+        update(path);
+        return new Sequential(
+                followPath(path.first, 1),
+                followPath(path.second, 1)
+        );
     }
 
     private Command shootNear(Pair<Path, Path> path) {
         Transform goalLocation = new Transform(-72, 72);
 
-        final double SHOOTER_RPM = 2800;
+        final double SHOOTER_RPM = 2850;
         final double MAX_ERROR = 100;
 
         update(path);
@@ -228,22 +305,22 @@ public class MTIAuto extends CommandRuntimeOpMode {
         return new RunUntil(
                         new Sequential(
                                 new Instant(() -> turret.shoot(SHOOTER_RPM)),
-                                followPathTemplate(path.first, 1),
+                                followPath(path.first, 1),
                                 new RunUntil(
                                         new Sequential(
-                                                new Wait(1),
                                                 new WaitUntil(() -> Math.abs(turret.getVelocity() - SHOOTER_RPM) < MAX_ERROR),
+                                                new Wait(0.3),
                                                 new Instant(() -> {
                                                     intake.intake(true);
                                                     intake.transfer(true);
                                                 }),
-                                                new Wait(1)
+                                                new Wait(0.9)
                                         ),
-                                        followPathTemplate(path.second, 1)
+                                        followPath(path.second, 0.3)
                                 ),
                                 new Instant(() -> intake.stop())
                         ),
-                        new Repeat(() -> turret.turn(fusedLocalizer.getPosition().angleTo(goalLocation.subtract(fusedLocalizer.getVelocity().scale(0.7))) - fusedLocalizer.getPosition().getTheta()))
+                        new Repeat(() -> turret.turn(fusedLocalizer.getPosition().angleTo(goalLocation.subtract(fusedLocalizer.getVelocity().scale(0.5))) - fusedLocalizer.getPosition().getTheta()))
                 );
     }
 
@@ -255,14 +332,29 @@ public class MTIAuto extends CommandRuntimeOpMode {
                     intake.intake(true);
                     intake.transfer(false);
                 }),
-                followPathTemplate(path.first, 1),
-                new Wait(0.3),
+                followPath(path.first, 1),
+                new Wait(0.2)
+        );
+    }
+
+
+    private Command intakeFromGate(Pair<Path, Path> path) {
+        update(path);
+
+        return new Sequential(
+                new Instant(() -> {
+                    intake.intake(true);
+                    intake.transfer(false);
+                }),
+                followPath(path.first, 1),
+                new Wait(0.8),
                 new Instant(() -> intake.stop())
         );
     }
 
 
-    private Command followPathTemplate(Path path, double multiplier) {
+
+    private Command followPath(Path path, double multiplier) {
         return new Sequential(
                 new HolonomicFollowPath(
                         path,

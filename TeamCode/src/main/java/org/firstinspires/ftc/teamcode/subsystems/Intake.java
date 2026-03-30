@@ -31,10 +31,14 @@ public class Intake implements Subsystem {
 
     public void intake(boolean intake) {
         if (intake) {
-            power = 0.5;
+            power = 1;
         } else {
             power = -0.5;
         }
+    }
+
+    public void intakeNow() {
+        power = 0.5;
     }
 
     public void stop() {

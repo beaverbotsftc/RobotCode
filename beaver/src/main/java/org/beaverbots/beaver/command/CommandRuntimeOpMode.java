@@ -21,6 +21,13 @@ public abstract class CommandRuntimeOpMode extends OpMode {
 
     private List<LynxModule> hubs;
 
+    private long loopNumber = 0;
+    private int telemetryUpdateFrequency = 1;
+
+    protected final void setTelemetryUpdateFrequency(int telemetryUpdateFrequency) {
+        this.telemetryUpdateFrequency = telemetryUpdateFrequency;
+    }
+
     private void runScheduler() {
         for (Command command : commandBuffer) {
             if (!commandsToCancel.contains(command) && command.periodic()) {
@@ -94,6 +101,9 @@ public abstract class CommandRuntimeOpMode extends OpMode {
     }
 
     public final void init_loop() {
+        loopNumber++;
+        telemetry.clear();
+
         for (LynxModule hub : hubs) {
             hub.clearBulkCache();
         }
@@ -101,7 +111,9 @@ public abstract class CommandRuntimeOpMode extends OpMode {
         runSubsystems();
         periodicInit();
         runScheduler();
-        telemetry.update();
+
+        if (loopNumber % telemetryUpdateFrequency == 0)
+            telemetry.update();
     }
 
     public final void start() {
@@ -109,6 +121,9 @@ public abstract class CommandRuntimeOpMode extends OpMode {
     }
 
     public final void loop() {
+        loopNumber++;
+        telemetry.clear();
+
         for (LynxModule hub : hubs) {
             hub.clearBulkCache();
         }
@@ -116,7 +131,8 @@ public abstract class CommandRuntimeOpMode extends OpMode {
         runSubsystems();
         periodic();
         runScheduler();
-        telemetry.update();
+        if (loopNumber % telemetryUpdateFrequency == 0)
+            telemetry.update();
     }
 
     public final void stop() {

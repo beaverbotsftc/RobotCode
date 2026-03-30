@@ -18,8 +18,8 @@ public final class Constants {
     public static final List<Double> SHOOTING_ZONE_FAR_X = List.of(69.636643, 46.386643, 69.636643);
     public static final List<Double> SHOOTING_ZONE_FAR_Y = List.of(-23.218750, 0.0, 23.218750);
 
-    public static double drivetrainPowerConversionFactorX = 1 / 62.45693318101283;
-    public static double drivetrainPowerConversionFactorY = 1 / 62.45693318101283;
+    public static double drivetrainPowerConversionFactorX = 1 / 62.45693318101283 / (1 - 0.1);
+    public static double drivetrainPowerConversionFactorY = 1 / 62.45693318101283 / (1 - 0.3);
     public static double drivetrainPowerConversionFactorTheta = 1 / 6.874573388870918;
 
     public static double getMaxLateralVelocity() {
