@@ -108,6 +108,10 @@ public class TeleOp extends CommandRuntimeOpMode {
         periodicInit();
     }
 
+    public void onStop() {
+        CrossModeStorage.reset();
+    }
+
     private Command followPath(Path path, double multiplier) {
         return new Sequential(
                 new HolonomicFollowPath(
