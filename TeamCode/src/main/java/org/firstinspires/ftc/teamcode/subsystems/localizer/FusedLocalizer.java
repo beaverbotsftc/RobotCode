@@ -142,7 +142,7 @@ public class FusedLocalizer implements Subsystem, Localizer {
                 }).scalarMultiply(10);
 
                 //if (filter.isMeasurementInlier(measurement, sensorCovariance, x -> x, 0.05)) {
-                filter.update(measurement, sensorCovariance, new ArrayRealVector(new double[] { Constants.minLateralVarianceLimelight, Constants.minLateralVarianceLimelight, Constants.minAngularVariancePinpoint }), x -> x);
+                filter.update(measurement, sensorCovariance, new ArrayRealVector(new double[] { Constants.minLateralVariance, Constants.minLateralVariance, Constants.minAngularVariance}), x -> x);
                 //}
             }
         }

@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
-import org.firstinspires.ftc.teamcode.subsystems.Turret;
+import org.firstinspires.ftc.teamcode.subsystems.turret.Turret;
 import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
@@ -86,8 +86,8 @@ public class SimpleTeleOp extends CommandRuntimeOpMode {
         }
 
         // --- TURRET ANGLE (D-pad Left/Right) ---
-        if (gamepad.getDpadRight()) targetTurretAngle += 0.05;
-        if (gamepad.getDpadLeft()) targetTurretAngle -= 0.05;
+        if (gamepad.getDpadRight()) targetTurretAngle += 0.005;
+        if (gamepad.getDpadLeft()) targetTurretAngle -= 0.005;
         turret.turn(targetTurretAngle);
 
         // --- LOCALIZATION LOGGING ---

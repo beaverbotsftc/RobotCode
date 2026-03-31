@@ -4,8 +4,10 @@ import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoController;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -87,6 +89,10 @@ public class CachedServo implements Servo {
     @Override
     public void resetDeviceConfigurationForOpMode() {
         servo.resetDeviceConfigurationForOpMode();
+    }
+
+    public void setPwmRange(PwmControl.PwmRange range) {
+        ((ServoImplEx) servo).setPwmRange(range);
     }
 
     @Override

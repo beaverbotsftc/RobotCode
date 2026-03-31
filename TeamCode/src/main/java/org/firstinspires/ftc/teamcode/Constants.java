@@ -22,14 +22,6 @@ public final class Constants {
     public static double drivetrainPowerConversionFactorY = 1 / 62.45693318101283 / (1 - 0.3);
     public static double drivetrainPowerConversionFactorTheta = 1 / 6.874573388870918;
 
-    public static double getMaxLateralVelocity() {
-        return Math.min(1 / drivetrainPowerConversionFactorX, 1 / drivetrainPowerConversionFactorY);
-    }
-
-    public static double getMaxAngularVelocity() {
-        return 1 / drivetrainPowerConversionFactorTheta;
-    }
-
     // Ziegler–Nichols method
     // K_p = 0.2 * K_u
     // K_i = 0.4 * K_u / T_u
@@ -113,9 +105,9 @@ public final class Constants {
     public static double pinpointYOffset = -3.775394;
 
 
-    public static final double shooterBias = 0.03-0.03;
+    public static final double turretAngularBias = -Math.toRadians(2);
 
-    public static double shooterFrictionConversionFactor = 0.0023;//0.00294; // rpm -> proportion of max RPM at 1V
+    public static double pidFShooter = 0.0023; // rpm -> proportion of max RPM at 1V
     public static double pidPShooter = 0.001;
     public static double pidIShooter = 0.001;
     public static double pidGammaShooter = 5;
@@ -123,12 +115,9 @@ public final class Constants {
     public static double lateralVariancePinpoint = 0.000683634022087;
     public static double angularVariancePinpoint = 0.0000000268388027135 * 1000;
 
-    public static double minLateralVarianceLimelight = 0;
-    public static double minAngularVariancePinpoint = 0;//Math.pow(Math.PI / 36, 2); // 5 deg
+    public static double minLateralVariance = 0;
+    public static double minAngularVariance = 0;
 
-
-    public static double maxAngularShootingError = Math.toRadians(5) * 150;
-
-    public static double maxFlywheelRpmErrorDown = 50;
-    public static double maxFlywheelRpmErrorUp = 80;
+    public static double turretLatency = 0.08;
+    public static double turretBounds = 5 * Math.PI / 9;
 }

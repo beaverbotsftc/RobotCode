@@ -22,7 +22,7 @@ public final class MecanumDrivetrain implements Drivetrain, Subsystem {
 
     private double maxPower;
 
-    private boolean isBraking = true;
+    private boolean isBraking = false;
 
     public MecanumDrivetrain(double maxPower) {
         this.maxPower = maxPower;

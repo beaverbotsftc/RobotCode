@@ -1,22 +1,20 @@
-package org.firstinspires.ftc.teamcode.subsystems;
+package org.firstinspires.ftc.teamcode.subsystems.turret;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.RobotLog;
 
 import org.beaverbots.beaver.cachedhardware.CachedMotor;
 import org.beaverbots.beaver.cachedhardware.CachedServo;
 import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.command.Subsystem;
-import org.beaverbots.beaver.pidf.PIDF;
 import org.beaverbots.beaver.pidf.PIDFAxis;
 import org.beaverbots.beaver.util.Geometry;
 import org.beaverbots.beaver.util.Stopwatch;
 import org.firstinspires.ftc.teamcode.Constants;
-
-import java.util.List;
+import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 
 public class Turret implements Subsystem {
     private CachedServo turretLeft;
@@ -52,9 +50,14 @@ public class Turret implements Subsystem {
     }
 
     public void turn(double angle) {
-        double normalized = Math.max(-2 * Math.PI / 3, Math.min(Geometry.normalizeAngle2(-angle), 2 * Math.PI / 3));
-        turretLeft.setPosition((normalized + Math.PI) / (2 * Math.PI));
-        turretRight.setPosition((normalized + Math.PI) / (2 * Math.PI) - 0.125 / 100);
+        double normalized = Math.max(-Constants.turretBounds, Math.min(Geometry.normalizeAngle2( -(angle - Constants.turretAngularBias)), Constants.turretBounds));
+        final double K = 360.0 / 355.0 * (2500.0 - 500.0) / (PwmControl.PwmRange.usPulseUpperDefault - PwmControl.PwmRange.usPulseLowerDefault);
+        turretLeft.setPosition(normalized / (2 * Math.PI) * K + 0.5);
+        turretRight.setPosition(normalized / (2 * Math.PI) * K + 0.5 - 0.125 / 100);
+    }
+
+    public static boolean inBounds(double angle) {
+        return Math.abs(Geometry.normalizeAngle2(angle)) <= Constants.turretBounds;
     }
 
     public void shoot(double velocity) {
@@ -74,7 +77,7 @@ public class Turret implements Subsystem {
             return;
         }
 
-        double control = pidf.update(desiredVelocity - velocity, desiredVelocity * Constants.shooterFrictionConversionFactor / voltageSensor.getVoltage(), stopwatch.getDt());
+        double control = pidf.update(desiredVelocity - velocity, desiredVelocity * Constants.pidFShooter / voltageSensor.getVoltage(), stopwatch.getDt());
         if (Double.isFinite(control)) {
             shooterLeft.setPower(control);
             shooterRight.setPower(control);

@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.CrossModeStorage;
 import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
-import org.firstinspires.ftc.teamcode.subsystems.Turret;
+import org.firstinspires.ftc.teamcode.subsystems.turret.Turret;
 import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.function.ToDoubleFunction;
 
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous
-public class MTIAuto extends CommandRuntimeOpMode {
+public class WeirdAuto extends CommandRuntimeOpMode {
     private GamepadEx gamepad;
     private Drivetrain drivetrain;
     private Pinpoint pinpoint;
@@ -111,6 +111,7 @@ public class MTIAuto extends CommandRuntimeOpMode {
     public void periodic() {
         telemetry.addData("Position:", fusedLocalizer.getPosition().toString());
         CrossModeStorage.position = fusedLocalizer.getPosition();
+        CrossModeStorage.covariance = fusedLocalizer.getCovariance();
     }
 
     private void update(Pair<Path, Path> path) {
