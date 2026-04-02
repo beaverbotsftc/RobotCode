@@ -29,7 +29,7 @@ public class Turret implements Subsystem {
 
     private double desiredVelocity = 0;
 
-    private PIDFAxis pidf = new PIDFAxis(new PIDFAxis.K(Constants.pidPShooter, Constants.pidIShooter, 0, 1, 0.5, 1, 1, Constants.pidGammaShooter));
+    private PIDFAxis pidf = new PIDFAxis(new PIDFAxis.K(Constants.pidPShooter, Constants.pidIShooter, 0, new double[] {1}, 0.5, 1, 1, Constants.pidGammaShooter));
 
     public Turret(VoltageSensor voltageSensor) {
         turretLeft = new CachedServo(HardwareManager.claim(Servo.class, "left turret"), 0.001);
@@ -77,7 +77,7 @@ public class Turret implements Subsystem {
             return;
         }
 
-        double control = pidf.update(desiredVelocity - velocity, desiredVelocity * Constants.pidFShooter / voltageSensor.getVoltage(), stopwatch.getDt());
+        double control = pidf.update(desiredVelocity - velocity, new double[] {desiredVelocity * Constants.pidFShooter / voltageSensor.getVoltage()}, stopwatch.getDt());
         if (Double.isFinite(control)) {
             shooterLeft.setPower(control);
             shooterRight.setPower(control);

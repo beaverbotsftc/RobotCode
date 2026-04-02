@@ -19,14 +19,11 @@ import org.beaverbots.beaver.command.premade.Sequential;
 import org.beaverbots.beaver.command.premade.WaitUntil;
 import org.beaverbots.beaver.optimize.BayesianOptimizer;
 import org.beaverbots.beaver.optimize.kernels.ARDRBFKernel;
-import org.beaverbots.beaver.pidf.PIDF;
 import org.beaverbots.beaver.pidf.PIDFAxis;
 import org.beaverbots.beaver.util.Stopwatch;
 
-import java.util.List;
-
 @Autonomous
-public class CRServoTuning extends CommandRuntimeOpMode {
+public class SwerveServoTuning extends CommandRuntimeOpMode {
     private static BayesianOptimizer optimizer = new BayesianOptimizer(new ARDRBFKernel(), new Pair<>(
             new ArrayRealVector(new double[]{0, 0, 0, 0.01, 0}),
             new ArrayRealVector(new double[]{1, 1, 1, 1, 1e3})
@@ -40,16 +37,16 @@ public class CRServoTuning extends CommandRuntimeOpMode {
 
     Stopwatch stopwatch = new Stopwatch();
 
-    PIDF pidf;
+    PIDFAxis pidf;
     RealVector point;
 
     double bestLoss = 99999999999999999999999.0;
     RealVector bestPoint = null;
 
     public void onInit() {
-        servo = HardwareManager.claim(CRServo.class, "servo");
+        servo = HardwareManager.claim(CRServo.class, "servo1");
         servo.setDirection(DcMotorSimple.Direction.REVERSE);
-        encoder = HardwareManager.claim(AnalogInput.class, "encoder");
+        encoder = HardwareManager.claim(AnalogInput.class, "input1");
     }
 
     private double getAngle() {
@@ -64,9 +61,9 @@ public class CRServoTuning extends CommandRuntimeOpMode {
                 new Instant(() -> loss = 0),
                 new Instant(() -> {
                     point = optimizer.findNextPoint();
-                    pidf = new PIDF(List.of(new PIDFAxis(new PIDFAxis.K(
-                            point.getEntry(0), point.getEntry(1), point.getEntry(2), 0, 1, 1, point.getEntry(3), point.getEntry(4)
-                    ))));
+                    pidf = new PIDFAxis(new PIDFAxis.K(
+                            point.getEntry(0), point.getEntry(1), point.getEntry(2), new double[]{0}, 1, 1, point.getEntry(3), point.getEntry(4)
+                    ));
                 }),
                 new RunUntil(
                         new WaitUntil(() -> Math.abs(getAngle() - 1.5 * Math.PI) < 0.1),
@@ -79,7 +76,7 @@ public class CRServoTuning extends CommandRuntimeOpMode {
                         new Repeat(() -> {
                             double dt = stopwatch.getDt();
                             loss += dt * stopwatch.getElapsed() * Math.abs(getAngle() - Math.PI);
-                            servo.setPower(pidf.update(List.of(getAngle() - Math.PI), List.of(0.0), dt).get(0));
+                            servo.setPower(pidf.update(getAngle() - Math.PI, new double[]{0.0}, dt));
                         })
                 ),
                 new Instant(() -> servo.setPower(0)),

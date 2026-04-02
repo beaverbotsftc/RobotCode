@@ -17,4 +17,8 @@ public final class LowPassFilter {
         yPrevious = alpha * y + (1 - alpha) * yPrevious;
         return yPrevious;
     }
+
+    public void reset() {
+        yPrevious = 0;
+    }
 }

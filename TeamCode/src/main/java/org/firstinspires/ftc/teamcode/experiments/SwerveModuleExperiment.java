@@ -24,11 +24,11 @@ public class SwerveModuleExperiment extends CommandRuntimeOpMode {
     public void onInit() {
         gamepad = new GamepadEx(gamepad1);
         module = new SwerveModule(new InfiniteServo(new CachedCRServo(HardwareManager.claim(CRServo.class, "swerveservo"), 0), HardwareManager.claim(AnalogInput.class, "swerveinput"),
-                new PIDF(List.of(new PIDFAxis(new PIDFAxis.K(
+                new PIDFAxis(new PIDFAxis.K(
                         //0.8 * 0.333, 0.666 * 0.8 / 0.25, 0.25 * 0.8 * 0.111, 0, 1, 1, 0.5, 100
                         //0.8 * 0.2, 0.4 * 0.8 / 0.25, 0.25 * 0.8 * 0.0666, 0, 0, 1, 0.1, 0
                         // Auto-tuned loss: 0.0416
-                        0.3239, 0.9773, 0.0001, 0, 0, 1, 0.2072, 527.6937))))), HardwareManager.claim("front left drive")
+                        0.3239, 0.9773, 0.0001, new double[] {0}, 0, 1, 0.2072, 527.6937))), HardwareManager.claim("front left drive")
         );
 
         register(gamepad, module);

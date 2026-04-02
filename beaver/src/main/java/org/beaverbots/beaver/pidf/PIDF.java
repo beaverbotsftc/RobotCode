@@ -15,7 +15,7 @@ public final class PIDF {
         return pidf.size();
     }
 
-    public List<Double> update(List<Double> error, List<Double> feedforward, double dt) {
+    public List<Double> update(List<Double> error, List<double[]> feedforward, double dt) {
         return IntStream.range(0, pidf.size()).mapToDouble(i -> pidf.get(i).update(error.get(i), feedforward.get(i), dt)).boxed().collect(Collectors.toList());
     }
 }

@@ -7,14 +7,14 @@ public final class PIDFAxis {
         public final double p;
         public final double i;
         public final double d;
-        public final double f;
+        public final double[] f;
 
         public final double integrationClamp;
         public final double outputClamp;
         public final double tau;
         public final double gamma;
 
-        public K(double p, double i, double d, double f,
+        public K(double p, double i, double d, double[] f,
                  double integrationClamp, double outputClamp,
                  double tau, double gamma) {
             this.p = p;
@@ -31,7 +31,7 @@ public final class PIDFAxis {
     private final K k;
 
     private double i = 0;
-    private double lastError = 0;
+    private double lastError = Double.NaN;
 
     private final LowPassFilter dLowPassFilter;
 
@@ -40,7 +40,8 @@ public final class PIDFAxis {
         dLowPassFilter = new LowPassFilter(k.tau);
     }
 
-    public double update(double error, double feedforward, double dt) {
+    public double update(double error, double[] feedforward, double dt) {
+        if (Double.isNaN(lastError)) lastError = error;
         final double dNoisy = (error - lastError) / dt;
         lastError = error;
 
@@ -52,8 +53,18 @@ public final class PIDFAxis {
 
         i = Math.min(Math.max(i, -k.integrationClamp), k.integrationClamp);
 
-        double output = (k.p * error) + (k.i * i) + (k.d * derivative) + (k.f * feedforward);
+        double feedforwardAccumulator = 0;
+        for (int index = 0; index < k.f.length; index++)
+            feedforwardAccumulator += k.f[index] * feedforward[index];
+
+        double output = (k.p * error) + (k.i * i) + (k.d * derivative) + feedforwardAccumulator;
 
         return Math.min(Math.max(output, -k.outputClamp), k.outputClamp);
+    }
+
+    public void reset() {
+        i = 0;
+        lastError = Double.NaN;
+        dLowPassFilter.reset();
     }
 }

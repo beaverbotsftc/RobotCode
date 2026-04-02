@@ -360,9 +360,9 @@ public class WeirdAuto extends CommandRuntimeOpMode {
                 new HolonomicFollowPath(
                         path,
                         new PIDF(List.of(
-                                new PIDFAxis(new PIDFAxis.K(Constants.pidPX * multiplier, Constants.pidIX * multiplier, Constants.pidDX * multiplier, 1, 6, 48, Constants.pidTauX, Constants.pidGammaX)),
-                                new PIDFAxis(new PIDFAxis.K(Constants.pidPY * multiplier, Constants.pidIY * multiplier, Constants.pidDY * multiplier, 1, 6, 48, Constants.pidTauY, Constants.pidGammaY)),
-                                new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta * multiplier, Constants.pidITheta * multiplier, Constants.pidDTheta * multiplier, 1, 6, 48, Constants.pidTauTheta, Constants.pidGammaTheta)))),
+                                new PIDFAxis(new PIDFAxis.K(Constants.pidPX * multiplier, Constants.pidIX * multiplier, Constants.pidDX * multiplier, new double[] {1, 0}, 6, 48, Constants.pidTauX, Constants.pidGammaX)),
+                                new PIDFAxis(new PIDFAxis.K(Constants.pidPY * multiplier, Constants.pidIY * multiplier, Constants.pidDY * multiplier, new double[]{1, 0}, 6, 48, Constants.pidTauY, Constants.pidGammaY)),
+                                new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta * multiplier, Constants.pidITheta * multiplier, Constants.pidDTheta * multiplier, new double[]{1, 0}, 6, 48, Constants.pidTauTheta, Constants.pidGammaTheta)))),
                         fusedLocalizer, drivetrain),
                 new Instant(() -> drivetrain.move(new Transform(0, 0, 0)))
         );

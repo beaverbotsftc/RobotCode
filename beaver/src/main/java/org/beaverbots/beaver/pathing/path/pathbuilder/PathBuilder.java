@@ -262,7 +262,7 @@ public class PathBuilder {
             // Inside the transition window
             if (t < b) {
                 double u = (t - c) / easingTime;
-                double s = cubicSmoothstep(u);
+                double s = quinticSmoothstep(u);
 
                 // Smooth continuation from the left (using Taylor series of f0)
                 double yTaylor = taylor(f0Safe, c, t);
@@ -380,11 +380,11 @@ public class PathBuilder {
         return new Pair<>(new Path(paths, t -> t >= clock), new Path(holdPaths, t -> false));
     }
 
-    private double cubicSmoothstep(double t) {
+    private double quinticSmoothstep(double t) {
         if (t <= 0) return 0.0;
         if (t >= 1) return 1.0;
-        // 3x^2 - 2x^3
-        return 3 * t * t - 2 * t * t * t;
+        // 6t^5 - 15t^4 + 10t^3
+        return 6 * t * t * t * t * t - 15 * t * t * t * t + 10 * t * t * t;
     }
 
     /// 1st order
@@ -397,6 +397,6 @@ public class PathBuilder {
         double fpp = (fc - 2 * fc1 + fc2) / (EPSILON * EPSILON);
 
         double dx = t - c;
-        return fc + fp * dx;
+        return fc + fp * dx + fpp * dx * dx / 2;
     }
 }

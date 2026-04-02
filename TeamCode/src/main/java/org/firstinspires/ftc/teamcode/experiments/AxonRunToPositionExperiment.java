@@ -24,7 +24,7 @@ public class AxonRunToPositionExperiment extends CommandRuntimeOpMode {
             //0.8 * 0.333, 0.666 * 0.8 / 0.25, 0.25 * 0.8 * 0.111, 0, 1, 1, 0.5, 100
             //0.8 * 0.2, 0.4 * 0.8 / 0.25, 0.25 * 0.8 * 0.0666, 0, 0, 1, 0.1, 0
             // Auto-tuned loss: 0.0416
-            0.3239, 0.9773, 0.0001, 0, 0, 1, 0.2072, 527.6937
+            0.3239, 0.9773, 0.0001, new double[] {0}, 0, 1, 0.2072, 527.6937
     ))));
 
     double axonDelay = 0.00;
@@ -74,7 +74,7 @@ public class AxonRunToPositionExperiment extends CommandRuntimeOpMode {
 
         double desiredAngle = (gamepad.getRightX() + 1) * Math.PI;
 
-        double control = pidf.update(List.of(actualAngle - desiredAngle), List.of(desiredAngle), stopwatch.getDt()).get(0);
+        double control = pidf.update(List.of(actualAngle - desiredAngle), List.of(new double[] {desiredAngle}), stopwatch.getDt()).get(0);
         servo.setPower(control);
 
         telemetry.addData("Desired angle (deg)", desiredAngle / Math.PI * 180.0);

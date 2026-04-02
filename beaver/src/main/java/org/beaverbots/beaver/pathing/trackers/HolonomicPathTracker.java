@@ -3,6 +3,7 @@ package org.beaverbots.beaver.pathing.trackers;
 import org.beaverbots.beaver.pathing.path.Path;
 import org.beaverbots.beaver.pidf.PIDF;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -29,13 +30,17 @@ public final class HolonomicPathTracker implements PathTracker {
 
         final List<Double> expectedPosition = path.position(time);
         final List<Double> expectedVelocity = path.velocity(time);
-        // No acceleration needed because we expect no slippage and encoder usage, so exactly the RPM desired is the RPM we get
+        final List<Double> expectedAcceleration = path.acceleration(time);
 
         final List<Double> error = IntStream.range(0, dimensions).mapToDouble(i -> expectedPosition.get(i) - position.get(i)).boxed().collect(Collectors.toList());
 
         time += dt;
 
-        return pidf.update(error, expectedVelocity, dt);
+        List<double[]> feedforward = new ArrayList<>();
+        for (int i = 0; i < path.getDimensions(); i++)
+            feedforward.add(new double[] { expectedVelocity.get(i), expectedAcceleration.get(i) });
+
+        return pidf.update(error, feedforward, dt);
     }
 
     public boolean isFinished() {
