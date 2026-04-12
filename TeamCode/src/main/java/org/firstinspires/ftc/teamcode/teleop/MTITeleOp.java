@@ -90,7 +90,8 @@ public class MTITeleOp extends CommandRuntimeOpMode {
     }
 
     public void onStart() {
-        turret.shoot(2800);
+        turret.shoot(2400);
+        turret.setHood(0.58);
         schedule(
                 new Router(
                         new Selector(() -> gamepad.getX()),
@@ -153,7 +154,8 @@ public class MTITeleOp extends CommandRuntimeOpMode {
                                                                         followPathTemplate(timedPathThere.second, 0.3)
                                                                 )
                                                         ),
-                                                        new Repeat(() -> turret.turn(localizer.getPosition().angleTo(goalLocation.subtract(localizer.getVelocity().scale(0.7))) - localizer.getPosition().getTheta()))
+                                                        //new Repeat(() -> turret.turn(localizer.getPosition().angleTo(goalLocation.subtract(localizer.getVelocity().scale(0.7))) - localizer.getPosition().getTheta()))
+                                                        new Repeat(() -> turret.turn((localizer.getPosition().angleTo(goalLocation.subtract(localizer.getVelocity().scale(0.7))) - localizer.getPosition().getTheta()) + 0.025))
                                                 ),
                                                 followPathTemplate(timedPathBack.first, 1)
                                         );

@@ -18,6 +18,7 @@ public class V2BotTester extends LinearOpMode {
     private DcMotorEx shooter2;
     private Servo turret;
     private Servo turret2;
+    private Servo hood;
     private double shooterPower = 0.5;
     private double turretPos = 0.5;
     @Override
@@ -29,6 +30,8 @@ public class V2BotTester extends LinearOpMode {
         shooter = hardwareMap.get(DcMotorEx.class, "left shooter");
         shooter.setDirection(DcMotor.Direction.REVERSE);
         shooter2 = hardwareMap.get(DcMotorEx.class, "right shooter");
+
+        hood = hardwareMap.get(Servo.class, "hood");
 
         turret = hardwareMap.get(Servo.class, "left turret");
         //   turret.setDirection(Servo.Direction.REVERSE);
@@ -72,6 +75,12 @@ public class V2BotTester extends LinearOpMode {
                 shooter2.setPower(0);
             }
 
+            if(gamepad1.dpadLeftWasPressed()){
+                hood.setPosition(hood.getPosition() - 0.03);
+            }else if(gamepad1.dpadRightWasPressed()){
+                hood.setPosition(hood.getPosition() + 0.03);
+            }
+
 
             //         turretPos = ((0.65 * (-gamepad1.right_stick_y) + 1) / 2.0);
             if(gamepad1.dpadUpWasPressed()){
@@ -88,6 +97,7 @@ public class V2BotTester extends LinearOpMode {
             telemetry.addData("Stopper power", "%.2f", stopper.getPower());
             telemetry.addData("Shooter power", "%.2f", shooterPower);
             telemetry.addData("Turret Position", "%.2f", turretPos);
+            telemetry.addData("Hood Position", "%.2f", hood.getPosition());
 
             telemetry.update();
         }
