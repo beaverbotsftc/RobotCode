@@ -12,6 +12,7 @@ import org.beaverbots.beaver.pidf.PIDF;
 import org.beaverbots.beaver.pidf.PIDFAxis;
 import org.beaverbots.beaver.util.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
+import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.SwerveModule;
 
 import java.util.List;
@@ -22,16 +23,16 @@ public class SwerveModuleExperiment extends CommandRuntimeOpMode {
     SwerveModule module;
 
     public void onInit() {
+        VoltageSensor voltageSensor = new VoltageSensor();
         gamepad = new GamepadEx(gamepad1);
-        module = new SwerveModule(new InfiniteServo(new CachedCRServo(HardwareManager.claim(CRServo.class, "swerveservo"), 0), HardwareManager.claim(AnalogInput.class, "swerveinput"),
+        module = new SwerveModule(new InfiniteServo(new CachedCRServo(HardwareManager.claim(CRServo.class, "front left servo"), 0), HardwareManager.claim(AnalogInput.class, "front left servo encoder"),
                 new PIDFAxis(new PIDFAxis.K(
-                        //0.8 * 0.333, 0.666 * 0.8 / 0.25, 0.25 * 0.8 * 0.111, 0, 1, 1, 0.5, 100
-                        //0.8 * 0.2, 0.4 * 0.8 / 0.25, 0.25 * 0.8 * 0.0666, 0, 0, 1, 0.1, 0
-                        // Auto-tuned loss: 0.0416
-                        0.3239, 0.9773, 0.0001, new double[] {0}, 0, 1, 0.2072, 527.6937))), HardwareManager.claim("front left drive")
-        );
+                        // Auto-tuned loss: 0.087
+                        0.2455, 0.1564, 0.0048, new double[] {0}, 1, 1, 0.2281, 7.8312
+                ))), HardwareManager.claim("front left drive"), voltageSensor,
+        new Transform(1, 1));
 
-        register(gamepad, module);
+        register(voltageSensor, gamepad, module);
     }
 
     public void periodic() {

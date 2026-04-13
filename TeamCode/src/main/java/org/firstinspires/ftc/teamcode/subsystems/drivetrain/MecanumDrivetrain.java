@@ -8,6 +8,7 @@ import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.command.Subsystem;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.beaverbots.beaver.util.Transform;
+import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,13 +21,9 @@ public final class MecanumDrivetrain implements Drivetrain, Subsystem {
 
     private Transform velocity = new Transform(0, 0, 0);
 
-    private double maxPower;
-
     private boolean isBraking = false;
 
-    public MecanumDrivetrain(double maxPower) {
-        this.maxPower = maxPower;
-
+    public MecanumDrivetrain(VoltageSensor voltageSensor) {
         this.frontLeft = new CachedMotor(HardwareManager.claim("front left drive"), 0.01);
         this.frontRight = new CachedMotor(HardwareManager.claim("front right drive"), 0.01);
         this.backLeft = new CachedMotor(HardwareManager.claim("back left drive"), 0.01);
@@ -45,10 +42,6 @@ public final class MecanumDrivetrain implements Drivetrain, Subsystem {
         setBrake(isBraking);
     }
 
-    public MecanumDrivetrain() {
-        this(1);
-    }
-
     List<Double> powerPercentages = new ArrayList<>(List.of(0.0));
 
     public void periodic() {
@@ -64,25 +57,20 @@ public final class MecanumDrivetrain implements Drivetrain, Subsystem {
         }
          */
 
-        double frontLeftPower = (velocity.getX() * Constants.drivetrainPowerConversionFactorX - velocity.getY() * Constants.drivetrainPowerConversionFactorY - velocity.getTheta() * Constants.drivetrainPowerConversionFactorTheta);
-        double frontRightPower = (velocity.getX() * Constants.drivetrainPowerConversionFactorX + velocity.getY() * Constants.drivetrainPowerConversionFactorY + velocity.getTheta() * Constants.drivetrainPowerConversionFactorTheta);
-        double backLeftPower = (velocity.getX() * Constants.drivetrainPowerConversionFactorX + velocity.getY() * Constants.drivetrainPowerConversionFactorY - velocity.getTheta() * Constants.drivetrainPowerConversionFactorTheta);
-        double backRightPower = (velocity.getX() * Constants.drivetrainPowerConversionFactorX - velocity.getY() * Constants.drivetrainPowerConversionFactorY + velocity.getTheta() * Constants.drivetrainPowerConversionFactorTheta);
+        double frontLeftPower = Constants.drivetrainFrontLeftFactor * (velocity.getX() * Constants.drivetrainPowerConversionFactorX - velocity.getY() * Constants.drivetrainPowerConversionFactorY - velocity.getTheta() * Constants.drivetrainPowerConversionFactorTheta);
+        double frontRightPower = Constants.drivetrainFrontRightFactor * (velocity.getX() * Constants.drivetrainPowerConversionFactorX + velocity.getY() * Constants.drivetrainPowerConversionFactorY + velocity.getTheta() * Constants.drivetrainPowerConversionFactorTheta);
+        double backLeftPower = Constants.drivetrainBackLeftFactor * (velocity.getX() * Constants.drivetrainPowerConversionFactorX + velocity.getY() * Constants.drivetrainPowerConversionFactorY - velocity.getTheta() * Constants.drivetrainPowerConversionFactorTheta);
+        double backRightPower = Constants.drivetrainBackRightFactor * (velocity.getX() * Constants.drivetrainPowerConversionFactorX - velocity.getY() * Constants.drivetrainPowerConversionFactorY + velocity.getTheta() * Constants.drivetrainPowerConversionFactorTheta);
 
         double maxPower = Math.max(Math.abs(frontLeftPower),
                 Math.max(Math.abs(frontRightPower),
                         Math.max(Math.abs(backLeftPower), Math.abs(backRightPower))));
 
-        if (maxPower > this.maxPower) {
+        if (maxPower > 1) {
             frontLeftPower /= maxPower;
             frontRightPower /= maxPower;
             backLeftPower /= maxPower;
             backRightPower /= maxPower;
-
-            frontLeftPower *= this.maxPower;
-            frontRightPower *= this.maxPower;
-            backLeftPower *= this.maxPower;
-            backRightPower *= this.maxPower;
         }
 
         frontLeft.setPower(frontLeftPower);
@@ -116,20 +104,16 @@ public final class MecanumDrivetrain implements Drivetrain, Subsystem {
         return powerPercentages.get((int) (powerPercentages.size() * 0.99));
     }
 
-    public void move(Transform velocity) {
-        this.velocity = velocity;
+    public void move(Transform force) {
+        this.velocity = force;
     }
 
-    public void move(Transform velocity, Transform position) {
-        this.velocity = velocity.toLocalVelocity(position);
+    public void move(Transform force, Transform position) {
+        this.velocity = force.toLocalVelocity(position);
     }
 
-    public void move(List<Double> velocity, List<Double> position) {
-        move(new Transform(velocity), new Transform(position));
-    }
-
-    public void setMaxPower(double maxPower) {
-        this.maxPower = maxPower;
+    public void move(List<Double> force, List<Double> position) {
+        move(new Transform(force), new Transform(position));
     }
 
     public void setBrake(boolean brake) {

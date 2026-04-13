@@ -29,6 +29,6 @@ public class VoltageSensor implements Subsystem {
     }
 
     public double getVoltage() {
-        return voltage;
+        return Math.max(voltage, 9);
     }
 }

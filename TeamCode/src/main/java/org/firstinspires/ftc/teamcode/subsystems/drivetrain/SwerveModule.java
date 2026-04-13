@@ -1,50 +1,77 @@
 package org.firstinspires.ftc.teamcode.subsystems.drivetrain;
 
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.beaverbots.beaver.InfiniteServo;
-import org.beaverbots.beaver.cachedhardware.CachedCRServo;
-import org.beaverbots.beaver.cachedhardware.CachedMotor;
-import org.beaverbots.beaver.cachedhardware.CachedServo;
-import org.beaverbots.beaver.command.HardwareManager;
+import org.beaverbots.beaver.command.CommandRuntimeOpMode;
 import org.beaverbots.beaver.command.Subsystem;
-import org.beaverbots.beaver.pidf.PIDF;
-import org.beaverbots.beaver.pidf.PIDFAxis;
+import org.beaverbots.beaver.util.Geometry;
 import org.beaverbots.beaver.util.Transform;
-
-import java.util.List;
+import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 
 public class SwerveModule implements Subsystem {
-    InfiniteServo servo;
-    DcMotorEx motor;
+    private final InfiniteServo servo;
+    private final DcMotorEx motor;
+    private final Transform position;
 
-    public SwerveModule(InfiniteServo servo, DcMotorEx motor) {
-        this.servo = servo;
-        this.motor = motor;
+    private final VoltageSensor voltageSensor;
 
-        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    private Transform chassisTargetForce = Transform.ZERO;
 
-        motor.setDirection(DcMotorSimple.Direction.FORWARD);
+    public static Transform getModuleTargetForce(Transform chassisForce, Transform wheelPosition) {
+        Transform vLinear = chassisForce.lateral();
+        // Angular component: Perpendicular to the radius vector (wheelPosition)
+        Transform vAngular = new Transform(
+                -chassisForce.getTheta() * wheelPosition.getY(),
+                chassisForce.getTheta() * wheelPosition.getX()
+        );
+        return vLinear.add(vAngular);
     }
 
-    public void drive(Transform velocity) {
-        double angle = new Transform(0, 0).angleTo(velocity);
+    public static double getWheelPower(Transform wheelPosition, double wheelDirection, Transform chassisTargetForce) {
+        return getModuleTargetForce(chassisTargetForce, wheelPosition).dotLateral(Transform.FORWARD.rotateLateral(wheelDirection));
+    }
+
+    public SwerveModule(InfiniteServo servo, DcMotorEx motor, VoltageSensor voltageSensor, Transform position) {
+        this.servo = servo;
+        this.motor = motor;
+        this.voltageSensor = voltageSensor;
+        this.position = position;
+
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
+    double desired = 0;
+
+    public void drive(Transform force) {
+        chassisTargetForce = force;
+        if (force.lateralNorm() == 0 && force.getTheta() == 0) return;
+
+        Transform projectedForce = getModuleTargetForce(force, position);
+
+        double angle = Transform.ZERO.angleTo(projectedForce);
         double otherAngle = angle < Math.PI ? angle + Math.PI : angle - Math.PI;
 
-        if (Math.abs(servo.getAngle() - angle) < Math.abs(servo.getAngle() - otherAngle)) {
+        if (Math.abs(Geometry.normalizeAngle2(servo.getAngle() - angle)) < Math.abs(Geometry.normalizeAngle2(servo.getAngle() - otherAngle))) {
             servo.setAngle(angle);
-            motor.setPower(velocity.lateralDistance(new Transform(0, 0)));
+            desired =angle;
         } else {
             servo.setAngle(otherAngle);
-            motor.setPower(-velocity.lateralDistance(new Transform(0, 0)));
+            desired =otherAngle;
         }
+    }
+
+    public double getAngle() {
+        return servo.getAngle();
     }
 
     public void periodic() {
         servo.periodic();
+
+        double power = getWheelPower(position, servo.getAngle(), chassisTargetForce);
+
+        motor.setPower(power * power * power);
     }
 }

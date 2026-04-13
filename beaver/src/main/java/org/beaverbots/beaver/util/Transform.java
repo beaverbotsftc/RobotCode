@@ -17,7 +17,8 @@ public final class Transform {
     private double y;
     private double theta;
 
-    public static Transform FORWARD = new Transform(1, 0);
+    public static final Transform FORWARD = new Transform(1, 0);
+    public static final Transform ZERO = new Transform(0, 0, 0);
 
     public Transform(double x, double y, double theta) {
         this.x = x;
@@ -47,10 +48,10 @@ public final class Transform {
             y = state[1];
             theta = state[2];
         } else if (state.length == 2) {
-            // TODO: Idk why I did this in the past, seems wrong but I guess it works maybe? I don't think this branch is used.
             x = state[0];
             y = 0;
             theta = state[1];
+            throw new RuntimeException("I'm not sure why I did this in the past, but I guess I know now.");
         }
     }
 
@@ -119,7 +120,9 @@ public final class Transform {
     }
 
     public Transform unitLateral() {
-        return this.scaleLateral(1 / lateralNorm());
+        double norm = lateralNorm();
+        if (norm == 0) return new Transform(0, 0, theta);
+        return this.scaleLateral(1 / norm);
     }
 
     public Transform blend(Transform other, double t) { return this.scale(1 - t).add(other.scale(t)); }

@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.beaverbots.beaver.command.Command;
+import org.beaverbots.beaver.command.CommandRuntimeOpMode;
 import org.beaverbots.beaver.command.Subsystem;
 import org.beaverbots.beaver.pidf.PIDF;
 import org.beaverbots.beaver.pidf.PIDFAxis;
@@ -33,12 +35,14 @@ public class InfiniteServo implements Subsystem {
         this.encoder = encoder;
         this.pidf = pidf;
         this.offset = offset;
+        servo.setPower(0); // Fix a dumb bug where you *need* to set the servo power before you can read the position
 
         stopwatch = new Stopwatch();
     }
 
     public double getAngle() {
-        return Geometry.normalizeAngle(encoder.getVoltage() / encoder.getMaxVoltage() * 2 * Math.PI + offset);
+        // Negated because CCW is positive
+        return Geometry.normalizeAngle(-encoder.getVoltage() / encoder.getMaxVoltage() * 2 * Math.PI - offset);
     }
 
     public void setAngle(double angle) {
@@ -49,6 +53,9 @@ public class InfiniteServo implements Subsystem {
         double error = Geometry.shortestAngle(getAngle(), target);
         double control = pidf.update(error, new double[] {0.0}, stopwatch.getDt());
 
-        servo.setPower(control);
+        CommandRuntimeOpMode.packet.put(String.valueOf(this), getAngle());
+
+        // Negated because CCW is positive
+        servo.setPower(-control);
     }
 }

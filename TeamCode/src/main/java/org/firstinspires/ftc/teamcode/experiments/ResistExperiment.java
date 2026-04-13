@@ -11,6 +11,7 @@ import org.beaverbots.beaver.pathing.path.PathAxis;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
 import org.beaverbots.beaver.util.Transform;
+import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
@@ -27,16 +28,17 @@ public class ResistExperiment extends CommandRuntimeOpMode {
 
     @Override
     public void onInit() {
-        drivetrain = new MecanumDrivetrain(1);
+        VoltageSensor voltageSensor = new VoltageSensor();
+        drivetrain = new MecanumDrivetrain(voltageSensor);
         pinpoint = new Pinpoint(new Transform(0, 0, 0));
         limelight = new Limelight();
         limelight.localizationPipeline();
         localizer = new FusedLocalizer(pinpoint, limelight, new Transform(0, 0, 0));
+        register(voltageSensor, drivetrain, pinpoint, limelight, localizer);
     }
 
     @Override
     public void onStart() {
-        register(drivetrain, pinpoint, limelight, localizer);
 
         schedule(
                 new HolonomicFollowPath(

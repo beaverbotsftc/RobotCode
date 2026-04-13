@@ -23,9 +23,9 @@ public class BayesianOptimizer {
 
     private final RandomGenerator rng = new Well19937c();
 
-    final static private double LEARNING_RATE = 0.001;
-    final static private int LOCAL_STEPS = 240;
-    final static private int GLOBAL_ITERATIONS = 80;
+    final static private double LEARNING_RATE = 0.002;
+    final static private int LOCAL_STEPS = 120;
+    final static private int GLOBAL_ITERATIONS = 30;
     final static private double EXPONENT = 2.0;
     final static private double MAX_LOSS_GRADIENT = 1000.0;
 
@@ -40,7 +40,7 @@ public class BayesianOptimizer {
     final static private double HYPERPARAMETERS_VARIANCE_MULTIPLIER = 1;
     final static private double HYPERPARAMETERS_EXPONENT = 2;
     final static private double HYPERPARAMETERS_MAX_LOSS_GRADIENT = 100;
-    final static private double HYPERPARAMETERS_UPDATE_BASE = 1.2;
+    final static private double HYPERPARAMETERS_UPDATE_BASE = 1.5;
 
     public BayesianOptimizer(Kernel kernel, Pair<RealVector, RealVector> bounds,
             double confidence, int randomStarts) {

@@ -6,10 +6,7 @@ import org.beaverbots.beaver.util.Transform;
 import java.util.List;
 
 public interface Drivetrain extends Locomotion {
-    void setBrake(boolean brake);
-    void toggleBrake();
-    void move(Transform velocity);
-    void move(Transform velocity, Transform position);
-    void move(List<Double> velocity, List<Double> position);
-    void setMaxPower(double maxPower);
+    void move(Transform force);
+    void move(Transform force, Transform position);
+    void move(List<Double> force, List<Double> position);
 }

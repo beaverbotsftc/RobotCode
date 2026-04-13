@@ -15,6 +15,7 @@ import org.beaverbots.beaver.pathing.path.PathAxis;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
 import org.beaverbots.beaver.util.Transform;
+import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
@@ -29,13 +30,14 @@ public class CircleAutoExperiment extends CommandRuntimeOpMode {
 
     @Override
     public void onInit() {
-        drivetrain = new MecanumDrivetrain(1);
         pinpoint = new Pinpoint(new Transform(0, 0, 0));
         limelight = new Limelight();
         limelight.localizationPipeline();
         fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new Transform(0, 0, 0));
+        VoltageSensor voltageSensor = new VoltageSensor();
+        drivetrain = new MecanumDrivetrain(voltageSensor);
 
-        register(drivetrain, pinpoint, fusedLocalizer, limelight);
+        register(voltageSensor, drivetrain, pinpoint, fusedLocalizer, limelight);
     }
 
     @Override

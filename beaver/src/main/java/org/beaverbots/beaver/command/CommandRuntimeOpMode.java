@@ -1,8 +1,12 @@
 package org.beaverbots.beaver.command;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.RobotLog;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,6 +27,11 @@ public abstract class CommandRuntimeOpMode extends OpMode {
 
     private long loopNumber = 0;
     private int telemetryUpdateFrequency = 1;
+
+    private FtcDashboard dashboard;
+
+    public static TelemetryPacket packet;
+    public static Telemetry telemetrySingleton;
 
     protected final void setTelemetryUpdateFrequency(int telemetryUpdateFrequency) {
         this.telemetryUpdateFrequency = telemetryUpdateFrequency;
@@ -90,6 +99,11 @@ public abstract class CommandRuntimeOpMode extends OpMode {
     }
 
     public final void init() {
+        dashboard = FtcDashboard.getInstance();
+
+        telemetrySingleton = telemetry;
+        packet = new TelemetryPacket();
+
         hubs = hardwareMap.getAll(LynxModule.class);
 
         for (LynxModule hub : hubs) {
@@ -98,11 +112,16 @@ public abstract class CommandRuntimeOpMode extends OpMode {
 
         HardwareManager.init(hardwareMap);
         onInit();
+
+        telemetry.update();
+        dashboard.sendTelemetryPacket(packet);
     }
 
     public final void init_loop() {
-        loopNumber++;
+        packet = new TelemetryPacket();
         telemetry.clear();
+
+        loopNumber++;
 
         for (LynxModule hub : hubs) {
             hub.clearBulkCache();
@@ -112,8 +131,10 @@ public abstract class CommandRuntimeOpMode extends OpMode {
         periodicInit();
         runScheduler();
 
-        if (loopNumber % telemetryUpdateFrequency == 0)
+        if (loopNumber % telemetryUpdateFrequency == 0) {
+            dashboard.sendTelemetryPacket(packet);
             telemetry.update();
+        }
     }
 
     public final void start() {
@@ -121,8 +142,10 @@ public abstract class CommandRuntimeOpMode extends OpMode {
     }
 
     public final void loop() {
-        loopNumber++;
+        packet = new TelemetryPacket();
         telemetry.clear();
+
+        loopNumber++;
 
         for (LynxModule hub : hubs) {
             hub.clearBulkCache();
@@ -131,8 +154,11 @@ public abstract class CommandRuntimeOpMode extends OpMode {
         runSubsystems();
         periodic();
         runScheduler();
-        if (loopNumber % telemetryUpdateFrequency == 0)
+
+        if (loopNumber % telemetryUpdateFrequency == 0) {
+            dashboard.sendTelemetryPacket(packet);
             telemetry.update();
+        }
     }
 
     public final void stop() {

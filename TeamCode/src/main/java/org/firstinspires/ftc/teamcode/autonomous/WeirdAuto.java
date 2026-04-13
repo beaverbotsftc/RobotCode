@@ -54,17 +54,17 @@ public class WeirdAuto extends CommandRuntimeOpMode {
     @Override
     public void onInit() {
         gamepad = new GamepadEx(gamepad1);
-        drivetrain = new MecanumDrivetrain();
         pinpoint = new Pinpoint(new Transform(0, 0, 0));
         limelight = new Limelight();
         fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new Transform(0, 0, 0));
         voltageSensor = new VoltageSensor();
+        drivetrain = new MecanumDrivetrain(voltageSensor);
         intake = new Intake();
         turret = new Turret(voltageSensor);
 
         usageRatio = PathBuilder.createHolonomicUsage(1 / Constants.drivetrainPowerConversionFactorX, 1 / Constants.drivetrainPowerConversionFactorY, 1 / Constants.drivetrainPowerConversionFactorTheta);
 
-        register(gamepad, pinpoint, limelight, fusedLocalizer, voltageSensor, turret, intake, drivetrain);
+        register(voltageSensor, gamepad, pinpoint, limelight, fusedLocalizer, turret, intake, drivetrain);
         limelight.localizationPipeline();
     }
 

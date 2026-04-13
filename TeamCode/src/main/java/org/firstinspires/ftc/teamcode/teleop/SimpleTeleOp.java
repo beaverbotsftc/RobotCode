@@ -35,7 +35,7 @@ public class SimpleTeleOp extends CommandRuntimeOpMode {
     public void onInit() {
         // 1. Hardware/Subsystems
         voltageSensor = new VoltageSensor();
-        drivetrain = new MecanumDrivetrain();
+        drivetrain = new MecanumDrivetrain(voltageSensor);
         intake = new Intake();
         turret = new Turret(voltageSensor);
         gamepad = new GamepadEx(gamepad1);
@@ -76,8 +76,8 @@ public class SimpleTeleOp extends CommandRuntimeOpMode {
         intake.transfer(gamepad.getA()); // Hold A to transfer
 
         // --- SHOOTER RPM (D-pad Up/Down) ---
-        if (gamepad.getDpadUpJustPressed()) targetRpm += 250;
-        if (gamepad.getDpadDownJustPressed()) targetRpm -= 250;
+        if (gamepad.getDpadUpJustPressed()) targetRpm += 100;
+        if (gamepad.getDpadDownJustPressed()) targetRpm -= 100;
 
         if (gamepad.getRightBumper()) {
             turret.shoot(targetRpm);

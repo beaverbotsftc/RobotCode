@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.beaverbots.beaver.cachedhardware.CachedMotor;
 import org.beaverbots.beaver.cachedhardware.CachedServo;
+import org.beaverbots.beaver.command.CommandRuntimeOpMode;
 import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.command.Subsystem;
 import org.beaverbots.beaver.pidf.PIDFAxis;
@@ -20,8 +21,8 @@ public class Turret implements Subsystem {
     private CachedServo turretLeft;
     private CachedServo turretRight;
 
-    private CachedMotor shooterLeft;
-    private CachedMotor shooterRight;
+    private DcMotorEx shooterLeft;
+    private DcMotorEx shooterRight;
 
     private VoltageSensor voltageSensor;
 
@@ -29,20 +30,23 @@ public class Turret implements Subsystem {
 
     private double desiredVelocity = 0;
 
-    private PIDFAxis pidf = new PIDFAxis(new PIDFAxis.K(Constants.pidPShooter, Constants.pidIShooter, 0, new double[] {1}, 0.5, 1, 1, Constants.pidGammaShooter));
+    private PIDFAxis pidf = new PIDFAxis(new PIDFAxis.K(Constants.pidPShooter, Constants.pidIShooter, Constants.pidDShooter, new double[] {1}, 0.5, 1, 1, Constants.pidGammaShooter));
 
     public Turret(VoltageSensor voltageSensor) {
-        turretLeft = new CachedServo(HardwareManager.claim(Servo.class, "left turret"), 0.001);
-        turretRight = new CachedServo(HardwareManager.claim(Servo.class, "right turret"), 0.001);
+        pidf = new PIDFAxis(new PIDFAxis.K(Constants.pidPShooter, Constants.pidIShooter, Constants.pidDShooter, new double[] {1}, 0.5, 1, 1, Constants.pidGammaShooter));
 
-        shooterLeft = new CachedMotor(HardwareManager.claim(DcMotorEx.class, "left shooter"), 0.001);
-        shooterRight = new CachedMotor(HardwareManager.claim(DcMotorEx.class, "right shooter"), 0.001);
+        //turretLeft = new CachedServo(HardwareManager.claim(Servo.class, "left turret"), 0.001);
+        //turretRight = new CachedServo(HardwareManager.claim(Servo.class, "right turret"), 0.001);
 
-        shooterLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooterLeft = new CachedMotor(HardwareManager.claim(DcMotorEx.class, "left shooter"), Constants.shooterDelta);
+        shooterRight = new CachedMotor(HardwareManager.claim(DcMotorEx.class, "right shooter"), Constants.shooterDelta);
+
+        shooterLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         shooterLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        shooterRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        shooterRight.setDirection(DcMotorSimple.Direction.REVERSE);
         shooterRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
 
         this.voltageSensor = voltageSensor;
 
@@ -52,8 +56,11 @@ public class Turret implements Subsystem {
     public void turn(double angle) {
         double normalized = Math.max(-Constants.turretBounds, Math.min(Geometry.normalizeAngle2( -(angle - Constants.turretAngularBias)), Constants.turretBounds));
         final double K = 360.0 / 355.0 * (2500.0 - 500.0) / (PwmControl.PwmRange.usPulseUpperDefault - PwmControl.PwmRange.usPulseLowerDefault);
+        /*
         turretLeft.setPosition(normalized / (2 * Math.PI) * K + 0.5);
         turretRight.setPosition(normalized / (2 * Math.PI) * K + 0.5 - 0.125 / 100);
+
+         */
     }
 
     public static boolean inBounds(double angle) {
@@ -78,9 +85,14 @@ public class Turret implements Subsystem {
         }
 
         double control = pidf.update(desiredVelocity - velocity, new double[] {desiredVelocity * Constants.pidFShooter / voltageSensor.getVoltage()}, stopwatch.getDt());
+        control = desiredVelocity / 6000;
         if (Double.isFinite(control)) {
             shooterLeft.setPower(control);
             shooterRight.setPower(control);
         }
+
+        CommandRuntimeOpMode.packet.put("Desired RPM", desiredVelocity);
+        CommandRuntimeOpMode.packet.put("Actual RPM", velocity);
+        CommandRuntimeOpMode.packet.put("Control", control);
     }
 }

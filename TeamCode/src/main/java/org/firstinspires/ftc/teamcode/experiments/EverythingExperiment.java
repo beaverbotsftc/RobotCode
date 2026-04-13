@@ -25,11 +25,11 @@ public class EverythingExperiment extends CommandRuntimeOpMode {
         intake = new Intake();
         voltageSensor = new VoltageSensor();
         turret = new Turret(voltageSensor);
-        drivetrain = new MecanumDrivetrain();
+        drivetrain = new MecanumDrivetrain(voltageSensor);
 
         gamepad = new GamepadEx(gamepad1);
 
-        register(intake, turret, drivetrain, gamepad);
+        register(voltageSensor, intake, turret, drivetrain, gamepad);
     }
 
     public void periodic() {

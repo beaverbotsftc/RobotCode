@@ -49,7 +49,7 @@ public class TeleOp extends CommandRuntimeOpMode {
         setTelemetryUpdateFrequency(10);
 
         voltageSensor = new VoltageSensor();
-        drivetrain = new MecanumDrivetrain();
+        drivetrain = new MecanumDrivetrain(voltageSensor);
         turret = new Turret(voltageSensor);
         intake = new Intake();
 

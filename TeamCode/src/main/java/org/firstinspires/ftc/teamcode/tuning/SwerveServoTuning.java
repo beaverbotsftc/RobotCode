@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.tuning;
 import android.util.Pair;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -12,6 +13,7 @@ import org.apache.commons.math3.linear.RealVector;
 import org.beaverbots.beaver.command.Command;
 import org.beaverbots.beaver.command.CommandRuntimeOpMode;
 import org.beaverbots.beaver.command.HardwareManager;
+import org.beaverbots.beaver.command.premade.Cycle;
 import org.beaverbots.beaver.command.premade.Instant;
 import org.beaverbots.beaver.command.premade.Repeat;
 import org.beaverbots.beaver.command.premade.RunUntil;
@@ -22,14 +24,14 @@ import org.beaverbots.beaver.optimize.kernels.ARDRBFKernel;
 import org.beaverbots.beaver.pidf.PIDFAxis;
 import org.beaverbots.beaver.util.Stopwatch;
 
-@Autonomous
+@TeleOp
 public class SwerveServoTuning extends CommandRuntimeOpMode {
     private static BayesianOptimizer optimizer = new BayesianOptimizer(new ARDRBFKernel(), new Pair<>(
             new ArrayRealVector(new double[]{0, 0, 0, 0.01, 0}),
-            new ArrayRealVector(new double[]{1, 1, 1, 1, 1e3})
+            new ArrayRealVector(new double[]{0.5, 1, 0.5, 1, 1e3})
     ), 0.9, 20);
 
-    private static final double TIME_PER_TRIAL = 5;
+    private static final double TIME_PER_TRIAL = 1;
 
     private CRServo servo;
     private AnalogInput encoder;
@@ -39,14 +41,15 @@ public class SwerveServoTuning extends CommandRuntimeOpMode {
 
     PIDFAxis pidf;
     RealVector point;
+    int runs = 0;
 
     double bestLoss = 99999999999999999999999.0;
     RealVector bestPoint = null;
 
     public void onInit() {
-        servo = HardwareManager.claim(CRServo.class, "servo1");
+        servo = HardwareManager.claim(CRServo.class, "front left servo");
         servo.setDirection(DcMotorSimple.Direction.REVERSE);
-        encoder = HardwareManager.claim(AnalogInput.class, "input1");
+        encoder = HardwareManager.claim(AnalogInput.class, "front left encoder");
     }
 
     private double getAngle() {
@@ -65,21 +68,30 @@ public class SwerveServoTuning extends CommandRuntimeOpMode {
                             point.getEntry(0), point.getEntry(1), point.getEntry(2), new double[]{0}, 1, 1, point.getEntry(3), point.getEntry(4)
                     ));
                 }),
-                new RunUntil(
-                        new WaitUntil(() -> Math.abs(getAngle() - 1.5 * Math.PI) < 0.1),
-                        new Repeat(() -> servo.setPower(0.5 * (getAngle() - 1.5 * Math.PI)))
-                ),
-                new Instant(() -> servo.setPower(0)),
-                new Instant(() -> stopwatch.reset()),
-                new RunUntil(
-                        new WaitUntil(() -> stopwatch.getElapsed() > TIME_PER_TRIAL),
-                        new Repeat(() -> {
+                new Cycle(
+                        j -> j >= 3,
+                        new RunUntil(
+                                new WaitUntil(() -> Math.abs(getAngle() - 1.5 * Math.PI) < 0.1),
+                                new Repeat(() -> servo.setPower(4 * (getAngle() - 1.5 * Math.PI)))
+                        ),
+                        new Instant(() -> servo.setPower(0)),
+                        new Instant(() -> stopwatch.reset()),
+                        new RunUntil(
+                                new WaitUntil(() -> stopwatch.getElapsed() > TIME_PER_TRIAL),
+                                new Repeat(() -> {
+                                    double dt = stopwatch.getDt();
+                                    loss += dt * stopwatch.getElapsed() * Math.pow(Math.abs(getAngle() - Math.PI), 0.5);
+                                    servo.setPower(pidf.update(getAngle() - Math.PI, new double[]{0.0}, dt));
+                                })
+                        ),
+                        new Instant(() -> {
                             double dt = stopwatch.getDt();
-                            loss += dt * stopwatch.getElapsed() * Math.abs(getAngle() - Math.PI);
-                            servo.setPower(pidf.update(getAngle() - Math.PI, new double[]{0.0}, dt));
-                        })
+                            loss += Math.pow(pidf.update(getAngle() - Math.PI, new double[]{0.0}, dt), 2) * 2;
+                        }),
+                        new Instant(() -> servo.setPower(0))
                 ),
                 new Instant(() -> servo.setPower(0)),
+                new Instant(() -> loss /= 3),
                 new Instant(() -> {
                     if (loss < bestLoss) {
                         bestLoss = loss;
