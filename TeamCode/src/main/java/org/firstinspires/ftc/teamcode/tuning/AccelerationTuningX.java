@@ -10,6 +10,7 @@ import org.beaverbots.beaver.command.premade.WaitUntil;
 import org.beaverbots.beaver.pathing.commands.HolonomicFollowPath;
 import org.beaverbots.beaver.pathing.path.Path;
 import org.beaverbots.beaver.pathing.path.PathAxis;
+import org.beaverbots.beaver.pathing.trackers.HolonomicPathTracker;
 import org.beaverbots.beaver.pidf.PIDF;
 import org.beaverbots.beaver.pidf.PIDFAxis;
 import org.beaverbots.beaver.util.Stopwatch;
@@ -55,50 +56,52 @@ public class AccelerationTuningX extends CommandRuntimeOpMode {
                 new Instant(() -> error = 0),
                 new RunUntil(
                         new HolonomicFollowPath(
-                                new Path(
-                                        List.of(
-                                                new PathAxis(path, 0, time),
-                                                new PathAxis(t -> 0, 0, time),
-                                                new PathAxis(t -> 0, 0, time)
+                                new HolonomicPathTracker(
+                                        new Path(
+                                                List.of(
+                                                        new PathAxis(path, 0, time),
+                                                        new PathAxis(t -> 0, 0, time),
+                                                        new PathAxis(t -> 0, 0, time)
+                                                ),
+                                                t -> t > time
                                         ),
-                                        t -> t > time
-                                ),
-                                new PIDF(
-                                        List.of(
-                                                new PIDFAxis(
-                                                        new PIDFAxis.K(
-                                                                0,
-                                                                0,
-                                                                0,
-                                                                new double[]{Constants.pidFVelocityX, Constants.pidFAccelerationX},
-                                                                0,
-                                                                1,
-                                                                0,
-                                                                0
-                                                        )
-                                                ),
-                                                new PIDFAxis(
-                                                        new PIDFAxis.K(
-                                                                0,
-                                                                0,
-                                                                0,
-                                                                new double[]{Constants.pidFVelocityX, Constants.pidFAccelerationX},
-                                                                0,
-                                                                1,
-                                                                0,
-                                                                0
-                                                        )
-                                                ),
-                                                new PIDFAxis(
-                                                        new PIDFAxis.K(
-                                                                0,
-                                                                0,
-                                                                0,
-                                                                new double[]{Constants.pidFVelocityX, Constants.pidFAccelerationX},
-                                                                0,
-                                                                1,
-                                                                0,
-                                                                0
+                                        new PIDF(
+                                                List.of(
+                                                        new PIDFAxis(
+                                                                new PIDFAxis.K(
+                                                                        0,
+                                                                        0,
+                                                                        0,
+                                                                        new double[]{Constants.pidFVelocityX, Constants.pidFAccelerationX},
+                                                                        0,
+                                                                        1,
+                                                                        0,
+                                                                        0
+                                                                )
+                                                        ),
+                                                        new PIDFAxis(
+                                                                new PIDFAxis.K(
+                                                                        0,
+                                                                        0,
+                                                                        0,
+                                                                        new double[]{Constants.pidFVelocityX, Constants.pidFAccelerationX},
+                                                                        0,
+                                                                        1,
+                                                                        0,
+                                                                        0
+                                                                )
+                                                        ),
+                                                        new PIDFAxis(
+                                                                new PIDFAxis.K(
+                                                                        0,
+                                                                        0,
+                                                                        0,
+                                                                        new double[]{Constants.pidFVelocityX, Constants.pidFAccelerationX},
+                                                                        0,
+                                                                        1,
+                                                                        0,
+                                                                        0
+                                                                )
                                                         )
                                                 )
                                         )

@@ -18,6 +18,7 @@ public class InfiniteServoTester extends CommandRuntimeOpMode {
 
     public void onInit() {
         CachedCRServo backLeftServo = new CachedCRServo(HardwareManager.claim(CRServo.class, "back left servo"), 0);
+        backLeftServo.setPwmRange(500, 2500);
         AnalogInput backLeftEncoder = HardwareManager.get(AnalogInput.class, "back left encoder");
         s = new InfiniteServo(
                 backLeftServo,

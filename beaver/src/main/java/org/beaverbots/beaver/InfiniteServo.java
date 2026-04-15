@@ -53,8 +53,6 @@ public class InfiniteServo implements Subsystem {
         double error = Geometry.shortestAngle(getAngle(), target);
         double control = pidf.update(error, new double[] {0.0}, stopwatch.getDt());
 
-        CommandRuntimeOpMode.packet.put(String.valueOf(this), getAngle());
-
         // Negated because CCW is positive
         servo.setPower(-control);
     }

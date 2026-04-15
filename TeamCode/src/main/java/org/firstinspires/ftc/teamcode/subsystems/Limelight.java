@@ -60,9 +60,18 @@ public class Limelight implements Subsystem {
 
     private Limelight3A limelight;
 
-    public Limelight() {
+    public Limelight(Pipeline pipeline) {
         limelight = HardwareManager.claim(Limelight3A.class, "limelight");
-        obeliskPipeline();
+        switch (pipeline) {
+            case OBELISK:
+                obeliskPipeline();
+                break;
+            case LOCALIZATION_GOAL:
+                localizationPipeline();
+                break;
+            case ARTIFACT_DETECTION:
+                throw new RuntimeException("Not implemented yet...");
+        }
         limelight.start();
     }
 

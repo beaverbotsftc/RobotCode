@@ -15,15 +15,15 @@ public class SimpleSwerveModuleExperiment extends LinearOpMode {
 
         CRServo frontRightServo = hardwareMap.get(CRServo.class, "front right servo");
         DcMotorEx frontRightMotor = hardwareMap.get(DcMotorEx.class, "front right motor");
-        AnalogInput frontRightEncoder = hardwareMap.get(AnalogInput.class, "front right encoder");
+        AnalogInput frontRightEncoder = hardwareMap.get(AnalogInput.class, "front right servo encoder");
 
         CRServo backLeftServo = hardwareMap.get(CRServo.class, "back left servo");
         DcMotorEx backLeftMotor = hardwareMap.get(DcMotorEx.class, "back left motor");
-        AnalogInput backLeftEncoder = hardwareMap.get(AnalogInput.class, "back left encoder");
+        AnalogInput backLeftEncoder = hardwareMap.get(AnalogInput.class, "back left servo encoder");
 
         CRServo backRightServo = hardwareMap.get(CRServo.class, "back right servo");
         DcMotorEx backRightMotor = hardwareMap.get(DcMotorEx.class, "back right motor");
-        AnalogInput backRightEncoder = hardwareMap.get(AnalogInput.class, "back right encoder");
+        AnalogInput backRightEncoder = hardwareMap.get(AnalogInput.class, "back right servo encoder");
 
         waitForStart();
 

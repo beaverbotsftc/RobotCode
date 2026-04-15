@@ -6,8 +6,10 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.beaverbots.beaver.cachedhardware.CachedMotor;
 import org.beaverbots.beaver.cachedhardware.CachedServo;
+import org.beaverbots.beaver.command.CommandRuntimeOpMode;
 import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.command.Subsystem;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 
 public class IntakeAndTransfer implements Subsystem {
@@ -37,5 +39,7 @@ public class IntakeAndTransfer implements Subsystem {
     public void periodic() {
         leftTransfer.setPower(power);
         rightTransfer.setPower(power);
+
+        CommandRuntimeOpMode.getTelemetry().addData("Current", (leftTransfer.getCurrent(CurrentUnit.AMPS) + rightTransfer.getCurrent(CurrentUnit.AMPS)) / 2.0);
     }
 }

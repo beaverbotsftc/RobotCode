@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.util.RobotLog;
 import org.beaverbots.beaver.command.Command;
 import org.beaverbots.beaver.command.CommandRuntimeOpMode;
 import org.beaverbots.beaver.pathing.commands.HolonomicFollowPath;
+import org.beaverbots.beaver.pathing.trackers.HolonomicPathTracker;
 import org.beaverbots.beaver.pidf.PIDF;
 import org.beaverbots.beaver.pidf.PIDFAxis;
 import org.beaverbots.beaver.pathing.path.Path;
@@ -21,19 +22,19 @@ public class HolonomicTrackingTest extends CommandRuntimeOpMode {
     FakeLocomotionAndLocalization locomotionAndLocalization = new FakeLocomotionAndLocalization(FakeLocomotionAndLocalization.LocomotionType.HOLONOMIC, 1, 1, 0.5, 0.5, 0, 0, 0, "Fake locomotion and localization");
 
     Command tracker = new HolonomicFollowPath(
-            new Path(
-                    List.of(
-                            new PathAxis(t -> Math.cos(t), 0, 10),
-                            new PathAxis(t -> Math.sin(t), 0, 10),
-                            new PathAxis(t -> t, 0, 10)
-                    ),
-                    t -> t >= 10),
-
-            new PIDF(List.of(
-                    new PIDFAxis(new PIDFAxis.K(1, 0.01, 0.1, new double[] {1, 0}, 1, 1, 0.05, 0)),
-                    new PIDFAxis(new PIDFAxis.K(1, 0.01, 0.1, new double[] {1, 0}, 1, 1, 0.05, 0)),
-                    new PIDFAxis(new PIDFAxis.K(1, 0.01, 0.1, new double[] {1, 0}, 1, 1, 0.05, 0))
-            )),
+            new HolonomicPathTracker(
+                    new Path(
+                            List.of(
+                                    new PathAxis(t -> Math.cos(t), 0, 10),
+                                    new PathAxis(t -> Math.sin(t), 0, 10),
+                                    new PathAxis(t -> t, 0, 10)
+                            ),
+                            t -> t >= 10),
+                    new PIDF(List.of(
+                            new PIDFAxis(new PIDFAxis.K(1, 0.01, 0.1, new double[]{1, 0}, 1, 1, 0.05, 0)),
+                            new PIDFAxis(new PIDFAxis.K(1, 0.01, 0.1, new double[]{1, 0}, 1, 1, 0.05, 0)),
+                            new PIDFAxis(new PIDFAxis.K(1, 0.01, 0.1, new double[]{1, 0}, 1, 1, 0.05, 0))
+                    ))),
             locomotionAndLocalization,
             locomotionAndLocalization
     );
@@ -52,6 +53,7 @@ public class HolonomicTrackingTest extends CommandRuntimeOpMode {
     }
 
     boolean done = false;
+
     @Override
     protected void periodic() {
         if (done) return;
@@ -99,7 +101,7 @@ public class HolonomicTrackingTest extends CommandRuntimeOpMode {
             output += "plt.show()\n";
 
             logLongString(output);
-            done=true;
+            done = true;
         }
     }
 

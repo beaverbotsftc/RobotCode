@@ -1,8 +1,11 @@
 package org.beaverbots.beaver.cachedhardware;
 
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.CRServoImplEx;
+import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoController;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 public class CachedCRServo implements CRServo {
     private final CRServo servo;
@@ -80,5 +83,10 @@ public class CachedCRServo implements CRServo {
     @Override
     public void close() {
         servo.close();
+    }
+
+    /// Custom extension to the CR servos, normally you would need (CRServoImplEx) cast and some object.
+    public void setPwmRange(int lower, int upper) {
+        ((CRServoImplEx) servo).setPwmRange(new PwmControl.PwmRange(lower, upper));
     }
 }

@@ -23,10 +23,10 @@ public class HolonomicFollowPath implements Command  {
 
     private ElapsedTime elapsedTime;
 
-    public HolonomicFollowPath(Path path, PIDF pidf, Localizer localizer, Locomotion locomotion) {
+    public HolonomicFollowPath(HolonomicPathTracker pathTracker, Localizer localizer, Locomotion locomotion) {
         this.localizer = localizer;
         this.locomotion = locomotion;
-        this.pathTracker = new HolonomicPathTracker(path, pidf);
+        this.pathTracker = pathTracker;
     }
 
     @Override

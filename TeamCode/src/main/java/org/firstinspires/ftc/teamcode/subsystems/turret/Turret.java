@@ -35,17 +35,20 @@ public class Turret implements Subsystem {
     public Turret(VoltageSensor voltageSensor) {
         pidf = new PIDFAxis(new PIDFAxis.K(Constants.pidPShooter, Constants.pidIShooter, Constants.pidDShooter, new double[] {1}, 0.5, 1, 1, Constants.pidGammaShooter));
 
-        //turretLeft = new CachedServo(HardwareManager.claim(Servo.class, "left turret"), 0.001);
-        //turretRight = new CachedServo(HardwareManager.claim(Servo.class, "right turret"), 0.001);
+        //turretLeft = new CachedServo(HardwareManager.claim(Servo.class, "left turret"), Constants.turretDelta);
+        //turretLeft.setPwmRange(500, 2500);
+
+        //turretRight = new CachedServo(HardwareManager.claim(Servo.class, "right turret"), Constants.turretDelta);
+        //turretRight.setPwmRange(500, 2500);
 
         shooterLeft = new CachedMotor(HardwareManager.claim(DcMotorEx.class, "left shooter"), Constants.shooterDelta);
         shooterRight = new CachedMotor(HardwareManager.claim(DcMotorEx.class, "right shooter"), Constants.shooterDelta);
 
         shooterLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-        shooterLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooterLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         shooterRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        shooterRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        shooterRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
         this.voltageSensor = voltageSensor;
@@ -54,13 +57,11 @@ public class Turret implements Subsystem {
     }
 
     public void turn(double angle) {
-        double normalized = Math.max(-Constants.turretBounds, Math.min(Geometry.normalizeAngle2( -(angle - Constants.turretAngularBias)), Constants.turretBounds));
-        final double K = 360.0 / 355.0 * (2500.0 - 500.0) / (PwmControl.PwmRange.usPulseUpperDefault - PwmControl.PwmRange.usPulseLowerDefault);
-        /*
-        turretLeft.setPosition(normalized / (2 * Math.PI) * K + 0.5);
-        turretRight.setPosition(normalized / (2 * Math.PI) * K + 0.5 - 0.125 / 100);
+        double normalized = Math.max(-Constants.turretBounds, Math.min(Geometry.normalizeAngle( -(angle - Constants.turretAngularBias)), Constants.turretBounds));
+        final double K = 360.0 / 355.0;
 
-         */
+        //turretLeft.setPosition(normalized / (2 * Math.PI) * K + 0.5);
+        //turretRight.setPosition(normalized / (2 * Math.PI) * K + 0.5 - 0.125 / 100);
     }
 
     public static boolean inBounds(double angle) {

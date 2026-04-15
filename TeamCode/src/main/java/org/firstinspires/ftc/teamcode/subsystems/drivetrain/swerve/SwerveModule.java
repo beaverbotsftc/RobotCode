@@ -1,11 +1,9 @@
-package org.firstinspires.ftc.teamcode.subsystems.drivetrain;
+package org.firstinspires.ftc.teamcode.subsystems.drivetrain.swerve;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.beaverbots.beaver.InfiniteServo;
-import org.beaverbots.beaver.command.CommandRuntimeOpMode;
 import org.beaverbots.beaver.command.Subsystem;
 import org.beaverbots.beaver.util.Geometry;
 import org.beaverbots.beaver.util.Transform;
@@ -72,6 +70,6 @@ public class SwerveModule implements Subsystem {
 
         double power = getWheelPower(position, servo.getAngle(), chassisTargetForce);
 
-        motor.setPower(power * power * power);
+        motor.setPower(power);
     }
 }

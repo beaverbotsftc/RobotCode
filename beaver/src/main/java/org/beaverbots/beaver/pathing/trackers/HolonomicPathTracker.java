@@ -28,9 +28,9 @@ public final class HolonomicPathTracker implements PathTracker {
     public List<Double> update(List<Double> position, double dt) {
         if (dt <= 0) throw new IllegalArgumentException("dt must be positive (and non 0)");
 
-        final List<Double> expectedPosition = path.position(time);
-        final List<Double> expectedVelocity = path.velocity(time);
-        final List<Double> expectedAcceleration = path.acceleration(time);
+        final List<Double> expectedPosition = getPosition();
+        final List<Double> expectedVelocity = getVelocity();
+        final List<Double> expectedAcceleration = getAcceleration();
 
         final List<Double> error = IntStream.range(0, dimensions).mapToDouble(i -> expectedPosition.get(i) - position.get(i)).boxed().collect(Collectors.toList());
 
@@ -45,5 +45,17 @@ public final class HolonomicPathTracker implements PathTracker {
 
     public boolean isFinished() {
         return path.isFinished(time);
+    }
+
+    public List<Double> getPosition() {
+        return path.position(time);
+    }
+
+    public List<Double> getVelocity() {
+        return path.velocity(time);
+    }
+
+    public List<Double> getAcceleration() {
+        return path.acceleration(time);
     }
 }

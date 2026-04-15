@@ -91,12 +91,14 @@ public class CachedServo implements Servo {
         servo.resetDeviceConfigurationForOpMode();
     }
 
-    public void setPwmRange(PwmControl.PwmRange range) {
-        ((ServoImplEx) servo).setPwmRange(range);
-    }
-
     @Override
     public void close() {
         servo.close();
+    }
+
+
+    /// Custom extension to the servos, normally you would need (ServoImplEx) cast and some object.
+    public void setPwmRange(int lower, int upper) {
+        ((ServoImplEx) servo).setPwmRange(new PwmControl.PwmRange(lower, upper));
     }
 }

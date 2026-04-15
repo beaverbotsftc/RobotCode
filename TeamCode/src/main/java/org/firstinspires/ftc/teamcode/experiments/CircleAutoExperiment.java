@@ -8,6 +8,7 @@ import org.beaverbots.beaver.command.CommandRuntimeOpMode;
 import org.beaverbots.beaver.command.premade.Instant;
 import org.beaverbots.beaver.command.premade.Sequential;
 import org.beaverbots.beaver.pathing.commands.HolonomicFollowPath;
+import org.beaverbots.beaver.pathing.trackers.HolonomicPathTracker;
 import org.beaverbots.beaver.pidf.PIDF;
 import org.beaverbots.beaver.pidf.PIDFAxis;
 import org.beaverbots.beaver.pathing.path.Path;
@@ -31,7 +32,7 @@ public class CircleAutoExperiment extends CommandRuntimeOpMode {
     @Override
     public void onInit() {
         pinpoint = new Pinpoint(new Transform(0, 0, 0));
-        limelight = new Limelight();
+        limelight = new Limelight(Limelight.Pipeline.LOCALIZATION_GOAL);
         limelight.localizationPipeline();
         fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new Transform(0, 0, 0));
         VoltageSensor voltageSensor = new VoltageSensor();
@@ -54,6 +55,7 @@ public class CircleAutoExperiment extends CommandRuntimeOpMode {
         schedule(
                 new Sequential(
                         new HolonomicFollowPath(
+                                new HolonomicPathTracker(
                                 new Path(
                                         List.of(
                                                 new PathAxis(t -> 24 * Math.cos(t) - 24 + 72, 0, 6 * Math.PI),
@@ -62,11 +64,11 @@ public class CircleAutoExperiment extends CommandRuntimeOpMode {
                                         t -> t > 6 * Math.PI),
                                 new PIDF(
                                         List.of(
-                                                new PIDFAxis(new PIDFAxis.K(Constants.pidPX, Constants.pidIX, Constants.pidDX, new double[] {1, 0}, 6, 48, Constants.pidTauX, Constants.pidGammaX)),
-                                                new PIDFAxis(new PIDFAxis.K(Constants.pidPY, Constants.pidIY, Constants.pidDY, new double[] {1, 0}, 6, 48, Constants.pidTauY, Constants.pidGammaY)),
-                                                new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, new double[] {1, 0}, 6, 48, Constants.pidTauTheta, Constants.pidGammaTheta))
+                                                new PIDFAxis(new PIDFAxis.K(Constants.pidPX, Constants.pidIX, Constants.pidDX, new double[] {1, 0}, 6, 48, Constants.pidTau, Constants.pidGammaX)),
+                                                new PIDFAxis(new PIDFAxis.K(Constants.pidPY, Constants.pidIY, Constants.pidDY, new double[] {1, 0}, 6, 48, Constants.pidTau, Constants.pidGammaY)),
+                                                new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, new double[] {1, 0}, 6, 48, Constants.pidTau, Constants.pidGammaTheta))
                                         )
-                                ),
+                                )),
                                 pinpoint,
                                 drivetrain),
                         new Instant(() -> drivetrain.move(new Transform(0, 0, 0)))));

@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 import org.firstinspires.ftc.teamcode.subsystems.turret.Turret;
 
 @TeleOp
-public class TheTeleOpOfTheRobot extends CommandRuntimeOpMode {
+public class ADeadSimpleTeleOp extends CommandRuntimeOpMode {
     private VoltageSensor voltageSensor;
     private Drivetrain drivetrain;
     private IntakeAndTransfer intake;
@@ -38,20 +38,12 @@ public class TheTeleOpOfTheRobot extends CommandRuntimeOpMode {
         register(voltageSensor, drivetrain, intake, turret, pinpoint, gamepad);
     }
 
-    double rpm = 0;
-
     public void onStart() {
         schedule(
-                new SwerveDriveControl((SwerveDrivetrain) drivetrain, pinpoint, gamepad),
-                new Repeat(() -> intake.intake(gamepad.getRightTrigger() - gamepad.getLeftTrigger())),
-                new Repeat(() -> intake.transfer(gamepad.getRightBumper()))
+                new Repeat(() -> drivetrain.move(new Transform(gamepad.getLeftY(), -gamepad.getLeftX(), -gamepad.getRightX())))
         );
     }
 
     public void periodic() {
-        telemetry.addData("RPM", rpm);
-        rpm += gamepad.getDpadUpJustPressed() ? 100 : 0;
-        rpm -= gamepad.getDpadDownJustPressed() ? 100 : 0;
-        turret.shoot(rpm);
     }
 }

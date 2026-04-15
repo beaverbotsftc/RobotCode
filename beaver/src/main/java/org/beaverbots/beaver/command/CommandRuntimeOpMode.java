@@ -1,6 +1,7 @@
 package org.beaverbots.beaver.command;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -31,7 +32,15 @@ public abstract class CommandRuntimeOpMode extends OpMode {
     private FtcDashboard dashboard;
 
     public static TelemetryPacket packet;
-    public static Telemetry telemetrySingleton;
+    public static Telemetry multipleTelemetry;
+
+    public static TelemetryPacket getPacket() {
+        return packet;
+    }
+
+    public static Telemetry getTelemetry() {
+        return multipleTelemetry;
+    }
 
     protected final void setTelemetryUpdateFrequency(int telemetryUpdateFrequency) {
         this.telemetryUpdateFrequency = telemetryUpdateFrequency;
@@ -101,7 +110,7 @@ public abstract class CommandRuntimeOpMode extends OpMode {
     public final void init() {
         dashboard = FtcDashboard.getInstance();
 
-        telemetrySingleton = telemetry;
+        multipleTelemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
         packet = new TelemetryPacket();
 
         hubs = hardwareMap.getAll(LynxModule.class);

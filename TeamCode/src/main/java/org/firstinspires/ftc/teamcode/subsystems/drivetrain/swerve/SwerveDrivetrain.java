@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.subsystems.drivetrain;
+package org.firstinspires.ftc.teamcode.subsystems.drivetrain.swerve;
 
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -12,6 +12,7 @@ import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.pidf.PIDFAxis;
 import org.beaverbots.beaver.util.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
+import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 
 import java.util.List;
 
@@ -32,6 +33,7 @@ public class SwerveDrivetrain implements Drivetrain {
         this.voltageSensor = voltageSensor;
 
         CachedCRServo frontLeftServo = new CachedCRServo(HardwareManager.claim(CRServo.class, "front left servo"), 0);
+        frontLeftServo.setPwmRange(500, 2500);
         AnalogInput frontLeftEncoder = HardwareManager.get(AnalogInput.class, "front left servo encoder");
         InfiniteServo frontLeftInfiniteServo = new InfiniteServo(
                 frontLeftServo,
@@ -48,6 +50,7 @@ public class SwerveDrivetrain implements Drivetrain {
         frontLeftModule = new SwerveModule(frontLeftInfiniteServo, frontLeftMotor, voltageSensor, frontLeftPosition);
 
         CachedCRServo frontRightServo = new CachedCRServo(HardwareManager.claim(CRServo.class, "front right servo"), 0);
+        frontRightServo.setPwmRange(500, 2500);
         AnalogInput frontRightEncoder = HardwareManager.get(AnalogInput.class, "front right servo encoder");
         InfiniteServo frontRightInfiniteServo = new InfiniteServo(
                 frontRightServo,
@@ -64,6 +67,7 @@ public class SwerveDrivetrain implements Drivetrain {
         frontRightModule = new SwerveModule(frontRightInfiniteServo, frontRightMotor, voltageSensor, frontRightPosition);
 
         CachedCRServo backLeftServo = new CachedCRServo(HardwareManager.claim(CRServo.class, "back left servo"), 0);
+        backLeftServo.setPwmRange(500, 2500);
         AnalogInput backLeftEncoder = HardwareManager.get(AnalogInput.class, "back left servo encoder");
         InfiniteServo backLeftInfiniteServo = new InfiniteServo(
                 backLeftServo,
@@ -80,6 +84,7 @@ public class SwerveDrivetrain implements Drivetrain {
         backLeftModule = new SwerveModule(backLeftInfiniteServo, backLeftMotor, voltageSensor, backLeftPosition);
 
         CachedCRServo backRightServo = new CachedCRServo(HardwareManager.claim(CRServo.class, "back right servo"), 0);
+        backRightServo.setPwmRange(500, 2500);
         AnalogInput backRightEncoder = HardwareManager.get(AnalogInput.class, "back right servo encoder");
         InfiniteServo backRightInfiniteServo = new InfiniteServo(
                 backRightServo,
