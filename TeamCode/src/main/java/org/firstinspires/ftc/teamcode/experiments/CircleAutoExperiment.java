@@ -56,19 +56,19 @@ public class CircleAutoExperiment extends CommandRuntimeOpMode {
                 new Sequential(
                         new HolonomicFollowPath(
                                 new HolonomicPathTracker(
-                                new Path(
-                                        List.of(
-                                                new PathAxis(t -> 24 * Math.cos(t) - 24 + 72, 0, 6 * Math.PI),
-                                                new PathAxis(t -> 24 * Math.sin(t) + 72, 0, 6 * Math.PI),
-                                                new PathAxis(t -> -t, 0, 6 * Math.PI)),
-                                        t -> t > 6 * Math.PI),
-                                new PIDF(
-                                        List.of(
-                                                new PIDFAxis(new PIDFAxis.K(Constants.pidPX, Constants.pidIX, Constants.pidDX, new double[] {1, 0}, 6, 48, Constants.pidTau, Constants.pidGammaX)),
-                                                new PIDFAxis(new PIDFAxis.K(Constants.pidPY, Constants.pidIY, Constants.pidDY, new double[] {1, 0}, 6, 48, Constants.pidTau, Constants.pidGammaY)),
-                                                new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, new double[] {1, 0}, 6, 48, Constants.pidTau, Constants.pidGammaTheta))
-                                        )
-                                )),
+                                        new Path(
+                                                List.of(
+                                                        new PathAxis(t -> 24 * Math.cos(t) - 24 + 72, 0, 6 * Math.PI),
+                                                        new PathAxis(t -> 24 * Math.sin(t) + 72, 0, 6 * Math.PI),
+                                                        new PathAxis(t -> -t, 0, 6 * Math.PI)),
+                                                t -> t > 6 * Math.PI),
+                                        new PIDF(
+                                                List.of(
+                                                        new PIDFAxis(new PIDFAxis.K(Constants.pidPX, Constants.pidIX, Constants.pidDX, new double[]{1, 0}, 6, 48, Constants.pidTau, Constants.pidGammaX)),
+                                                        new PIDFAxis(new PIDFAxis.K(Constants.pidPY, Constants.pidIY, Constants.pidDY, new double[]{1, 0}, 6, 48, Constants.pidTau, Constants.pidGammaY)),
+                                                        new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, new double[]{1, 0}, 6, 48, Constants.pidTau, Constants.pidGammaTheta))
+                                                )
+                                        )),
                                 pinpoint,
                                 drivetrain),
                         new Instant(() -> drivetrain.move(new Transform(0, 0, 0)))));

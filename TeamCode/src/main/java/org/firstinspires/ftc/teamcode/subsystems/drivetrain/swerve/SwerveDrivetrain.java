@@ -24,13 +24,18 @@ public class SwerveDrivetrain implements Drivetrain {
 
     private final VoltageSensor voltageSensor;
 
+    private final boolean maxCapability;
+
     private static final Transform frontLeftPosition = new Transform(1, 1);
     private static final Transform frontRightPosition = new Transform(1, -1);
     private static final Transform backLeftPosition = new Transform(-1, 1);
     private static final Transform backRightPosition = new Transform(-1, -1);
 
-    public SwerveDrivetrain(VoltageSensor voltageSensor) {
+    private static final double NOMINAL_VOLTAGE = 12;
+
+    public SwerveDrivetrain(VoltageSensor voltageSensor, boolean maxCapability) {
         this.voltageSensor = voltageSensor;
+        this.maxCapability = maxCapability;
 
         CachedCRServo frontLeftServo = new CachedCRServo(HardwareManager.claim(CRServo.class, "front left servo"), 0);
         frontLeftServo.setPwmRange(500, 2500);
@@ -40,7 +45,8 @@ public class SwerveDrivetrain implements Drivetrain {
                 frontLeftEncoder,
                 new PIDFAxis(
                         new PIDFAxis.K(
-                                0.2455, 0.1564, 0.0048, new double[]{0}, 1, 1, 0.2281, 7.8312
+                                //0.2455, 0.1564, 0.0048, new double[]{0}, 1, 1, 0.2281, 7.8312
+                                0.3081, 0.7168, 0.0017, new double[]{0}, 1, 1, 0.7728, 613
                         )
                 ),
                 3.175864573447136
@@ -57,7 +63,8 @@ public class SwerveDrivetrain implements Drivetrain {
                 frontRightEncoder,
                 new PIDFAxis(
                         new PIDFAxis.K(
-                                0.2455, 0.1564, 0.0048, new double[]{0}, 1, 1, 0.2281, 7.8312
+                                //0.2455, 0.1564, 0.0048, new double[]{0}, 1, 1, 0.2281, 7.8312
+                                0.3081, 0.7168, 0.0017, new double[]{0}, 1, 1, 0.7728, 613
                         )
                 ),
                 3.2805843285667957
@@ -74,7 +81,8 @@ public class SwerveDrivetrain implements Drivetrain {
                 backLeftEncoder,
                 new PIDFAxis(
                         new PIDFAxis.K(
-                                0.2455, 0.1564, 0.0048, new double[]{0}, 1, 1, 0.2281, 7.8312
+                                //0.2455, 0.1564, 0.0048, new double[]{0}, 1, 1, 0.2281, 7.8312
+                                0.3081, 0.7168, 0.0017, new double[]{0}, 1, 1, 0.7728, 613
                         )
                 ),
                 2.088683115750305
@@ -91,7 +99,8 @@ public class SwerveDrivetrain implements Drivetrain {
                 backRightEncoder,
                 new PIDFAxis(
                         new PIDFAxis.K(
-                                0.2455, 0.1564, 0.0048, new double[]{0}, 1, 1, 0.2281, 7.8312
+                                //0.2455, 0.1564, 0.0048, new double[]{0}, 1, 1, 0.2281, 7.8312
+                                0.3081, 0.7168, 0.0017, new double[]{0}, 1, 1, 0.7728, 613
                         )
                 ),
                 1.494636504889689
@@ -101,11 +110,17 @@ public class SwerveDrivetrain implements Drivetrain {
         backRightModule = new SwerveModule(backRightInfiniteServo, backRightMotor, voltageSensor, backRightPosition);
     }
 
+    public SwerveDrivetrain(VoltageSensor voltageSensor) {
+        this(voltageSensor, true);
+    }
+
     public void move(Transform force) {
-        frontLeftModule.drive(force);
-        frontRightModule.drive(force);
-        backLeftModule.drive(force);
-        backRightModule.drive(force);
+        double scalar = maxCapability ? 1 : NOMINAL_VOLTAGE / voltageSensor.getVoltage();
+        Transform scaledForce = force.scale(scalar);
+        frontLeftModule.drive(scaledForce);
+        frontRightModule.drive(scaledForce);
+        backLeftModule.drive(scaledForce);
+        backRightModule.drive(scaledForce);
     }
 
     public void move(Transform force, Transform position) {

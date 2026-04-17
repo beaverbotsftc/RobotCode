@@ -19,6 +19,8 @@ public class IntakeAndTransfer implements Subsystem {
 
     private double power = 0;
 
+    private double[] a = new double[100];
+
     public IntakeAndTransfer() {
         leftTransfer = new CachedMotor(HardwareManager.claim(DcMotorEx.class, "transfer2"), 0);
         rightTransfer = new CachedMotor(HardwareManager.claim(DcMotorEx.class, "transfer1"), 0);
@@ -40,6 +42,16 @@ public class IntakeAndTransfer implements Subsystem {
         leftTransfer.setPower(power);
         rightTransfer.setPower(power);
 
-        CommandRuntimeOpMode.getTelemetry().addData("Current", (leftTransfer.getCurrent(CurrentUnit.AMPS) + rightTransfer.getCurrent(CurrentUnit.AMPS)) / 2.0);
+        CommandRuntimeOpMode.getPacket().put("Current", (leftTransfer.getCurrent(CurrentUnit.AMPS) + rightTransfer.getCurrent(CurrentUnit.AMPS)) / 2.0);
+        double mean = 0;
+        for (double b : a) mean += b;
+        mean /= a.length;
+        double stddev = 0;
+        for (double b : a) stddev += Math.pow(b - mean, 2);
+        stddev /= a.length;
+        stddev = Math.sqrt(stddev);
+        CommandRuntimeOpMode.getPacket().put("Stddev", stddev);
+        for (int i = 0; i < a.length - 1; i++) a[i] = a[i + 1];
+        a[a.length - 1] = (leftTransfer.getCurrent(CurrentUnit.AMPS) + rightTransfer.getCurrent(CurrentUnit.AMPS)) / 2.0;
     }
 }

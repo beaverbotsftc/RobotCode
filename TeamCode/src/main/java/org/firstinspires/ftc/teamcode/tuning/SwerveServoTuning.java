@@ -24,14 +24,14 @@ import org.beaverbots.beaver.optimize.kernels.ARDRBFKernel;
 import org.beaverbots.beaver.pidf.PIDFAxis;
 import org.beaverbots.beaver.util.Stopwatch;
 
-@TeleOp
+@Autonomous(group = "tuning")
 public class SwerveServoTuning extends CommandRuntimeOpMode {
     private static BayesianOptimizer optimizer = new BayesianOptimizer(new ARDRBFKernel(), new Pair<>(
-            new ArrayRealVector(new double[]{0, 0, 0, 0.01, 0}),
+            new ArrayRealVector(new double[]{0.2, 0, 0, 0.01, 0}),
             new ArrayRealVector(new double[]{0.5, 1, 0.5, 1, 1e3})
     ), 0.9, 20);
 
-    private static final double TIME_PER_TRIAL = 1;
+    private static final double TIME_PER_TRIAL = 0.5;
 
     private CRServo servo;
     private AnalogInput encoder;
@@ -47,9 +47,9 @@ public class SwerveServoTuning extends CommandRuntimeOpMode {
     RealVector bestPoint = null;
 
     public void onInit() {
-        servo = HardwareManager.claim(CRServo.class, "front left servo");
+        servo = HardwareManager.claim(CRServo.class, "front right servo");
         servo.setDirection(DcMotorSimple.Direction.REVERSE);
-        encoder = HardwareManager.claim(AnalogInput.class, "front left encoder");
+        encoder = HardwareManager.claim(AnalogInput.class, "front right servo encoder");
     }
 
     private double getAngle() {
@@ -80,18 +80,20 @@ public class SwerveServoTuning extends CommandRuntimeOpMode {
                                 new WaitUntil(() -> stopwatch.getElapsed() > TIME_PER_TRIAL),
                                 new Repeat(() -> {
                                     double dt = stopwatch.getDt();
-                                    loss += dt * stopwatch.getElapsed() * Math.pow(Math.abs(getAngle() - Math.PI), 0.5);
+                                    loss += dt * stopwatch.getElapsed() * Math.abs(getAngle() - Math.PI);
+                                    if (getAngle() < Math.PI)
+                                        loss += dt * stopwatch.getElapsed() * Math.abs(getAngle() - Math.PI);
                                     servo.setPower(pidf.update(getAngle() - Math.PI, new double[]{0.0}, dt));
                                 })
                         ),
                         new Instant(() -> {
                             double dt = stopwatch.getDt();
-                            loss += Math.pow(pidf.update(getAngle() - Math.PI, new double[]{0.0}, dt), 2) * 2;
+                            loss += Math.abs(pidf.update(getAngle() - Math.PI, new double[]{0.0}, dt));
+                            loss += Math.abs(getAngle() - Math.PI);
                         }),
                         new Instant(() -> servo.setPower(0))
                 ),
                 new Instant(() -> servo.setPower(0)),
-                new Instant(() -> loss /= 3),
                 new Instant(() -> {
                     if (loss < bestLoss) {
                         bestLoss = loss;
