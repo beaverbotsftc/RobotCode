@@ -22,9 +22,7 @@ import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
 import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.swerve.SwerveDrivetrain;
-import org.firstinspires.ftc.teamcode.subsystems.localizer.Localizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 
 import java.util.List;
@@ -48,7 +46,7 @@ public class AccelerationTuningX extends CommandRuntimeOpMode {
     private Transform endPosition = null;
     private double error = 0;
     public static final DoubleUnaryOperator path = t -> 12 * t * t;
-    public static final double time = 2;
+    public static final double TIME = 2;
     private Stopwatch stopwatch;
 
     public void onStart() {
@@ -65,11 +63,11 @@ public class AccelerationTuningX extends CommandRuntimeOpMode {
                                         new HolonomicPathTracker(
                                                 new Path(
                                                         List.of(
-                                                                new PathAxis(path, 0, time),
-                                                                new PathAxis(t -> 0, 0, time),
-                                                                new PathAxis(t -> 0, 0, time)
+                                                                new PathAxis(path, 0, TIME),
+                                                                new PathAxis(t -> 0, 0, TIME),
+                                                                new PathAxis(t -> 0, 0, TIME)
                                                         ),
-                                                        t -> t > time
+                                                        t -> t > TIME
                                                 ),
                                                 new PIDF(
                                                         List.of(

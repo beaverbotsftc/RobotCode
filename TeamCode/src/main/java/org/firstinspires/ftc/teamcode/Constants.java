@@ -47,25 +47,27 @@ public final class Constants {
     public static double minLateralVariance = 0;
     public static double minAngularVariance = 0;
 
-    public static double turretLatency = 0.08;
-    public static double turretBounds = Math.toRadians(90);
+    public static double turretLatency = 0.1;
+    public static double turretBounds = Math.toRadians(150);
     public static double turretAngularBias = 0;
 
     public static double turretDelta = 0.001;
     public static double shooterDelta = 0.01;
 
-    public static double pidFShooter = 0.0019;//0.0023; // rpm -> proportion of max RPM at 1V
-    public static double pidPShooter = 0.001;
+    public static double pidFShooter = 0.002;//0.0023; // rpm -> proportion of max RPM at 1V
+    public static double pidPShooter = 0.005;
     public static double pidIShooter = 0.001;
     public static double pidDShooter = 0.00015;
     public static double pidGammaShooter = 0.1;
 
     public static double swerveAngularVelocityCorrectionDeadzone = 0.1;
 
-    public static double pidPHeadingEnforcement = 0.4;
+    public static double pidPHeadingEnforcement = 0.3;
     public static double pidIHeadingEnforcement = 0;
     public static double pidDHeadingEnforcement = 0;
     public static double pidTauHeadingEnforcement = 1;
     public static double pidGammaHeadingEnforcement = 3000;
     public static double headingEnforcementLateralSpeedCutoff = 18;
+
+    public static double optimalGateIntakeAngle = 2.20;
 }

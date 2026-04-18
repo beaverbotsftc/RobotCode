@@ -21,6 +21,8 @@ public class Turret implements Subsystem {
     private CachedServo turretLeft;
     private CachedServo turretRight;
 
+    private CachedServo hood;
+
     private DcMotorEx shooterLeft;
     private DcMotorEx shooterRight;
 
@@ -40,6 +42,8 @@ public class Turret implements Subsystem {
 
         turretRight = new CachedServo(HardwareManager.claim(Servo.class, "right turret"), Constants.turretDelta);
         turretRight.setPwmRange(500, 2500);
+
+        hood = new CachedServo(HardwareManager.claim(Servo.class, "hood"), 0);
 
         shooterLeft = new CachedMotor(HardwareManager.claim(DcMotorEx.class, "left shooter"), Constants.shooterDelta);
         shooterRight = new CachedMotor(HardwareManager.claim(DcMotorEx.class, "right shooter"), Constants.shooterDelta);
@@ -66,6 +70,10 @@ public class Turret implements Subsystem {
 
     public static boolean inBounds(double angle) {
         return Math.abs(Geometry.normalizeAngle2(angle)) <= Constants.turretBounds;
+    }
+
+    public void angle(double hoodSetting) {
+        hood.setPosition(hoodSetting);
     }
 
     public void shoot(double velocity) {

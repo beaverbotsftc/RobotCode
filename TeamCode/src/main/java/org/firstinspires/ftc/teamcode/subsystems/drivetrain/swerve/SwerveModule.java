@@ -18,6 +18,9 @@ public class SwerveModule implements Subsystem {
 
     private Transform chassisTargetForce = Transform.ZERO;
 
+    // Store the desired angle, defaulting to 0
+    private double desired = 0;
+
     public static Transform getModuleTargetForce(Transform chassisForce, Transform wheelPosition) {
         Transform vLinear = chassisForce.lateral();
         // Angular component: Perpendicular to the radius vector (wheelPosition)
@@ -41,8 +44,6 @@ public class SwerveModule implements Subsystem {
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
-    double desired = 0;
-
     public void drive(Transform force) {
         chassisTargetForce = force;
         if (force.lateralNorm() == 0 && force.getTheta() == 0) return;
@@ -52,13 +53,28 @@ public class SwerveModule implements Subsystem {
         double angle = Transform.ZERO.angleTo(projectedForce);
         double otherAngle = angle < Math.PI ? angle + Math.PI : angle - Math.PI;
 
-        if (Math.abs(Geometry.normalizeAngle2(servo.getAngle() - angle)) < Math.abs(Geometry.normalizeAngle2(servo.getAngle() - otherAngle))) {
-            servo.setAngle(angle);
-            desired =angle;
-        } else {
-            servo.setAngle(otherAngle);
-            desired =otherAngle;
+        // 1. Calculate which path is closest to our CURRENT software setpoint (desired)
+        // This eliminates jitter caused by hardware sensor noise
+        double distAngleFromDesired = Math.abs(Geometry.normalizeAngle2(desired - angle));
+        double distOtherFromDesired = Math.abs(Geometry.normalizeAngle2(desired - otherAngle));
+
+        double targetAngle = (distAngleFromDesired <= distOtherFromDesired) ? angle : otherAngle;
+
+        // 2. Check if the physical servo is dangerously far (> 120 degrees) from this calculated target
+        double distFromActual = Math.abs(Geometry.normalizeAngle2(servo.getAngle() - targetAngle));
+
+        if (distFromActual > Math.toRadians(120)) {
+            // The servo is >120 degrees off from where we expect it to be.
+            // Fall back to using the actual hardware servo position to decide the shortest path.
+            double distAngleFromActual = Math.abs(Geometry.normalizeAngle2(servo.getAngle() - angle));
+            double distOtherFromActual = Math.abs(Geometry.normalizeAngle2(servo.getAngle() - otherAngle));
+
+            targetAngle = (distAngleFromActual <= distOtherFromActual) ? angle : otherAngle;
         }
+
+        // 3. Apply and store the determined target
+        servo.setAngle(targetAngle);
+        desired = targetAngle;
     }
 
     public double getAngle() {

@@ -45,8 +45,9 @@ public class VelocityTuningX extends CommandRuntimeOpMode {
 
     private Transform endPosition = null;
     private double error = 0;
-    public static final DoubleUnaryOperator path = t -> t < 2 ? t * t : 4 * t - 4;
-    public static final double time = 5;
+    public static final DoubleUnaryOperator path = t -> t;
+    public static final double ACCELERATION_TIME = 1;
+    public static final double TIME = 3;
     private Stopwatch stopwatch;
 
     public void onStart() {
@@ -62,11 +63,11 @@ public class VelocityTuningX extends CommandRuntimeOpMode {
                                 new HolonomicPathTracker(
                                         new Path(
                                                 List.of(
-                                                        new PathAxis(path, 0, time),
-                                                        new PathAxis(t -> 0, 0, time),
-                                                        new PathAxis(t -> 0, 0, time)
+                                                        new PathAxis(path, 0, TIME),
+                                                        new PathAxis(t -> 0, 0, TIME),
+                                                        new PathAxis(t -> 0, 0, TIME)
                                                 ),
-                                                t -> t > time
+                                                t -> t > TIME
                                         ),
                                         new PIDF(
                                                 List.of(
@@ -96,14 +97,14 @@ public class VelocityTuningX extends CommandRuntimeOpMode {
                                                         ),
                                                         new PIDFAxis(
                                                                 new PIDFAxis.K(
-                                                                        0,
-                                                                        0,
-                                                                        0,
+                                                                        Constants.pidPHeadingEnforcement,
+                                                                        Constants.pidIHeadingEnforcement,
+                                                                        Constants.pidDHeadingEnforcement,
                                                                         new double[]{Constants.pidFVelocityX, Constants.pidFAccelerationX},
                                                                         0,
                                                                         1,
-                                                                        0,
-                                                                        0
+                                                                        Constants.pidTauHeadingEnforcement,
+                                                                        Constants.pidGammaHeadingEnforcement
                                                                 )
                                                         )
                                                 )
@@ -113,7 +114,7 @@ public class VelocityTuningX extends CommandRuntimeOpMode {
                                 drivetrain
                         ),
                         new Sequential(
-                                new Wait(2),
+                                new Wait(ACCELERATION_TIME),
                                 new Repeat(() -> error += stopwatch.getDt() * Math.abs(path.applyAsDouble(stopwatch.getElapsed()) - localizer.getPosition().getX()))
                         )
                 ),

@@ -3,10 +3,7 @@ package org.firstinspires.ftc.teamcode.teleop;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.beaverbots.beaver.command.CommandRuntimeOpMode;
-import org.beaverbots.beaver.command.premade.NoOp;
 import org.beaverbots.beaver.command.premade.Repeat;
-import org.beaverbots.beaver.command.premade.router.Router;
-import org.beaverbots.beaver.command.premade.router.Selector;
 import org.beaverbots.beaver.util.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeAndTransfer;
@@ -17,7 +14,7 @@ import org.firstinspires.ftc.teamcode.subsystems.drivetrain.swerve.SwerveDriveCo
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.swerve.SwerveDrivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
-import org.firstinspires.ftc.teamcode.subsystems.turret.TrackTarget;
+import org.firstinspires.ftc.teamcode.subsystems.turret.TurretControl;
 import org.firstinspires.ftc.teamcode.subsystems.turret.Turret;
 
 @TeleOp
@@ -55,7 +52,7 @@ public class TheTeleOpOfTheRobot extends CommandRuntimeOpMode {
                 new SwerveDriveControl((SwerveDrivetrain) drivetrain, localizer, gamepad),
                 new Repeat(() -> intake.intake(gamepad.getRightTrigger() - gamepad.getLeftTrigger())),
                 new Repeat(() -> intake.transfer(gamepad.getRightBumper())),
-                new TrackTarget(turret, localizer, new Transform(-72, 72))
+                new TurretControl(turret, localizer, new Transform(-72, 72))
         );
     }
 

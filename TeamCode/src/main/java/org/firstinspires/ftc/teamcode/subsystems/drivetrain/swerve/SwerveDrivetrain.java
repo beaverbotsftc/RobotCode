@@ -46,7 +46,9 @@ public class SwerveDrivetrain implements Drivetrain {
                 new PIDFAxis(
                         new PIDFAxis.K(
                                 //0.2455, 0.1564, 0.0048, new double[]{0}, 1, 1, 0.2281, 7.8312
-                                0.3081, 0.7168, 0.0017, new double[]{0}, 1, 1, 0.7728, 613
+                                //0.3081, 0.7168, 0.0017, new double[]{0}, 1, 1, 0.7728, 613
+                                //                        0.2100, 0.5418, 0.0023, new double[]{0}, 1, 1, 0.6119, 245
+                                0.2043, 0.3854, 0.0118, new double[]{0}, 1, 1, 0.9731, 988
                         )
                 ),
                 3.175864573447136
@@ -64,7 +66,9 @@ public class SwerveDrivetrain implements Drivetrain {
                 new PIDFAxis(
                         new PIDFAxis.K(
                                 //0.2455, 0.1564, 0.0048, new double[]{0}, 1, 1, 0.2281, 7.8312
-                                0.3081, 0.7168, 0.0017, new double[]{0}, 1, 1, 0.7728, 613
+                                //0.3081, 0.7168, 0.0017, new double[]{0}, 1, 1, 0.7728, 613
+                                //                        0.2100, 0.5418, 0.0023, new double[]{0}, 1, 1, 0.6119, 245
+                                0.2043, 0.3854, 0.0118, new double[]{0}, 1, 1, 0.9731, 988
                         )
                 ),
                 3.2805843285667957
@@ -82,7 +86,9 @@ public class SwerveDrivetrain implements Drivetrain {
                 new PIDFAxis(
                         new PIDFAxis.K(
                                 //0.2455, 0.1564, 0.0048, new double[]{0}, 1, 1, 0.2281, 7.8312
-                                0.3081, 0.7168, 0.0017, new double[]{0}, 1, 1, 0.7728, 613
+                                //0.3081, 0.7168, 0.0017, new double[]{0}, 1, 1, 0.7728, 613
+                                //0.2100, 0.5418, 0.0023, new double[]{0}, 1, 1, 0.6119, 245
+                                0.2043, 0.3854, 0.0118, new double[]{0}, 1, 1, 0.9731, 988
                         )
                 ),
                 2.088683115750305
@@ -100,7 +106,9 @@ public class SwerveDrivetrain implements Drivetrain {
                 new PIDFAxis(
                         new PIDFAxis.K(
                                 //0.2455, 0.1564, 0.0048, new double[]{0}, 1, 1, 0.2281, 7.8312
-                                0.3081, 0.7168, 0.0017, new double[]{0}, 1, 1, 0.7728, 613
+                                //0.3081, 0.7168, 0.0017, new double[]{0}, 1, 1, 0.7728, 613
+                                //                        0.2100, 0.5418, 0.0023, new double[]{0}, 1, 1, 0.6119, 245
+                                0.2043, 0.3854, 0.0118, new double[]{0}, 1, 1, 0.9731, 988
                         )
                 ),
                 1.494636504889689

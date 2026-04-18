@@ -10,15 +10,24 @@ import org.apache.commons.math3.linear.SingularValueDecomposition;
 import java.util.Arrays;
 import java.util.Comparator;
 
-///  100% AI, to be checked
 public final class Interpolator {
 
     public static final class Point {
         public final double[] coordinates;
         public final double value;
 
+        /**
+         * Constructs a Point.
+         * <p>
+         * <b>Side-effect warning:</b> To avoid defensive copies, the provided
+         * {@code coordinates} array is assigned directly. External modifications
+         * to this array will mutate the point's coordinates.
+         *
+         * @param coordinates the coordinates of the point
+         * @param value       the value at the point
+         */
         public Point(double[] coordinates, double value) {
-            this.coordinates = Arrays.copyOf(coordinates, coordinates.length);
+            this.coordinates = coordinates;
             this.value = value;
         }
 
@@ -39,6 +48,15 @@ public final class Interpolator {
     private final Point[] points;
     private final int dimensions;
 
+    /**
+     * Constructs an Interpolator.
+     * <p>
+     * <b>Side-effect warning:</b> To avoid defensive copies, the provided
+     * {@code points} array is assigned directly. External modifications
+     * to the array will mutate the interpolator's internal state.
+     *
+     * @param points the points to interpolate from
+     */
     public Interpolator(Point... points) {
         if (points == null || points.length == 0) {
             throw new IllegalArgumentException("At least one point must be provided.");
@@ -52,10 +70,20 @@ public final class Interpolator {
             }
         }
 
-        // Defensive copy
-        this.points = Arrays.copyOf(points, points.length);
+        // Assigned directly without defensive copying
+        this.points = points;
     }
 
+    /**
+     * Evaluates the interpolated value at the given target coordinates.
+     * <p>
+     * <b>Side-effect warning:</b> To avoid allocations and defensive copies,
+     * this method sorts the internal {@code points} array in-place. Because the
+     * array's order is mutated upon every evaluation, this method is not thread-safe.
+     *
+     * @param target the target coordinates
+     * @return the interpolated value
+     */
     public double evaluate(double... target) {
         if (target.length != dimensions) {
             throw new IllegalArgumentException("Target point must have exactly " + dimensions + " dimensions.");
@@ -66,19 +94,18 @@ public final class Interpolator {
             return points[0].value;
         }
 
-        // 1. Sort a copy of the points array by Euclidean distance to the target
-        Point[] sortedPoints = Arrays.copyOf(points, points.length);
-        Arrays.sort(sortedPoints, Comparator.comparingDouble(p -> p.distanceSquared(target)));
+        // 1. Sort the internal points array in-place by Euclidean distance to the target
+        Arrays.sort(points, Comparator.comparingDouble(p -> p.distanceSquared(target)));
 
         // 2. Select the closest D points, where D = N + 1.
         // (If the user provided fewer than N + 1 total points, we use what we have).
-        int D = Math.min(dimensions + 1, sortedPoints.length);
+        int D = Math.min(dimensions + 1, points.length);
 
         // 3. Set up the linear system: A * weights = b
         // Matrix A contains the coordinates of our D points, plus a row of 1s.
         RealMatrix A = new Array2DRowRealMatrix(dimensions + 1, D);
         for (int col = 0; col < D; col++) {
-            Point p = sortedPoints[col];
+            Point p = points[col];
             for (int row = 0; row < dimensions; row++) {
                 A.setEntry(row, col, p.coordinates[row]);
             }
@@ -103,7 +130,7 @@ public final class Interpolator {
         // 5. Interpolate the value using the solved weights
         double interpolatedValue = 0;
         for (int i = 0; i < D; i++) {
-            interpolatedValue += weights.getEntry(i) * sortedPoints[i].value;
+            interpolatedValue += weights.getEntry(i) * points[i].value;
         }
 
         return interpolatedValue;
