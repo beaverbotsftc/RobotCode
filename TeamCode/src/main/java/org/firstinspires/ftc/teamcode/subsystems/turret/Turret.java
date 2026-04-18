@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 public class Turret implements Subsystem {
     private CachedServo turretLeft;
     private CachedServo turretRight;
+    private CachedServo hood;
 
     private CachedServo hood;
 
@@ -47,6 +48,8 @@ public class Turret implements Subsystem {
 
         shooterLeft = new CachedMotor(HardwareManager.claim(DcMotorEx.class, "left shooter"), Constants.shooterDelta);
         shooterRight = new CachedMotor(HardwareManager.claim(DcMotorEx.class, "right shooter"), Constants.shooterDelta);
+
+        hood = new CachedServo(HardwareManager.claim(Servo.class, "hood"), 0.001);
 
         shooterLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         shooterLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -83,6 +86,8 @@ public class Turret implements Subsystem {
     public double getVelocity() {
         return shooterLeft.getVelocity() / 28 * 60;
     }
+
+    public void setHood(double pos){ hood.setPosition(pos);}
 
     public void periodic() {
         double velocity = getVelocity();
