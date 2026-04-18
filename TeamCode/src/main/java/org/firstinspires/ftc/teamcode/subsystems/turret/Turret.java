@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.subsystems.turret;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.PwmControl;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.beaverbots.beaver.cachedhardware.CachedMotor;
@@ -20,8 +19,6 @@ import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 public class Turret implements Subsystem {
     private CachedServo turretLeft;
     private CachedServo turretRight;
-    private CachedServo hood;
-
     private CachedServo hood;
 
     private DcMotorEx shooterLeft;
@@ -49,12 +46,10 @@ public class Turret implements Subsystem {
         shooterLeft = new CachedMotor(HardwareManager.claim(DcMotorEx.class, "left shooter"), Constants.shooterDelta);
         shooterRight = new CachedMotor(HardwareManager.claim(DcMotorEx.class, "right shooter"), Constants.shooterDelta);
 
-        hood = new CachedServo(HardwareManager.claim(Servo.class, "hood"), 0.001);
-
-        shooterLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        shooterLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         shooterLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        shooterRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        shooterRight.setDirection(DcMotorSimple.Direction.REVERSE);
         shooterRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
@@ -75,7 +70,7 @@ public class Turret implements Subsystem {
         return Math.abs(Geometry.normalizeAngle2(angle)) <= Constants.turretBounds;
     }
 
-    public void angle(double hoodSetting) {
+    public void setHoodAngle(double hoodSetting) {
         hood.setPosition(hoodSetting);
     }
 
@@ -86,8 +81,6 @@ public class Turret implements Subsystem {
     public double getVelocity() {
         return shooterLeft.getVelocity() / 28 * 60;
     }
-
-    public void setHood(double pos){ hood.setPosition(pos);}
 
     public void periodic() {
         double velocity = getVelocity();

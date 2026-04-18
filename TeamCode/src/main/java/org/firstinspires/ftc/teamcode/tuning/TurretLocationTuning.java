@@ -80,6 +80,6 @@ public class TurretLocationTuning extends CommandRuntimeOpMode {
 
         turret.turn(localizer.getPosition().relativeAngleTo(new Transform(targetX, targetY)));
         turret.shoot(rpm);
-        turret.angle(hood);
+        turret.setHoodAngle(hood);
     }
 }
