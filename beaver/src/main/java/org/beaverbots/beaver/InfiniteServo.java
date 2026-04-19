@@ -3,14 +3,7 @@ package org.beaverbots.beaver;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import org.beaverbots.beaver.command.Command;
-import org.beaverbots.beaver.command.CommandRuntimeOpMode;
 import org.beaverbots.beaver.command.Subsystem;
-import org.beaverbots.beaver.pidf.PIDF;
 import org.beaverbots.beaver.pidf.PIDFAxis;
 import org.beaverbots.beaver.util.Geometry;
 import org.beaverbots.beaver.util.Stopwatch;

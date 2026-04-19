@@ -1,7 +1,6 @@
 package org.beaverbots.beaver.command;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -16,7 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public abstract class CommandRuntimeOpMode extends OpMode {
+public abstract class CommandOpMode extends OpMode {
     private final List<Command> commandBuffer = new ArrayList<>();
     private final Set<Subsystem> usedSubsystems = new HashSet<>();
     private final List<Subsystem> registeredSubsystems = new ArrayList<>();
@@ -29,18 +28,10 @@ public abstract class CommandRuntimeOpMode extends OpMode {
     private long loopNumber = 0;
     private int telemetryUpdateFrequency = 1;
 
-    private FtcDashboard dashboard;
+    private FtcDashboard dashboardInstance;
 
     public static TelemetryPacket packet;
-    public static Telemetry multipleTelemetry;
-
-    public static TelemetryPacket getPacket() {
-        return packet;
-    }
-
-    public static Telemetry getTelemetry() {
-        return multipleTelemetry;
-    }
+    public static Telemetry telemetryInstance;
 
     protected final void setTelemetryUpdateFrequency(int telemetryUpdateFrequency) {
         this.telemetryUpdateFrequency = telemetryUpdateFrequency;
@@ -108,9 +99,9 @@ public abstract class CommandRuntimeOpMode extends OpMode {
     }
 
     public final void init() {
-        dashboard = FtcDashboard.getInstance();
+        dashboardInstance = FtcDashboard.getInstance();
+        telemetryInstance = telemetry;
 
-        multipleTelemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());
         packet = new TelemetryPacket();
 
         hubs = hardwareMap.getAll(LynxModule.class);
@@ -123,7 +114,7 @@ public abstract class CommandRuntimeOpMode extends OpMode {
         onInit();
 
         telemetry.update();
-        dashboard.sendTelemetryPacket(packet);
+        dashboardInstance.sendTelemetryPacket(packet);
     }
 
     public final void init_loop() {
@@ -141,7 +132,7 @@ public abstract class CommandRuntimeOpMode extends OpMode {
         runScheduler();
 
         if (loopNumber % telemetryUpdateFrequency == 0) {
-            dashboard.sendTelemetryPacket(packet);
+            dashboardInstance.sendTelemetryPacket(packet);
             telemetry.update();
         }
     }
@@ -165,7 +156,7 @@ public abstract class CommandRuntimeOpMode extends OpMode {
         runScheduler();
 
         if (loopNumber % telemetryUpdateFrequency == 0) {
-            dashboard.sendTelemetryPacket(packet);
+            dashboardInstance.sendTelemetryPacket(packet);
             telemetry.update();
         }
     }
@@ -216,4 +207,14 @@ public abstract class CommandRuntimeOpMode extends OpMode {
     protected void onStart() {}
     protected void periodic() {}
     protected void onStop() {}
+
+    public static void addLine(String line) {
+        packet.addLine(line);
+        telemetryInstance.addLine(line);
+    }
+
+    public static void addData(String tag, Object data) {
+        packet.put(tag, data);
+        telemetryInstance.addData(tag, data);
+    }
 }

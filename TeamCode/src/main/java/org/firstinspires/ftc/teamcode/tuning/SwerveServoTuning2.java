@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 import org.beaverbots.beaver.command.Command;
-import org.beaverbots.beaver.command.CommandRuntimeOpMode;
+import org.beaverbots.beaver.command.CommandOpMode;
 import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.command.premade.Cycle;
 import org.beaverbots.beaver.command.premade.Instant;
@@ -24,7 +24,7 @@ import org.beaverbots.beaver.pidf.PIDFAxis;
 import org.beaverbots.beaver.util.Stopwatch;
 
 @Autonomous(group = "tuning")
-public class SwerveServoTuning2 extends CommandRuntimeOpMode {
+public class SwerveServoTuning2 extends CommandOpMode {
     private static BayesianOptimizer optimizer = new BayesianOptimizer(new ARDRBFKernel(), new Pair<>(
             new ArrayRealVector(new double[]{0.2, 0, 0, 0.01, 0}),
             new ArrayRealVector(new double[]{0.5, 1, 0.5, 1, 1e3})

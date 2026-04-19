@@ -2,10 +2,11 @@ package org.firstinspires.ftc.teamcode.tuning;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.beaverbots.beaver.command.CommandRuntimeOpMode;
+import org.beaverbots.beaver.command.CommandOpMode;
 import org.beaverbots.beaver.util.Stopwatch;
 import org.beaverbots.beaver.util.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
+import org.firstinspires.ftc.teamcode.subsystems.IntakeAndTransfer;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
@@ -13,13 +14,14 @@ import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 import org.firstinspires.ftc.teamcode.subsystems.turret.Turret;
 
 @Autonomous(group = "tuning")
-public class TurretLocationTuning extends CommandRuntimeOpMode {
+public class TurretTuning extends CommandOpMode {
     private VoltageSensor voltageSensor;
     private Pinpoint pinpoint;
     private Limelight limelight;
     private FusedLocalizer localizer;
 
     private Turret turret;
+    private IntakeAndTransfer intakeAndTransfer;
 
     private GamepadEx gamepad;
 
@@ -34,12 +36,13 @@ public class TurretLocationTuning extends CommandRuntimeOpMode {
         localizer = new FusedLocalizer(pinpoint, limelight, Transform.ZERO);
 
         turret = new Turret(voltageSensor);
+        intakeAndTransfer = new IntakeAndTransfer();
 
         gamepad = new GamepadEx(gamepad1);
 
         stopwatch = new Stopwatch();
 
-        register(voltageSensor, pinpoint, limelight, localizer, turret, gamepad);
+        register(voltageSensor, pinpoint, limelight, localizer, turret, intakeAndTransfer, gamepad);
     }
 
     @Override
@@ -54,19 +57,20 @@ public class TurretLocationTuning extends CommandRuntimeOpMode {
 
     @Override
     public void periodic() {
-        telemetry.addData("X", localizer.getPosition().getX());
-        telemetry.addData("Y", localizer.getPosition().getY());
-        telemetry.addData("Theta", localizer.getPosition().getTheta());
+        addData("X", localizer.getPosition().getX());
+        addData("Y", localizer.getPosition().getY());
+        addData("Theta", localizer.getPosition().getTheta());
 
-        telemetry.addData("X Cov", localizer.getCovariance().getEntry(0, 0));
-        telemetry.addData("Y Cov", localizer.getCovariance().getEntry(1, 1));
-        telemetry.addData("Theta Cov", localizer.getCovariance().getEntry(2, 2));
+        addData("X Cov", localizer.getCovariance().getEntry(0, 0));
+        addData("Y Cov", localizer.getCovariance().getEntry(1, 1));
+        addData("Theta Cov", localizer.getCovariance().getEntry(2, 2));
 
-        telemetry.addData("Target X", targetX);
-        telemetry.addData("Target Y", targetY);
+        addData("Target X", targetX);
+        addData("Target Y", targetY);
 
-        telemetry.addData("RPM", rpm);
-        telemetry.addData("Hood", hood);
+        addData("RPM", rpm);
+        addData("Actual RPM", turret.getVelocity());
+        addData("Hood", hood);
 
         if (gamepad.getDpadUp()) targetY += 0.0125;
         if (gamepad.getDpadDown()) targetY -= 0.0125;
@@ -81,5 +85,8 @@ public class TurretLocationTuning extends CommandRuntimeOpMode {
         turret.turn(localizer.getPosition().relativeAngleTo(new Transform(targetX, targetY)));
         turret.shoot(rpm);
         turret.setHoodAngle(hood);
+
+        intakeAndTransfer.transfer(gamepad.getRightBumper());
+        intakeAndTransfer.intake(gamepad.getRightTrigger() - gamepad.getLeftTrigger());
     }
 }

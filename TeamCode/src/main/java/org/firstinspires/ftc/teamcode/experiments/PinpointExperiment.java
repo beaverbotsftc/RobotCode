@@ -2,12 +2,12 @@ package org.firstinspires.ftc.teamcode.experiments;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.beaverbots.beaver.command.CommandRuntimeOpMode;
+import org.beaverbots.beaver.command.CommandOpMode;
 import org.beaverbots.beaver.util.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 
 @Autonomous(group = "Experiments")
-public class PinpointExperiment extends CommandRuntimeOpMode {
+public class PinpointExperiment extends CommandOpMode {
     private Pinpoint pinpoint;
 
     @Override

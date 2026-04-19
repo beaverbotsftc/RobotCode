@@ -2,13 +2,13 @@ package org.firstinspires.ftc.teamcode.experiments;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.beaverbots.beaver.command.CommandRuntimeOpMode;
+import org.beaverbots.beaver.command.CommandOpMode;
 import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
 import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 import org.firstinspires.ftc.teamcode.subsystems.turret.Turret;
 
 @Autonomous
-public class TurretExperiment extends CommandRuntimeOpMode {
+public class TurretExperiment extends CommandOpMode {
     private VoltageSensor voltageSensor;
     private Turret turret;
     private GamepadEx gamepad;

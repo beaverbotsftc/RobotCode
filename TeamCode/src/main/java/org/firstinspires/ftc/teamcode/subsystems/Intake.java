@@ -3,13 +3,11 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.util.RobotLog;
 
 import org.beaverbots.beaver.cachedhardware.CachedMotor;
-import org.beaverbots.beaver.command.CommandRuntimeOpMode;
+import org.beaverbots.beaver.command.CommandOpMode;
 import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.command.Subsystem;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 public class Intake implements Subsystem {
@@ -56,6 +54,6 @@ public class Intake implements Subsystem {
             stopper.setPower(0);
         }
 
-        CommandRuntimeOpMode.packet.put("Current", intake.getCurrent(CurrentUnit.AMPS));
+        CommandOpMode.packet.put("Current", intake.getCurrent(CurrentUnit.AMPS));
     }
 }

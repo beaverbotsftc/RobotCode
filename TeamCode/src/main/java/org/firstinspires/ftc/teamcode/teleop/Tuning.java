@@ -6,13 +6,13 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.beaverbots.beaver.cachedhardware.CachedMotor;
-import org.beaverbots.beaver.command.CommandRuntimeOpMode;
+import org.beaverbots.beaver.command.CommandOpMode;
 import org.beaverbots.beaver.command.HardwareManager;
 import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
 import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 
 @TeleOp
-public class Tuning extends CommandRuntimeOpMode {
+public class Tuning extends CommandOpMode {
     private VoltageSensor voltageSensor;
     private GamepadEx gamepad;
 

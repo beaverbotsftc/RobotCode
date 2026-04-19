@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import java.util.List;
 
-import org.beaverbots.beaver.command.CommandRuntimeOpMode;
+import org.beaverbots.beaver.command.CommandOpMode;
 import org.beaverbots.beaver.command.premade.Instant;
 import org.beaverbots.beaver.command.premade.Sequential;
 import org.beaverbots.beaver.pathing.commands.HolonomicFollowPath;
@@ -23,7 +23,7 @@ import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
 
 @Autonomous(group = "Experiments")
-public class CircleAutoExperiment extends CommandRuntimeOpMode {
+public class CircleAutoExperiment extends CommandOpMode {
     private Drivetrain drivetrain;
     private Pinpoint pinpoint;
     private Limelight limelight;

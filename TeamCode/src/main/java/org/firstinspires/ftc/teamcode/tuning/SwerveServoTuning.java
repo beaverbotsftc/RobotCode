@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.tuning;
 import android.util.Pair;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -11,7 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealVector;
 import org.beaverbots.beaver.command.Command;
-import org.beaverbots.beaver.command.CommandRuntimeOpMode;
+import org.beaverbots.beaver.command.CommandOpMode;
 import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.command.premade.Cycle;
 import org.beaverbots.beaver.command.premade.Instant;
@@ -25,7 +24,7 @@ import org.beaverbots.beaver.pidf.PIDFAxis;
 import org.beaverbots.beaver.util.Stopwatch;
 
 @Autonomous(group = "tuning")
-public class SwerveServoTuning extends CommandRuntimeOpMode {
+public class SwerveServoTuning extends CommandOpMode {
     private static BayesianOptimizer optimizer = new BayesianOptimizer(new ARDRBFKernel(), new Pair<>(
             new ArrayRealVector(new double[]{0.2, 0, 0, 0.01, 0}),
             new ArrayRealVector(new double[]{0.5, 1, 0.5, 1, 1e3})

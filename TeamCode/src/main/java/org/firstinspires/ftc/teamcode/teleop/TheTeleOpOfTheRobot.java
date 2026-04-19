@@ -2,8 +2,9 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.beaverbots.beaver.command.CommandRuntimeOpMode;
+import org.beaverbots.beaver.command.CommandOpMode;
 import org.beaverbots.beaver.command.premade.Repeat;
+import org.beaverbots.beaver.util.Stopwatch;
 import org.beaverbots.beaver.util.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeAndTransfer;
@@ -18,7 +19,7 @@ import org.firstinspires.ftc.teamcode.subsystems.turret.TurretControl;
 import org.firstinspires.ftc.teamcode.subsystems.turret.Turret;
 
 @TeleOp
-public class TheTeleOpOfTheRobot extends CommandRuntimeOpMode {
+public class TheTeleOpOfTheRobot extends CommandOpMode {
     private VoltageSensor voltageSensor;
     private Drivetrain drivetrain;
     private IntakeAndTransfer intake;
@@ -45,26 +46,22 @@ public class TheTeleOpOfTheRobot extends CommandRuntimeOpMode {
         register(voltageSensor, pinpoint, limelight, localizer, drivetrain, intake, turret, gamepad);
     }
 
-    double rpm = 0;
-
     public void onStart() {
+        Stopwatch stopwatch = new Stopwatch();
         schedule(
                 new SwerveDriveControl((SwerveDrivetrain) drivetrain, localizer, gamepad),
                 new Repeat(() -> intake.intake(gamepad.getRightTrigger() - gamepad.getLeftTrigger())),
                 new Repeat(() -> intake.transfer(gamepad.getRightBumper())),
-                new TurretControl(turret, localizer, new Transform(-72, 72))
+                new TurretControl(turret, localizer)
         );
+
+        schedule(new Repeat(() -> addData("dt", stopwatch.getDt())));
     }
 
     public void periodic() {
-        telemetry.addData("RPM", rpm);
-        rpm += gamepad.getDpadUpJustPressed() ? 100 : 0;
-        rpm -= gamepad.getDpadDownJustPressed() ? 100 : 0;
-        turret.shoot(rpm);
-
-        getTelemetry().addData("Position", localizer.getPosition());
-        getTelemetry().addData("Covariance X", localizer.getCovariance().getEntry(0, 0));
-        getTelemetry().addData("Covariance Y", localizer.getCovariance().getEntry(1, 1));
-        getTelemetry().addData("Covariance Theta", localizer.getCovariance().getEntry(2, 2));
+        addData("Position", localizer.getPosition());
+        addData("Covariance X", localizer.getCovariance().getEntry(0, 0));
+        addData("Covariance Y", localizer.getCovariance().getEntry(1, 1));
+        addData("Covariance Theta", localizer.getCovariance().getEntry(2, 2));
     }
 }

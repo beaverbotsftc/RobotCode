@@ -6,13 +6,13 @@ import com.qualcomm.robotcore.hardware.CRServo;
 
 import org.beaverbots.beaver.InfiniteServo;
 import org.beaverbots.beaver.cachedhardware.CachedCRServo;
-import org.beaverbots.beaver.command.CommandRuntimeOpMode;
+import org.beaverbots.beaver.command.CommandOpMode;
 import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.pidf.PIDFAxis;
 import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
 
 @TeleOp
-public class InfiniteServoTester extends CommandRuntimeOpMode {
+public class InfiniteServoTester extends CommandOpMode {
     InfiniteServo s;
     GamepadEx gamepad;
 

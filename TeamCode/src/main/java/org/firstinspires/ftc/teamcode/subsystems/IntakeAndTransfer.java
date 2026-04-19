@@ -6,11 +6,10 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.beaverbots.beaver.cachedhardware.CachedMotor;
 import org.beaverbots.beaver.cachedhardware.CachedServo;
-import org.beaverbots.beaver.command.CommandRuntimeOpMode;
+import org.beaverbots.beaver.command.CommandOpMode;
 import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.command.Subsystem;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
-import org.firstinspires.ftc.teamcode.Constants;
 
 public class IntakeAndTransfer implements Subsystem {
     private CachedMotor rightTransfer;
@@ -31,18 +30,19 @@ public class IntakeAndTransfer implements Subsystem {
     }
 
     public void intake(double power) {
+        CommandOpMode.addData("Power", power);
         this.power = power;
     }
 
     public void transfer(boolean transfer) {
-        stopper.setPosition(transfer ? 0.73 : 0.42);
+        stopper.setPosition(transfer ? 0.8 : 0.42);
     }
 
     public void periodic() {
         leftTransfer.setPower(power);
         rightTransfer.setPower(power);
 
-        CommandRuntimeOpMode.getPacket().put("Current", (leftTransfer.getCurrent(CurrentUnit.AMPS) + rightTransfer.getCurrent(CurrentUnit.AMPS)) / 2.0);
+        CommandOpMode.addData("Current", (leftTransfer.getCurrent(CurrentUnit.AMPS) + rightTransfer.getCurrent(CurrentUnit.AMPS)) / 2.0);
         double mean = 0;
         for (double b : a) mean += b;
         mean /= a.length;
@@ -50,7 +50,7 @@ public class IntakeAndTransfer implements Subsystem {
         for (double b : a) stddev += Math.pow(b - mean, 2);
         stddev /= a.length;
         stddev = Math.sqrt(stddev);
-        CommandRuntimeOpMode.getPacket().put("Stddev", stddev);
+        CommandOpMode.addData("Stddev", stddev);
         for (int i = 0; i < a.length - 1; i++) a[i] = a[i + 1];
         a[a.length - 1] = (leftTransfer.getCurrent(CurrentUnit.AMPS) + rightTransfer.getCurrent(CurrentUnit.AMPS)) / 2.0;
     }

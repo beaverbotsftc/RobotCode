@@ -6,17 +6,14 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.beaverbots.beaver.InfiniteServo;
-import org.beaverbots.beaver.command.CommandRuntimeOpMode;
+import org.beaverbots.beaver.command.CommandOpMode;
 import org.beaverbots.beaver.command.HardwareManager;
-import org.beaverbots.beaver.pidf.PIDF;
 import org.beaverbots.beaver.pidf.PIDFAxis;
 import org.beaverbots.beaver.util.Stopwatch;
 import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
 
-import java.util.List;
-
 @Autonomous
-public class InfiniteServoExperiment extends CommandRuntimeOpMode {
+public class InfiniteServoExperiment extends CommandOpMode {
     CRServo servo;
     AnalogInput encoder;
 

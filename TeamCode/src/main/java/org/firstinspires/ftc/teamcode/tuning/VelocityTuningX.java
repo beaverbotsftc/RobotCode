@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.tuning;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.beaverbots.beaver.command.CommandRuntimeOpMode;
+import org.beaverbots.beaver.command.CommandOpMode;
 import org.beaverbots.beaver.command.premade.Cycle;
 import org.beaverbots.beaver.command.premade.Instant;
 import org.beaverbots.beaver.command.premade.Repeat;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 
 @Autonomous(group = "tuning")
-public class VelocityTuningX extends CommandRuntimeOpMode {
+public class VelocityTuningX extends CommandOpMode {
     private Drivetrain drivetrain;
     private Pinpoint localizer;
     private GamepadEx gamepad;

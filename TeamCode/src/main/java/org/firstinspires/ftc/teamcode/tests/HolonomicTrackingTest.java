@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.beaverbots.beaver.command.Command;
-import org.beaverbots.beaver.command.CommandRuntimeOpMode;
+import org.beaverbots.beaver.command.CommandOpMode;
 import org.beaverbots.beaver.pathing.commands.HolonomicFollowPath;
 import org.beaverbots.beaver.pathing.trackers.HolonomicPathTracker;
 import org.beaverbots.beaver.pidf.PIDF;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Autonomous(group = "Tests")
-public class HolonomicTrackingTest extends CommandRuntimeOpMode {
+public class HolonomicTrackingTest extends CommandOpMode {
     FakeLocomotionAndLocalization locomotionAndLocalization = new FakeLocomotionAndLocalization(FakeLocomotionAndLocalization.LocomotionType.HOLONOMIC, 1, 1, 0.5, 0.5, 0, 0, 0, "Fake locomotion and localization");
 
     Command tracker = new HolonomicFollowPath(

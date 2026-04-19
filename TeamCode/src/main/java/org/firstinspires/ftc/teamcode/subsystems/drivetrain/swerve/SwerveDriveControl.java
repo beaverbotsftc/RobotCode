@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems.drivetrain.swerve;
 
 import org.beaverbots.beaver.command.Command;
-import org.beaverbots.beaver.command.CommandRuntimeOpMode;
+import org.beaverbots.beaver.command.CommandOpMode;
 import org.beaverbots.beaver.command.Subsystem;
 import org.beaverbots.beaver.pidf.PIDFAxis;
 import org.beaverbots.beaver.util.Stopwatch;
@@ -48,7 +48,7 @@ public class SwerveDriveControl implements Command {
 
     @Override
     public boolean periodic() {
-        CommandRuntimeOpMode.getTelemetry().addData("Follow Target Heading", followTargetHeading);
+        CommandOpMode.addData("Follow Target Heading", followTargetHeading);
 
         if (gamepad.getRightX() != 0 || localizer.getVelocity().lateralNorm() < Constants.headingEnforcementLateralSpeedCutoff) followTargetHeading = false;
         else if (!followTargetHeading && Math.abs(localizer.getVelocity().getTheta()) < Constants.swerveAngularVelocityCorrectionDeadzone) {
