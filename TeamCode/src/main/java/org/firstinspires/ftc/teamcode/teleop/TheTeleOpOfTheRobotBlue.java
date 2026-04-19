@@ -15,13 +15,13 @@ import org.firstinspires.ftc.teamcode.subsystems.drivetrain.swerve.SwerveDriveCo
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.swerve.SwerveDrivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
-import org.firstinspires.ftc.teamcode.subsystems.turret.TurretControl;
 import org.firstinspires.ftc.teamcode.subsystems.turret.Turret;
+import org.firstinspires.ftc.teamcode.subsystems.turret.TurretControl;
 
 import java.util.function.DoubleUnaryOperator;
 
 @TeleOp
-public class TheTeleOpOfTheRobot extends CommandOpMode {
+public class TheTeleOpOfTheRobotBlue extends CommandOpMode {
     private VoltageSensor voltageSensor;
     private Drivetrain drivetrain;
     private IntakeAndTransfer intake;
@@ -51,10 +51,10 @@ public class TheTeleOpOfTheRobot extends CommandOpMode {
     public void onStart() {
         Stopwatch stopwatch = new Stopwatch();
         schedule(
-                new SwerveDriveControl((SwerveDrivetrain) drivetrain, localizer, gamepad, new DoubleUnaryOperator[]{ x -> x, y -> y, theta -> theta }),
+                new SwerveDriveControl((SwerveDrivetrain) drivetrain, localizer, gamepad, new DoubleUnaryOperator[]{ x -> -x, y -> -y, theta -> theta }),
                 new Repeat(() -> intake.intake(gamepad.getRightTrigger() - gamepad.getLeftTrigger())),
                 new Repeat(() -> intake.transfer(gamepad.getRightBumper())),
-                new TurretControl(turret, localizer, new DoubleUnaryOperator[]{ x -> x, y -> y, theta -> theta })
+                new TurretControl(turret, localizer, new DoubleUnaryOperator[]{ x -> x, y -> -y, theta -> -theta })
         );
 
         schedule(new Repeat(() -> addData("dt", stopwatch.getDt())));

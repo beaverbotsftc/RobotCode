@@ -11,12 +11,14 @@ import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Localizer;
 
 import java.util.Set;
+import java.util.function.DoubleUnaryOperator;
 
 public class SwerveDriveControl implements Command {
     private SwerveDrivetrain drivetrain;
     private Localizer localizer;
 
     private GamepadEx gamepad;
+    private DoubleUnaryOperator[] mirror;
 
     private double targetHeading = 0;
     private boolean followTargetHeading = false;
@@ -24,11 +26,14 @@ public class SwerveDriveControl implements Command {
     private PIDFAxis pidf;
     private Stopwatch stopwatch;
 
-    public SwerveDriveControl(SwerveDrivetrain drivetrain, Localizer localizer, GamepadEx gamepad) {
+    ///  Note that this isn't the standard field mirroring, the symmetries are different.
+    /// x -> -x, y -> -y, theta -> theta
+    public SwerveDriveControl(SwerveDrivetrain drivetrain, Localizer localizer, GamepadEx gamepad, DoubleUnaryOperator[] mirror) {
         this.drivetrain = drivetrain;
         this.localizer = localizer;
 
         this.gamepad = gamepad;
+        this.mirror = mirror;
 
         pidf = new PIDFAxis(new PIDFAxis.K(Constants.pidPHeadingEnforcement, Constants.pidIHeadingEnforcement, Constants.pidDHeadingEnforcement, new double[]{}, 1, 1, Constants.pidTauHeadingEnforcement, Constants.pidGammaHeadingEnforcement));
         stopwatch = new Stopwatch();
@@ -62,9 +67,9 @@ public class SwerveDriveControl implements Command {
             double heading = localizer.getPosition().getTheta();
             double control = -pidf.update(heading - targetHeading, new double[]{}, stopwatch.getDt());
 
-            drivetrain.move(new Transform(gamepad.getLeftX(), gamepad.getLeftY(), control).toLocalVelocity(localizer.getPosition()));
+            drivetrain.move(new Transform(gamepad.getLeftX(), gamepad.getLeftY(), control).transform(mirror).toLocalVelocity(localizer.getPosition()));
         } else
-            drivetrain.move(new Transform(gamepad.getLeftX(), gamepad.getLeftY(), -gamepad.getRightX()).toLocalVelocity(localizer.getPosition()));
+            drivetrain.move(new Transform(gamepad.getLeftX(), gamepad.getLeftY(), -gamepad.getRightX()).transform(mirror).toLocalVelocity(localizer.getPosition()));
 
         return false;
     }

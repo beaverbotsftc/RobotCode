@@ -33,13 +33,28 @@ public class ADeadSimpleTeleOp extends CommandOpMode {
         register(voltageSensor, drivetrain, intake, turret, gamepad);
     }
 
+    double rpm = 0;
+    double hood = 0;
+
     public void onStart() {
+        turret.turn(0);
         schedule(
                 new Repeat(() -> drivetrain.move(new Transform(gamepad.getLeftY(), -gamepad.getLeftX(), -gamepad.getRightX()))),
-                new Repeat(() -> intake.intake(gamepad.getRightTrigger() - gamepad.getLeftTrigger()))
+                new Repeat(() -> intake.intake(gamepad.getRightTrigger() - gamepad.getLeftTrigger())),
+                new Repeat(() -> intake.transfer(gamepad.getRightBumper())),
+                new Repeat(() -> turret.shoot(rpm)),
+                new Repeat(() -> turret.setHoodAngle(hood))
         );
     }
 
     public void periodic() {
+        if (gamepad.getDpadUpJustPressed()) rpm += 200;
+        if (gamepad.getDpadDownJustPressed()) rpm -= 200;
+        if (gamepad.getDpadLeftJustPressed()) hood -= 0.1;
+        if (gamepad.getDpadRightJustPressed()) hood += 0.1;
+
+        addData("rpm", rpm);
+        addData("actual rpm", turret.getVelocity());
+        addData("hood", hood);
     }
 }

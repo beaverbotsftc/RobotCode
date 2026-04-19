@@ -83,6 +83,10 @@ public final class Transform {
         return new double[]{x, y, theta};
     }
 
+    public double[] toLateralArray() {
+        return new double[]{x, y};
+    }
+
     public List<Double> toList() {
         return Arrays.asList(x, y, theta);
     }
@@ -181,7 +185,7 @@ public final class Transform {
         return Math.abs(theta - other.getTheta());
     }
 
-    public Transform transform(List<DoubleUnaryOperator> f) {
-        return new Transform(f.get(0).applyAsDouble(x), f.get(1).applyAsDouble(y), f.get(2).applyAsDouble(theta));
+    public Transform transform(DoubleUnaryOperator[] f) {
+        return new Transform(f[0].applyAsDouble(x), f[1].applyAsDouble(y), f[2].applyAsDouble(theta));
     }
 }

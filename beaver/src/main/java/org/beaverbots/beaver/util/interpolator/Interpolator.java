@@ -123,11 +123,39 @@ public final class Interpolator implements Interpolatable {
         DecompositionSolver solver = new SingularValueDecomposition(A).getSolver();
         RealVector weights = solver.solve(b);
 
-        // 5. Recursively evaluate the child interpolators and sum them using our spatial weights
+        // 4.5 Clamp barycentric weights to prevent extrapolation
+        // This effectively bounds the evaluation strictly inside the convex hull (the simplex).
+        double weightSum = 0.0;
+        for (int i = 0; i < D; i++) {
+            double w = Math.max(0.0, weights.getEntry(i)); // Zero out negative weights
+            weights.setEntry(i, w);
+            weightSum += w;
+        }
+
+        // Normalize weights so they sum to exactly 1.0 (Fixes least squares distortion)
+        if (weightSum > 0.0) {
+            for (int i = 0; i < D; i++) {
+                weights.setEntry(i, weights.getEntry(i) / weightSum);
+            }
+        } else {
+            // Extreme extrapolation fallback: if all weights were somehow negative.
+            // Just clamp entirely to the absolute nearest neighbor.
+            weights.setEntry(0, 1.0);
+            for (int i = 1; i < D; i++) {
+                weights.setEntry(i, 0.0);
+            }
+        }
+
+        // 5. Recursively evaluate the child interpolators and sum them using our clamped spatial weights
         double interpolatedValue = 0;
         for (int i = 0; i < D; i++) {
-            double childValue = closestPoints[i].value.evaluate(remainingTarget);
-            interpolatedValue += weights.getEntry(i) * childValue;
+            double weight = weights.getEntry(i);
+
+            // Optimization: skip evaluation branches if the weight is perfectly 0
+            if (weight > 0) {
+                double childValue = closestPoints[i].value.evaluate(remainingTarget);
+                interpolatedValue += weight * childValue;
+            }
         }
 
         return interpolatedValue;

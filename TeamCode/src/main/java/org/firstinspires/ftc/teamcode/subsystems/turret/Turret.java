@@ -71,7 +71,7 @@ public class Turret implements Subsystem {
     }
 
     public void setHoodAngle(double hoodSetting) {
-        hood.setPosition((hoodSetting * (0.95 - 0.4)) + 0.4);
+        hood.setPosition((Math.max(0, Math.min(hoodSetting, 1)) * (0.95 - 0.4)) + 0.4);
     }
 
     public void shoot(double velocity) {

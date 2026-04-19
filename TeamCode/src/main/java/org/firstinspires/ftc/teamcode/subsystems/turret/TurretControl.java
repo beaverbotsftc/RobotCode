@@ -8,10 +8,12 @@ import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Localizer;
 
 import java.util.Set;
+import java.util.function.DoubleUnaryOperator;
 
 public class TurretControl implements Command {
     private Turret turret;
     private Localizer localizer;
+    private DoubleUnaryOperator[] mirror;
 
     private Interpolator rpmInterpolator = new Interpolator(
             new Interpolator.Point(new double[]{-38, 39}, 3000),
@@ -115,9 +117,10 @@ public class TurretControl implements Command {
             new Interpolator.Point(new double[]{-1.7, -1.6}, 70.3)
     );
 
-    public TurretControl(Turret turret, Localizer localizer) {
+    public TurretControl(Turret turret, Localizer localizer, DoubleUnaryOperator[] mirror) {
         this.turret = turret;
         this.localizer = localizer;
+        this.mirror = mirror;
     }
 
     public Set<Subsystem> getDependencies() {
@@ -125,25 +128,26 @@ public class TurretControl implements Command {
     }
 
     public boolean periodic() {
-        Transform position = localizer.getPosition();
-        Transform velocity = localizer.getVelocity();
+        Transform position = localizer.getPosition().transform(mirror);
+        Transform velocity = localizer.getVelocity().transform(mirror);
         double time = 0;
 
         for (int i = 0; i < Constants.turretShootOnTheMoveConvergenceIterations; i++)
-            time = timeInterpolator.evaluate(position.add(velocity.scale(time)).toArray());
+            time = timeInterpolator.evaluate(position.add(velocity.scale(time)).toLateralArray());
         if (time > 2) time = 0;
 
         Transform effectiveLocation = position.add(velocity.scale(time)).lateral().add(position.angular());
 
-        turret.shoot(rpmInterpolator.evaluate(effectiveLocation.getX(), effectiveLocation.getY()));
+        turret.shoot(rpmInterpolator.evaluate(effectiveLocation.toLateralArray()));
         turret.setHoodAngle(hoodInterpolator.evaluate(effectiveLocation.getX(), effectiveLocation.getY(), turret.getVelocity()));
+        //turret.setHoodAngle(hoodInterpolator.evaluate(effectiveLocation.getX(), effectiveLocation.getY(), rpmInterpolator.evaluate(effectiveLocation.toLateralArray())));
         turret.turn(
-                effectiveLocation.relativeAngleTo(
+                effectiveLocation.transform(mirror).relativeAngleTo(
                         new Transform(
-                                xInterpolator.evaluate(effectiveLocation.getX(), effectiveLocation.getY()),
-                                yInterpolator.evaluate(effectiveLocation.getX(), effectiveLocation.getY())
-                        )
-                ) - velocity.getTheta() * Constants.turretLatency
+                                xInterpolator.evaluate(effectiveLocation.toLateralArray()),
+                                yInterpolator.evaluate(effectiveLocation.toLateralArray())
+                        ).transform(mirror)
+                ) - mirror[2].applyAsDouble(velocity.getTheta()) * Constants.turretLatency
         );
 
         return false;
