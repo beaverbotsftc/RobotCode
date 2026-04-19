@@ -20,8 +20,6 @@ public class ADeadSimpleTeleOp extends CommandOpMode {
     private IntakeAndTransfer intake;
     private Turret turret;
 
-    private Pinpoint pinpoint;
-
     private GamepadEx gamepad;
 
     public void onInit() {
@@ -30,16 +28,15 @@ public class ADeadSimpleTeleOp extends CommandOpMode {
         intake = new IntakeAndTransfer();
         turret = new Turret(voltageSensor);
 
-        pinpoint = new Pinpoint(new Transform(0, 0, 0));
-
         gamepad = new GamepadEx(gamepad1);
 
-        register(voltageSensor, drivetrain, intake, turret, pinpoint, gamepad);
+        register(voltageSensor, drivetrain, intake, turret, gamepad);
     }
 
     public void onStart() {
         schedule(
-                new Repeat(() -> drivetrain.move(new Transform(gamepad.getLeftY(), -gamepad.getLeftX(), -gamepad.getRightX())))
+                new Repeat(() -> drivetrain.move(new Transform(gamepad.getLeftY(), -gamepad.getLeftX(), -gamepad.getRightX()))),
+                new Repeat(() -> intake.intake(gamepad.getRightTrigger() - gamepad.getLeftTrigger()))
         );
     }
 
