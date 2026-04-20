@@ -147,14 +147,17 @@ public class TurretControl implements Command {
         turret.shoot(rpmInterpolator.evaluate(effectiveLocation.toLateralArray()));
         turret.setHoodAngle(hoodInterpolator.evaluate(effectiveLocation.getX(), effectiveLocation.getY(), turret.getVelocity()));
         //turret.setHoodAngle(hoodInterpolator.evaluate(effectiveLocation.getX(), effectiveLocation.getY(), rpmInterpolator.evaluate(effectiveLocation.toLateralArray())));
-        turret.turn(
+
+        double desiredAngle =
                 effectiveLocation.transform(mirror).relativeAngleTo(
                         new Transform(
                                 xInterpolator.evaluate(effectiveLocation.toLateralArray()),
                                 yInterpolator.evaluate(effectiveLocation.toLateralArray())
                         ).transform(mirror)
-                ) - mirror[2].applyAsDouble(velocity.getTheta()) * Constants.turretLatency
-        );
+                ) - mirror[2].applyAsDouble(velocity.getTheta()) * Constants.turretLatency;
+
+        if (Turret.inBounds(desiredAngle))
+            turret.turn(desiredAngle);
 
         return false;
     }

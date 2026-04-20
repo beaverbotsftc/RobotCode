@@ -19,6 +19,7 @@ public class ADeadSimpleTeleOp extends CommandOpMode {
     private Drivetrain drivetrain;
     private IntakeAndTransfer intake;
     private Turret turret;
+    private Pinpoint pinpoint;
 
     private GamepadEx gamepad;
 
@@ -28,9 +29,11 @@ public class ADeadSimpleTeleOp extends CommandOpMode {
         intake = new IntakeAndTransfer();
         turret = new Turret(voltageSensor);
 
+        pinpoint = new Pinpoint(Transform.ZERO);
+
         gamepad = new GamepadEx(gamepad1);
 
-        register(voltageSensor, drivetrain, intake, turret, gamepad);
+        register(voltageSensor, drivetrain, intake, turret, pinpoint, gamepad);
     }
 
     double rpm = 0;
@@ -56,5 +59,7 @@ public class ADeadSimpleTeleOp extends CommandOpMode {
         addData("rpm", rpm);
         addData("actual rpm", turret.getVelocity());
         addData("hood", hood);
+
+        addData("Pos", pinpoint.getPosition());
     }
 }
