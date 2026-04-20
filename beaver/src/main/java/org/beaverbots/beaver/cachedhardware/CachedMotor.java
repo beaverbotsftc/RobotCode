@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.PIDCoefficients;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
+import org.beaverbots.beaver.command.CommandOpMode;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
@@ -14,11 +15,22 @@ public class CachedMotor implements DcMotorEx {
 
     private final double delta;
 
-    private double lastPower = Double.NaN;
+    private final int readFrequency;
+    private final int readOffset;
 
-    public CachedMotor(DcMotorEx motor, double delta) {
+    private double lastPower = Double.NaN;
+    private double lastCurrent = 0;
+    private long lastCurrentReadLoop = -1;
+
+    public CachedMotor(DcMotorEx motor, double delta, int readFrequency, int readOffset) {
         this.motor = motor;
         this.delta = delta;
+        this.readFrequency = readFrequency;
+        this.readOffset = readOffset;
+    }
+
+    public CachedMotor(DcMotorEx motor, double delta) {
+        this(motor, delta, 1, 0);
     }
 
     @Override
@@ -36,6 +48,16 @@ public class CachedMotor implements DcMotorEx {
             motor.setDirection(direction);
         }
     }
+
+    @Override
+    public double getCurrent(CurrentUnit unit) {
+        if (lastCurrentReadLoop != CommandOpMode.loopNumber && (lastCurrentReadLoop < 0 || (CommandOpMode.loopNumber + readOffset) % readFrequency == 0)) {
+            lastCurrent = motor.getCurrent(CurrentUnit.AMPS);
+            lastCurrentReadLoop = CommandOpMode.loopNumber;
+        }
+        return unit.convert(lastCurrent, CurrentUnit.AMPS);
+    }
+
 
     @Override
     public void setMotorEnable() {
@@ -112,11 +134,6 @@ public class CachedMotor implements DcMotorEx {
     @Override
     public int getTargetPositionTolerance() {
         return motor.getTargetPositionTolerance();
-    }
-
-    @Override
-    public double getCurrent(CurrentUnit unit) {
-        return motor.getCurrent(unit);
     }
 
     @Override

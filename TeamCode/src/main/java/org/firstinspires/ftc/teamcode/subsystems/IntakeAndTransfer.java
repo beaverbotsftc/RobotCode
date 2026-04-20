@@ -20,13 +20,17 @@ public class IntakeAndTransfer implements Subsystem {
 
     private double[] a = new double[100];
 
-    public IntakeAndTransfer() {
-        leftTransfer = new CachedMotor(HardwareManager.claim(DcMotorEx.class, "transfer2"), 0);
-        rightTransfer = new CachedMotor(HardwareManager.claim(DcMotorEx.class, "transfer1"), 0);
+    public IntakeAndTransfer(int readFrequency, int readOffset1, int readOffset2) {
+        leftTransfer = new CachedMotor(HardwareManager.claim(DcMotorEx.class, "transfer2"), 0, readFrequency, readOffset1);
+        rightTransfer = new CachedMotor(HardwareManager.claim(DcMotorEx.class, "transfer1"), 0, readFrequency, readOffset2);
         stopper = new CachedServo(HardwareManager.claim(Servo.class, "stopper"), 0);
 
         leftTransfer.setDirection(DcMotorSimple.Direction.FORWARD);
         rightTransfer.setDirection(DcMotorSimple.Direction.REVERSE);
+    }
+
+    public IntakeAndTransfer() {
+        this(1, 0, 0);
     }
 
     public void intake(double power) {

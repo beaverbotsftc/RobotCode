@@ -15,8 +15,8 @@ public class TurretZeroTuning extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            leftTurret.setPosition(0.5);
-            rightTurret.setPosition(0.5);
+            leftTurret.setPosition(0.5 + gamepad1.left_stick_y);
+            rightTurret.setPosition(0.5 + gamepad1.left_stick_y);
         }
     }
 }

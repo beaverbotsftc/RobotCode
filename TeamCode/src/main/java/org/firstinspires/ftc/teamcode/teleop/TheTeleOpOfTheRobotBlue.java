@@ -3,7 +3,10 @@ package org.firstinspires.ftc.teamcode.teleop;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.beaverbots.beaver.command.CommandOpMode;
+import org.beaverbots.beaver.command.premade.Instant;
 import org.beaverbots.beaver.command.premade.Repeat;
+import org.beaverbots.beaver.command.premade.router.Router;
+import org.beaverbots.beaver.command.premade.router.Selector;
 import org.beaverbots.beaver.util.Stopwatch;
 import org.beaverbots.beaver.util.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
@@ -51,10 +54,13 @@ public class TheTeleOpOfTheRobotBlue extends CommandOpMode {
     public void onStart() {
         Stopwatch stopwatch = new Stopwatch();
         schedule(
-                new SwerveDriveControl((SwerveDrivetrain) drivetrain, localizer, gamepad, new DoubleUnaryOperator[]{ x -> -x, y -> -y, theta -> theta }),
+                new SwerveDriveControl((SwerveDrivetrain) drivetrain, localizer, gamepad, new DoubleUnaryOperator[]{x -> -x, y -> -y, theta -> theta}),
                 new Repeat(() -> intake.intake(gamepad.getRightTrigger() - gamepad.getLeftTrigger())),
                 new Repeat(() -> intake.transfer(gamepad.getRightBumper())),
-                new TurretControl(turret, localizer, new DoubleUnaryOperator[]{ x -> x, y -> -y, theta -> -theta })
+                new Router(new Selector(() -> gamepad.getBPressedToggle()),
+                        new TurretControl(turret, localizer, new DoubleUnaryOperator[]{x -> x, y -> -y, theta -> -theta}),
+                        new Instant(() -> turret.shoot(0))
+                )
         );
 
         schedule(new Repeat(() -> addData("dt", stopwatch.getDt())));

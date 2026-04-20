@@ -3,7 +3,10 @@ package org.firstinspires.ftc.teamcode.teleop;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.beaverbots.beaver.command.CommandOpMode;
+import org.beaverbots.beaver.command.premade.Instant;
 import org.beaverbots.beaver.command.premade.Repeat;
+import org.beaverbots.beaver.command.premade.router.Router;
+import org.beaverbots.beaver.command.premade.router.Selector;
 import org.beaverbots.beaver.util.Stopwatch;
 import org.beaverbots.beaver.util.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
@@ -34,9 +37,12 @@ public class TheTeleOpOfTheRobot extends CommandOpMode {
     private GamepadEx gamepad;
 
     public void onInit() {
-        voltageSensor = new VoltageSensor();
+        setLynxUpdateFrequency(new int[] {1, 1, 999}, new int[] {0, 0, 0});
+        setTelemetryUpdateFrequency(10, 0);
+
+        voltageSensor = new VoltageSensor(10, 1);
         drivetrain = new SwerveDrivetrain(voltageSensor);
-        intake = new IntakeAndTransfer();
+        intake = new IntakeAndTransfer(10, 2, 7);
         turret = new Turret(voltageSensor);
 
         pinpoint = new Pinpoint(new Transform(0, 0, 0));
@@ -54,7 +60,10 @@ public class TheTeleOpOfTheRobot extends CommandOpMode {
                 new SwerveDriveControl((SwerveDrivetrain) drivetrain, localizer, gamepad, new DoubleUnaryOperator[]{ x -> x, y -> y, theta -> theta }),
                 new Repeat(() -> intake.intake(gamepad.getRightTrigger() - gamepad.getLeftTrigger())),
                 new Repeat(() -> intake.transfer(gamepad.getRightBumper())),
-                new TurretControl(turret, localizer, new DoubleUnaryOperator[]{ x -> x, y -> y, theta -> theta })
+                new Router(new Selector(() -> gamepad.getBPressedToggle()),
+                        new TurretControl(turret, localizer, new DoubleUnaryOperator[]{x -> x, y -> y, theta -> theta}),
+                        new Instant(() -> turret.shoot(0))
+                )
         );
 
         schedule(new Repeat(() -> addData("dt", stopwatch.getDt())));
