@@ -1,15 +1,18 @@
 
 package org.firstinspires.ftc.teamcode.subsystems.localizer;
 
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
+import com.qualcomm.robotcore.util.RobotLog;
+
 import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.command.Subsystem;
 import org.beaverbots.beaver.util.Stopwatch;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.beaverbots.beaver.util.Transform;
-import org.firstinspires.ftc.teamcode.drivers.GoBildaPinpointDriver;
 
 import java.util.List;
 
@@ -19,17 +22,23 @@ public final class Pinpoint implements Localizer, Subsystem {
     private Transform currentPose = new Transform(0, 0, 0);
     private Transform currentVelocity = new Transform(0, 0, 0);
 
-    private Stopwatch stopwatch;
-
     public Pinpoint(Transform pose) {
         pinpoint = HardwareManager.claim(GoBildaPinpointDriver.class, "pinpoint");
         pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        pinpoint.setOffsets(Constants.pinpointXOffset, Constants.pinpointYOffset);
+        pinpoint.setOffsets(Constants.pinpointXOffset, Constants.pinpointYOffset, DistanceUnit.MM);
+        pinpoint.setBulkReadScope(
+                GoBildaPinpointDriver.Register.DEVICE_STATUS,
+                GoBildaPinpointDriver.Register.X_POSITION,
+                GoBildaPinpointDriver.Register.Y_POSITION,
+                GoBildaPinpointDriver.Register.H_ORIENTATION,
+                GoBildaPinpointDriver.Register.X_VELOCITY,
+                GoBildaPinpointDriver.Register.Y_VELOCITY,
+                GoBildaPinpointDriver.Register.H_VELOCITY
+        );
+        pinpoint.setErrorDetectionType(GoBildaPinpointDriver.ErrorDetectionType.CRC);
         pinpoint.recalibrateIMU();
         setPosition(pose);
-
-        stopwatch = new Stopwatch();
     }
 
     public List<Double> getPositionAsList() {
@@ -50,41 +59,13 @@ public final class Pinpoint implements Localizer, Subsystem {
 
     public void periodic() {
         pinpoint.update();
-        if (
-                pinpoint.getPosition().getX(DistanceUnit.INCH) == 0
-                        && pinpoint.getPosition().getY(DistanceUnit.INCH) == 0
-                        && pinpoint.getPosition().getHeading(AngleUnit.RADIANS) == 0
-        ) {
-            // TODO: Not 100% robust, sometimes I2C errors can happen in the middle of transmission
-            // !!! Lynx error !!!
-            // Also, if it is legitimately 0, 0, 0 *exactly*, it is probably at the start of the match where
-            // a) it probably doesn't matter, this is init
-            // and b) the default 0, 0, 0 is probably correct
-            return;
+        if (pinpoint.getDeviceStatus() != GoBildaPinpointDriver.DeviceStatus.READY) {
+            RobotLog.ee("BeaverBots", String.format("Pinpoint fault: %s", pinpoint.getDeviceStatus()));
         }
 
-        double dt = stopwatch.getDt();
+        currentPose = new Transform(pinpoint.getPosX(DistanceUnit.INCH), pinpoint.getPosY(DistanceUnit.INCH), pinpoint.getHeading(UnnormalizedAngleUnit.RADIANS));
 
-        Transform lastPose = currentPose;
-        currentPose = new Transform(pinpoint.getPosition(), pinpoint.getHeading());
-
-        Transform lastVelocity = currentVelocity;
-        currentVelocity = new Transform(pinpoint.getVelocity(), pinpoint.getHeadingVelocity());
-
-        // Should be more robust
-        if (
-                Math.abs((currentPose.getX() - lastPose.getX()) / dt) > 300
-                        || Math.abs((currentPose.getY() - lastPose.getY()) / dt) > 300
-                        || Math.abs((currentPose.getTheta() - lastPose.getTheta()) / dt) > 6 * Math.PI
-                        || Math.abs(currentVelocity.getX()) > 300
-                        || Math.abs(currentVelocity.getY()) > 300
-                        || Math.abs(currentVelocity.getTheta()) > 6 * Math.PI
-        ) {
-            // !!! Lynx error !!!
-            currentVelocity = lastVelocity;
-            currentPose = lastPose;
-            stopwatch.undoGetDt();
-        }
+        currentVelocity = new Transform(pinpoint.getVelX(DistanceUnit.INCH), pinpoint.getVelY(DistanceUnit.INCH), pinpoint.getHeadingVelocity(UnnormalizedAngleUnit.RADIANS));
     }
 
     public void setPosition(Transform position) {

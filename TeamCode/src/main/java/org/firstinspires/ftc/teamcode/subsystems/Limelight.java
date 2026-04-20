@@ -165,7 +165,6 @@ public class Limelight implements Subsystem {
         double xVariance = Math.pow(result.getStddevMt1()[0] * M_TO_IN, 2);
         double yVariance = Math.pow(result.getStddevMt1()[1] * M_TO_IN, 2);
         double thetaVariance = Math.pow(Math.toRadians(result.getStddevMt1()[5]), 2);
-        RobotLog.d(String.valueOf(thetaVariance));
 
         return new Pair<>(new LimelightLocalization(
                 new Transform(x, y, theta),

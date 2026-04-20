@@ -39,7 +39,7 @@ public final class Constants {
     // Left of center is positive, right of center is negative
     public static double pinpointXOffset = 108.675; // mm
     // Forward of center is positive, behind center is negative
-    public static double pinpointYOffset = 0; // mm
+    public static double pinpointYOffset = 0.4; // mm
 
     public static double lateralVariancePinpoint = 0.000683634022087;
     public static double angularVariancePinpoint = 0.0000000268388027135 * 1000;

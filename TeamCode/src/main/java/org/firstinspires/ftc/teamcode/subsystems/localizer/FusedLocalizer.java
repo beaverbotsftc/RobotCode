@@ -106,7 +106,6 @@ public class FusedLocalizer implements Subsystem, Localizer {
         if (dt > maxDt) {
             maxDt = dt;
         }
-        //RobotLog.dd("FusedLocalizer", "maxDt=%.6f", maxDt);
 
         RealVector cumulativeDelta = currentRawPinpointState.subtract(lastFilterPinpointState);
         RealVector totalControl = new ArrayRealVector(new double[]{
