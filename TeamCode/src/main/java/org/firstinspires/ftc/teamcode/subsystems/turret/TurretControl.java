@@ -29,7 +29,7 @@ public class TurretControl implements Command {
             new Interpolator.Point(new double[]{-1.7, -1.6}, 3900),
             new Interpolator.Point(new double[]{-24.7, -9.1}, 3800),
             new Interpolator.Point(new double[]{-4.9, -4.7}, 3850),
-            new Interpolator.Point(new double[]{-63.8, -10.6}, 3600)
+            new Interpolator.Point(new double[]{-63.8, -10.6}, 3600),
             new Interpolator.Point(new double[]{-62.5, -31.5}, 4000),
             new Interpolator.Point(new double[]{-51.3, -32.6}, 4000)
     );
