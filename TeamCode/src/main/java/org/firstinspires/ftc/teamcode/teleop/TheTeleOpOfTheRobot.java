@@ -37,8 +37,8 @@ public class TheTeleOpOfTheRobot extends CommandOpMode {
     private GamepadEx gamepad;
 
     public void onInit() {
-        setLynxUpdateFrequency(new int[] {1, 1, 999}, new int[] {0, 0, 0});
-        setTelemetryUpdateFrequency(10, 0);
+        setLynxUpdateFrequency(new int[] {1, 1, 1}, new int[] {0, 0, 0});
+        setTelemetryUpdateFrequency(11, 0); // Should be coprime with everything else
 
         voltageSensor = new VoltageSensor(10, 1);
         drivetrain = new SwerveDrivetrain(voltageSensor);
@@ -51,10 +51,12 @@ public class TheTeleOpOfTheRobot extends CommandOpMode {
 
         gamepad = new GamepadEx(gamepad1);
 
-        register(voltageSensor, pinpoint, limelight, localizer, drivetrain, intake, turret, gamepad);
+        register(voltageSensor, pinpoint, limelight, localizer, gamepad);
     }
 
     public void onStart() {
+        register(drivetrain, intake, turret);
+
         Stopwatch stopwatch = new Stopwatch();
         schedule(
                 new SwerveDriveControl((SwerveDrivetrain) drivetrain, localizer, gamepad, new DoubleUnaryOperator[]{ x -> x, y -> y, theta -> theta }),

@@ -67,7 +67,7 @@ public final class Constants {
     public static double pidDHeadingEnforcement = 0;
     public static double pidTauHeadingEnforcement = 1;
     public static double pidGammaHeadingEnforcement = 3000;
-    public static double headingEnforcementLateralSpeedCutoff = 18;
+    public static double headingEnforcementLateralForceCutoff = 0.3;
 
     public static double optimalGateIntakeAngle = 2.20;
 

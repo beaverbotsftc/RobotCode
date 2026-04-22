@@ -8,11 +8,13 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import org.beaverbots.beaver.InfiniteServo;
 import org.beaverbots.beaver.cachedhardware.CachedCRServo;
 import org.beaverbots.beaver.cachedhardware.CachedMotor;
+import org.beaverbots.beaver.command.CommandOpMode;
 import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.pidf.PIDFAxis;
 import org.beaverbots.beaver.util.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
+import org.firstinspires.ftc.teamcode.subsystems.localizer.Localizer;
 
 import java.util.List;
 
@@ -51,7 +53,7 @@ public class SwerveDrivetrain implements Drivetrain {
                                 0.2043, 0.3854, 0.0118, new double[]{0}, 1, 1, 0.9731, 988
                         )
                 ),
-                3.175864573447136
+                4.4915
         );
         CachedMotor frontLeftMotor = new CachedMotor(HardwareManager.claim(DcMotorEx.class, "front left drive"), 0);
         frontLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -71,7 +73,7 @@ public class SwerveDrivetrain implements Drivetrain {
                                 0.2043, 0.3854, 0.0118, new double[]{0}, 1, 1, 0.9731, 988
                         )
                 ),
-                3.2805843285667957
+                3.2768
         );
         CachedMotor frontRightMotor = new CachedMotor(HardwareManager.claim(DcMotorEx.class, "front right drive"), 0);
         frontRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -91,7 +93,7 @@ public class SwerveDrivetrain implements Drivetrain {
                                 0.2043, 0.3854, 0.0118, new double[]{0}, 1, 1, 0.9731, 988
                         )
                 ),
-                2.088683115750305
+                2.0735
         );
         CachedMotor backLeftMotor = new CachedMotor(HardwareManager.claim(DcMotorEx.class, "back left drive"), 0);
         backLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -111,7 +113,7 @@ public class SwerveDrivetrain implements Drivetrain {
                                 0.2043, 0.3854, 0.0118, new double[]{0}, 1, 1, 0.9731, 988
                         )
                 ),
-                1.494636504889689
+                1.4813
         );
         CachedMotor backRightMotor = new CachedMotor(HardwareManager.claim(DcMotorEx.class, "back right drive"), 0);
         backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -144,5 +146,10 @@ public class SwerveDrivetrain implements Drivetrain {
         frontRightModule.periodic();
         backLeftModule.periodic();
         backRightModule.periodic();
+
+        CommandOpMode.addData("Front Left Position", frontLeftModule.getAngle());
+        CommandOpMode.addData("Front Right Position", frontRightModule.getAngle());
+        CommandOpMode.addData("Back Left Position", backLeftModule.getAngle());
+        CommandOpMode.addData("Back Right Position", backRightModule.getAngle());
     }
 }

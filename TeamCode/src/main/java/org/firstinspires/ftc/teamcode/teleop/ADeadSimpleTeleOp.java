@@ -33,13 +33,14 @@ public class ADeadSimpleTeleOp extends CommandOpMode {
 
         gamepad = new GamepadEx(gamepad1);
 
-        register(voltageSensor, drivetrain, intake, turret, pinpoint, gamepad);
+        register(voltageSensor, pinpoint, gamepad);
     }
 
     double rpm = 0;
     double hood = 0;
 
     public void onStart() {
+        register(drivetrain, intake, turret);
         turret.turn(0);
         schedule(
                 new Repeat(() -> drivetrain.move(new Transform(gamepad.getLeftY(), -gamepad.getLeftX(), -gamepad.getRightX()))),

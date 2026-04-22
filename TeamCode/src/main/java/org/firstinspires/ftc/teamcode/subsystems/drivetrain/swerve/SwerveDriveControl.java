@@ -55,7 +55,8 @@ public class SwerveDriveControl implements Command {
     public boolean periodic() {
         CommandOpMode.addData("Follow Target Heading", followTargetHeading);
 
-        if (gamepad.getRightX() != 0 || localizer.getVelocity().lateralNorm() < Constants.headingEnforcementLateralSpeedCutoff) followTargetHeading = false;
+        if (gamepad.getRightX() != 0 || new Transform(gamepad.getLeftX(), gamepad.getLeftY()).lateralNorm() < Constants.headingEnforcementLateralForceCutoff/* || localizer.getVelocity().lateralNorm() < Constants.headingEnforcementLateralSpeedCutoff*/)
+            followTargetHeading = false;
         else if (!followTargetHeading && Math.abs(localizer.getVelocity().getTheta()) < Constants.swerveAngularVelocityCorrectionDeadzone) {
             followTargetHeading = true;
             targetHeading = localizer.getPosition().getTheta();
@@ -69,7 +70,7 @@ public class SwerveDriveControl implements Command {
 
             drivetrain.move(new Transform(gamepad.getLeftX(), gamepad.getLeftY(), control).transform(mirror).toLocalVelocity(localizer.getPosition()));
         } else
-            drivetrain.move(new Transform(gamepad.getLeftX(), gamepad.getLeftY(), -gamepad.getRightX()).transform(mirror).toLocalVelocity(localizer.getPosition()));
+            drivetrain.move(new Transform(gamepad.getLeftX(), gamepad.getLeftY(), -Math.pow(gamepad.getRightX(), 3)).transform(mirror).toLocalVelocity(localizer.getPosition()));
 
         return false;
     }

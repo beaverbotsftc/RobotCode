@@ -98,14 +98,14 @@ public class TurretControl implements Command {
 
     private Interpolator xInterpolator = new Interpolator(
             new Interpolator.Point(new double[]{-38, 39}, -70.3),
-            new Interpolator.Point(new double[]{-18.4, 23.2}, -62.8),
-            new Interpolator.Point(new double[]{-44.1, 14.2}, -61),
-            new Interpolator.Point(new double[]{-63.3, 4.6}, -64.4),
-            new Interpolator.Point(new double[]{-63.3, 22.9}, -64.4),
-            new Interpolator.Point(new double[]{8.2, 14.0}, -62.0),
-            new Interpolator.Point(new double[]{-2.7, 41.0}, -64.6),
-            new Interpolator.Point(new double[]{-25.8, 38.6}, -64.6),
-            new Interpolator.Point(new double[]{-1.7, -1.6}, -62.8)
+            new Interpolator.Point(new double[]{-18.4, 23.2}, -65),
+            new Interpolator.Point(new double[]{-44.1, 14.2}, -65),
+            new Interpolator.Point(new double[]{-63.3, 4.6}, -65),
+            new Interpolator.Point(new double[]{-63.3, 22.9}, -65),
+            new Interpolator.Point(new double[]{8.2, 14.0}, -65),
+            new Interpolator.Point(new double[]{-2.7, 41.0}, -65),
+            new Interpolator.Point(new double[]{-25.8, 38.6}, -65),
+            new Interpolator.Point(new double[]{-1.7, -1.6}, -65)
     );
     private Interpolator yInterpolator = new Interpolator(
             new Interpolator.Point(new double[]{-38, 39}, 70.3),
