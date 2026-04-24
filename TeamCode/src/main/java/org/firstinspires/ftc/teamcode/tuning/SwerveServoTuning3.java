@@ -32,7 +32,7 @@ public class SwerveServoTuning3 extends CommandOpMode {
 
     PIDFAxis pidf = new PIDFAxis(
             new PIDFAxis.K(
-                    0.6, 0.0, 0.1, new double[]{0}, 1, 1, 0.9731, 988
+                    0.6, 0.0, 0.1, new double[]{0}, 1, 1, 0.9731, 988, 0.1
             )
     );
 

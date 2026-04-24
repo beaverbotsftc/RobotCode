@@ -35,7 +35,7 @@ public class SwerveDriveControl implements Command {
         this.gamepad = gamepad;
         this.mirror = mirror;
 
-        pidf = new PIDFAxis(new PIDFAxis.K(Constants.pidPHeadingEnforcement, Constants.pidIHeadingEnforcement, Constants.pidDHeadingEnforcement, new double[]{}, 1, 1, Constants.pidTauHeadingEnforcement, Constants.pidGammaHeadingEnforcement));
+        pidf = new PIDFAxis(new PIDFAxis.K(Constants.pidPHeadingEnforcement, Constants.pidIHeadingEnforcement, Constants.pidDHeadingEnforcement, new double[]{}, 1, 1, Constants.pidTauHeadingEnforcement, Constants.pidGammaHeadingEnforcement, 0.1));
         stopwatch = new Stopwatch();
     }
 
@@ -55,14 +55,21 @@ public class SwerveDriveControl implements Command {
     public boolean periodic() {
         CommandOpMode.addData("Follow Target Heading", followTargetHeading);
 
-        if (gamepad.getRightX() != 0 || new Transform(gamepad.getLeftX(), gamepad.getLeftY()).lateralNorm() < Constants.headingEnforcementLateralForceCutoff/* || localizer.getVelocity().lateralNorm() < Constants.headingEnforcementLateralSpeedCutoff*/)
-            followTargetHeading = false;
-        else if (!followTargetHeading && Math.abs(localizer.getVelocity().getTheta()) < Constants.swerveAngularVelocityCorrectionDeadzone) {
+        if (gamepad.getAPressedToggle() && !followTargetHeading) {
             followTargetHeading = true;
             targetHeading = localizer.getPosition().getTheta();
 
             pidf.reset();
-        }
+        } else if (!gamepad.getAPressedToggle()) followTargetHeading = false;
+        CommandOpMode.addData("Heading lock", gamepad.getAPressedToggle());
+        //if (gamepad.getRightX() != 0 || new Transform(gamepad.getLeftX(), gamepad.getLeftY()).lateralNorm() < Constants.headingEnforcementLateralForceCutoff/* || localizer.getVelocity().lateralNorm() < Constants.headingEnforcementLateralSpeedCutoff*/)
+        //    followTargetHeading = false;
+        //else if (!followTargetHeading && Math.abs(localizer.getVelocity().getTheta()) < Constants.swerveAngularVelocityCorrectionDeadzone) {
+        //    followTargetHeading = true;
+        //    targetHeading = localizer.getPosition().getTheta();
+//
+  //           pidf.reset();
+   //     }
 
         if (followTargetHeading) {
             double heading = localizer.getPosition().getTheta();

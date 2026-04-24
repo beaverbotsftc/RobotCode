@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 import org.firstinspires.ftc.teamcode.subsystems.turret.Turret;
 
 @Autonomous(group = "tuning")
-public class TurretTuning extends CommandOpMode {
+public class TurretTuningFar extends CommandOpMode {
     private VoltageSensor voltageSensor;
     private Pinpoint pinpoint;
     private Limelight limelight;
@@ -90,6 +90,6 @@ public class TurretTuning extends CommandOpMode {
         turret.setHoodAngle(hood);
 
         intakeAndTransfer.transfer(gamepad.getRightBumper());
-        intakeAndTransfer.intake(gamepad.getRightTrigger() - gamepad.getLeftTrigger());
+        intakeAndTransfer.intake((gamepad.getRightTrigger() - gamepad.getLeftTrigger()) * 0.5);
     }
 }

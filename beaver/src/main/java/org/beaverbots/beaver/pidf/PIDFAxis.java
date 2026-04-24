@@ -13,10 +13,11 @@ public final class PIDFAxis {
         public final double outputClamp;
         public final double tau;
         public final double gamma;
+        public final double maxDt;
 
         public K(double p, double i, double d, double[] f,
                  double integrationClamp, double outputClamp,
-                 double tau, double gamma) {
+                 double tau, double gamma, double maxDt) {
             this.p = p;
             this.i = i;
             this.d = d;
@@ -25,6 +26,7 @@ public final class PIDFAxis {
             this.outputClamp = outputClamp;
             this.tau = tau;
             this.gamma = gamma;
+            this.maxDt = maxDt;
         }
     }
 
@@ -41,6 +43,7 @@ public final class PIDFAxis {
     }
 
     public double update(double error, double[] feedforward, double dt) {
+        dt = Math.min(k.maxDt, dt); // Okay because pass-by-value
         if (Double.isNaN(lastError)) lastError = error;
         final double dNoisy = (error - lastError) / dt;
         lastError = error;

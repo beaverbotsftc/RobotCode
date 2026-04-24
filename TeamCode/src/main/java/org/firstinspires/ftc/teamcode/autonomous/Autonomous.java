@@ -122,9 +122,9 @@ public class Autonomous extends CommandOpMode {
                         new HolonomicPathTracker(
                                 path,
                                 new PIDF(List.of(
-                                        new PIDFAxis(new PIDFAxis.K(Constants.pidPX * multiplier, Constants.pidIX * multiplier, Constants.pidDX * multiplier, new double[]{1, 0}, 6, 48, Constants.pidTau, Constants.pidGammaX)),
-                                        new PIDFAxis(new PIDFAxis.K(Constants.pidPY * multiplier, Constants.pidIY * multiplier, Constants.pidDY * multiplier, new double[]{1, 0}, 6, 48, Constants.pidTau, Constants.pidGammaY)),
-                                        new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta * multiplier, Constants.pidITheta * multiplier, Constants.pidDTheta * multiplier, new double[]{1, 0}, 6, 48, Constants.pidTau, Constants.pidGammaTheta))))),
+                                        new PIDFAxis(new PIDFAxis.K(Constants.pidPX * multiplier, Constants.pidIX * multiplier, Constants.pidDX * multiplier, new double[]{1, 0}, 6, 48, Constants.pidTau, Constants.pidGammaX, 0.1)),
+                                        new PIDFAxis(new PIDFAxis.K(Constants.pidPY * multiplier, Constants.pidIY * multiplier, Constants.pidDY * multiplier, new double[]{1, 0}, 6, 48, Constants.pidTau, Constants.pidGammaY, 0.1)),
+                                        new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta * multiplier, Constants.pidITheta * multiplier, Constants.pidDTheta * multiplier, new double[]{1, 0}, 6, 48, Constants.pidTau, Constants.pidGammaTheta, 0.1))))),
                         fusedLocalizer, drivetrain)
                 ,
                 new Instant(() -> drivetrain.move(new Transform(0, 0, 0)))

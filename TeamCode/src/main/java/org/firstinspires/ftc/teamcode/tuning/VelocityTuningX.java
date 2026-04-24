@@ -80,7 +80,8 @@ public class VelocityTuningX extends CommandOpMode {
                                                                         0,
                                                                         1,
                                                                         0,
-                                                                        0
+                                                                        0,
+                                                                        0.1
                                                                 )
                                                         ),
                                                         new PIDFAxis(
@@ -92,7 +93,8 @@ public class VelocityTuningX extends CommandOpMode {
                                                                         0,
                                                                         1,
                                                                         0,
-                                                                        0
+                                                                        0,
+                                                                        0.1
                                                                 )
                                                         ),
                                                         new PIDFAxis(
@@ -104,7 +106,8 @@ public class VelocityTuningX extends CommandOpMode {
                                                                         0,
                                                                         1,
                                                                         Constants.pidTauHeadingEnforcement,
-                                                                        Constants.pidGammaHeadingEnforcement
+                                                                        Constants.pidGammaHeadingEnforcement,
+                                                                        0.1
                                                                 )
                                                         )
                                                 )

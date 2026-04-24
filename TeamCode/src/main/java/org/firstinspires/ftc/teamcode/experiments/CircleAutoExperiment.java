@@ -64,9 +64,9 @@ public class CircleAutoExperiment extends CommandOpMode {
                                                 t -> t > 6 * Math.PI),
                                         new PIDF(
                                                 List.of(
-                                                        new PIDFAxis(new PIDFAxis.K(Constants.pidPX, Constants.pidIX, Constants.pidDX, new double[]{1, 0}, 6, 48, Constants.pidTau, Constants.pidGammaX)),
-                                                        new PIDFAxis(new PIDFAxis.K(Constants.pidPY, Constants.pidIY, Constants.pidDY, new double[]{1, 0}, 6, 48, Constants.pidTau, Constants.pidGammaY)),
-                                                        new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, new double[]{1, 0}, 6, 48, Constants.pidTau, Constants.pidGammaTheta))
+                                                        new PIDFAxis(new PIDFAxis.K(Constants.pidPX, Constants.pidIX, Constants.pidDX, new double[]{1, 0}, 6, 48, Constants.pidTau, Constants.pidGammaX, 0.1)),
+                                                        new PIDFAxis(new PIDFAxis.K(Constants.pidPY, Constants.pidIY, Constants.pidDY, new double[]{1, 0}, 6, 48, Constants.pidTau, Constants.pidGammaY, 0.1)),
+                                                        new PIDFAxis(new PIDFAxis.K(Constants.pidPTheta, Constants.pidITheta, Constants.pidDTheta, new double[]{1, 0}, 6, 48, Constants.pidTau, Constants.pidGammaTheta, 0.1))
                                                 )
                                         )),
                                 pinpoint,

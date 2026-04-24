@@ -31,9 +31,9 @@ public class HolonomicTrackingTest extends CommandOpMode {
                             ),
                             t -> t >= 10),
                     new PIDF(List.of(
-                            new PIDFAxis(new PIDFAxis.K(1, 0.01, 0.1, new double[]{1, 0}, 1, 1, 0.05, 0)),
-                            new PIDFAxis(new PIDFAxis.K(1, 0.01, 0.1, new double[]{1, 0}, 1, 1, 0.05, 0)),
-                            new PIDFAxis(new PIDFAxis.K(1, 0.01, 0.1, new double[]{1, 0}, 1, 1, 0.05, 0))
+                            new PIDFAxis(new PIDFAxis.K(1, 0.01, 0.1, new double[]{1, 0}, 1, 1, 0.05, 0, 0.1)),
+                            new PIDFAxis(new PIDFAxis.K(1, 0.01, 0.1, new double[]{1, 0}, 1, 1, 0.05, 0, 0.1)),
+                            new PIDFAxis(new PIDFAxis.K(1, 0.01, 0.1, new double[]{1, 0}, 1, 1, 0.05, 0, 0.1))
                     ))),
             locomotionAndLocalization,
             locomotionAndLocalization

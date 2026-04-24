@@ -4,26 +4,26 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.beaverbots.beaver.cachedhardware.CachedMotor;
-import org.beaverbots.beaver.cachedhardware.CachedServo;
+import org.beaverbots.beaver.optimizedhardware.OptimizedMotor;
+import org.beaverbots.beaver.optimizedhardware.OptimizedServo;
 import org.beaverbots.beaver.command.CommandOpMode;
 import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.command.Subsystem;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 public class IntakeAndTransfer implements Subsystem {
-    private CachedMotor rightTransfer;
-    private CachedMotor leftTransfer;
-    private CachedServo stopper;
+    private OptimizedMotor rightTransfer;
+    private OptimizedMotor leftTransfer;
+    private OptimizedServo stopper;
 
     private double power = 0;
 
     private double[] a = new double[100];
 
     public IntakeAndTransfer(int readFrequency, int readOffset1, int readOffset2) {
-        leftTransfer = new CachedMotor(HardwareManager.claim(DcMotorEx.class, "transfer2"), 0, readFrequency, readOffset1);
-        rightTransfer = new CachedMotor(HardwareManager.claim(DcMotorEx.class, "transfer1"), 0, readFrequency, readOffset2);
-        stopper = new CachedServo(HardwareManager.claim(Servo.class, "stopper"), 0);
+        leftTransfer = new OptimizedMotor(HardwareManager.claim(DcMotorEx.class, "transfer2"), 0, readFrequency, readOffset1);
+        rightTransfer = new OptimizedMotor(HardwareManager.claim(DcMotorEx.class, "transfer1"), 0, readFrequency, readOffset2);
+        stopper = new OptimizedServo(HardwareManager.claim(Servo.class, "stopper"), 0);
 
         leftTransfer.setDirection(DcMotorSimple.Direction.FORWARD);
         rightTransfer.setDirection(DcMotorSimple.Direction.REVERSE);

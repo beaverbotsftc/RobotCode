@@ -71,7 +71,7 @@ public class SwerveServoTuning2 extends CommandOpMode {
                     point = optimizer.findNextPoint();
                     pidf = new PIDFAxis(new PIDFAxis.K(
                             point.getEntry(0), point.getEntry(1), point.getEntry(2),
-                            new double[]{0}, 1, 1, point.getEntry(3), point.getEntry(4)
+                            new double[]{0}, 1, 1, point.getEntry(3), point.getEntry(4), 0.1
                     ));
                 }),
                 new Cycle(

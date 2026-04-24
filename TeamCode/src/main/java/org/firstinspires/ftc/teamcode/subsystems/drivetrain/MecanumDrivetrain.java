@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.subsystems.drivetrain;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-import org.beaverbots.beaver.cachedhardware.CachedMotor;
+import org.beaverbots.beaver.optimizedhardware.OptimizedMotor;
 import org.beaverbots.beaver.command.HardwareManager;
 import org.beaverbots.beaver.command.Subsystem;
 import org.firstinspires.ftc.teamcode.Constants;
@@ -14,20 +14,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class MecanumDrivetrain implements Drivetrain, Subsystem {
-    private CachedMotor frontLeft;
-    private CachedMotor frontRight;
-    private CachedMotor backLeft;
-    private CachedMotor backRight;
+    private OptimizedMotor frontLeft;
+    private OptimizedMotor frontRight;
+    private OptimizedMotor backLeft;
+    private OptimizedMotor backRight;
 
     private Transform velocity = new Transform(0, 0, 0);
 
     private boolean isBraking = false;
 
     public MecanumDrivetrain(VoltageSensor voltageSensor) {
-        this.frontLeft = new CachedMotor(HardwareManager.claim("front left drive"), 0.01);
-        this.frontRight = new CachedMotor(HardwareManager.claim("front right drive"), 0.01);
-        this.backLeft = new CachedMotor(HardwareManager.claim("back left drive"), 0.01);
-        this.backRight = new CachedMotor(HardwareManager.claim("back right drive"), 0.01);
+        this.frontLeft = new OptimizedMotor(HardwareManager.claim("front left drive"), 0.01);
+        this.frontRight = new OptimizedMotor(HardwareManager.claim("front right drive"), 0.01);
+        this.backLeft = new OptimizedMotor(HardwareManager.claim("back left drive"), 0.01);
+        this.backRight = new OptimizedMotor(HardwareManager.claim("back right drive"), 0.01);
 
         frontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
