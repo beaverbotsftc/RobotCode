@@ -4,6 +4,7 @@ import org.beaverbots.beaver.command.Command;
 import org.beaverbots.beaver.command.CommandOpMode;
 import org.beaverbots.beaver.command.Subsystem;
 import org.beaverbots.beaver.pidf.PIDFAxis;
+import org.beaverbots.beaver.util.Geometry;
 import org.beaverbots.beaver.util.Stopwatch;
 import org.beaverbots.beaver.util.Transform;
 import org.firstinspires.ftc.teamcode.Constants;
@@ -19,9 +20,6 @@ public class SwerveDriveControl implements Command {
 
     private GamepadEx gamepad;
     private DoubleUnaryOperator[] mirror;
-
-    private double targetHeading = 0;
-    private boolean followTargetHeading = false;
 
     private PIDFAxis pidf;
     private Stopwatch stopwatch;
@@ -46,38 +44,27 @@ public class SwerveDriveControl implements Command {
 
     @Override
     public void start() {
-        targetHeading = localizer.getPosition().getTheta();
         pidf.reset();
         stopwatch.reset();
     }
 
     @Override
     public boolean periodic() {
-        CommandOpMode.addData("Follow Target Heading", followTargetHeading);
-
-        if (gamepad.getAPressedToggle() && !followTargetHeading) {
-            followTargetHeading = true;
-            targetHeading = localizer.getPosition().getTheta();
-
-            pidf.reset();
-        } else if (!gamepad.getAPressedToggle()) followTargetHeading = false;
         CommandOpMode.addData("Heading lock", gamepad.getAPressedToggle());
-        //if (gamepad.getRightX() != 0 || new Transform(gamepad.getLeftX(), gamepad.getLeftY()).lateralNorm() < Constants.headingEnforcementLateralForceCutoff/* || localizer.getVelocity().lateralNorm() < Constants.headingEnforcementLateralSpeedCutoff*/)
-        //    followTargetHeading = false;
-        //else if (!followTargetHeading && Math.abs(localizer.getVelocity().getTheta()) < Constants.swerveAngularVelocityCorrectionDeadzone) {
-        //    followTargetHeading = true;
-        //    targetHeading = localizer.getPosition().getTheta();
-//
-  //           pidf.reset();
-   //     }
 
-        if (followTargetHeading) {
+        double scale = gamepad.getLeftStickPressed() ? 0.3 : 1;
+
+        if (gamepad.getX()) {
+            drivetrain.x();
+        }
+        else if (gamepad.getAPressedToggle()) {
             double heading = localizer.getPosition().getTheta();
+            double targetHeading = Geometry.unnormalizeAngle(2.23, heading);
             double control = -pidf.update(heading - targetHeading, new double[]{}, stopwatch.getDt());
 
-            drivetrain.move(new Transform(gamepad.getLeftX(), gamepad.getLeftY(), control).transform(mirror).toLocalVelocity(localizer.getPosition()));
+            drivetrain.move(new Transform(gamepad.getLeftX(), gamepad.getLeftY(), control).transform(mirror).toLocalVelocity(localizer.getPosition()).scale(scale));
         } else
-            drivetrain.move(new Transform(gamepad.getLeftX(), gamepad.getLeftY(), -Math.pow(gamepad.getRightX(), 3)).transform(mirror).toLocalVelocity(localizer.getPosition()));
+            drivetrain.move(new Transform(gamepad.getLeftX(), gamepad.getLeftY(), -Math.pow(gamepad.getRightX(), 3)).transform(mirror).toLocalVelocity(localizer.getPosition()).scale(scale));
 
         return false;
     }

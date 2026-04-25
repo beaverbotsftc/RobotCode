@@ -44,6 +44,19 @@ public class SwerveModule implements Subsystem {
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
+    public void setAngle(double angle) {
+        double otherAngle = angle < Math.PI ? angle + Math.PI : angle - Math.PI;
+        double distFromAngle = Geometry.normalizeAngle2(angle - servo.getAngle());
+        double distFromOtherAngle = Geometry.normalizeAngle2(otherAngle - servo.getAngle());
+
+        if (distFromAngle < distFromOtherAngle)
+            servo.setAngle(angle);
+        else
+            servo.setAngle(otherAngle);
+
+        chassisTargetForce = Transform.ZERO;
+    }
+
     public void drive(Transform force) {
         chassisTargetForce = force;
         if (force.lateralNorm() == 0 && force.getTheta() == 0) return;

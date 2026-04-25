@@ -14,10 +14,10 @@ public class OptimizedMotor implements DcMotorEx {
     private final DcMotorEx motor;
 
     private final double delta;
-    private final int readFrequency;
-    private final int readOffset;
-    private final int writeFrequency;
-    private final int writeOffset;
+    private int readFrequency;
+    private int readOffset;
+    private int writeFrequency;
+    private int writeOffset;
 
     // power -> [-1, 1]
     // velocity -> ticks/sec
@@ -51,6 +51,11 @@ public class OptimizedMotor implements DcMotorEx {
     public OptimizedMotor(DcMotorEx motor, double delta) {
         this(motor, delta, 1, 0, 1, 0);
     }
+
+    public void setReadFrequency(int readFrequency) { this.readFrequency = readFrequency; }
+    public void setReadOffset(int readOffset) { this.readOffset = readOffset; }
+    public void setWriteFrequency(int writeFrequency) { this.writeFrequency = writeFrequency; }
+    public void setWriteOffset(int writeOffset) { this.writeOffset = writeOffset; }
 
     private boolean canRead() {
         return (CommandOpMode.loopNumber + readOffset) % readFrequency == 0;

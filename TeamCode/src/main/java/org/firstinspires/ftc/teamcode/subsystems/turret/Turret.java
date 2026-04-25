@@ -21,8 +21,8 @@ public class Turret implements Subsystem {
     private OptimizedServo turretRight;
     private OptimizedServo hood;
 
-    private DcMotorEx shooterLeft;
-    private DcMotorEx shooterRight;
+    private OptimizedMotor shooterLeft;
+    private OptimizedMotor shooterRight;
 
     private VoltageSensor voltageSensor;
 
@@ -31,6 +31,7 @@ public class Turret implements Subsystem {
     private double desiredVelocity = 0;
 
     private PIDFAxis pidf = new PIDFAxis(new PIDFAxis.K(Constants.pidPShooter, Constants.pidIShooter, Constants.pidDShooter, new double[] {1}, 0.5, 1, 1, Constants.pidGammaShooter, 0.1));
+
 
     public Turret(VoltageSensor voltageSensor) {
         pidf = new PIDFAxis(new PIDFAxis.K(Constants.pidPShooter, Constants.pidIShooter, Constants.pidDShooter, new double[] {Constants.pidFShooter}, 0.5, 1, 1, Constants.pidGammaShooter, 0.1));

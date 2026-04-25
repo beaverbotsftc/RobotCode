@@ -11,10 +11,10 @@ public class OptimizedCRServo implements CRServo {
     private final CRServo servo;
 
     private final double delta;
-    private final int readFrequency;
-    private final int readOffset;
-    private final int writeFrequency;
-    private final int writeOffset;
+    private int readFrequency;
+    private int readOffset;
+    private int writeFrequency;
+    private int writeOffset;
 
     private double lastPower = Double.NaN;
     private double lastReadPower = 0;
@@ -36,6 +36,11 @@ public class OptimizedCRServo implements CRServo {
     public OptimizedCRServo(CRServo servo, double delta) {
         this(servo, delta, 1, 0, 1, 0);
     }
+
+    public void setReadFrequency(int readFrequency) { this.readFrequency = readFrequency; }
+    public void setReadOffset(int readOffset) { this.readOffset = readOffset; }
+    public void setWriteFrequency(int writeFrequency) { this.writeFrequency = writeFrequency; }
+    public void setWriteOffset(int writeOffset) { this.writeOffset = writeOffset; }
 
     private boolean canRead() {
         return (lastPowerReadLoop < 0) || (CommandOpMode.loopNumber + readOffset) % readFrequency == 0;

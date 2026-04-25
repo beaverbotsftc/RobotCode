@@ -18,7 +18,7 @@ public final class Constants {
     public static double pidPX = 0.05;
     public static double pidIX = 0;
     public static double pidDX = 0;
-    public static double pidFVelocityX = 0;
+    public static double pidFVelocityX = 0.0121;
     public static double pidFAccelerationX = 0;
     public static double pidGammaX = 1;
     public static double pidPY = 0.05;
@@ -48,7 +48,7 @@ public final class Constants {
     public static double minAngularVariance = 0;
 
     public static double turretLatency = 0.08;
-    public static double turretBounds = Math.toRadians(90);
+    public static double turretBounds = Math.toRadians(120);
     public static double turretAngularBias = 0;
 
     public static double turretDelta = 0.001;

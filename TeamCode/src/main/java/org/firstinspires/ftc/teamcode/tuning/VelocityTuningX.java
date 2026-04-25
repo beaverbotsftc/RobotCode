@@ -4,7 +4,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.beaverbots.beaver.command.CommandOpMode;
 import org.beaverbots.beaver.command.premade.Cycle;
+import org.beaverbots.beaver.command.premade.Defer;
 import org.beaverbots.beaver.command.premade.Instant;
+import org.beaverbots.beaver.command.premade.Parallel;
 import org.beaverbots.beaver.command.premade.Repeat;
 import org.beaverbots.beaver.command.premade.RunUntil;
 import org.beaverbots.beaver.command.premade.Sequential;
@@ -22,7 +24,7 @@ import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
 import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrain.MecanumDrivetrain;
+import org.firstinspires.ftc.teamcode.subsystems.drivetrain.swerve.SwerveDrivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 
 import java.util.List;
@@ -36,18 +38,19 @@ public class VelocityTuningX extends CommandOpMode {
 
     public void onInit() {
         VoltageSensor voltageSensor = new VoltageSensor();
-        drivetrain = new MecanumDrivetrain(voltageSensor);
+        drivetrain = new SwerveDrivetrain(voltageSensor, false);
         localizer = new Pinpoint(new Transform(0, 0, 0));
         gamepad = new GamepadEx(gamepad1);
 
-        register(drivetrain, gamepad);
+        register(localizer, drivetrain, voltageSensor, gamepad);
     }
 
     private Transform endPosition = null;
     private double error = 0;
-    public static final DoubleUnaryOperator path = t -> t;
+    private double error2 = 0;
+    public static final DoubleUnaryOperator path = t -> 24 * t;
     public static final double ACCELERATION_TIME = 1;
-    public static final double TIME = 3;
+    public static final double TIME = 2;
     private Stopwatch stopwatch;
 
     public void onStart() {
@@ -58,8 +61,9 @@ public class VelocityTuningX extends CommandOpMode {
                 new Wait(1),
                 new Instant(() -> stopwatch = new Stopwatch()),
                 new Instant(() -> error = 0),
+                new Instant(() -> error2 = 0),
                 new RunUntil(
-                        new HolonomicFollowPath(
+                        new Defer(() -> new HolonomicFollowPath(
                                 new HolonomicPathTracker(
                                         new Path(
                                                 List.of(
@@ -99,14 +103,14 @@ public class VelocityTuningX extends CommandOpMode {
                                                         ),
                                                         new PIDFAxis(
                                                                 new PIDFAxis.K(
-                                                                        Constants.pidPHeadingEnforcement,
-                                                                        Constants.pidIHeadingEnforcement,
-                                                                        Constants.pidDHeadingEnforcement,
+                                                                        0,
+                                                                        0,
+                                                                        0,
                                                                         new double[]{Constants.pidFVelocityX, Constants.pidFAccelerationX},
                                                                         0,
                                                                         1,
-                                                                        Constants.pidTauHeadingEnforcement,
-                                                                        Constants.pidGammaHeadingEnforcement,
+                                                                        0,
+                                                                        0,
                                                                         0.1
                                                                 )
                                                         )
@@ -115,10 +119,15 @@ public class VelocityTuningX extends CommandOpMode {
                                 ),
                                 localizer,
                                 drivetrain
+                        )
                         ),
                         new Sequential(
                                 new Wait(ACCELERATION_TIME),
-                                new Repeat(() -> error += stopwatch.getDt() * Math.abs(path.applyAsDouble(stopwatch.getElapsed()) - localizer.getPosition().getX()))
+                                new Repeat(() -> {
+                                    double dt = stopwatch.getDt();
+                                    error += dt * Math.abs(localizer.getVelocity().getX() - 24);
+                                    error2 += dt * (localizer.getVelocity().getX() - 24);
+                                })
                         )
                 ),
                 new Instant(() -> endPosition = localizer.getPosition()),
@@ -128,10 +137,11 @@ public class VelocityTuningX extends CommandOpMode {
                     telemetry.addData("Acceleration", Constants.pidFAccelerationX);
                     telemetry.addData("End position", endPosition);
                     telemetry.addData("Error", error);
-                    Constants.pidFVelocityX += gamepad.getLeftX() * 0.001;
-                    Constants.pidFAccelerationX += gamepad.getRightX() * 0.001;
+                    telemetry.addData("Error2", error2);
+                    Constants.pidFVelocityX += (gamepad.getRightTrigger() - gamepad.getLeftTrigger()) * 0.001;
+                    //Constants.pidFAccelerationX += gamepad.getRightX() * 0.001;
 
-                    drivetrain.move(new Transform(gamepad.getLeftY(), gamepad.getLeftX(), gamepad.getRightX()));
+                    drivetrain.move(new Transform(gamepad.getLeftY(), -gamepad.getLeftX(), -gamepad.getRightX()));
                 })),
                 new Instant(() -> drivetrain.move(new Transform(0, 0, 0)))
         ));

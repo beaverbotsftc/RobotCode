@@ -40,7 +40,7 @@ public class AccelerationTuningX extends CommandOpMode {
         localizer = new Pinpoint(new Transform(0, 0, 0));
         gamepad = new GamepadEx(gamepad1);
 
-        register(drivetrain, localizer, gamepad);
+        register(localizer, drivetrain, localizer, gamepad);
     }
 
     private Transform endPosition = null;
@@ -99,14 +99,14 @@ public class AccelerationTuningX extends CommandOpMode {
                                                                 ),
                                                                 new PIDFAxis(
                                                                         new PIDFAxis.K(
-                                                                                Constants.pidPHeadingEnforcement,
-                                                                                Constants.pidIHeadingEnforcement,
-                                                                                Constants.pidDHeadingEnforcement,
+                                                                                0,
+                                                                                0,
+                                                                                0,
                                                                                 new double[]{0, 0},
                                                                                 1,
                                                                                 1,
-                                                                                Constants.pidTauHeadingEnforcement,
-                                                                                Constants.pidGammaHeadingEnforcement,
+                                                                                0,
+                                                                                0,
                                                                                 0.1
                                                                         )
                                                                 )
@@ -126,10 +126,7 @@ public class AccelerationTuningX extends CommandOpMode {
                     telemetry.addData("Acceleration", Constants.pidFAccelerationX);
                     telemetry.addData("End position", endPosition);
                     telemetry.addData("Error", error);
-                    if (gamepad.getA())
-                        Constants.pidFVelocityX += (gamepad.getRightTrigger() - gamepad.getLeftTrigger()) * 0.001;
-                    else
-                        Constants.pidFAccelerationX += (gamepad.getRightTrigger() - gamepad.getLeftTrigger()) * 0.001;
+                    Constants.pidFAccelerationX += (gamepad.getRightTrigger() - gamepad.getLeftTrigger()) * 0.001;
 
                     drivetrain.move(new Transform(gamepad.getLeftY(), gamepad.getLeftX(), gamepad.getRightX()));
                 })),

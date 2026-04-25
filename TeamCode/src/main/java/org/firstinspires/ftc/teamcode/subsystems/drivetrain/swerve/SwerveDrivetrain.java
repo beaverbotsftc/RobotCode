@@ -132,6 +132,13 @@ public class SwerveDrivetrain implements Drivetrain {
         backRightModule.drive(scaledForce);
     }
 
+    public void x() {
+        frontLeftModule.setAngle(Transform.ZERO.angleTo(frontLeftPosition));
+        frontRightModule.setAngle(Transform.ZERO.angleTo(frontRightPosition));
+        backLeftModule.setAngle(Transform.ZERO.angleTo(backLeftPosition));
+        backRightModule.setAngle(Transform.ZERO.angleTo(backRightPosition));
+    }
+
     public void move(Transform force, Transform position) {
         move(force.toLocalVelocity(position));
     }
