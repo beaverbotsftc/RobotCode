@@ -9,6 +9,8 @@ import org.beaverbots.beaver.command.premade.router.Router;
 import org.beaverbots.beaver.command.premade.router.Selector;
 import org.beaverbots.beaver.util.Stopwatch;
 import org.beaverbots.beaver.util.Transform;
+import org.firstinspires.ftc.teamcode.CrossModeStorage;
+import org.firstinspires.ftc.teamcode.Side;
 import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeAndTransfer;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
@@ -17,6 +19,7 @@ import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.swerve.SwerveDriveControl;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.swerve.SwerveDrivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
+import org.firstinspires.ftc.teamcode.subsystems.localizer.Localizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 import org.firstinspires.ftc.teamcode.subsystems.turret.TurretControl;
 import org.firstinspires.ftc.teamcode.subsystems.turret.Turret;
@@ -54,16 +57,30 @@ public class TheTeleOpOfTheRobot extends CommandOpMode {
         register(voltageSensor, pinpoint, limelight, localizer, gamepad);
     }
 
+    public void initPeriodic() {
+        if (gamepad1.x) CrossModeStorage.side = Side.BLUE;
+        if (gamepad1.b) CrossModeStorage.side = Side.RED;
+        addData("Side", CrossModeStorage.side);
+    }
+
     public void onStart() {
         register(drivetrain, intake, turret);
 
         Stopwatch stopwatch = new Stopwatch();
         schedule(
-                new SwerveDriveControl((SwerveDrivetrain) drivetrain, localizer, gamepad, new DoubleUnaryOperator[]{ x -> x, y -> y, theta -> theta }),
+                new SwerveDriveControl((SwerveDrivetrain) drivetrain, localizer, gamepad,
+                        CrossModeStorage.side == Side.RED
+                                ? new DoubleUnaryOperator[]{ x -> x, y -> y, theta -> theta }
+                                : new DoubleUnaryOperator[]{ x -> -x, y -> -y, theta -> theta }
+                ),
                 new Repeat(() -> intake.intake(gamepad.getRightTrigger() - gamepad.getLeftTrigger())),
                 new Repeat(() -> intake.transfer(gamepad.getRightBumper())),
                 new Router(new Selector(() -> gamepad.getBPressedToggle()),
-                        new TurretControl(turret, localizer, new DoubleUnaryOperator[]{x -> x, y -> y, theta -> theta}),
+                        new TurretControl(turret, localizer,
+                                CrossModeStorage.side == Side.RED
+                                        ? new DoubleUnaryOperator[]{x -> x, y -> y, theta -> theta}
+                                        : new DoubleUnaryOperator[]{x -> x, y -> -y, theta -> -theta}
+                        ),
                         new Instant(() -> turret.shoot(0))
                 )
         );

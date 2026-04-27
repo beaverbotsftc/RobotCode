@@ -22,7 +22,7 @@ public final class Pinpoint implements Localizer, Subsystem {
     private Transform currentPose = new Transform(0, 0, 0);
     private Transform currentVelocity = new Transform(0, 0, 0);
 
-    public Pinpoint(Transform pose) {
+    public Pinpoint() {
         pinpoint = HardwareManager.claim(GoBildaPinpointDriver.class, "pinpoint");
         pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
@@ -38,6 +38,10 @@ public final class Pinpoint implements Localizer, Subsystem {
         );
         pinpoint.setErrorDetectionType(GoBildaPinpointDriver.ErrorDetectionType.CRC);
         pinpoint.recalibrateIMU();
+    }
+
+    public Pinpoint(Transform pose) {
+        this();
         setPosition(pose);
     }
 

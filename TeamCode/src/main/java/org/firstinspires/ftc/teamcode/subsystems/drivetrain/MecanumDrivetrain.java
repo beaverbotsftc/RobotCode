@@ -57,10 +57,10 @@ public final class MecanumDrivetrain implements Drivetrain, Subsystem {
         }
          */
 
-        double frontLeftPower = Constants.drivetrainFrontLeftFactor * (velocity.getX() * Constants.drivetrainPowerConversionFactorX - velocity.getY() * Constants.drivetrainPowerConversionFactorY - velocity.getTheta() * Constants.drivetrainPowerConversionFactorTheta);
-        double frontRightPower = Constants.drivetrainFrontRightFactor * (velocity.getX() * Constants.drivetrainPowerConversionFactorX + velocity.getY() * Constants.drivetrainPowerConversionFactorY + velocity.getTheta() * Constants.drivetrainPowerConversionFactorTheta);
-        double backLeftPower = Constants.drivetrainBackLeftFactor * (velocity.getX() * Constants.drivetrainPowerConversionFactorX + velocity.getY() * Constants.drivetrainPowerConversionFactorY - velocity.getTheta() * Constants.drivetrainPowerConversionFactorTheta);
-        double backRightPower = Constants.drivetrainBackRightFactor * (velocity.getX() * Constants.drivetrainPowerConversionFactorX - velocity.getY() * Constants.drivetrainPowerConversionFactorY + velocity.getTheta() * Constants.drivetrainPowerConversionFactorTheta);
+        double frontLeftPower = (velocity.getX() - velocity.getY() - velocity.getTheta());
+        double frontRightPower = (velocity.getX() + velocity.getY() + velocity.getTheta());
+        double backLeftPower = (velocity.getX() + velocity.getY() - velocity.getTheta());
+        double backRightPower = (velocity.getX() - velocity.getY() + velocity.getTheta());
 
         double maxPower = Math.max(Math.abs(frontLeftPower),
                 Math.max(Math.abs(frontRightPower),

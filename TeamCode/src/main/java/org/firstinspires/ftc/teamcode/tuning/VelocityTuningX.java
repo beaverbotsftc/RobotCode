@@ -48,9 +48,9 @@ public class VelocityTuningX extends CommandOpMode {
     private Transform endPosition = null;
     private double error = 0;
     private double error2 = 0;
-    public static final DoubleUnaryOperator path = t -> 24 * t;
+    public static final DoubleUnaryOperator path = t -> 32 * t;
     public static final double ACCELERATION_TIME = 1;
-    public static final double TIME = 2;
+    public static final double TIME = 1;
     private Stopwatch stopwatch;
 
     public void onStart() {
@@ -67,11 +67,11 @@ public class VelocityTuningX extends CommandOpMode {
                                 new HolonomicPathTracker(
                                         new Path(
                                                 List.of(
-                                                        new PathAxis(path, 0, TIME),
-                                                        new PathAxis(t -> 0, 0, TIME),
-                                                        new PathAxis(t -> 0, 0, TIME)
+                                                        new PathAxis(path, 0, TIME + ACCELERATION_TIME),
+                                                        new PathAxis(t -> 0, 0, TIME + ACCELERATION_TIME),
+                                                        new PathAxis(t -> 0, 0, TIME + ACCELERATION_TIME)
                                                 ),
-                                                t -> t > TIME
+                                                t -> t > (TIME + ACCELERATION_TIME)
                                         ),
                                         new PIDF(
                                                 List.of(
@@ -125,8 +125,8 @@ public class VelocityTuningX extends CommandOpMode {
                                 new Wait(ACCELERATION_TIME),
                                 new Repeat(() -> {
                                     double dt = stopwatch.getDt();
-                                    error += dt * Math.abs(localizer.getVelocity().getX() - 24);
-                                    error2 += dt * (localizer.getVelocity().getX() - 24);
+                                    error += dt * Math.abs(localizer.getVelocity().getX() - 32);
+                                    error2 += dt * (localizer.getVelocity().getX() - 32);
                                 })
                         )
                 ),

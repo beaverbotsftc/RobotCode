@@ -14,8 +14,6 @@ public class SwerveModule implements Subsystem {
     private final DcMotorEx motor;
     private final Transform position;
 
-    private final VoltageSensor voltageSensor;
-
     private Transform chassisTargetForce = Transform.ZERO;
 
     // Store the desired angle, defaulting to 0
@@ -35,10 +33,9 @@ public class SwerveModule implements Subsystem {
         return getModuleTargetForce(chassisTargetForce, wheelPosition).dotLateral(Transform.FORWARD.rotateLateral(wheelDirection));
     }
 
-    public SwerveModule(InfiniteServo servo, DcMotorEx motor, VoltageSensor voltageSensor, Transform position) {
+    public SwerveModule(InfiniteServo servo, DcMotorEx motor, Transform position) {
         this.servo = servo;
         this.motor = motor;
-        this.voltageSensor = voltageSensor;
         this.position = position;
 
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -57,10 +54,7 @@ public class SwerveModule implements Subsystem {
         chassisTargetForce = Transform.ZERO;
     }
 
-    public void drive(Transform force) {
-        chassisTargetForce = force;
-        if (force.lateralNorm() == 0 && force.getTheta() == 0) return;
-
+    public void turn(Transform force) {
         Transform projectedForce = getModuleTargetForce(force, position);
 
         double angle = Transform.ZERO.angleTo(projectedForce);
@@ -88,6 +82,12 @@ public class SwerveModule implements Subsystem {
         // 3. Apply and store the determined target
         servo.setAngle(targetAngle);
         desired = targetAngle;
+    }
+
+    public void drive(Transform force) {
+        chassisTargetForce = force;
+        if (force.equals(Transform.ZERO, 0.2, 0.2)) return;
+        turn(force);
     }
 
     public double getAngle() {

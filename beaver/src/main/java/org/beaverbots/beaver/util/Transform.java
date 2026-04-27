@@ -181,11 +181,20 @@ public final class Transform {
         return Math.sqrt(x * x + y * y);
     }
 
+    public double norm(double angularWeight) {
+        return Math.sqrt(x * x + y * y + angularWeight * angularWeight * theta * theta);
+    }
+
     public double angularDistance(Transform other) {
         return Math.abs(theta - other.getTheta());
     }
 
     public Transform transform(DoubleUnaryOperator[] f) {
         return new Transform(f[0].applyAsDouble(x), f[1].applyAsDouble(y), f[2].applyAsDouble(theta));
+    }
+
+    public boolean equals(Transform other, double lateralTolerance, double angularTolerance) {
+        Transform difference = this.subtract(other);
+        return difference.lateralNorm() < lateralTolerance && Math.abs(difference.getTheta()) < angularTolerance;
     }
 }

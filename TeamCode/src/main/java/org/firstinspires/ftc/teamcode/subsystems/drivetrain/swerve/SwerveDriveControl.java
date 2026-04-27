@@ -21,7 +21,12 @@ public class SwerveDriveControl implements Command {
     private GamepadEx gamepad;
     private DoubleUnaryOperator[] mirror;
 
-    private PIDFAxis pidf;
+    private double targetHeading = 0;
+    private boolean followTargetHeading = false;
+
+    private PIDFAxis pidfGate;
+    private PIDFAxis pidfNormal;
+
     private Stopwatch stopwatch;
 
     ///  Note that this isn't the standard field mirroring, the symmetries are different.
@@ -33,7 +38,9 @@ public class SwerveDriveControl implements Command {
         this.gamepad = gamepad;
         this.mirror = mirror;
 
-        pidf = new PIDFAxis(new PIDFAxis.K(Constants.pidPHeadingEnforcement, Constants.pidIHeadingEnforcement, Constants.pidDHeadingEnforcement, new double[]{}, 1, 1, Constants.pidTauHeadingEnforcement, Constants.pidGammaHeadingEnforcement, 0.1));
+        pidfGate = new PIDFAxis(new PIDFAxis.K(Constants.pidPHeadingEnforcement, Constants.pidIHeadingEnforcement, Constants.pidDHeadingEnforcement, new double[]{}, 1, 1, Constants.pidTauHeadingEnforcement, Constants.pidGammaHeadingEnforcement, 0.1));
+        pidfNormal = new PIDFAxis(new PIDFAxis.K(Constants.pidPGateHeading, Constants.pidIGateHeading, Constants.pidDGateHeading, new double[]{}, 1, 1, Constants.pidTauGateHeading, Constants.pidGammaGateHeading, 0.1));
+
         stopwatch = new Stopwatch();
     }
 
@@ -44,27 +51,44 @@ public class SwerveDriveControl implements Command {
 
     @Override
     public void start() {
-        pidf.reset();
+        targetHeading = localizer.getPosition().getTheta();
+        pidfGate.reset();
         stopwatch.reset();
     }
 
     @Override
     public boolean periodic() {
+        CommandOpMode.addData("Follow Target Heading", followTargetHeading);
         CommandOpMode.addData("Heading lock", gamepad.getAPressedToggle());
 
-        double scale = gamepad.getLeftStickPressed() ? 0.3 : 1;
+        double scale = gamepad.getLeftStickPressed() ? 0.5 : 1;
 
         if (gamepad.getX()) {
             drivetrain.x();
-        }
-        else if (gamepad.getAPressedToggle()) {
+        } else if (gamepad.getAPressedToggle()) {
             double heading = localizer.getPosition().getTheta();
-            double targetHeading = Geometry.unnormalizeAngle(2.23, heading);
-            double control = -pidf.update(heading - targetHeading, new double[]{}, stopwatch.getDt());
+            double gateHeading = Geometry.unnormalizeAngle(mirror[2].applyAsDouble(2.23), heading);
+            double control = -pidfGate.update(heading - gateHeading, new double[]{}, stopwatch.getDt());
 
             drivetrain.move(new Transform(gamepad.getLeftX(), gamepad.getLeftY(), control).transform(mirror).toLocalVelocity(localizer.getPosition()).scale(scale));
-        } else
-            drivetrain.move(new Transform(gamepad.getLeftX(), gamepad.getLeftY(), -Math.pow(gamepad.getRightX(), 3)).transform(mirror).toLocalVelocity(localizer.getPosition()).scale(scale));
+        } else {
+            if (gamepad.getRightX() != 0 || new Transform(gamepad.getLeftX(), gamepad.getLeftY()).lateralNorm() < Constants.headingEnforcementLateralForceCutoff)
+                followTargetHeading = false;
+            else if (!followTargetHeading && Math.abs(localizer.getVelocity().getTheta()) < Constants.headingEnforcementAngularVelocityCutoff) {
+                followTargetHeading = true;
+                targetHeading = localizer.getPosition().getTheta();
+
+                pidfNormal.reset();
+            }
+
+            if (followTargetHeading) {
+                double heading = localizer.getPosition().getTheta();
+                double control = -pidfNormal.update(heading - targetHeading, new double[]{}, stopwatch.getDt());
+
+                drivetrain.move(new Transform(gamepad.getLeftX(), gamepad.getLeftY(), control).transform(mirror).toLocalVelocity(localizer.getPosition()).scale(scale));
+            } else
+                drivetrain.move(new Transform(gamepad.getLeftX(), gamepad.getLeftY(), -Math.pow(gamepad.getRightX(), 3)).transform(mirror).toLocalVelocity(localizer.getPosition()).scale(scale));
+        }
 
         return false;
     }

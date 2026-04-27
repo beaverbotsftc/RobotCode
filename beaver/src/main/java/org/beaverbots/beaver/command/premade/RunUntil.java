@@ -21,7 +21,7 @@ public class RunUntil extends CommandGroup {
 
     @Override
     public boolean periodic() {
-        for (int i = commands.size() - 1; i >= 0; i--) {
+        for (int i = 0; i < commands.size(); i++) {
             Command command = commands.get(i);
             if (command.periodic()) {
                 command.stop();
@@ -29,6 +29,7 @@ public class RunUntil extends CommandGroup {
                 if (i == 0) {
                     return true;
                 }
+                i--;
             }
         }
         return false;

@@ -45,7 +45,7 @@ public class AccelerationTuningX extends CommandOpMode {
 
     private Transform endPosition = null;
     private double error = 0;
-    public static final DoubleUnaryOperator path = t -> 12 * t * t;
+    public static final DoubleUnaryOperator path = t -> 8 * t * t;
     public static final double TIME = 2;
     private Stopwatch stopwatch;
 

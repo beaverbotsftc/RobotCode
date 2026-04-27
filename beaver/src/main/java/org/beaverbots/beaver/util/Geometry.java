@@ -1,7 +1,5 @@
 package org.beaverbots.beaver.util;
 
-import android.util.Pair;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +51,7 @@ public class Geometry {
             double xj = vx.get(j), yj = vy.get(j);
 
             // Check if point is on edge
-            if (onSegment(px, py, xi, yi, xj, yj)) return true;
+            if (orientation(xi, yi, xj, yj, px, py) == Orientation.COLINEAR && onSegment(px, py, xi, yi, xj, yj)) return true;
 
             // Ray-casting algorithm
             boolean intersect = ((yi > py) != (yj > py)) &&

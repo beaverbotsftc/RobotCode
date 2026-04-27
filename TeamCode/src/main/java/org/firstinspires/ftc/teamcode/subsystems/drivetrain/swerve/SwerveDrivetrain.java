@@ -56,7 +56,7 @@ public class SwerveDrivetrain implements Drivetrain {
         );
         OptimizedMotor frontLeftMotor = new OptimizedMotor(HardwareManager.claim(DcMotorEx.class, "front left drive"), 0);
         frontLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        frontLeftModule = new SwerveModule(frontLeftInfiniteServo, frontLeftMotor, voltageSensor, frontLeftPosition);
+        frontLeftModule = new SwerveModule(frontLeftInfiniteServo, frontLeftMotor, frontLeftPosition);
 
         OptimizedCRServo frontRightServo = new OptimizedCRServo(HardwareManager.claim(CRServo.class, "front right servo"), 0);
         frontRightServo.setPwmRange(500, 2500);
@@ -76,7 +76,7 @@ public class SwerveDrivetrain implements Drivetrain {
         );
         OptimizedMotor frontRightMotor = new OptimizedMotor(HardwareManager.claim(DcMotorEx.class, "front right drive"), 0);
         frontRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        frontRightModule = new SwerveModule(frontRightInfiniteServo, frontRightMotor, voltageSensor, frontRightPosition);
+        frontRightModule = new SwerveModule(frontRightInfiniteServo, frontRightMotor, frontRightPosition);
 
         OptimizedCRServo backLeftServo = new OptimizedCRServo(HardwareManager.claim(CRServo.class, "back left servo"), 0);
         backLeftServo.setPwmRange(500, 2500);
@@ -96,7 +96,7 @@ public class SwerveDrivetrain implements Drivetrain {
         );
         OptimizedMotor backLeftMotor = new OptimizedMotor(HardwareManager.claim(DcMotorEx.class, "back left drive"), 0);
         backLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        backLeftModule = new SwerveModule(backLeftInfiniteServo, backLeftMotor, voltageSensor, backLeftPosition);
+        backLeftModule = new SwerveModule(backLeftInfiniteServo, backLeftMotor, backLeftPosition);
 
         OptimizedCRServo backRightServo = new OptimizedCRServo(HardwareManager.claim(CRServo.class, "back right servo"), 0);
         backRightServo.setPwmRange(500, 2500);
@@ -116,7 +116,7 @@ public class SwerveDrivetrain implements Drivetrain {
         );
         OptimizedMotor backRightMotor = new OptimizedMotor(HardwareManager.claim(DcMotorEx.class, "back right drive"), 0);
         backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        backRightModule = new SwerveModule(backRightInfiniteServo, backRightMotor, voltageSensor, backRightPosition);
+        backRightModule = new SwerveModule(backRightInfiniteServo, backRightMotor, backRightPosition);
     }
 
     public SwerveDrivetrain(VoltageSensor voltageSensor) {
@@ -125,11 +125,19 @@ public class SwerveDrivetrain implements Drivetrain {
 
     public void move(Transform force) {
         double scalar = maxCapability ? 1 : NOMINAL_VOLTAGE / voltageSensor.getVoltage();
+        //scalar = 0;
         Transform scaledForce = force.scale(scalar);
         frontLeftModule.drive(scaledForce);
         frontRightModule.drive(scaledForce);
         backLeftModule.drive(scaledForce);
         backRightModule.drive(scaledForce);
+    }
+
+    public void preempt(Transform force) {
+        frontLeftModule.turn(force);
+        frontRightModule.turn(force);
+        backLeftModule.turn(force);
+        backRightModule.turn(force);
     }
 
     public void x() {

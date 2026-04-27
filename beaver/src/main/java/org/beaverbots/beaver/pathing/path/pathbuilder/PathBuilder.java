@@ -1,6 +1,6 @@
 package org.beaverbots.beaver.pathing.path.pathbuilder;
 
-import android.util.Pair;
+import org.beaverbots.beaver.util.Pair;
 
 import org.beaverbots.beaver.pathing.path.Path;
 import org.beaverbots.beaver.pathing.path.PathAxis;
@@ -439,7 +439,7 @@ public class PathBuilder {
         };
     }
 
-    public Pair<Path, Path> build() {
+    public Triple<Path, Path, Double> build() {
         List<PathAxis> paths = new ArrayList<>();
         List<PathAxis> holdPaths = new ArrayList<>();
         for (int i = 0; i < f.size(); i++) {
@@ -451,7 +451,7 @@ public class PathBuilder {
             holdPaths.add(new PathAxis(t -> endpoint, 0, Double.POSITIVE_INFINITY));
         }
 
-        return new Pair<>(new Path(paths, t -> t >= clock), new Path(holdPaths, t -> false));
+        return new Triple<>(new Path(paths, t -> t >= clock), new Path(holdPaths, t -> false), clock);
     }
 
     /**

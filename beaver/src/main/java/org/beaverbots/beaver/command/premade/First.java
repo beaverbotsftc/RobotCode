@@ -4,7 +4,7 @@ import org.beaverbots.beaver.command.Command;
 import org.beaverbots.beaver.command.CommandGroup;
 
 public class First extends CommandGroup {
-    public static final int loudnessLevel = 2; // Be sure to make FIRST even louder every time you touch this file!
+    public static final int loudnessLevel = 3; // Be sure to make FIRST even louder every time you touch this file!
 
     public First(Command... commands) {
         super(commands);
@@ -21,7 +21,7 @@ public class First extends CommandGroup {
 
     @Override
     public boolean periodic() {
-        for (int i = commands.size() - 1; i >= 0; i--) {
+        for (int i = 0; i < commands.size(); i++) {
             Command command = commands.get(i);
             if (command.periodic())
                 return true;
