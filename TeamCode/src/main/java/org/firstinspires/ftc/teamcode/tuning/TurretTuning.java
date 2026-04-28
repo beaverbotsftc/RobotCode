@@ -6,7 +6,7 @@ import org.beaverbots.beaver.command.CommandOpMode;
 import org.beaverbots.beaver.util.Stopwatch;
 import org.beaverbots.beaver.util.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
-import org.firstinspires.ftc.teamcode.subsystems.IntakeAndTransfer;
+import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
@@ -21,7 +21,7 @@ public class TurretTuning extends CommandOpMode {
     private FusedLocalizer localizer;
 
     private Turret turret;
-    private IntakeAndTransfer intakeAndTransfer;
+    private Intake intake;
 
     private GamepadEx gamepad;
 
@@ -36,7 +36,7 @@ public class TurretTuning extends CommandOpMode {
         localizer = new FusedLocalizer(pinpoint, limelight, Transform.ZERO);
 
         turret = new Turret(voltageSensor);
-        intakeAndTransfer = new IntakeAndTransfer();
+        intake = new Intake();
 
         gamepad = new GamepadEx(gamepad1);
 
@@ -48,7 +48,7 @@ public class TurretTuning extends CommandOpMode {
     @Override
     public void onStart() {
         stopwatch.reset();
-        register(turret, intakeAndTransfer);
+        register(turret, intake);
     }
 
     double targetX = -70.3125;
@@ -89,7 +89,7 @@ public class TurretTuning extends CommandOpMode {
         turret.shoot(rpm);
         turret.setHoodAngle(hood);
 
-        intakeAndTransfer.transfer(gamepad.getRightBumper());
-        intakeAndTransfer.intake(gamepad.getRightTrigger() - gamepad.getLeftTrigger());
+        intake.transfer(gamepad.getRightBumper());
+        intake.intake(gamepad.getRightTrigger() - gamepad.getLeftTrigger());
     }
 }

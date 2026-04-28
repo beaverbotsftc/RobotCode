@@ -6,7 +6,7 @@ import org.beaverbots.beaver.command.CommandOpMode;
 import org.beaverbots.beaver.command.premade.Repeat;
 import org.beaverbots.beaver.util.Transform;
 import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
-import org.firstinspires.ftc.teamcode.subsystems.IntakeAndTransfer;
+import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.swerve.SwerveDrivetrain;
@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.subsystems.turret.Turret;
 public class ADeadSimpleTeleOp extends CommandOpMode {
     private VoltageSensor voltageSensor;
     private Drivetrain drivetrain;
-    private IntakeAndTransfer intake;
+    private Intake intake;
     private Turret turret;
     private Pinpoint pinpoint;
 
@@ -26,7 +26,7 @@ public class ADeadSimpleTeleOp extends CommandOpMode {
     public void onInit() {
         voltageSensor = new VoltageSensor();
         drivetrain = new SwerveDrivetrain(voltageSensor);
-        intake = new IntakeAndTransfer();
+        intake = new Intake();
         turret = new Turret(voltageSensor);
 
         pinpoint = new Pinpoint(Transform.ZERO);

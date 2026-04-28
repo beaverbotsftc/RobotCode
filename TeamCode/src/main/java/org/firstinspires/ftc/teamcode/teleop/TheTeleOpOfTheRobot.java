@@ -12,14 +12,13 @@ import org.beaverbots.beaver.util.Transform;
 import org.firstinspires.ftc.teamcode.CrossModeStorage;
 import org.firstinspires.ftc.teamcode.Side;
 import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
-import org.firstinspires.ftc.teamcode.subsystems.IntakeAndTransfer;
+import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.swerve.SwerveDriveControl;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.swerve.SwerveDrivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
-import org.firstinspires.ftc.teamcode.subsystems.localizer.Localizer;
 import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 import org.firstinspires.ftc.teamcode.subsystems.turret.TurretControl;
 import org.firstinspires.ftc.teamcode.subsystems.turret.Turret;
@@ -30,7 +29,7 @@ import java.util.function.DoubleUnaryOperator;
 public class TheTeleOpOfTheRobot extends CommandOpMode {
     private VoltageSensor voltageSensor;
     private Drivetrain drivetrain;
-    private IntakeAndTransfer intake;
+    private Intake intake;
     private Turret turret;
 
     private Pinpoint pinpoint;
@@ -45,7 +44,7 @@ public class TheTeleOpOfTheRobot extends CommandOpMode {
 
         voltageSensor = new VoltageSensor(10, 1);
         drivetrain = new SwerveDrivetrain(voltageSensor);
-        intake = new IntakeAndTransfer(10, 2, 7);
+        intake = new Intake(10, 2, 7);
         turret = new Turret(voltageSensor);
 
         pinpoint = new Pinpoint(new Transform(0, 0, 0));

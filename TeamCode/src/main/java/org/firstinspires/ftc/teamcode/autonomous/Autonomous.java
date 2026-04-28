@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
-import org.beaverbots.beaver.command.premade.Defer;
-import org.beaverbots.beaver.command.premade.First;
 import org.beaverbots.beaver.util.Pair;
 
 import org.beaverbots.beaver.command.Command;
@@ -20,6 +18,7 @@ import org.beaverbots.beaver.pathing.trackers.HolonomicPathTracker;
 import org.beaverbots.beaver.pidf.PIDF;
 import org.beaverbots.beaver.pidf.PIDFAxis;
 import org.beaverbots.beaver.util.Geometry;
+import org.beaverbots.beaver.util.Box;
 import org.beaverbots.beaver.util.Stopwatch;
 import org.beaverbots.beaver.util.Transform;
 import org.beaverbots.beaver.util.Triple;
@@ -27,7 +26,7 @@ import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.CrossModeStorage;
 import org.firstinspires.ftc.teamcode.Side;
 import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
-import org.firstinspires.ftc.teamcode.subsystems.IntakeAndTransfer;
+import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 import org.firstinspires.ftc.teamcode.subsystems.drivetrain.swerve.SwerveDrivetrain;
@@ -38,7 +37,6 @@ import org.firstinspires.ftc.teamcode.subsystems.turret.TurretControl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.ToDoubleFunction;
 
@@ -47,7 +45,7 @@ public class Autonomous extends CommandOpMode {
     private GamepadEx gamepad;
     private SwerveDrivetrain drivetrain;
     private Turret turret;
-    private IntakeAndTransfer intakeAndTransfer;
+    private Intake intake;
     private Pinpoint pinpoint;
     private Limelight limelight;
     private FusedLocalizer fusedLocalizer;
@@ -72,7 +70,7 @@ public class Autonomous extends CommandOpMode {
         fusedLocalizer = new FusedLocalizer(pinpoint, limelight, new Transform(0, 0, 0));
         drivetrain = new SwerveDrivetrain(voltageSensor, false);
         turret = new Turret(voltageSensor);
-        intakeAndTransfer = new IntakeAndTransfer();
+        intake = new Intake();
 
         usageRatio = PathBuilder.createHolonomicUsage(Constants.maxSpeedX, Constants.maxSpeedY, Constants.maxSpeedTheta, Constants.maxAccelerationX, Constants.maxAccelerationY, Constants.maxAccelerationTheta);
 
@@ -81,7 +79,7 @@ public class Autonomous extends CommandOpMode {
         schedule(
                 new Sequential(
                         new Wait(5),
-                        new Instant(() -> register(drivetrain, turret, intakeAndTransfer))
+                        new Instant(() -> register(drivetrain, turret, intake))
                 )
         );
     }
@@ -111,17 +109,17 @@ public class Autonomous extends CommandOpMode {
         cancelAll();
         schedule(
                 new Sequential(
-                        shoot(driveLaunchLineInitial(), 2.5),
-                        intake(driveSpike1()),
-                        drive(driveGate()),
-                        shoot(driveLaunchLine(), 0.5),
-                        intake(driveSpike2()),
-                        shoot(new PathBuilder(getPreviousPath(1)).reverse().build(), 0.5),
-                        intakeFromGate(driveGateIntake()),
-                        shoot(driveLaunchLineFromGate(), 0.5),
-                        intakeFromGate(driveGateIntake()),
-                        shoot(driveLaunchLineFromGate(), 0.5),
-                        driveWithoutPreemption(driveLeave()),
+                        shoot(driveLaunchLineInitial(), 2.5, 0.5, 0.5),
+                        intake(driveSpike1(), 0.5),
+                        driveAndPreepmt(driveGate(), 0.5),
+                        shoot(driveLaunchLine(), 0.5, 0.5, 0.5),
+                        intake(driveSpike2(), 0.5),
+                        shoot(new PathBuilder(getPreviousPath(1)).reverse().build(), 0.5, 0.5, 0.5),
+                        intakeFromGate(driveGateIntake(), 3),
+                        shoot(driveLaunchLineFromGate(), 0.5, 0.5, 0.5),
+                        intakeFromGate(driveGateIntake(), 3),
+                        shoot(driveLaunchLineFromGate(), 0.5, 0.5, 0.5),
+                        drive(driveLeave()),
                         new Instant(this::requestOpModeStop)
                 )
         );
@@ -303,64 +301,60 @@ public class Autonomous extends CommandOpMode {
                 .build();
     }
 
-    private Command drive(Triple<Path, Path, Double> path) {
-        update(path);
-        Stopwatch stopwatch = new Stopwatch();
-        int currentPath = paths.size() - 1;
+    private Command preempt() {
+        final int currentPathCaptured = paths.size() - 1;
         return new Sequential(
-                new Instant(stopwatch::reset),
-                new First(
-                        followPath(path.first, 1),
-                        new Sequential(
-                                // Last quarter or 1s, whichever is less, is fair game.
-                                new WaitUntil(() -> path.third - stopwatch.getElapsed() < Math.min(1, path.third / 4) && fusedLocalizer.getVelocity().norm(Constants.pidFVelocityX / Constants.pidFVelocityTheta) < 4),
-                                // Works because it runs top to bottom, First that is.
-                                new Instant(() -> drivetrain.move(Transform.ZERO)),
-                                new Instant(() -> drivetrain.preempt(new Transform(paths.get(currentPath + 1).velocity(0.001))))
-                        )
-                ),
-                new Defer(() -> new Wait(path.third - stopwatch.getElapsed()))
+                new Instant(() -> drivetrain.move(Transform.ZERO)),
+                new Instant(() -> drivetrain.preempt(new Transform(paths.get(currentPathCaptured + 1).velocity(0.001))))
         );
     }
 
-    private Command driveWithoutPreemption(Triple<Path, Path, Double> path) {
+    private Command drive(Triple<Path, Path, Double> path) {
         update(path);
         return followPath(path.first, 1);
     }
 
-    private Command intake(Triple<Path, Path, Double> path) {
-        return new Sequential(
-                new Instant(() -> intakeAndTransfer.transfer(false)),
-                new Instant(() -> intakeAndTransfer.intake(1)),
-                drive(path),
-                new Instant(() -> intakeAndTransfer.intake(0))
-        );
-    }
-
-    private Command intakeFromGate(Triple<Path, Path, Double> path) {
+    private Command driveAndPreepmt(Triple<Path, Path, Double> path, double settlingTime) {
         update(path);
         return new Sequential(
-                new Instant(() -> intakeAndTransfer.transfer(false)),
-                new Instant(() -> intakeAndTransfer.intake(1)),
-                drive(path),
-                new RunUntil(
-                        new Wait(2),
-                        hold(path)
-                ),
-                new Instant(() -> intakeAndTransfer.intake(0))
+                followPath(path.first, 1),
+                preempt(),
+                new Wait(settlingTime)
         );
     }
 
-    private Command shoot(Triple<Path, Path, Double> path, double settlingTime) {
+    private Command intake(Triple<Path, Path, Double> path, double settlingTime) {
+        return new Sequential(
+                new Instant(() -> intake.transfer(false)),
+                new Instant(() -> intake.intake(1)),
+                drive(path),
+                preempt(),
+                new Wait(settlingTime),
+                new Instant(() -> intake.intake(0))
+        );
+    }
+
+    private Command intakeFromGate(Triple<Path, Path, Double> path, double settlingTime) {
+        update(path);
+        return new Sequential(
+                new Instant(() -> intake.transfer(false)),
+                new Instant(() -> intake.intake(1)),
+                drive(path),
+                preempt(),
+                new Wait(settlingTime),
+                new Instant(() -> intake.intake(0))
+        );
+    }
+
+    private Command shoot(Triple<Path, Path, Double> path, double shooterSettlingTime, double shootingTime, double preepmtionTime) {
         final List<Double> launchZoneX = List.of(0.0, -72.0, -72.0);
         final List<Double> launchZoneY = List.of(0.0, -72.0, 72.0);
 
         update(path);
         return new Sequential(
                 new Parallel(
-                        drive(path),
-                        new Instant(() -> intakeAndTransfer.intake(1)),
-                        new Instant(() -> intakeAndTransfer.transfer(false)),
+                        new Instant(() -> intake.intake(1)),
+                        new Instant(() -> intake.transfer(false)),
                         new Sequential(
                                 new WaitUntil(() -> {
                                     Pair<List<Double>, List<Double>> robot = Geometry.generateBox(fusedLocalizer.getPosition().getX(), fusedLocalizer.getPosition().getY(), 16, 18, fusedLocalizer.getPosition().getTheta());
@@ -368,16 +362,21 @@ public class Autonomous extends CommandOpMode {
                                 }),
                                 new RunUntil(
                                         new Sequential(
-                                                new Wait(settlingTime),
-                                                new Instant(() -> intakeAndTransfer.transfer(true)),
-                                                new Wait(0.5)
+                                                new Wait(shooterSettlingTime),
+                                                new Instant(() -> intake.transfer(true)),
+                                                new Wait(shootingTime)
                                         ),
                                         new TurretControl(turret, fusedLocalizer, mirror)
                                 )
+                        ),
+                        new Sequential(
+                                drive(path),
+                                preempt(),
+                                new Wait(preepmtionTime)
                         )
                 ),
-                new Instant(() -> intakeAndTransfer.transfer(false)),
-                new Instant(() -> intakeAndTransfer.intake(0))
+                new Instant(() -> intake.transfer(false)),
+                new Instant(() -> intake.intake(0))
         );
     }
 

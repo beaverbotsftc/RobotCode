@@ -4,26 +4,26 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.beaverbots.beaver.command.CommandOpMode;
 import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
-import org.firstinspires.ftc.teamcode.subsystems.IntakeAndTransfer;
+import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
 
 @Autonomous
 public class IntakeExperiment extends CommandOpMode {
     private VoltageSensor voltageSensor;
-    private IntakeAndTransfer intakeAndTransfer;
+    private Intake intake;
     private GamepadEx gamepad;
 
     @Override
     public void onInit() {
         voltageSensor = new VoltageSensor();
-        intakeAndTransfer = new IntakeAndTransfer();
+        intake = new Intake();
         gamepad = new GamepadEx(gamepad1);
 
-        register(voltageSensor, intakeAndTransfer, gamepad);
+        register(voltageSensor, intake, gamepad);
     }
 
     @Override
     public void periodic() {
-        intakeAndTransfer.intake(gamepad.getRightTrigger() - gamepad.getLeftTrigger());
+        intake.intake(gamepad.getRightTrigger() - gamepad.getLeftTrigger());
     }
 }

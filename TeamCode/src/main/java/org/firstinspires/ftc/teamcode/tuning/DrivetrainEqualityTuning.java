@@ -5,15 +5,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.beaverbots.beaver.command.CommandOpMode;
 import org.beaverbots.beaver.command.HardwareManager;
-import org.beaverbots.beaver.util.Stopwatch;
-import org.beaverbots.beaver.util.Transform;
-import org.firstinspires.ftc.teamcode.subsystems.GamepadEx;
-import org.firstinspires.ftc.teamcode.subsystems.IntakeAndTransfer;
-import org.firstinspires.ftc.teamcode.subsystems.Limelight;
-import org.firstinspires.ftc.teamcode.subsystems.VoltageSensor;
-import org.firstinspires.ftc.teamcode.subsystems.localizer.FusedLocalizer;
-import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
-import org.firstinspires.ftc.teamcode.subsystems.turret.Turret;
 
 @Autonomous(group = "tuning")
 public class DrivetrainEqualityTuning extends CommandOpMode {
