@@ -31,6 +31,7 @@ public class Turret implements Subsystem {
     private double desiredVelocity = 0;
 
     private PIDFAxis pidf = new PIDFAxis(new PIDFAxis.K(Constants.pidPShooter, Constants.pidIShooter, Constants.pidDShooter, new double[] {1}, 0.5, 1, 1, Constants.pidGammaShooter, 0.1));
+    private boolean facingCorrectly = false;
 
 
     public Turret(VoltageSensor voltageSensor) {
@@ -58,12 +59,20 @@ public class Turret implements Subsystem {
         stopwatch = new Stopwatch();
     }
 
+    public boolean isFacingCorrectly() {
+        return facingCorrectly;
+    }
+
     public void turn(double angle) {
-        double normalized = Math.max(-Constants.turretBounds, Math.min(Geometry.normalizeAngle2(-angle - Constants.turretAngularBias), Constants.turretBounds));
+        double normalized = Geometry.normalizeAngle2(-angle - Constants.turretAngularBias);
+        double bounded = Math.max(-Constants.turretBounds, Math.min(normalized, Constants.turretBounds));
+        facingCorrectly = normalized == bounded;
+        if (!facingCorrectly) return;
+
         final double K = 360.0 / 355.0;
 
-        turretLeft.setPosition(normalized / (2 * Math.PI) * K + 0.5);
-        turretRight.setPosition(normalized / (2 * Math.PI) * K + 0.5);
+        turretLeft.setPosition(bounded / (2 * Math.PI) * K + 0.5);
+        turretRight.setPosition(bounded/ (2 * Math.PI) * K + 0.5);
     }
 
     public static boolean inBounds(double angle) {
@@ -71,7 +80,7 @@ public class Turret implements Subsystem {
     }
 
     public void setHoodAngle(double hoodSetting) {
-        hood.setPosition((Math.max(0, Math.min(hoodSetting, 1)) * (0.87 - 0.3)) + 0.3);
+        hood.setPosition((Math.max(0, Math.min(hoodSetting, 1)) * (0.6 - 0.0555)) + 0.0555);
     }
 
     public void shoot(double velocity) {
@@ -92,7 +101,7 @@ public class Turret implements Subsystem {
             return;
         }
 
-        double control = Math.max(0, pidf.update(desiredVelocity - velocity, new double[] {desiredVelocity / voltageSensor.getVoltage()}, stopwatch.getDt()));
+        double control = Math.max(0 - Double.MAX_VALUE, pidf.update(desiredVelocity - velocity, new double[] {desiredVelocity / voltageSensor.getVoltage()}, stopwatch.getDt()));
         if (Double.isFinite(control)) {
             shooterLeft.setPower(control);
             shooterRight.setPower(control);

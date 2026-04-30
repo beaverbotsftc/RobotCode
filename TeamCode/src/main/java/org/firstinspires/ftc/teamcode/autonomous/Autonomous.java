@@ -18,8 +18,6 @@ import org.beaverbots.beaver.pathing.trackers.HolonomicPathTracker;
 import org.beaverbots.beaver.pidf.PIDF;
 import org.beaverbots.beaver.pidf.PIDFAxis;
 import org.beaverbots.beaver.util.Geometry;
-import org.beaverbots.beaver.util.Box;
-import org.beaverbots.beaver.util.Stopwatch;
 import org.beaverbots.beaver.util.Transform;
 import org.beaverbots.beaver.util.Triple;
 import org.firstinspires.ftc.teamcode.Constants;
@@ -52,6 +50,7 @@ public class Autonomous extends CommandOpMode {
     private VoltageSensor voltageSensor;
 
     private Transform currentPosition;
+    private Transform redCurrentPosition;
 
     private List<Path> paths = new ArrayList<>();
     private List<Path> pathsHold = new ArrayList<>();
@@ -95,8 +94,14 @@ public class Autonomous extends CommandOpMode {
         addData("Side", CrossModeStorage.side);
         currentPosition = fusedLocalizer.getPosition();
 
+        mirror = CrossModeStorage.side == Side.RED
+                ? new DoubleUnaryOperator[]{x -> x, y -> y, theta -> theta}
+                : new DoubleUnaryOperator[]{x -> x, y -> -y, theta -> -theta};
+
+        redCurrentPosition = fusedLocalizer.getPosition().transform(mirror);
+
         if (gamepad.getY())
-            drivetrain.preempt(new Transform(driveLaunchLineInitial().first.velocity(0.1)).toLocalVelocity(currentPosition));
+            drivetrain.preempt(new Transform(driveFarLaunchLineInitial().first.velocity(0.1)).toLocalVelocity(currentPosition));
     }
 
     @Override
@@ -109,16 +114,26 @@ public class Autonomous extends CommandOpMode {
         cancelAll();
         schedule(
                 new Sequential(
-                        shoot(driveLaunchLineInitial(), 2.5, 0.5, 0.5),
+                        /*
+                        shoot(driveLaunchLineInitial(), 2, 0.5, 0.5),
                         intake(driveSpike1(), 0.5),
-                        driveAndPreepmt(driveGate(), 0.5),
-                        shoot(driveLaunchLine(), 0.5, 0.5, 0.5),
+                        driveAndPreepmt(driveGate(), 1),
+                        shoot(driveLaunchLineStraight(), 0.5, 0.5, 0.5),
                         intake(driveSpike2(), 0.5),
-                        shoot(new PathBuilder(getPreviousPath(1)).reverse().build(), 0.5, 0.5, 0.5),
-                        intakeFromGate(driveGateIntake(), 3),
-                        shoot(driveLaunchLineFromGate(), 0.5, 0.5, 0.5),
-                        intakeFromGate(driveGateIntake(), 3),
-                        shoot(driveLaunchLineFromGate(), 0.5, 0.5, 0.5),
+                        shoot(driveLaunchLineSpline(), 0.5, 0.5, 0.5),
+                        drive(driveLeave()),
+                         */
+                        shoot(driveFarLaunchLineInitial(), 2.0, 0.6, 0.3),
+                        intake(driveHumanPlayer(0), 0.3),
+                        shoot(driveFarLaunchLineInitial(), 0.2, 0.6, 0.3),
+                        intake(driveSpike3(), 0.3),
+                        shoot(driveFarLaunchLineInitial(), 0.2, 0.6, 0.3),
+                        intake(driveHumanPlayer(24), 0.3),
+                        shoot(driveFarLaunchLineInitial(), 0.2, 0.6, 0.3),
+                        intake(driveHumanPlayer(0), 0.3),
+                        shoot(driveFarLaunchLineInitial(), 0.2, 0.6, 0.3),
+                        intake(driveHumanPlayer(24), 0.3),
+                        shoot(driveFarLaunchLineInitial(), 0.2, 0.6, 0.3),
                         drive(driveLeave()),
                         new Instant(this::requestOpModeStop)
                 )
@@ -133,6 +148,7 @@ public class Autonomous extends CommandOpMode {
 
     private void update(Triple<Path, Path, Double> path) {
         currentPosition = new Transform(path.second.position(0));
+        redCurrentPosition = currentPosition.transform(mirror);
         paths.add(path.first);
         pathsHold.add(path.second);
         times.add(path.third);
@@ -146,7 +162,7 @@ public class Autonomous extends CommandOpMode {
         final double EASE_IN_FRACTION = 0.4;
         final double EASE_OUT_FRACTION = 0.4;
 
-        return new PathBuilder(currentPosition.toList())
+        return new PathBuilder(redCurrentPosition.toList(), mirror, false)
                 .linearTo(new Transform(0, 0, 0).toList(), EASE_IN_FRACTION, 1)
                 .stop(EASE_OUT_FRACTION, EASE_OUT_FRACTION, PathBuilder.EaseMode.PREEMPTIVE)
                 .retime(usageRatio, 0.1, 50, true)
@@ -154,88 +170,97 @@ public class Autonomous extends CommandOpMode {
     }
 
     private Triple<Path, Path, Double> driveLeave() {
-        final double EASE_IN_FRACTION = 0.4;
+        final double EASE_IN_FRACTION = 0.0;
         final double EASE_OUT_FRACTION = 0.4;
 
-        return new PathBuilder(currentPosition.toList())
+        return new PathBuilder(redCurrentPosition.toList(), mirror, false)
                 .linearTo(new Transform(0, 24, Math.PI / 2).toList(), EASE_IN_FRACTION, 1)
                 .stop(EASE_OUT_FRACTION, EASE_OUT_FRACTION, PathBuilder.EaseMode.PREEMPTIVE)
-                .retime(usageRatio, 0.5, 50, true)
+                .retime(usageRatio, 0.5, 50, false)
                 .build();
     }
 
     private Triple<Path, Path, Double> driveLaunchLineInitial() {
-        final double EASE_IN_FRACTION = 0.3;
-        final double EASE_OUT_FRACTION = 0.3;
-
-        return new PathBuilder(currentPosition.toList())
-                .linearTo(new Transform(-16, 20, Math.PI / 2).toList(), EASE_IN_FRACTION, 1)
-                .stop(EASE_OUT_FRACTION, EASE_OUT_FRACTION, PathBuilder.EaseMode.PREEMPTIVE)
-                .retime(usageRatio, 0.5, 50, true)
-                .build();
-    }
-
-    private Triple<Path, Path, Double> driveLaunchLine() {
         final double EASE_IN_FRACTION = 0.5;
         final double EASE_OUT_FRACTION = 0.5;
 
-        return new PathBuilder(currentPosition.toList())
+        return new PathBuilder(redCurrentPosition.toList(), mirror, false)
                 .linearTo(new Transform(-16, 20, Math.PI / 2).toList(), EASE_IN_FRACTION, 1)
                 .stop(EASE_OUT_FRACTION, EASE_OUT_FRACTION, PathBuilder.EaseMode.PREEMPTIVE)
-                .retime(usageRatio, 0.5, 50, true)
+                .retime(usageRatio, 0.8, 50, true)
                 .build();
     }
 
-    private Triple<Path, Path, Double> driveLaunchLineFromGate() {
-        return new PathBuilder(currentPosition.toList())
+    private Triple<Path, Path, Double> driveFarLaunchLineInitial() {
+        final double EASE_IN_FRACTION = 0.0;
+        final double EASE_OUT_FRACTION = 0.4;
+
+        return new PathBuilder(redCurrentPosition.toList(), mirror, false)
+                .linearTo(new Transform(62, 16, Math.PI / 2).toList(), EASE_IN_FRACTION, 1)
+                .stop(EASE_OUT_FRACTION, EASE_OUT_FRACTION, PathBuilder.EaseMode.PREEMPTIVE)
+                .retime(usageRatio, 0.8, 50, false)
+                .build();
+    }
+
+    private Triple<Path, Path, Double> driveHumanPlayer(double offset) {
+        final double EASE_IN_FRACTION = 0.0;
+        final double EASE_OUT_FRACTION = 0.8;
+
+        return new PathBuilder(redCurrentPosition.toList(), mirror, false)
+                .linearTo(new Transform(62 - offset, 60, Math.PI / 2).toList(), EASE_IN_FRACTION, 1)
+                .stop(EASE_OUT_FRACTION, EASE_OUT_FRACTION, PathBuilder.EaseMode.PREEMPTIVE)
+                .retime(usageRatio, 0.8, 50, false)
+                .build();
+    }
+
+    private Triple<Path, Path, Double> driveLaunchLineStraight() {
+        final double EASE_IN_FRACTION = 0.5;
+        final double EASE_OUT_FRACTION = 0.5;
+
+        return new PathBuilder(redCurrentPosition.toList(), mirror, false)
+                .linearTo(new Transform(-16, 20, Math.PI / 2).toList(), EASE_IN_FRACTION, 1)
+                .stop(EASE_OUT_FRACTION, EASE_OUT_FRACTION, PathBuilder.EaseMode.PREEMPTIVE)
+                .retime(usageRatio, 0.7, 50, true)
+                .build();
+    }
+
+    private Triple<Path, Path, Double> driveLaunchLineSpline() {
+        return new PathBuilder(redCurrentPosition.toList(), mirror, false)
                 .c2BezierTo(List.of(
-                        new Transform(currentPosition.getX(), 20, currentPosition.getTheta()).toList(),
+                        new Transform(redCurrentPosition.getX(), 20, currentPosition.getTheta()).toList(),
                         new Transform(-16, 20, Math.PI / 2).toList(),
                         new Transform(-16, 20, Math.PI / 2).toList(),
                         new Transform(-16, 20, Math.PI / 2).toList()
                 ), 1)
-                .retime(usageRatio, 0.5, 50, true)
+                .retime(usageRatio, 0.7, 50, true)
                 .build();
     }
 
     private Triple<Path, Path, Double> driveGate() {
-        return new PathBuilder(currentPosition.toList())
+        final double Y1 = 35;
+        final double X2 = -1;
+        final double Y2 = 58; // Would be 54, but to ensure the open
+
+        return new PathBuilder(redCurrentPosition.toList(), mirror, false)
                 .c2BezierTo(List.of(
-                        new Transform(currentPosition.getX(), 25, Math.PI / 2).toList(),
-                        new Transform(currentPosition.getX(), 25, Math.PI / 2).toList(),
-                        new Transform(-1, 58, Math.PI / 2).toList(),
-                        new Transform(-1, 58, Math.PI / 2).toList(),
-                        new Transform(-1, 58, Math.PI / 2).toList()
+                        new Transform(redCurrentPosition.getX(), Y1, Math.PI / 2).toList(),
+                        new Transform(redCurrentPosition.getX(), Y1, Math.PI / 2).toList(),
+                        new Transform(X2, Y2, Math.PI / 2).toList(),
+                        new Transform(X2, Y2, Math.PI / 2).toList(),
+                        new Transform(X2, Y2, Math.PI / 2).toList()
                 ), 1)
-                .retime(usageRatio, 0.5, 50, true)
+                .retime(usageRatio, 0.3, 50, true)
                 .build();
     }
 
     private Triple<Path, Path, Double> driveGateIntake() {
-        /*
-        final double X = 11;
-        final double Y = 62;
-        final double THETA = 2.1;
+        final double X1 = 9;
+        final double Y1 = 55; // Would be 53, but to ensure the open
+        final double X2 = 14;
+        final double Y2 = 60; // Would be 58, but to ensure the open
+        final double THETA2 = 2.15;
 
-        return new PathBuilder(currentPosition.toList())
-                .c2BezierTo(List.of(
-                        new Transform((currentPosition.getX() + X) / 2, currentPosition.getY(), (currentPosition.getTheta() + THETA) / 2).toList(),
-                        new Transform(X, currentPosition.getY(), THETA).toList(),
-                        new Transform(X, Y, THETA).toList(),
-                        new Transform(X, Y, THETA).toList(),
-                        new Transform(X, Y, THETA).toList()
-                ), 1)
-                .retime(usageRatio, 0.4, 50, true)
-                .build();
-         */
-
-        final double X1 = 8;
-        final double Y1 = 56; // The physical max is 52, but bezier curves for you I guess.
-        final double X2 = 20;
-        final double Y2 = 56;
-        final double THETA2 = 2.2;
-
-        return new PathBuilder(currentPosition.toList())
+        return new PathBuilder(redCurrentPosition.toList(), mirror, false)
                 .c2BezierTo(List.of(
                         new Transform(X1, Y1, Math.PI / 2).toList(),
                         new Transform(X1, Y1, Math.PI / 2).toList(),
@@ -245,16 +270,34 @@ public class Autonomous extends CommandOpMode {
                         new Transform(X2, Y2, THETA2).toList(),
                         new Transform(X2, Y2, THETA2).toList()
                 ), 1)
-                .retime(usageRatio, 0.6, 50, true)
+                .retime(usageRatio, 0.9, 50, true)
                 .build();
     }
 
     private Triple<Path, Path, Double> driveSpike1() {
         final double X = -11.78125;
-        final double Y = 52.281250;
+        final double Y = 54;
 
-        return new PathBuilder(currentPosition.toList())
+        return new PathBuilder(redCurrentPosition.toList(), mirror, false)
                 .c2BezierTo(List.of(
+                        new Transform(X, Y, Math.PI / 2).toList(),
+                        new Transform(X, Y, Math.PI / 2).toList(),
+                        new Transform(X, Y, Math.PI / 2).toList()
+                ), 1)
+                .retime(usageRatio, 0.4, 50, true)
+                .build();
+    }
+
+    private Triple<Path, Path, Double> driveSpike2() {
+        final double X = 14;
+        final double Y = 60;
+
+        return new PathBuilder(redCurrentPosition.toList(), mirror, false)
+                .c2BezierTo(List.of(
+                        new Transform((2 * redCurrentPosition.getX() + X) / 3, redCurrentPosition.getY(), Math.PI / 2).toList(),
+                        new Transform((redCurrentPosition.getX() + 2 * X) / 3, redCurrentPosition.getY(), Math.PI / 2).toList(),
+                        new Transform(X, 20, Math.PI / 2).toList(),
+                        new Transform(X, 20, Math.PI / 2).toList(),
                         new Transform(X, Y, Math.PI / 2).toList(),
                         new Transform(X, Y, Math.PI / 2).toList(),
                         new Transform(X, Y, Math.PI / 2).toList()
@@ -263,49 +306,34 @@ public class Autonomous extends CommandOpMode {
                 .build();
     }
 
-    private Triple<Path, Path, Double> driveSpike2() {
-        final double X = 11.78125;
-        final double Y = 62;
-
-        return new PathBuilder(currentPosition.toList())
-                .c2BezierTo(List.of(
-                        new Transform((2 * currentPosition.getX() + X) / 3, currentPosition.getY(), Math.PI / 2).toList(),
-                        new Transform((currentPosition.getX() + 2 * X) / 3, currentPosition.getY(), Math.PI / 2).toList(),
-                        new Transform(X, 20, Math.PI / 2).toList(),
-                        new Transform(X, 20, Math.PI / 2).toList(),
-                        new Transform(X, Y, Math.PI / 2).toList(),
-                        new Transform(X, Y, Math.PI / 2).toList(),
-                        new Transform(X, Y, Math.PI / 2).toList()
-                ), 1)
-                .retime(usageRatio, 0.8, 50, true)
-                .build();
-    }
-
     private Triple<Path, Path, Double> driveSpike3() {
-        final double X = 35.34375;
-        final double Y = 52.281250;
+        final double X = 35.28125;
+        final double Y = 60;
 
-        return new PathBuilder(currentPosition.toList())
+        return new PathBuilder(redCurrentPosition.toList(), mirror, false)
                 .c2BezierTo(List.of(
-                        new Transform((3 * currentPosition.getX() + X) / 4, currentPosition.getY(), Math.PI / 2).toList(),
-                        new Transform((2 * currentPosition.getX() + 2 * X) / 4, currentPosition.getY(), Math.PI / 2).toList(),
-                        new Transform((currentPosition.getX() + 3 * X) / 4, currentPosition.getY(), Math.PI / 2).toList(),
-                        new Transform(X, 20, Math.PI / 2).toList(),
-                        new Transform(X, 20, Math.PI / 2).toList(),
-                        new Transform(X, 20, Math.PI / 2).toList(),
+                        new Transform(X, redCurrentPosition.getY(), Math.PI / 2).toList(),
+                        new Transform(X, redCurrentPosition.getY(), Math.PI / 2).toList(),
+                        new Transform(X, redCurrentPosition.getY(), Math.PI / 2).toList(),
                         new Transform(X, Y, Math.PI / 2).toList(),
                         new Transform(X, Y, Math.PI / 2).toList(),
                         new Transform(X, Y, Math.PI / 2).toList()
                 ), 1)
-                .retime(usageRatio, 0.5, 50, true)
+                .retime(usageRatio, 0.8, 50, false)
                 .build();
     }
 
     private Command preempt() {
         final int currentPathCaptured = paths.size() - 1;
+        final Transform currentPositionCaptured = redCurrentPosition;
         return new Sequential(
                 new Instant(() -> drivetrain.move(Transform.ZERO)),
-                new Instant(() -> drivetrain.preempt(new Transform(paths.get(currentPathCaptured + 1).velocity(0.001))))
+                new Instant(() ->
+                        drivetrain.preempt(
+                                (new Transform(paths.get(currentPathCaptured + 1).velocity(0.01)).multiply(new Transform(Constants.pidFVelocityX, Constants.pidFVelocityY, Constants.pidFVelocityTheta))
+                                        .add(new Transform(paths.get(currentPathCaptured + 1).acceleration(0.01))).multiply(new Transform(Constants.pidFAccelerationX, Constants.pidFAccelerationY, Constants.pidFAccelerationTheta))).toLocalVelocity(redCurrentPosition)
+                        )
+                )
         );
     }
 
@@ -349,16 +377,18 @@ public class Autonomous extends CommandOpMode {
     private Command shoot(Triple<Path, Path, Double> path, double shooterSettlingTime, double shootingTime, double preepmtionTime) {
         final List<Double> launchZoneX = List.of(0.0, -72.0, -72.0);
         final List<Double> launchZoneY = List.of(0.0, -72.0, 72.0);
+        final List<Double> farLaunchZoneX = List.of(48.0, 72.0, 72.0);
+        final List<Double> farLaunchZoneY = List.of(0.0, 24.0, -24.0);
 
         update(path);
         return new Sequential(
                 new Parallel(
-                        new Instant(() -> intake.intake(1)),
+                        new Instant(() -> intake.intake(0.5)),
                         new Instant(() -> intake.transfer(false)),
                         new Sequential(
                                 new WaitUntil(() -> {
                                     Pair<List<Double>, List<Double>> robot = Geometry.generateBox(fusedLocalizer.getPosition().getX(), fusedLocalizer.getPosition().getY(), 16, 18, fusedLocalizer.getPosition().getTheta());
-                                    return Geometry.polygonPolygonIntersects(launchZoneX, launchZoneY, robot.first, robot.second);
+                                    return Geometry.polygonPolygonIntersects(launchZoneX, launchZoneY, robot.first, robot.second) || Geometry.polygonPolygonIntersects(farLaunchZoneX, farLaunchZoneY, robot.first, robot.second);
                                 }),
                                 new RunUntil(
                                         new Sequential(

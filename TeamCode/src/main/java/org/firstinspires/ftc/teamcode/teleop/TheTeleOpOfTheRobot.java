@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.beaverbots.beaver.command.CommandOpMode;
 import org.beaverbots.beaver.command.premade.Instant;
+import org.beaverbots.beaver.command.premade.NoOp;
 import org.beaverbots.beaver.command.premade.Repeat;
 import org.beaverbots.beaver.command.premade.router.Router;
 import org.beaverbots.beaver.command.premade.router.Selector;
@@ -23,10 +24,13 @@ import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 import org.firstinspires.ftc.teamcode.subsystems.turret.TurretControl;
 import org.firstinspires.ftc.teamcode.subsystems.turret.Turret;
 
+import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 
 @TeleOp
 public class TheTeleOpOfTheRobot extends CommandOpMode {
+    public static int offset = 0;
+
     private VoltageSensor voltageSensor;
     private Drivetrain drivetrain;
     private Intake intake;
@@ -49,14 +53,14 @@ public class TheTeleOpOfTheRobot extends CommandOpMode {
 
         pinpoint = new Pinpoint(new Transform(0, 0, 0));
         limelight = new Limelight(Limelight.Pipeline.LOCALIZATION_GOAL);
-        localizer = new FusedLocalizer(pinpoint, limelight, new Transform(0, 0, 0));
+        localizer = new FusedLocalizer(pinpoint, limelight, CrossModeStorage.position, CrossModeStorage.covariance.scalarMultiply(3));
 
         gamepad = new GamepadEx(gamepad1);
 
         register(voltageSensor, pinpoint, limelight, localizer, gamepad);
     }
 
-    public void initPeriodic() {
+    public void periodicInit() {
         if (gamepad1.x) CrossModeStorage.side = Side.BLUE;
         if (gamepad1.b) CrossModeStorage.side = Side.RED;
         addData("Side", CrossModeStorage.side);
@@ -72,15 +76,12 @@ public class TheTeleOpOfTheRobot extends CommandOpMode {
                                 ? new DoubleUnaryOperator[]{ x -> x, y -> y, theta -> theta }
                                 : new DoubleUnaryOperator[]{ x -> -x, y -> -y, theta -> theta }
                 ),
-                new Repeat(() -> intake.intake(gamepad.getRightTrigger() - gamepad.getLeftTrigger())),
-                new Repeat(() -> intake.transfer(gamepad.getRightBumper())),
-                new Router(new Selector(() -> gamepad.getBPressedToggle()),
-                        new TurretControl(turret, localizer,
-                                CrossModeStorage.side == Side.RED
-                                        ? new DoubleUnaryOperator[]{x -> x, y -> y, theta -> theta}
-                                        : new DoubleUnaryOperator[]{x -> x, y -> -y, theta -> -theta}
-                        ),
-                        new Instant(() -> turret.shoot(0))
+                new Repeat(() -> intake.intake((gamepad.getRightTrigger() - gamepad.getLeftTrigger()) * (gamepad.getRightBumper() ? 0.75 : 1))),
+                new Repeat(() -> intake.transfer(gamepad.getRightBumper() && turret.isFacingCorrectly())),
+                new TurretControl(turret, localizer,
+                        CrossModeStorage.side == Side.RED
+                                ? new DoubleUnaryOperator[]{x -> x, y -> y, theta -> theta}
+                                : new DoubleUnaryOperator[]{x -> x, y -> -y, theta -> -theta}
                 )
         );
 
@@ -92,5 +93,9 @@ public class TheTeleOpOfTheRobot extends CommandOpMode {
         addData("Covariance X", localizer.getCovariance().getEntry(0, 0));
         addData("Covariance Y", localizer.getCovariance().getEntry(1, 1));
         addData("Covariance Theta", localizer.getCovariance().getEntry(2, 2));
+
+        if (gamepad.getDpadUpJustPressed()) offset += 25;
+        if (gamepad.getDpadDownJustPressed()) offset -= 25;
+        addData("Offset", offset);
     }
 }

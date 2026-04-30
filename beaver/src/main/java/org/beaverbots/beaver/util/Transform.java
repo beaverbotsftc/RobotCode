@@ -119,9 +119,12 @@ public final class Transform {
         return new Transform(x * scalar, y * scalar, theta * scalar);
     }
 
+    public Transform multiply(Transform other) { return new Transform(x * other.x, y * other.y, theta * other.theta); }
+
     public double dotLateral(Transform other) {
         return x * other.x + y * other.y;
     }
+
 
     public Transform unitLateral() {
         double norm = lateralNorm();

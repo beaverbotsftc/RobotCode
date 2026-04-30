@@ -52,9 +52,9 @@ public final class Constants {
     public static double turretAngularBias = 0;
 
     public static double turretDelta = 0.001;
-    public static double shooterDelta = 0.01;
+    public static double shooterDelta = 0.05;
 
-    public static double pidFShooter = 0.0024; // rpm -> proportion of max RPM at 1V
+    public static double pidFShooter = 0.0025; // rpm -> proportion of max RPM at 1V
     public static double pidPShooter = 0.002;
     public static double pidIShooter = 0.001;
     public static double pidDShooter = 0.00015;
@@ -62,7 +62,7 @@ public final class Constants {
 
     public static double headingEnforcementAngularVelocityCutoff = 0.1;
 
-    public static double pidPGateHeading = 0.3;
+    public static double pidPGateHeading = 0.5;
     public static double pidIGateHeading = 0;
     public static double pidDGateHeading = 0;
     public static double pidTauGateHeading = 1;

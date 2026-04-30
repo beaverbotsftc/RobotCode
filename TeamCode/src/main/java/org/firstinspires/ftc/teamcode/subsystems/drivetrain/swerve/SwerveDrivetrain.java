@@ -125,7 +125,6 @@ public class SwerveDrivetrain implements Drivetrain {
 
     public void move(Transform force) {
         double scalar = maxCapability ? 1 : NOMINAL_VOLTAGE / voltageSensor.getVoltage();
-        //scalar = 0;
         Transform scaledForce = force.scale(scalar);
         frontLeftModule.drive(scaledForce);
         frontRightModule.drive(scaledForce);

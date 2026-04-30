@@ -81,7 +81,7 @@ public class SwerveDriveControl implements Command {
                 pidfNormal.reset();
             }
 
-            if (followTargetHeading) {
+            if (followTargetHeading && false) {
                 double heading = localizer.getPosition().getTheta();
                 double control = -pidfNormal.update(heading - targetHeading, new double[]{}, stopwatch.getDt());
 

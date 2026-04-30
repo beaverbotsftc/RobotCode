@@ -23,7 +23,7 @@ public class PathBuilder {
 
     protected double clock;
     protected List<DoubleUnaryOperator> f = new ArrayList<>();
-    protected List<DoubleUnaryOperator> mirror = null;
+    protected DoubleUnaryOperator[] mirror = null;
 
     public PathBuilder(List<Double> startingPosition) {
         for (int i = 0; i < startingPosition.size(); i++) {
@@ -32,10 +32,10 @@ public class PathBuilder {
         }
     }
 
-    public PathBuilder(List<Double> startingPosition, List<DoubleUnaryOperator> mirror, boolean doubleMirrorStart) {
+    public PathBuilder(List<Double> startingPosition, DoubleUnaryOperator[] mirror, boolean doubleMirrorStart) {
         this.mirror = mirror;
         for (int i = 0; i < startingPosition.size(); i++) {
-            final double captured = doubleMirrorStart ? mirror.get(i).applyAsDouble(startingPosition.get(i)) : startingPosition.get(i);
+            final double captured = doubleMirrorStart ? mirror[i].applyAsDouble(startingPosition.get(i)) : startingPosition.get(i);
             f.add(t -> captured);
         }
     }
@@ -55,7 +55,7 @@ public class PathBuilder {
     }
 
     public PathBuilder(Path path,
-                       List<DoubleUnaryOperator> mirror,
+                       DoubleUnaryOperator[] mirror,
                        boolean doubleMirrorStart) {
         this.mirror = mirror;
         this.f = new ArrayList<>();
@@ -63,7 +63,7 @@ public class PathBuilder {
 
         for (int i = 0; i < path.getAxes().size(); i++) {
             final PathAxis axis = path.getAxes().get(i);
-            final double captured = doubleMirrorStart ? mirror.get(i).applyAsDouble(axis.getPath().applyAsDouble(0.0)) : axis.getPath().applyAsDouble(0.0);
+            final double captured = doubleMirrorStart ? mirror[i].applyAsDouble(axis.getPath().applyAsDouble(0.0)) : axis.getPath().applyAsDouble(0.0);
             f.add(t -> captured);
         }
 
@@ -72,7 +72,7 @@ public class PathBuilder {
 
             for (int i = 0; i < path.getAxes().size(); i++) {
                 PathAxis axis = path.getAxes().get(i);
-                DoubleUnaryOperator mirrorAxis = mirror.get(i);
+                DoubleUnaryOperator mirrorAxis = mirror[i];
 
                 mirrored.add(new PathAxis(
                         t -> mirrorAxis.applyAsDouble(axis.getPath().applyAsDouble(t)),
@@ -444,7 +444,7 @@ public class PathBuilder {
         List<PathAxis> holdPaths = new ArrayList<>();
         for (int i = 0; i < f.size(); i++) {
             final DoubleUnaryOperator fAxis = f.get(i);
-            final DoubleUnaryOperator mirrorAxis = mirror == null ? null : mirror.get(i);
+            final DoubleUnaryOperator mirrorAxis = mirror == null ? null : mirror[i];
             final DoubleUnaryOperator fAxisMirrored = mirrorAxis == null ? fAxis : t -> mirrorAxis.applyAsDouble(fAxis.applyAsDouble(t));
             paths.add(new PathAxis(fAxisMirrored, 0, clock));
             final double endpoint = fAxisMirrored.applyAsDouble(clock);
