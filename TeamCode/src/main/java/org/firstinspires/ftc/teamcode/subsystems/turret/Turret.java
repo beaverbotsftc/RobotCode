@@ -43,7 +43,7 @@ public class Turret implements Subsystem {
         turretRight = new OptimizedServo(HardwareManager.claim(Servo.class, "right turret"), Constants.turretDelta, 1, 0, 2, 0);
         turretRight.setPwmRange(500, 2500);
 
-        hood = new OptimizedServo(HardwareManager.claim(Servo.class, "hood"), 0.05, 1, 0, 4, 0);
+        hood = new OptimizedServo(HardwareManager.claim(Servo.class, "hood"), 0.025, 1, 0, 4, 0);
 
         shooterLeft = new OptimizedMotor(HardwareManager.claim(DcMotorEx.class, "left shooter"), Constants.shooterDelta, 2, 0, 2, 1);
         shooterRight = new OptimizedMotor(HardwareManager.claim(DcMotorEx.class, "right shooter"), Constants.shooterDelta, 2, 0, 2, 1);
@@ -72,7 +72,7 @@ public class Turret implements Subsystem {
         final double K = 360.0 / 355.0;
 
         turretLeft.setPosition(bounded / (2 * Math.PI) * K + 0.5);
-        turretRight.setPosition(bounded/ (2 * Math.PI) * K + 0.5);
+        turretRight.setPosition(bounded / (2 * Math.PI) * K + 0.5);
     }
 
     public static boolean inBounds(double angle) {
@@ -80,7 +80,7 @@ public class Turret implements Subsystem {
     }
 
     public void setHoodAngle(double hoodSetting) {
-        hood.setPosition((Math.max(0, Math.min(hoodSetting, 1)) * (0.6 - 0.0555)) + 0.0555);
+        hood.setPosition((Math.max(0, Math.min(hoodSetting, 1)) * (0.81 - 0.2466)) + 0.2466);
     }
 
     public void shoot(double velocity) {
