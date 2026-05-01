@@ -45,6 +45,9 @@ public abstract class CommandOpMode extends OpMode {
     protected static boolean shouldSendTelemetry() {
         return (loopNumber + telemetryUpdateOffset) % telemetryUpdateFrequency == 0;
     }
+    protected static boolean shouldQueryLynx(int i) {
+        return (loopNumber + lynxUpdateOffset[i]) % lynxUpdateFrequency[i] == 0;
+    }
 
     protected final void setLynxUpdateFrequency(int[] lynxUpdateFrequency, int[] lynxUpdateOffset) {
         this.lynxUpdateFrequency = lynxUpdateFrequency;
@@ -138,7 +141,7 @@ public abstract class CommandOpMode extends OpMode {
         telemetry.clear();
 
         for (int i = 0; i < hubs.size(); i++)
-            if (shouldSendTelemetry())
+            if (shouldQueryLynx(i))
                 hubs.get(i).clearBulkCache();
 
         runSubsystems();
@@ -162,7 +165,7 @@ public abstract class CommandOpMode extends OpMode {
         telemetry.clear();
 
         for (int i = 0; i < hubs.size(); i++)
-            if (shouldSendTelemetry())
+            if (shouldQueryLynx(i))
                 hubs.get(i).clearBulkCache();
 
         runSubsystems();
