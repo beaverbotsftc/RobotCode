@@ -22,150 +22,75 @@ public class TurretControl implements Command {
     private DoubleUnaryOperator[] mirror;
 
     private Interpolator rpmInterpolator = new Interpolator(4,
-            new Interpolator.Point(new double[]{-37.8, 41.3}, 2950),
-            new Interpolator.Point(new double[]{-50.4, 15.8}, 3100),
-            new Interpolator.Point(new double[]{-30.2, 27.8}, 3150),
-            new Interpolator.Point(new double[]{-19.3, 42.2}, 3150),
-            new Interpolator.Point(new double[]{-13.2, 24.5}, 3300),
-            new Interpolator.Point(new double[]{-26.3, 12.5}, 3350),
-            new Interpolator.Point(new double[]{-35.8, 8.2}, 3350),
-            new Interpolator.Point(new double[]{-57.0, 1.2}, 3350),
-            new Interpolator.Point(new double[]{-64.4, -0.1}, 3350),
-            new Interpolator.Point(new double[]{-65.0, -16.1}, 3600),
-            new Interpolator.Point(new double[]{-30.3, -8.0}, 3600),
-            new Interpolator.Point(new double[]{-9.4, 5.1}, 3600),
-            new Interpolator.Point(new double[]{1.8, 12.6}, 3550),
-            new Interpolator.Point(new double[]{3.6, -1.7}, 4000),
-            new Interpolator.Point(new double[]{-12.3, -16.1}, 4000),
-            new Interpolator.Point(new double[]{-29.7, -24.8}, 3950),
-            new Interpolator.Point(new double[]{-50.1, -33.5}, 4000),
-            new Interpolator.Point(new double[]{-64.4, -38.6}, 4100),
-            new Interpolator.Point(new double[]{-49.5, -55.1}, 4450),
-            new Interpolator.Point(new double[]{-21.8, -50.8}, 4400),
-            new Interpolator.Point(new double[]{-0.9, -37.3}, 4400 - 150),
-            new Interpolator.Point(new double[]{46.0, -4.8}, 4700),
-            new Interpolator.Point(new double[]{62.5, 16.3}, 4550),
-            new Interpolator.Point(new double[] {61.4, -12.9}, 4900)
+            new Interpolator.Point(new double[]{-27.3, 27.9}, 3150),
+            new Interpolator.Point(new double[]{-46.8, 15.3}, 3150),
+            new Interpolator.Point(new double[]{-60.3, 10.0}, 3150),
+            new Interpolator.Point(new double[]{-60.1, -9.1}, 3600),
+            new Interpolator.Point(new double[]{-43.8, -3.9}, 3600),
+            new Interpolator.Point(new double[]{-30.3, 4.2}, 3600),
+            new Interpolator.Point(new double[]{-12.1, 16.6}, 3600),
+            new Interpolator.Point(new double[]{-4.3, 6.1}, 3700),
+            new Interpolator.Point(new double[]{-21.6, -5.5}, 3700),
+            new Interpolator.Point(new double[]{-46.3, -16.6}, 3800),
+            new Interpolator.Point(new double[]{-62.5, -19.6}, 3800),
+            new Interpolator.Point(new double[]{-60.7, -31.4}, 4100),
+            new Interpolator.Point(new double[]{-47.4, -30.8}, 4100),
+            new Interpolator.Point(new double[]{-33.7, -25.1}, 4100),
+            new Interpolator.Point(new double[]{2.3, -11.3}, 4150)
     );
 
     private Interpolator hoodInterpolator = new Interpolator(4,
-            new Interpolator.Point(new double[]{-37.8, 41.3},
-                    new Interpolator(
-                            new Interpolator.Point(new double[]{2950}, 0.00)
-                    )),
-            new Interpolator.Point(new double[]{-50.4, 15.8},
-                    new Interpolator(
-                            new Interpolator.Point(new double[]{3100}, 0.40)
-                    )),
-            new Interpolator.Point(new double[]{-30.2, 27.8},
-                    new Interpolator(
-                            new Interpolator.Point(new double[]{3150}, 0.40 + 0.1 - 0.3333)
-                    )),
-            new Interpolator.Point(new double[]{-19.3, 42.2},
-                    new Interpolator(
-                            new Interpolator.Point(new double[]{3150}, 0.40 + 0.1 - 0.3333)
-                    )),
-            new Interpolator.Point(new double[]{-13.2, 24.5},
-                    new Interpolator(
-                            new Interpolator.Point(new double[]{3300}, 0.40 + 0.1 - 0.3333)
-                    )),
-            new Interpolator.Point(new double[]{-26.3, 12.5},
-                    new Interpolator(
-                            new Interpolator.Point(new double[]{3350}, 0.40 + 0.1 - 0.3333)
-                    )),
-            new Interpolator.Point(new double[]{-35.8, 8.2},
-                    new Interpolator(
-                            new Interpolator.Point(new double[]{3350}, 0.40 + 0.1 - 0.3333)
-                    )),
-            new Interpolator.Point(new double[]{-57.0, 1.2},
-                    new Interpolator(
-                            new Interpolator.Point(new double[]{3350}, 0.40 + 0.1 - 0.3333)
-                    )),
-            new Interpolator.Point(new double[]{-64.4, -0.1},
-                    new Interpolator(
-                            new Interpolator.Point(new double[]{3350}, 0.40 + 0.1 - 0.3333)
-                    )),
-            new Interpolator.Point(new double[]{-65.0, -16.1},
-                    new Interpolator(
-                            new Interpolator.Point(new double[]{3700}, 0.65 + 0.1 - 0.3333)
-                    )),
-            new Interpolator.Point(new double[]{-30.3, -8.0},
-                    new Interpolator(
-                            new Interpolator.Point(new double[]{3700}, 0.65 + 0.1 - 0.3333)
-                    )),
-            new Interpolator.Point(new double[]{-9.4, 5.1},
-                    new Interpolator(
-                            new Interpolator.Point(new double[]{3700}, 0.65 + 0.1 - 0.3333)
-                    )),
-            new Interpolator.Point(new double[]{1.8, 12.6},
-                    new Interpolator(
-                            new Interpolator.Point(new double[]{3700}, 0.65 + 0.1 - 0.3333)
-                    )),
-            new Interpolator.Point(new double[]{3.6, -1.7},
-                    new Interpolator(
-                            new Interpolator.Point(new double[]{4000}, 1.00),
-                            new Interpolator.Point(new double[]{3750}, 0.95)
-                    )
-            ),
-            new Interpolator.Point(new double[]{-12.3, -16.1},
-                    new Interpolator(
-                            new Interpolator.Point(new double[]{4050}, 1.00),
-                            new Interpolator.Point(new double[]{3850}, 0.75)
-                    )
-            ),
-            new Interpolator.Point(new double[]{-29.7, -24.8},
-                    new Interpolator(
-                            new Interpolator.Point(new double[]{3950}, 0.95),
-                            new Interpolator.Point(new double[]{3750}, 0.95) // Interesting...
-                    )
-            ),
-            new Interpolator.Point(new double[]{-50.1, -33.5},
-                    new Interpolator(
-                            new Interpolator.Point(new double[]{4000}, 1.00),
-                            new Interpolator.Point(new double[]{3800}, 0.90)
-                    )
-            ),
-            new Interpolator.Point(new double[]{-64.4, -38.6},
-                    new Interpolator(
-                            new Interpolator.Point(new double[]{4100}, 1.00),
-                            new Interpolator.Point(new double[]{3900}, 1.00) // Interesting
-                    )
-            ),
-            new Interpolator.Point(new double[]{-49.5, -55.1},
-                    new Interpolator(
-                            new Interpolator.Point(new double[]{4450}, 0.90),
-                            new Interpolator.Point(new double[]{4250}, 0.95)
-                    )
-            ),
-            new Interpolator.Point(new double[]{-21.8, -50.8},
-                    new Interpolator(
-                            new Interpolator.Point(new double[]{4400}, 0.9),
-                            new Interpolator.Point(new double[]{4200}, 0.85)
-                    )),
-            new Interpolator.Point(new double[]{-0.9, -37.3},
-                    new Interpolator(
-                            new Interpolator.Point(new double[]{4400}, 0.90)
-                    )),
-            new Interpolator.Point(new double[]{46.0, -4.8},
-                    new Interpolator(
-                            new Interpolator.Point(new double[]{4600}, 1.00),
-                            new Interpolator.Point(new double[]{4400}, 0.80)
-                    )
-            ),
-            new Interpolator.Point(new double[]{62.5, 16.3},
-                    new Interpolator(
-                            new Interpolator.Point(
-                                    new double[]{4550}, 1.00
-                            ),
-                            new Interpolator.Point(
-                                    new double[]{4350}, 0.90
-                            )
-                    )
-            ),
-            new Interpolator.Point(new double[] {61.4, -12.9}, new Interpolator(
-                    new Interpolator.Point(new double[] {4900}, 1.00),
-                    new Interpolator.Point(new double[] {4700}, 0.90)
-            ))
+            new Interpolator.Point(new double[]{-27.3, 27.9}, 0.0),
+            new Interpolator.Point(new double[]{-46.8, 15.3}, 0.0),
+            new Interpolator.Point(new double[]{-60.3, 10.0}, 0.0),
+            new Interpolator.Point(new double[]{-60.1, -9.1}, 0.35),
+            new Interpolator.Point(new double[]{-43.8, -3.9}, 0.4),
+            new Interpolator.Point(new double[]{-30.3, 4.2}, 0.4),
+            new Interpolator.Point(new double[]{-12.1, 16.6}, 0.4),
+            new Interpolator.Point(new double[]{-4.3, 6.1}, 0.6),
+            new Interpolator.Point(new double[]{-21.6, -5.5}, 0.6),
+            new Interpolator.Point(new double[]{-46.3, -16.6}, 0.6),
+            new Interpolator.Point(new double[]{-62.5, -19.6}, 0.6),
+            new Interpolator.Point(new double[]{-60.7, -31.4}, 0.7),
+            new Interpolator.Point(new double[]{-47.4, -30.8}, 0.7),
+            new Interpolator.Point(new double[]{-33.7, -25.1}, 0.7),
+            new Interpolator.Point(new double[]{2.3, -11.3}, 0.7)
+    );
+
+    private Interpolator xTargetInterpolator = new Interpolator(4,
+            new Interpolator.Point(new double[]{-27.3, 27.9}, -70.3),
+            new Interpolator.Point(new double[]{-46.8, 15.3}, -70.3),
+            new Interpolator.Point(new double[]{-60.3, 10.0}, -64.8),
+            new Interpolator.Point(new double[]{-60.1, -9.1}, -65.5),
+            new Interpolator.Point(new double[]{-43.8, -3.9}, -63.6),
+            new Interpolator.Point(new double[]{-30.3, 4.2}, -66.4),
+            new Interpolator.Point(new double[]{-12.1, 16.6}, -68.3),
+            new Interpolator.Point(new double[]{-4.3, 6.1}, -65.4),
+            new Interpolator.Point(new double[]{-21.6, -5.5}, -65.4),
+            new Interpolator.Point(new double[]{-46.3, -16.6}, -63.45),
+            new Interpolator.Point(new double[]{-62.5, -19.6}, -61.6),
+            new Interpolator.Point(new double[]{-60.7, -31.4}, -61.5),
+            new Interpolator.Point(new double[]{-47.4, -30.8}, -61.5),
+            new Interpolator.Point(new double[]{-33.7, -25.1}, -61.5),
+            new Interpolator.Point(new double[]{2.3, -11.3}, -63.0)
+    );
+
+    private Interpolator yTargetInterpolator = new Interpolator(4,
+            new Interpolator.Point(new double[]{-27.3, 27.9}, 70.3),
+            new Interpolator.Point(new double[]{-46.8, 15.3}, 70.3),
+            new Interpolator.Point(new double[]{-60.3, 10.0}, 70.3),
+            new Interpolator.Point(new double[]{-60.1, -9.1}, 70.3),
+            new Interpolator.Point(new double[]{-43.8, -3.9}, 70.3),
+            new Interpolator.Point(new double[]{-30.3, 4.2}, 70.3),
+            new Interpolator.Point(new double[]{-12.1, 16.6}, 70.3),
+            new Interpolator.Point(new double[]{-4.3, 6.1}, 70.3),
+            new Interpolator.Point(new double[]{-21.6, -5.5}, 70.3),
+            new Interpolator.Point(new double[]{-46.3, -16.6}, 70.3),
+            new Interpolator.Point(new double[]{-62.5, -19.6}, 71.5),
+            new Interpolator.Point(new double[]{-60.7, -31.4}, 70.3),
+            new Interpolator.Point(new double[]{-47.4, -30.8}, 71.5),
+            new Interpolator.Point(new double[]{-33.7, -25.1}, 71.5),
+            new Interpolator.Point(new double[]{2.3, -11.3}, 70.3)
     );
 
     private Interpolator timeInterpolator = new Interpolator(4,
@@ -191,61 +116,6 @@ public class TurretControl implements Command {
             new Interpolator.Point(new double[]{46.0, -4.8}, 0.75),
             new Interpolator.Point(new double[]{62.5, 16.3}, 0.9),
             new Interpolator.Point(new double[] {61.4, -12.9}, 0.95)
-    );
-
-    private Interpolator xTargetInterpolator = new Interpolator(4,
-            new Interpolator.Point(new double[]{-37.8, 41.3}, -70.3),
-            new Interpolator.Point(new double[]{-50.4, 15.8}, -66.0),
-            new Interpolator.Point(new double[]{-30.2, 27.8}, -70.3),
-            new Interpolator.Point(new double[]{-19.3, 42.2}, -70.3),
-            new Interpolator.Point(new double[]{-13.2, 24.5}, -70.3),
-            new Interpolator.Point(new double[]{-26.3, 12.5}, -66.0),
-            new Interpolator.Point(new double[]{-35.8, 8.2}, -66.0),
-            new Interpolator.Point(new double[]{-57.0, 1.2}, -66.0),
-            new Interpolator.Point(new double[]{-64.4, -0.1}, -63.7),
-            new Interpolator.Point(new double[]{-65.0, -16.1}, -63.7),
-            new Interpolator.Point(new double[]{-30.3, -8.0}, -66.0),
-            new Interpolator.Point(new double[]{-9.4, 5.1}, -66.0),
-            new Interpolator.Point(new double[]{1.8, 12.6}, -64.6),
-            new Interpolator.Point(new double[]{3.6, -1.7}, -68.2),
-            new Interpolator.Point(new double[]{-12.3, -16.1}, -66.2),
-            new Interpolator.Point(new double[]{-29.7, -24.8}, -66.5),
-            new Interpolator.Point(new double[]{-50.1, -33.5}, -66.5),
-            new Interpolator.Point(new double[]{-64.4, -38.6}, -64.2),
-            new Interpolator.Point(new double[]{-49.5, -55.1}, -64.6),
-            new Interpolator.Point(new double[]{-21.8, -50.8}, -67.8),
-            new Interpolator.Point(new double[]{-0.9, -37.3}, -67.4),
-            new Interpolator.Point(new double[]{46.0, -4.8}, -70.3),
-            new Interpolator.Point(new double[]{62.5, 16.3}, -70.3),
-            new Interpolator.Point(new double[] {61.4, -12.9}, -70.3)
-    );
-
-    private Interpolator yTargetInterpolator = new Interpolator(4,
-            new Interpolator.Point(new double[]{-37.8, 41.3}, 70.3),
-            new Interpolator.Point(new double[]{-50.4, 15.8}, 70.3),
-            new Interpolator.Point(new double[]{-30.2, 27.8}, 70.3),
-            new Interpolator.Point(new double[]{-19.3, 42.2}, 70.3),
-            new Interpolator.Point(new double[]{-13.2, 24.5}, 66.5),
-            new Interpolator.Point(new double[]{-26.3, 12.5}, 70.3),
-            new Interpolator.Point(new double[]{-35.8, 8.2}, 70.3),
-            new Interpolator.Point(new double[]{-57.0, 1.2}, 70.3),
-            new Interpolator.Point(new double[]{-64.4, -0.1}, 70.3),
-            new Interpolator.Point(new double[]{-65.0, -16.1}, 70.3),
-            new Interpolator.Point(new double[]{-30.3, -8.0}, 70.3),
-            new Interpolator.Point(new double[]{-9.4, 5.1}, 70.3),
-            new Interpolator.Point(new double[]{1.8, 12.6}, 70.3),
-            new Interpolator.Point(new double[]{3.6, -1.7}, 70.3),
-            new Interpolator.Point(new double[]{-12.3, -16.1}, 70.3),
-            new Interpolator.Point(new double[]{-29.7, -24.8}, 70.3),
-            new Interpolator.Point(new double[]{-50.1, -33.5}, 70.3),
-            new Interpolator.Point(new double[]{-64.4, -38.6}, 70.3),
-            new Interpolator.Point(new double[]{-49.5, -55.1}, 70.3),
-            new Interpolator.Point(new double[]{-21.8, -50.8}, 70.3),
-            new Interpolator.Point(new double[]{-0.9, -37.3}, 70.3),
-            new Interpolator.Point(new double[]{46.0, -4.8}, 63.2),
-            //new Interpolator.Point(new double[]{62.5, 16.3}, 63.3),
-            new Interpolator.Point(new double[]{62.5, 16.3}, 67.0),
-            new Interpolator.Point(new double[]{61.4, -12.9}, 63.4)
     );
 
     public TurretControl(Turret turret, Localizer localizer, DoubleUnaryOperator[] mirror) {
