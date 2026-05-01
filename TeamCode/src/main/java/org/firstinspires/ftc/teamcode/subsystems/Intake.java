@@ -46,6 +46,7 @@ public class Intake implements Subsystem {
         leftTransfer.setPower(power);
         rightTransfer.setPower(power);
 
+        /*
         CommandOpMode.addData("Current", (leftTransfer.getCurrent(CurrentUnit.AMPS) + rightTransfer.getCurrent(CurrentUnit.AMPS)) / 2.0);
         double mean = 0;
         for (double b : a) mean += b;
@@ -57,5 +58,6 @@ public class Intake implements Subsystem {
         CommandOpMode.addData("Stddev", stddev);
         for (int i = 0; i < a.length - 1; i++) a[i] = a[i + 1];
         a[a.length - 1] = (leftTransfer.getCurrent(CurrentUnit.AMPS) + rightTransfer.getCurrent(CurrentUnit.AMPS)) / 2.0;
+         */
     }
 }

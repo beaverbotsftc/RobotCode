@@ -26,10 +26,10 @@ public abstract class CommandOpMode extends OpMode {
     private List<LynxModule> hubs;
 
     public static long loopNumber = 0;
-    private int telemetryUpdateFrequency = 1;
-    private int telemetryUpdateOffset = 1;
-    private int[] lynxUpdateFrequency = new int[] {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
-    private int[] lynxUpdateOffset = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    private static int telemetryUpdateFrequency = 1;
+    private static int telemetryUpdateOffset = 1;
+    private static int[] lynxUpdateFrequency = new int[] {1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+    private static int[] lynxUpdateOffset = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 
     private FtcDashboard dashboardInstance;
@@ -38,8 +38,12 @@ public abstract class CommandOpMode extends OpMode {
     public static Telemetry telemetryInstance;
 
     protected final void setTelemetryUpdateFrequency(int telemetryUpdateFrequency, int telemetryUpdateOffset) {
-        this.telemetryUpdateFrequency = telemetryUpdateFrequency;
-        this.telemetryUpdateOffset = telemetryUpdateOffset;
+        CommandOpMode.telemetryUpdateFrequency = telemetryUpdateFrequency;
+        CommandOpMode.telemetryUpdateOffset = telemetryUpdateOffset;
+    }
+
+    protected static boolean shouldSendTelemetry() {
+        return (loopNumber + telemetryUpdateOffset) % telemetryUpdateFrequency == 0;
     }
 
     protected final void setLynxUpdateFrequency(int[] lynxUpdateFrequency, int[] lynxUpdateOffset) {
@@ -134,14 +138,14 @@ public abstract class CommandOpMode extends OpMode {
         telemetry.clear();
 
         for (int i = 0; i < hubs.size(); i++)
-            if (loopNumber == 0 || (loopNumber + lynxUpdateOffset[i]) % lynxUpdateFrequency[i] == 0)
+            if (shouldSendTelemetry())
                 hubs.get(i).clearBulkCache();
 
         runSubsystems();
         periodicInit();
         runScheduler();
 
-        if ((loopNumber + telemetryUpdateOffset) % telemetryUpdateFrequency == 0) {
+        if (shouldSendTelemetry()) {
             dashboardInstance.sendTelemetryPacket(packet);
             telemetry.update();
         }
@@ -158,14 +162,14 @@ public abstract class CommandOpMode extends OpMode {
         telemetry.clear();
 
         for (int i = 0; i < hubs.size(); i++)
-            if (loopNumber == 0 || (loopNumber + lynxUpdateOffset[i]) % lynxUpdateFrequency[i] == 0)
+            if (shouldSendTelemetry())
                 hubs.get(i).clearBulkCache();
 
         runSubsystems();
         periodic();
         runScheduler();
 
-        if ((loopNumber + telemetryUpdateOffset) % telemetryUpdateFrequency == 0) {
+        if (shouldSendTelemetry()) {
             dashboardInstance.sendTelemetryPacket(packet);
             telemetry.update();
         }
@@ -221,12 +225,16 @@ public abstract class CommandOpMode extends OpMode {
     protected void onStop() {}
 
     public static void addLine(String line) {
-        packet.addLine(line);
-        telemetryInstance.addLine(line);
+        if (shouldSendTelemetry()) {
+            packet.addLine(line);
+            telemetryInstance.addLine(line);
+        }
     }
 
     public static void addData(String tag, Object data) {
-        packet.put(tag, data);
-        telemetryInstance.addData(tag, data);
+        if (shouldSendTelemetry()) {
+            packet.put(tag, data);
+            telemetryInstance.addData(tag, data);
+        }
     }
 }

@@ -37,16 +37,16 @@ public class Turret implements Subsystem {
     public Turret(VoltageSensor voltageSensor) {
         pidf = new PIDFAxis(new PIDFAxis.K(Constants.pidPShooter, Constants.pidIShooter, Constants.pidDShooter, new double[] {Constants.pidFShooter}, 0.5, 1, 1, Constants.pidGammaShooter, 0.1));
 
-        turretLeft = new OptimizedServo(HardwareManager.claim(Servo.class, "left turret"), Constants.turretDelta);
+        turretLeft = new OptimizedServo(HardwareManager.claim(Servo.class, "left turret"), Constants.turretDelta, 1, 0, 2, 0);
         turretLeft.setPwmRange(500, 2500);
 
-        turretRight = new OptimizedServo(HardwareManager.claim(Servo.class, "right turret"), Constants.turretDelta);
+        turretRight = new OptimizedServo(HardwareManager.claim(Servo.class, "right turret"), Constants.turretDelta, 1, 0, 2, 0);
         turretRight.setPwmRange(500, 2500);
 
-        hood = new OptimizedServo(HardwareManager.claim(Servo.class, "hood"), 0);
+        hood = new OptimizedServo(HardwareManager.claim(Servo.class, "hood"), 0.05, 1, 0, 4, 0);
 
-        shooterLeft = new OptimizedMotor(HardwareManager.claim(DcMotorEx.class, "left shooter"), Constants.shooterDelta);
-        shooterRight = new OptimizedMotor(HardwareManager.claim(DcMotorEx.class, "right shooter"), Constants.shooterDelta);
+        shooterLeft = new OptimizedMotor(HardwareManager.claim(DcMotorEx.class, "left shooter"), Constants.shooterDelta, 2, 0, 2, 1);
+        shooterRight = new OptimizedMotor(HardwareManager.claim(DcMotorEx.class, "right shooter"), Constants.shooterDelta, 2, 0, 2, 1);
 
         shooterLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         shooterLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);

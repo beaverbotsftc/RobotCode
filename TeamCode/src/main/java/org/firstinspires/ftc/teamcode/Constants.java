@@ -62,7 +62,7 @@ public final class Constants {
 
     public static double headingEnforcementAngularVelocityCutoff = 0.1;
 
-    public static double pidPGateHeading = 0.5;
+    public static double pidPGateHeading = 0.8;
     public static double pidIGateHeading = 0;
     public static double pidDGateHeading = 0;
     public static double pidTauGateHeading = 1;
@@ -77,5 +77,5 @@ public final class Constants {
 
     public static double optimalGateIntakeAngle = 2.20;
 
-    public static int turretShootOnTheMoveConvergenceIterations = 5;
+    public static int turretShootOnTheMoveConvergenceIterations = 2;
 }

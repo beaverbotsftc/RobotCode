@@ -128,13 +128,13 @@ public class Autonomous extends CommandOpMode {
                         shoot(driveFarLaunchLineInitial(), 0.2, 0.6, 0.3),
                         intake(driveSpike3(), 0.3),
                         shoot(driveFarLaunchLineInitial(), 0.2, 0.6, 0.3),
-                        intake(driveHumanPlayer(24), 0.3),
-                        shoot(driveFarLaunchLineInitial(), 0.2, 0.6, 0.3),
                         intake(driveHumanPlayer(0), 0.3),
                         shoot(driveFarLaunchLineInitial(), 0.2, 0.6, 0.3),
                         intake(driveHumanPlayer(24), 0.3),
                         shoot(driveFarLaunchLineInitial(), 0.2, 0.6, 0.3),
-                        drive(driveLeave()),
+                        intake(driveHumanPlayer(0), 0.3),
+                        shoot(driveFarLaunchLineInitial(), 0.2, 0.6, 0.3),
+                        drive(driveLeaveFar()),
                         new Instant(this::requestOpModeStop)
                 )
         );
@@ -180,6 +180,17 @@ public class Autonomous extends CommandOpMode {
                 .build();
     }
 
+    private Triple<Path, Path, Double> driveLeaveFar() {
+        final double EASE_IN_FRACTION = 0.0;
+        final double EASE_OUT_FRACTION = 0.4;
+
+        return new PathBuilder(redCurrentPosition.toList(), mirror, false)
+                .linearTo(new Transform(48, 24, Math.PI).toList(), EASE_IN_FRACTION, 1)
+                .stop(EASE_OUT_FRACTION, EASE_OUT_FRACTION, PathBuilder.EaseMode.PREEMPTIVE)
+                .retime(usageRatio, 0.5, 50, false)
+                .build();
+    }
+
     private Triple<Path, Path, Double> driveLaunchLineInitial() {
         final double EASE_IN_FRACTION = 0.5;
         final double EASE_OUT_FRACTION = 0.5;
@@ -196,7 +207,7 @@ public class Autonomous extends CommandOpMode {
         final double EASE_OUT_FRACTION = 0.4;
 
         return new PathBuilder(redCurrentPosition.toList(), mirror, false)
-                .linearTo(new Transform(62, 16, Math.PI / 2).toList(), EASE_IN_FRACTION, 1)
+                .linearTo(new Transform(62, 14, Math.PI / 2).toList(), EASE_IN_FRACTION, 1)
                 .stop(EASE_OUT_FRACTION, EASE_OUT_FRACTION, PathBuilder.EaseMode.PREEMPTIVE)
                 .retime(usageRatio, 0.8, 50, false)
                 .build();
@@ -207,7 +218,7 @@ public class Autonomous extends CommandOpMode {
         final double EASE_OUT_FRACTION = 0.8;
 
         return new PathBuilder(redCurrentPosition.toList(), mirror, false)
-                .linearTo(new Transform(62 - offset, 60, Math.PI / 2).toList(), EASE_IN_FRACTION, 1)
+                .linearTo(new Transform(64 - offset, 64, Math.PI / 2).toList(), EASE_IN_FRACTION, 1)
                 .stop(EASE_OUT_FRACTION, EASE_OUT_FRACTION, PathBuilder.EaseMode.PREEMPTIVE)
                 .retime(usageRatio, 0.8, 50, false)
                 .build();
@@ -319,7 +330,7 @@ public class Autonomous extends CommandOpMode {
                         new Transform(X, Y, Math.PI / 2).toList(),
                         new Transform(X, Y, Math.PI / 2).toList()
                 ), 1)
-                .retime(usageRatio, 0.8, 50, false)
+                .retime(usageRatio, 0.6, 50, false)
                 .build();
     }
 

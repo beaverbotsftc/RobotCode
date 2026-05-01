@@ -21,7 +21,7 @@ public class TurretControl implements Command {
     private Localizer localizer;
     private DoubleUnaryOperator[] mirror;
 
-    private Interpolator rpmInterpolator = new Interpolator(
+    private Interpolator rpmInterpolator = new Interpolator(4,
             new Interpolator.Point(new double[]{-37.8, 41.3}, 2950),
             new Interpolator.Point(new double[]{-50.4, 15.8}, 3100),
             new Interpolator.Point(new double[]{-30.2, 27.8}, 3150),
@@ -48,7 +48,7 @@ public class TurretControl implements Command {
             new Interpolator.Point(new double[] {61.4, -12.9}, 4900)
     );
 
-    private Interpolator hoodInterpolator = new Interpolator(
+    private Interpolator hoodInterpolator = new Interpolator(4,
             new Interpolator.Point(new double[]{-37.8, 41.3},
                     new Interpolator(
                             new Interpolator.Point(new double[]{2950}, 0.00)
@@ -59,47 +59,47 @@ public class TurretControl implements Command {
                     )),
             new Interpolator.Point(new double[]{-30.2, 27.8},
                     new Interpolator(
-                            new Interpolator.Point(new double[]{3150}, 0.40 + 0.1)
+                            new Interpolator.Point(new double[]{3150}, 0.40 + 0.1 - 0.3333)
                     )),
             new Interpolator.Point(new double[]{-19.3, 42.2},
                     new Interpolator(
-                            new Interpolator.Point(new double[]{3150}, 0.40 + 0.1)
+                            new Interpolator.Point(new double[]{3150}, 0.40 + 0.1 - 0.3333)
                     )),
             new Interpolator.Point(new double[]{-13.2, 24.5},
                     new Interpolator(
-                            new Interpolator.Point(new double[]{3300}, 0.40 + 0.1)
+                            new Interpolator.Point(new double[]{3300}, 0.40 + 0.1 - 0.3333)
                     )),
             new Interpolator.Point(new double[]{-26.3, 12.5},
                     new Interpolator(
-                            new Interpolator.Point(new double[]{3350}, 0.40 + 0.1)
+                            new Interpolator.Point(new double[]{3350}, 0.40 + 0.1 - 0.3333)
                     )),
             new Interpolator.Point(new double[]{-35.8, 8.2},
                     new Interpolator(
-                            new Interpolator.Point(new double[]{3350}, 0.40 + 0.1)
+                            new Interpolator.Point(new double[]{3350}, 0.40 + 0.1 - 0.3333)
                     )),
             new Interpolator.Point(new double[]{-57.0, 1.2},
                     new Interpolator(
-                            new Interpolator.Point(new double[]{3350}, 0.40 + 0.1)
+                            new Interpolator.Point(new double[]{3350}, 0.40 + 0.1 - 0.3333)
                     )),
             new Interpolator.Point(new double[]{-64.4, -0.1},
                     new Interpolator(
-                            new Interpolator.Point(new double[]{3350}, 0.40 + 0.1)
+                            new Interpolator.Point(new double[]{3350}, 0.40 + 0.1 - 0.3333)
                     )),
             new Interpolator.Point(new double[]{-65.0, -16.1},
                     new Interpolator(
-                            new Interpolator.Point(new double[]{3700}, 0.65 + 0.1)
+                            new Interpolator.Point(new double[]{3700}, 0.65 + 0.1 - 0.3333)
                     )),
             new Interpolator.Point(new double[]{-30.3, -8.0},
                     new Interpolator(
-                            new Interpolator.Point(new double[]{3700}, 0.65 + 0.1)
+                            new Interpolator.Point(new double[]{3700}, 0.65 + 0.1 - 0.3333)
                     )),
             new Interpolator.Point(new double[]{-9.4, 5.1},
                     new Interpolator(
-                            new Interpolator.Point(new double[]{3700}, 0.65 + 0.1)
+                            new Interpolator.Point(new double[]{3700}, 0.65 + 0.1 - 0.3333)
                     )),
             new Interpolator.Point(new double[]{1.8, 12.6},
                     new Interpolator(
-                            new Interpolator.Point(new double[]{3700}, 0.65 + 0.1)
+                            new Interpolator.Point(new double[]{3700}, 0.65 + 0.1 - 0.3333)
                     )),
             new Interpolator.Point(new double[]{3.6, -1.7},
                     new Interpolator(
@@ -168,7 +168,7 @@ public class TurretControl implements Command {
             ))
     );
 
-    private Interpolator timeInterpolator = new Interpolator(
+    private Interpolator timeInterpolator = new Interpolator(4,
             new Interpolator.Point(new double[]{-37.8, 41.3}, 0.6),
             new Interpolator.Point(new double[]{-50.4, 15.8}, 0.65),
             new Interpolator.Point(new double[]{-30.2, 27.8}, 0.6),
@@ -193,7 +193,7 @@ public class TurretControl implements Command {
             new Interpolator.Point(new double[] {61.4, -12.9}, 0.95)
     );
 
-    private Interpolator xTargetInterpolator = new Interpolator(
+    private Interpolator xTargetInterpolator = new Interpolator(4,
             new Interpolator.Point(new double[]{-37.8, 41.3}, -70.3),
             new Interpolator.Point(new double[]{-50.4, 15.8}, -66.0),
             new Interpolator.Point(new double[]{-30.2, 27.8}, -70.3),
@@ -220,7 +220,7 @@ public class TurretControl implements Command {
             new Interpolator.Point(new double[] {61.4, -12.9}, -70.3)
     );
 
-    private Interpolator yTargetInterpolator = new Interpolator(
+    private Interpolator yTargetInterpolator = new Interpolator(4,
             new Interpolator.Point(new double[]{-37.8, 41.3}, 70.3),
             new Interpolator.Point(new double[]{-50.4, 15.8}, 70.3),
             new Interpolator.Point(new double[]{-30.2, 27.8}, 70.3),
@@ -265,8 +265,8 @@ public class TurretControl implements Command {
         final List<Double> farLaunchZoneY = List.of(0.0, 24.0, -24.0);
 
         Pair<List<Double>, List<Double>> robot = Geometry.generateBox(localizer.getPosition().getX(), localizer.getPosition().getY(), 25, 25, localizer.getPosition().getTheta());
-        if (!Geometry.polygonPolygonIntersects(launchZoneX, launchZoneY, robot.first, robot.second) && !Geometry.polygonPolygonIntersects(farLaunchZoneX, farLaunchZoneY, robot.first, robot.second))
-            return false;
+        //if (!Geometry.polygonPolygonIntersects(launchZoneX, launchZoneY, robot.first, robot.second) && !Geometry.polygonPolygonIntersects(farLaunchZoneX, farLaunchZoneY, robot.first, robot.second))
+        //    return false;
 
         Transform position = localizer.getPosition().transform(mirror);
         Transform velocity = localizer.getVelocity().transform(mirror);

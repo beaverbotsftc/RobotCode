@@ -53,7 +53,7 @@ public class TheTeleOpOfTheRobot extends CommandOpMode {
 
         pinpoint = new Pinpoint(new Transform(0, 0, 0));
         limelight = new Limelight(Limelight.Pipeline.LOCALIZATION_GOAL);
-        localizer = new FusedLocalizer(pinpoint, limelight, CrossModeStorage.position, CrossModeStorage.covariance.scalarMultiply(3));
+        localizer = new FusedLocalizer(pinpoint, limelight, CrossModeStorage.position, CrossModeStorage.covariance.scalarMultiply(30000));
 
         gamepad = new GamepadEx(gamepad1);
 
@@ -93,6 +93,8 @@ public class TheTeleOpOfTheRobot extends CommandOpMode {
         addData("Covariance X", localizer.getCovariance().getEntry(0, 0));
         addData("Covariance Y", localizer.getCovariance().getEntry(1, 1));
         addData("Covariance Theta", localizer.getCovariance().getEntry(2, 2));
+
+        if (gamepad.getDpadRightJustPressed()) localizer.resetCovariance();
 
         if (gamepad.getDpadUpJustPressed()) offset += 25;
         if (gamepad.getDpadDownJustPressed()) offset -= 25;
