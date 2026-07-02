@@ -149,6 +149,10 @@ public class FusedLocalizer implements Subsystem, Localizer {
         highFrequencyPose = filter.getMean();
     }
 
+    public void manualUpdate(RealVector measurement, RealMatrix sensorCovariance, RealVector minVariance, SensorFusion.MeasurementFunction measurementFunction) {
+        filter.update(measurement, sensorCovariance, minVariance, measurementFunction);
+    }
+
     public Transform getPosition() {
         return new Transform(highFrequencyPose);
     }

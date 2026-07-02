@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
+import org.beaverbots.beaver.command.premade.TimeDependent;
 import org.beaverbots.beaver.util.Pair;
 
 import org.beaverbots.beaver.command.Command;
@@ -115,14 +116,6 @@ public class Autonomous extends CommandOpMode {
         schedule(
                 new Sequential(
                         /*
-                        shoot(driveLaunchLineInitial(), 2, 0.5, 0.5),
-                        intake(driveSpike1(), 0.5),
-                        driveAndPreepmt(driveGate(), 1),
-                        shoot(driveLaunchLineStraight(), 0.5, 0.5, 0.5),
-                        intake(driveSpike2(), 0.5),
-                        shoot(driveLaunchLineSpline(), 0.5, 0.5, 0.5),
-                        drive(driveLeave()),
-                         */
                         shoot(driveFarLaunchLineInitial(), 2.0, 0.6, 0.3),
                         intake(driveHumanPlayer(0), 0.3),
                         shoot(driveFarLaunchLineInitial(), 0.2, 0.6, 0.3),
@@ -130,10 +123,21 @@ public class Autonomous extends CommandOpMode {
                         shoot(driveFarLaunchLineInitial(), 0.2, 0.6, 0.3),
                         intake(driveHumanPlayer(0), 0.3),
                         shoot(driveFarLaunchLineInitial(), 0.2, 0.6, 0.3),
-                        intake(driveHumanPlayer(24), 0.3),
+                        intake(driveSpike3(), 0.3),
                         shoot(driveFarLaunchLineInitial(), 0.2, 0.6, 0.3),
                         intake(driveHumanPlayer(0), 0.3),
                         shoot(driveFarLaunchLineInitial(), 0.2, 0.6, 0.3),
+                        drive(driveLeaveFar()),
+                         */
+                        shoot(driveFarLaunchLineInitial(), 2.0, 1.0, 0.3),
+                        intake(driveHumanPlayer(0), 0.3),
+                        shoot(driveFarLaunchLineInitial(), 0.5, 1.0, 0.3),
+                        intake(driveSpike3(), 0.3),
+                        shoot(driveFarLaunchLineInitial(), 0.5, 1.0, 0.3),
+                        intake(driveHumanPlayerCSH(), 0.3),
+                        shoot(driveFarLaunchLineInitial(), 0.5, 1.0, 0.3),
+                        intake(driveHumanPlayer(18), 0.3),
+                        shoot(driveFarLaunchLineInitial(), 0.5, 1.0, 0.3),
                         drive(driveLeaveFar()),
                         new Instant(this::requestOpModeStop)
                 )
@@ -207,20 +211,42 @@ public class Autonomous extends CommandOpMode {
         final double EASE_OUT_FRACTION = 0.4;
 
         return new PathBuilder(redCurrentPosition.toList(), mirror, false)
-                .linearTo(new Transform(62, 14, Math.PI / 2).toList(), EASE_IN_FRACTION, 1)
+                .linearTo(new Transform(62, 16, Math.PI / 2).toList(), EASE_IN_FRACTION, 1)
                 .stop(EASE_OUT_FRACTION, EASE_OUT_FRACTION, PathBuilder.EaseMode.PREEMPTIVE)
-                .retime(usageRatio, 0.8, 50, false)
+                .retime(usageRatio, 0.5, 50, false)
                 .build();
     }
 
     private Triple<Path, Path, Double> driveHumanPlayer(double offset) {
         final double EASE_IN_FRACTION = 0.0;
-        final double EASE_OUT_FRACTION = 0.8;
+        final double EASE_MIDDLE_FRACTION = 0.1;
+        final double EASE_OUT_FRACTION = 0.4;
 
         return new PathBuilder(redCurrentPosition.toList(), mirror, false)
-                .linearTo(new Transform(64 - offset, 64, Math.PI / 2).toList(), EASE_IN_FRACTION, 1)
+                .linearTo(new Transform(61 - offset - 4, 64, Math.PI / 2).toList(), EASE_IN_FRACTION, 1)
+                .linearTo(new Transform(61 - offset, 64, Math.PI / 2).toList(), EASE_MIDDLE_FRACTION, EASE_MIDDLE_FRACTION)
                 .stop(EASE_OUT_FRACTION, EASE_OUT_FRACTION, PathBuilder.EaseMode.PREEMPTIVE)
                 .retime(usageRatio, 0.8, 50, false)
+                .build();
+    }
+
+
+    private Triple<Path, Path, Double> driveHumanPlayerCSH() {
+
+        return new PathBuilder(redCurrentPosition.toList(), mirror, false)
+                .c2BezierTo(List.of(
+                        new Transform(60, 61, Math.PI / 2).toList(),
+                        new Transform(60, 61, Math.PI / 2).toList(),
+                        new Transform(60, 61, Math.PI / 2).toList(),
+                        new Transform(60, 61, Math.PI / 2).toList(),
+                        new Transform(45, 54, Math.PI).toList(),
+                        new Transform(45, 54, Math.PI).toList(),
+                        new Transform(45, 54, Math.PI).toList(),
+                        new Transform(28, 64, Math.PI).toList(),
+                        new Transform(28, 64, Math.PI).toList(),
+                        new Transform(28, 64, Math.PI).toList()
+                ), 1)
+                .retime(usageRatio, 1.0, 50, true)
                 .build();
     }
 
@@ -318,7 +344,7 @@ public class Autonomous extends CommandOpMode {
     }
 
     private Triple<Path, Path, Double> driveSpike3() {
-        final double X = 35.28125;
+        final double X = 35.28125 - 8;
         final double Y = 60;
 
         return new PathBuilder(redCurrentPosition.toList(), mirror, false)
@@ -342,7 +368,7 @@ public class Autonomous extends CommandOpMode {
                 new Instant(() ->
                         drivetrain.preempt(
                                 (new Transform(paths.get(currentPathCaptured + 1).velocity(0.01)).multiply(new Transform(Constants.pidFVelocityX, Constants.pidFVelocityY, Constants.pidFVelocityTheta))
-                                        .add(new Transform(paths.get(currentPathCaptured + 1).acceleration(0.01))).multiply(new Transform(Constants.pidFAccelerationX, Constants.pidFAccelerationY, Constants.pidFAccelerationTheta))).toLocalVelocity(redCurrentPosition)
+                                        .add(new Transform(paths.get(currentPathCaptured + 1).acceleration(0.01))).multiply(new Transform(Constants.pidFAccelerationX, Constants.pidFAccelerationY, Constants.pidFAccelerationTheta))).toLocalVelocity(currentPositionCaptured)
                         )
                 )
         );
@@ -390,7 +416,6 @@ public class Autonomous extends CommandOpMode {
         final List<Double> launchZoneY = List.of(0.0, -72.0, 72.0);
         final List<Double> farLaunchZoneX = List.of(48.0, 72.0, 72.0);
         final List<Double> farLaunchZoneY = List.of(0.0, 24.0, -24.0);
-
         update(path);
         return new Sequential(
                 new Parallel(
@@ -405,7 +430,7 @@ public class Autonomous extends CommandOpMode {
                                         new Sequential(
                                                 new Wait(shooterSettlingTime),
                                                 new Instant(() -> intake.transfer(true)),
-                                                new Wait(shootingTime)
+                                                new TimeDependent(t -> intake.intake(0.5 + Math.pow(t / shootingTime, 3) * (0.65 - 0.5)), shootingTime)
                                         ),
                                         new TurretControl(turret, fusedLocalizer, mirror)
                                 )

@@ -38,6 +38,12 @@ public class SwerveDrivetrain implements Drivetrain {
         this.voltageSensor = voltageSensor;
         this.maxCapability = maxCapability;
 
+        //final double P = 0.2043;
+        final double P = 0.2043 * 1.5;
+        final double I = 0.3854;
+        //final double D = 0.0118;
+        final double D = 0.0118 * 2;
+
         OptimizedCRServo frontLeftServo = new OptimizedCRServo(HardwareManager.claim(CRServo.class, "front left servo"), 0);
         frontLeftServo.setPwmRange(500, 2500);
         AnalogInput frontLeftEncoder = HardwareManager.get(AnalogInput.class, "front left servo encoder");
@@ -49,7 +55,7 @@ public class SwerveDrivetrain implements Drivetrain {
                                 //0.2455, 0.1564, 0.0048, new double[]{0}, 1, 1, 0.2281, 7.8312
                                 //0.3081, 0.7168, 0.0017, new double[]{0}, 1, 1, 0.7728, 613
                                 //                        0.2100, 0.5418, 0.0023, new double[]{0}, 1, 1, 0.6119, 245
-                                0.2043, 0.3854, 0.0118, new double[]{0}, 1, 1, 0.9731, 988, 0.1
+                                P, I, D, new double[]{0}, 1, 1, 0.9731, 988, 0.1
                         )
                 ),
                 4.4915
@@ -69,7 +75,7 @@ public class SwerveDrivetrain implements Drivetrain {
                                 //0.2455, 0.1564, 0.0048, new double[]{0}, 1, 1, 0.2281, 7.8312
                                 //0.3081, 0.7168, 0.0017, new double[]{0}, 1, 1, 0.7728, 613
                                 //                        0.2100, 0.5418, 0.0023, new double[]{0}, 1, 1, 0.6119, 245
-                                0.2043, 0.3854, 0.0118, new double[]{0}, 1, 1, 0.9731, 988, 0.1
+                                P, I, D, new double[]{0}, 1, 1, 0.9731, 988, 0.1
                         )
                 ),
                 3.2768
@@ -89,7 +95,7 @@ public class SwerveDrivetrain implements Drivetrain {
                                 //0.2455, 0.1564, 0.0048, new double[]{0}, 1, 1, 0.2281, 7.8312
                                 //0.3081, 0.7168, 0.0017, new double[]{0}, 1, 1, 0.7728, 613
                                 //0.2100, 0.5418, 0.0023, new double[]{0}, 1, 1, 0.6119, 245
-                                0.2043, 0.3854, 0.0118, new double[]{0}, 1, 1, 0.9731, 988, 0.1
+                                P, I, D, new double[]{0}, 1, 1, 0.9731, 988, 0.1
                         )
                 ),
                 2.0735
@@ -109,7 +115,7 @@ public class SwerveDrivetrain implements Drivetrain {
                                 //0.2455, 0.1564, 0.0048, new double[]{0}, 1, 1, 0.2281, 7.8312
                                 //0.3081, 0.7168, 0.0017, new double[]{0}, 1, 1, 0.7728, 613
                                 //                        0.2100, 0.5418, 0.0023, new double[]{0}, 1, 1, 0.6119, 245
-                                0.2043, 0.3854, 0.0118, new double[]{0}, 1, 1, 0.9731, 988, 0.1
+                                P, I, D, new double[]{0}, 1, 1, 0.9731, 988, 0.1
                         )
                 ),
                 1.4813

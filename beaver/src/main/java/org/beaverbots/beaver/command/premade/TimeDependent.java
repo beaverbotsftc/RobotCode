@@ -1,17 +1,29 @@
 package org.beaverbots.beaver.command.premade;
 
 import org.beaverbots.beaver.command.Command;
+import org.beaverbots.beaver.util.Stopwatch;
+
+import java.util.function.DoubleConsumer;
 
 public class TimeDependent implements Command {
-    Runnable f;
+    DoubleConsumer f;
+    double time;
+    Stopwatch stopwatch;
 
-    public TimeDependent(Runnable f) {
+    public TimeDependent(DoubleConsumer f, double time) {
         this.f = f;
+        this.time = time;
+        stopwatch = new Stopwatch();
+    }
+
+    @Override
+    public void start() {
+        stopwatch.reset();
     }
 
     @Override
     public boolean periodic() {
-        f.run();
-        return false;
+        f.accept(stopwatch.getElapsed());
+        return stopwatch.getElapsed() >= time;
     }
 }

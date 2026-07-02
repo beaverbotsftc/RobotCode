@@ -2,12 +2,15 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.ArrayRealVector;
 import org.beaverbots.beaver.command.CommandOpMode;
 import org.beaverbots.beaver.command.premade.Instant;
 import org.beaverbots.beaver.command.premade.NoOp;
 import org.beaverbots.beaver.command.premade.Repeat;
 import org.beaverbots.beaver.command.premade.router.Router;
 import org.beaverbots.beaver.command.premade.router.Selector;
+import org.beaverbots.beaver.util.Geometry;
 import org.beaverbots.beaver.util.Stopwatch;
 import org.beaverbots.beaver.util.Transform;
 import org.firstinspires.ftc.teamcode.CrossModeStorage;
@@ -43,6 +46,7 @@ public class TheTeleOpOfTheRobot extends CommandOpMode {
     private GamepadEx gamepad;
 
     public void onInit() {
+        offset = 75;
         setLynxUpdateFrequency(new int[] {1, 1, 1}, new int[] {0, 0, 0});
         setTelemetryUpdateFrequency(11, 0); // Should be coprime with everything else
 
@@ -74,9 +78,11 @@ public class TheTeleOpOfTheRobot extends CommandOpMode {
                 new SwerveDriveControl((SwerveDrivetrain) drivetrain, localizer, gamepad,
                         CrossModeStorage.side == Side.RED
                                 ? new DoubleUnaryOperator[]{ x -> x, y -> y, theta -> theta }
-                                : new DoubleUnaryOperator[]{ x -> -x, y -> -y, theta -> theta }
+                                : new DoubleUnaryOperator[]{ x -> -x, y -> -y, theta -> theta },
+                        CrossModeStorage.side == Side.RED ? theta -> theta : theta -> -theta
                 ),
-                new Repeat(() -> intake.intake((gamepad.getRightTrigger() - gamepad.getLeftTrigger()) * (gamepad.getRightBumper() ? 0.75 : 1))),
+                //new Repeat(() -> drivetrain.move(new Transform(gamepad.getLeftY(), -gamepad.getLeftX(), -gamepad.getRightX()))),
+                new Repeat(() -> intake.intake((gamepad.getRightTrigger() - gamepad.getLeftTrigger()) * (gamepad.getRightBumper() ? (localizer.getPosition().getX() > 24 ? 0.5 : 0.75) : 1))),
                 new Repeat(() -> intake.transfer(gamepad.getRightBumper() && turret.isFacingCorrectly())),
                 new TurretControl(turret, localizer,
                         CrossModeStorage.side == Side.RED
@@ -94,10 +100,28 @@ public class TheTeleOpOfTheRobot extends CommandOpMode {
         addData("Covariance Y", localizer.getCovariance().getEntry(1, 1));
         addData("Covariance Theta", localizer.getCovariance().getEntry(2, 2));
 
-        if (gamepad.getDpadRightJustPressed()) localizer.resetCovariance();
+        if (gamepad.getDpadUpJustPressed()) localizer.resetCovariance();
 
-        if (gamepad.getDpadUpJustPressed()) offset += 25;
-        if (gamepad.getDpadDownJustPressed()) offset -= 25;
+        if (gamepad.getDpadRightJustPressed()) offset += 25;
+        if (gamepad.getDpadLeftJustPressed()) offset -= 25;
+/*
+        if (gamepad.getDpadDownJustPressed())
+            if (CrossModeStorage.side == Side.RED)
+                localizer.manualUpdate(
+                        new ArrayRealVector(new double[]{60.5, -62.5, Geometry.unnormalizeAngle(0, localizer.getPosition().getTheta())}),
+                        new Array2DRowRealMatrix(new double[][] {{0.0001, 0, 0}, {0, 0.001, 0}, {0, 0, 1}}),
+                        new ArrayRealVector(new double[]{0, 0, 0}),
+                        x -> x
+                );
+            else
+                localizer.manualUpdate(
+                        new ArrayRealVector(new double[]{60.5, 62.5, Geometry.unnormalizeAngle(0, localizer.getPosition().getTheta())}),
+                        new Array2DRowRealMatrix(new double[][] {{0.0001, 0, 0}, {0, 0.001, 0}, {0, 0, 1000}}),
+                        new ArrayRealVector(new double[]{0, 0, 0}),
+                        x -> x
+                );
+
+ */
         addData("Offset", offset);
     }
 }

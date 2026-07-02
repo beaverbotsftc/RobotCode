@@ -51,7 +51,7 @@ public final class Constants {
     public static double turretBounds = Math.toRadians(120);
     public static double turretAngularBias = 0;
 
-    public static double turretDelta = 0.001;
+    public static double turretDelta = 0.0001;
     public static double shooterDelta = 0.05;
 
     public static double pidFShooter = 0.0025; // rpm -> proportion of max RPM at 1V
@@ -62,7 +62,7 @@ public final class Constants {
 
     public static double headingEnforcementAngularVelocityCutoff = 0.1;
 
-    public static double pidPGateHeading = 0.8;
+    public static double pidPGateHeading = 0.5;
     public static double pidIGateHeading = 0;
     public static double pidDGateHeading = 0;
     public static double pidTauGateHeading = 1;

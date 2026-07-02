@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.ToDoubleFunction;
 
-@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name = "AAAutonomous")
+@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name = "AAAutonomousClose")
 public class CloseAutonomousAlpha extends CommandOpMode {
     private GamepadEx gamepad;
     private SwerveDrivetrain drivetrain;
@@ -113,27 +113,14 @@ public class CloseAutonomousAlpha extends CommandOpMode {
         cancelAll();
         schedule(
                 new Sequential(
-                        /*
                         shoot(driveLaunchLineInitial(), 2, 0.5, 0.5),
                         intake(driveSpike1(), 0.5),
                         driveAndPreepmt(driveGate(), 1),
                         shoot(driveLaunchLineStraight(), 0.5, 0.5, 0.5),
                         intake(driveSpike2(), 0.5),
-                        shoot(driveLaunchLineSpline(), 0.5, 0.5, 0.5),
+                        shoot(driveLaunchLineSplineSpike2(), 0.5, 0.5, 0.5),
+                        intake(driveGateIntake(), 2),
                         drive(driveLeave()),
-                         */
-                        shoot(driveFarLaunchLineInitial(), 2.0, 0.6, 0.3),
-                        intake(driveHumanPlayer(0), 0.3),
-                        shoot(driveFarLaunchLineInitial(), 0.2, 0.6, 0.3),
-                        intake(driveSpike3(), 0.3),
-                        shoot(driveFarLaunchLineInitial(), 0.2, 0.6, 0.3),
-                        intake(driveHumanPlayer(0), 0.3),
-                        shoot(driveFarLaunchLineInitial(), 0.2, 0.6, 0.3),
-                        intake(driveHumanPlayer(24), 0.3),
-                        shoot(driveFarLaunchLineInitial(), 0.2, 0.6, 0.3),
-                        intake(driveHumanPlayer(0), 0.3),
-                        shoot(driveFarLaunchLineInitial(), 0.2, 0.6, 0.3),
-                        drive(driveLeaveFar()),
                         new Instant(this::requestOpModeStop)
                 )
         );
@@ -234,7 +221,7 @@ public class CloseAutonomousAlpha extends CommandOpMode {
                 .build();
     }
 
-    private Triple<Path, Path, Double> driveLaunchLineSpline() {
+    private Triple<Path, Path, Double> driveLaunchLineSplineSpike2() {
         return new PathBuilder(redCurrentPosition.toList(), mirror, false)
                 .c2BezierTo(List.of(
                         new Transform(redCurrentPosition.getX(), 20, currentPosition.getTheta()).toList(),
@@ -264,11 +251,11 @@ public class CloseAutonomousAlpha extends CommandOpMode {
     }
 
     private Triple<Path, Path, Double> driveGateIntake() {
-        final double X1 = 9;
-        final double Y1 = 55; // Would be 53, but to ensure the open
-        final double X2 = 14;
+        final double X1 = 9 + 5;
+        final double Y1 = 55; // Would be 54, but to ensure the open
+        final double X2 = 13.5 + 5;
         final double Y2 = 60; // Would be 58, but to ensure the open
-        final double THETA2 = 2.15;
+        final double THETA2 = 2.1;
 
         return new PathBuilder(redCurrentPosition.toList(), mirror, false)
                 .c2BezierTo(List.of(
@@ -290,6 +277,7 @@ public class CloseAutonomousAlpha extends CommandOpMode {
 
         return new PathBuilder(redCurrentPosition.toList(), mirror, false)
                 .c2BezierTo(List.of(
+                        new Transform(X, redCurrentPosition.getY(), Math.PI / 2).toList(),
                         new Transform(X, Y, Math.PI / 2).toList(),
                         new Transform(X, Y, Math.PI / 2).toList(),
                         new Transform(X, Y, Math.PI / 2).toList()
@@ -304,8 +292,7 @@ public class CloseAutonomousAlpha extends CommandOpMode {
 
         return new PathBuilder(redCurrentPosition.toList(), mirror, false)
                 .c2BezierTo(List.of(
-                        new Transform((2 * redCurrentPosition.getX() + X) / 3, redCurrentPosition.getY(), Math.PI / 2).toList(),
-                        new Transform((redCurrentPosition.getX() + 2 * X) / 3, redCurrentPosition.getY(), Math.PI / 2).toList(),
+                        new Transform((redCurrentPosition.getX() + X) / 2, redCurrentPosition.getY(), Math.PI / 2).toList(),
                         new Transform(X, 20, Math.PI / 2).toList(),
                         new Transform(X, 20, Math.PI / 2).toList(),
                         new Transform(X, Y, Math.PI / 2).toList(),
@@ -341,7 +328,7 @@ public class CloseAutonomousAlpha extends CommandOpMode {
                 new Instant(() ->
                         drivetrain.preempt(
                                 (new Transform(paths.get(currentPathCaptured + 1).velocity(0.01)).multiply(new Transform(Constants.pidFVelocityX, Constants.pidFVelocityY, Constants.pidFVelocityTheta))
-                                        .add(new Transform(paths.get(currentPathCaptured + 1).acceleration(0.01))).multiply(new Transform(Constants.pidFAccelerationX, Constants.pidFAccelerationY, Constants.pidFAccelerationTheta))).toLocalVelocity(redCurrentPosition)
+                                        .add(new Transform(paths.get(currentPathCaptured + 1).acceleration(0.01))).multiply(new Transform(Constants.pidFAccelerationX, Constants.pidFAccelerationY, Constants.pidFAccelerationTheta))).toLocalVelocity(currentPositionCaptured)
                         )
                 )
         );
@@ -393,7 +380,7 @@ public class CloseAutonomousAlpha extends CommandOpMode {
         update(path);
         return new Sequential(
                 new Parallel(
-                        new Instant(() -> intake.intake(0.5)),
+                        new Instant(() -> intake.intake(0.75)),
                         new Instant(() -> intake.transfer(false)),
                         new Sequential(
                                 new WaitUntil(() -> {

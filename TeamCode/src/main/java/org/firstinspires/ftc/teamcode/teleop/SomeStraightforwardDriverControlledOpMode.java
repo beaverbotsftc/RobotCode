@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.subsystems.localizer.Pinpoint;
 import org.firstinspires.ftc.teamcode.subsystems.turret.Turret;
 
 @TeleOp
-public class ADeadSimpleTeleOp extends CommandOpMode {
+public class SomeStraightforwardDriverControlledOpMode extends CommandOpMode {
     private VoltageSensor voltageSensor;
     private Drivetrain drivetrain;
     private Intake intake;
@@ -43,7 +43,7 @@ public class ADeadSimpleTeleOp extends CommandOpMode {
         register(drivetrain, intake, turret);
         turret.turn(0);
         schedule(
-                new Repeat(() -> drivetrain.move(new Transform(gamepad.getLeftY(), -gamepad.getLeftX(), -gamepad.getRightX()))),
+                new Repeat(() -> drivetrain.move(new Transform(gamepad.getLeftY(), -gamepad.getLeftX(), -gamepad.getRightX()).toLocalVelocity(pinpoint.getPosition()))),
                 new Repeat(() -> intake.intake(gamepad.getRightTrigger() - gamepad.getLeftTrigger())),
                 new Repeat(() -> intake.transfer(gamepad.getRightBumper())),
                 new Repeat(() -> turret.shoot(rpm)),

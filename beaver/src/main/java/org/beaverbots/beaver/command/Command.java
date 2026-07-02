@@ -8,7 +8,7 @@ public interface Command {
         return new HashSet<>();
     }
 
-    ///  Returns true if and only if the Command finished. Otherwise, it shall return false.
+    ///  Returns true if the Command finished. Otherwise, returns false.
     boolean periodic();
 
     default void start() {}

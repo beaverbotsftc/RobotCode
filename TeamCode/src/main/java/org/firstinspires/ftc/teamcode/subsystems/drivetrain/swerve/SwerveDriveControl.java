@@ -23,6 +23,7 @@ public class SwerveDriveControl implements Command {
 
     private double targetHeading = 0;
     private boolean followTargetHeading = false;
+    private DoubleUnaryOperator setThetaMirror;
 
     private PIDFAxis pidfGate;
     private PIDFAxis pidfNormal;
@@ -31,15 +32,16 @@ public class SwerveDriveControl implements Command {
 
     ///  Note that this isn't the standard field mirroring, the symmetries are different.
     /// x -> -x, y -> -y, theta -> theta
-    public SwerveDriveControl(SwerveDrivetrain drivetrain, Localizer localizer, GamepadEx gamepad, DoubleUnaryOperator[] mirror) {
+    public SwerveDriveControl(SwerveDrivetrain drivetrain, Localizer localizer, GamepadEx gamepad, DoubleUnaryOperator[] mirror, DoubleUnaryOperator setThetaMirror) {
         this.drivetrain = drivetrain;
         this.localizer = localizer;
 
         this.gamepad = gamepad;
         this.mirror = mirror;
+        this.setThetaMirror = setThetaMirror;
 
-        pidfGate = new PIDFAxis(new PIDFAxis.K(Constants.pidPHeadingEnforcement, Constants.pidIHeadingEnforcement, Constants.pidDHeadingEnforcement, new double[]{}, 1, 1, Constants.pidTauHeadingEnforcement, Constants.pidGammaHeadingEnforcement, 0.1));
-        pidfNormal = new PIDFAxis(new PIDFAxis.K(Constants.pidPGateHeading, Constants.pidIGateHeading, Constants.pidDGateHeading, new double[]{}, 1, 1, Constants.pidTauGateHeading, Constants.pidGammaGateHeading, 0.1));
+        pidfGate = new PIDFAxis(new PIDFAxis.K(Constants.pidPGateHeading, Constants.pidIGateHeading, Constants.pidDGateHeading, new double[]{}, 1, 1, Constants.pidTauGateHeading, Constants.pidGammaGateHeading, 0.1));
+        pidfNormal = new PIDFAxis(new PIDFAxis.K(Constants.pidPHeadingEnforcement, Constants.pidIHeadingEnforcement, Constants.pidDHeadingEnforcement, new double[]{}, 1, 1, Constants.pidTauHeadingEnforcement, Constants.pidGammaHeadingEnforcement, 0.1));
 
         stopwatch = new Stopwatch();
     }
@@ -67,7 +69,7 @@ public class SwerveDriveControl implements Command {
             drivetrain.x();
         } else if (gamepad.getAPressedToggle()) {
             double heading = localizer.getPosition().getTheta();
-            double gateHeading = Geometry.unnormalizeAngle(mirror[2].applyAsDouble(2.23), heading);
+            double gateHeading = Geometry.unnormalizeAngle(setThetaMirror.applyAsDouble(2.1), heading);
             double control = -pidfGate.update(heading - gateHeading, new double[]{}, stopwatch.getDt());
 
             drivetrain.move(new Transform(gamepad.getLeftX(), gamepad.getLeftY(), control).transform(mirror).toLocalVelocity(localizer.getPosition()).scale(scale));
