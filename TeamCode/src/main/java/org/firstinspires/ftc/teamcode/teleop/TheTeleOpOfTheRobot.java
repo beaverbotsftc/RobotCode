@@ -82,7 +82,7 @@ public class TheTeleOpOfTheRobot extends CommandOpMode {
                         CrossModeStorage.side == Side.RED ? theta -> theta : theta -> -theta
                 ),
                 //new Repeat(() -> drivetrain.move(new Transform(gamepad.getLeftY(), -gamepad.getLeftX(), -gamepad.getRightX()))),
-                new Repeat(() -> intake.intake((gamepad.getRightTrigger() - gamepad.getLeftTrigger()) * (gamepad.getRightBumper() ? (localizer.getPosition().getX() > 24 ? 0.5 : 0.75) : 1))),
+                new Repeat(() -> intake.intake((gamepad.getRightTrigger() - gamepad.getLeftTrigger()) * (gamepad.getRightBumper() && false ? (localizer.getPosition().getX() > 24 ? 0.5 : 0.75) : 1))),
                 new Repeat(() -> intake.transfer(gamepad.getRightBumper() && turret.isFacingCorrectly())),
                 new TurretControl(turret, localizer,
                         CrossModeStorage.side == Side.RED

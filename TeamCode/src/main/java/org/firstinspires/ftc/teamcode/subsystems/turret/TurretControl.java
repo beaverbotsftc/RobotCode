@@ -96,18 +96,18 @@ public class TurretControl implements Command {
             new Interpolator.Point(new double[]{-20.0, 12.7}, -67.7),
             new Interpolator.Point(new double[]{-10.6, 3.4}, -67.7),
             new Interpolator.Point(new double[]{-21.4, -5.9}, -66.8),
-            new Interpolator.Point(new double[]{-36.1, -14.1}, -61.9),
-            new Interpolator.Point(new double[]{-50.2, -16.2}, -61.9),
-            new Interpolator.Point(new double[]{-61.4, -18.1}, -61.9),
-            new Interpolator.Point(new double[]{-63.2, -28.8}, -61.9),
-            new Interpolator.Point(new double[]{-44.5, -26.5}, -61.9),
-            new Interpolator.Point(new double[]{-27.7, -22.0}, -61.9),
+            new Interpolator.Point(new double[]{-36.1, -14.1}, -61.9 - 5),
+            new Interpolator.Point(new double[]{-50.2, -16.2}, -61.9 - 5),
+            new Interpolator.Point(new double[]{-61.4, -18.1}, -61.9 - 5),
+            new Interpolator.Point(new double[]{-63.2, -28.8}, -61.9 - 5),
+            new Interpolator.Point(new double[]{-44.5, -26.5}, -61.9 - 5),
+            new Interpolator.Point(new double[]{-27.7, -22.0}, -61.9 - 5),
             new Interpolator.Point(new double[]{-11.0, -10.7}, -65.4),
             new Interpolator.Point(new double[]{2.5, 1.2}, -66.3),
-            //new Interpolator.Point(new double[]{64.0, 22.7}, -70.3)
-            //new Interpolator.Point(new double[]{60.3, 13.1}, -70.3)
-            //new Interpolator.Point(new double[]{64.8, 22.7}, -70.3)
-            //new Interpolator.Point(new double[]{62, 16}, -70.3)
+            //new Interpolator.Point(new double[]{64.0, 22.7}, -70., 0.)
+            //new Interpolator - 5.Point(new double[]{60.3, 13.1}, -70., 0.013)
+            //new Interpolator.Point(new double[]{64.8, 22.7}, -70., 0.013)
+            //new Interpolator - 5.Point(new double[]{62, 16}, -70.3, 0.01)
             new Interpolator.Point(new double[]{61.6, 8.1}, -70.3),
             new Interpolator.Point(new double[]{64.3, -0.3}, -70.3),
             new Interpolator.Point(new double[]{63.5, -7.0}, -70.3),
