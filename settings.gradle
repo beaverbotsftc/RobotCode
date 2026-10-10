@@ -8,4 +8,3 @@ pluginManagement {
 
 include ':FtcRobotController'
 include ':TeamCode'
-include ':beaver'
