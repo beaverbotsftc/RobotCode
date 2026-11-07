@@ -38,14 +38,20 @@ android {
 }
 
 repositories {
-    maven {
-        url = "https://repo.dairy.foundation/releases"
-    }
+    mavenCentral()
+    maven {url = "https://repo.dairy.foundation/releases" }
+    maven { url = "https://mymaven.bylazar.com/releases" }
 }
 
 dependencies {
     implementation project(':FtcRobotController')
 
     implementation("dev.frozenmilk.sinister:Sloth:0.3.2")
-    implementation("com.bylazar.sloth:fullpanels:0.3.2+1.0.13")
+    //implementation("com.bylazar.sloth:fullpanels:0.3.2+1.0.13")
+    implementation "com.bylazar:fullpanels:1.0.18"
+
+    implementation "org.solverslib:core:0.3.6"
+    implementation "org.solverslib:photon:0.3.6"
+
+    implementation 'org.apache.commons:commons-math3:3.6.1'
 }

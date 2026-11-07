@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.experiments;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -7,6 +8,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import org.firstinspires.ftc.teamcode.beaver.command.CommandOpMode;
 import org.firstinspires.ftc.teamcode.beaver.command.HardwareManager;
 
+@Autonomous
 public class SwerveSteeringLatencyExperiment extends CommandOpMode {
     CRServo x;
     AnalogInput y;
@@ -14,8 +16,8 @@ public class SwerveSteeringLatencyExperiment extends CommandOpMode {
     double e1;
 
     public void onInit() {
-        x = HardwareManager.claim("front right swervo");
-        y = HardwareManager.claim("front right swervo encoder");
+        x = HardwareManager.claim("front left swervo");
+        y = HardwareManager.claim("front left swervo encoder");
     }
 
     public void onStart() {
